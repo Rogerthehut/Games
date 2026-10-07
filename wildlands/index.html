@@ -15,6 +15,13 @@
     #hud { position: fixed; left: 12px; top: 12px; font-size: 13px; text-shadow: 1px 1px 0 #000; pointer-events: none; white-space: pre; }
     #hud-stamina { position: fixed; left: 12px; bottom: 16px; width: 180px; height: 10px; background: #0008; border: 2px solid #000; }
     #hud-stamina div { height: 100%; background: #7bd36b; }
+    #savebox, #loadbox { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: #000c; padding: 16px; }
+    #savebox[hidden], #loadbox[hidden] { display: none; }
+    .panel { background: #1b2a1f; border: 3px solid #e8dcb0; padding: 20px; max-width: 520px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; }
+    .panel h2 { margin: 0; } .panel p { margin: 0; font-size: 13px; opacity: .85; }
+    .panel textarea { width: 100%; box-sizing: border-box; background: #0a120c; color: #cfe8c8; border: 2px solid #3d5a45; font: 12px monospace; }
+    .panel .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .panel button { font: inherit; padding: 8px 14px; background: #e8dcb0; border: 2px solid #0a120c; cursor: pointer; }
     #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #000a; padding: 8px 16px; display: none; }
   </style>
 </head>
@@ -29,6 +36,22 @@
   <div id="hud"></div>
   <div id="hud-stamina"><div></div></div>
   <div id="toast"></div>
+  <div id="savebox" hidden>
+    <div class="panel">
+      <h2>Cartridge saved</h2>
+      <p>Copy this text and keep it somewhere safe (a notes file works). To continue later, choose Load and paste it in or pick the file.</p>
+      <textarea id="save-text" readonly rows="8"></textarea>
+      <div class="row"><button id="save-copy">Copy</button><button id="save-dl">Download file</button><button id="save-close">Back to game</button></div>
+    </div>
+  </div>
+  <div id="loadbox" hidden>
+    <div class="panel">
+      <h2>Insert cartridge</h2>
+      <p>Paste your saved text, or pick the file.</p>
+      <textarea id="load-text" rows="8" placeholder="Paste save text here"></textarea>
+      <div class="row"><button id="load-go">Load pasted text</button><button id="load-file">Pick file</button><button id="load-close">Cancel</button></div>
+    </div>
+  </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

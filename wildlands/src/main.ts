@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { colourAt, heightAt, SEA_LEVEL, WORLD_SIZE } from "./world";
-import { deserialize, downloadSave, type SaveData } from "./save";
+import { deserialize, downloadSave, serialize, type SaveData } from "./save";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -103,18 +103,39 @@ function start() {
 }
 
 $("btn-new").onclick = () => { buildWorld(Math.floor(Math.random() * 1e9)); spawn(); start(); };
-$("btn-load").onclick = () => $<HTMLInputElement>("file").click();
-async function loadFile(f: File) {
-  try { applySave(deserialize(await f.text())); start(); toast("Cartridge loaded"); }
-  catch (e) { alert((e as Error).message); }
+$("btn-load").onclick = () => { $("loadbox").hidden = false; };
+$("load-file").onclick = () => $<HTMLInputElement>("file").click();
+$("load-close").onclick = () => { $("loadbox").hidden = true; };
+function loadText(text: string) {
+  try { applySave(deserialize(text)); $("loadbox").hidden = true; start(); toast("Cartridge loaded"); }
+  catch (e) { toast((e as Error).message); }
 }
+$("load-go").onclick = () => loadText($<HTMLTextAreaElement>("load-text").value.trim());
+async function loadFile(f: File) { loadText(await f.text()); }
+
+function openSave() {
+  const text = serialize(snapshot());
+  $<HTMLTextAreaElement>("save-text").value = text;
+  $("savebox").hidden = false;
+  keys.clear();
+  document.exitPointerLock?.();
+}
+$("save-close").onclick = () => { $("savebox").hidden = true; renderer.domElement.requestPointerLock?.(); };
+$("save-dl").onclick = () => downloadSave(snapshot());
+$("save-copy").onclick = async () => {
+  const ta = $<HTMLTextAreaElement>("save-text");
+  try { await navigator.clipboard.writeText(ta.value); toast("Copied"); }
+  catch { ta.select(); toast("Press Ctrl+C to copy"); }
+};
 $<HTMLInputElement>("file").onchange = (e) => { const f = (e.target as HTMLInputElement).files?.[0]; if (f) loadFile(f); };
 addEventListener("dragover", (e) => e.preventDefault());
 addEventListener("drop", (e) => { e.preventDefault(); const f = e.dataTransfer?.files[0]; if (f) loadFile(f); });
 
+const modalOpen = () => !$("savebox").hidden || !$("loadbox").hidden;
 addEventListener("keydown", (e) => {
+  if (modalOpen()) return;
   keys.add(e.code);
-  if (e.code === "KeyP" && started) { downloadSave(snapshot()); toast("Cartridge saved (downloaded)"); }
+  if (e.code === "KeyP" && started) openSave();
 });
 addEventListener("keyup", (e) => keys.delete(e.code));
 addEventListener("mousemove", (e) => {
@@ -179,7 +200,7 @@ function update(dt: number) {
   camera.lookAt(cp.x, cp.y + 1, cp.z);
 
   const hh = Math.floor(timeOfDay), mm = Math.floor((timeOfDay % 1) * 60);
-  $("hud").textContent = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}\nWASD move · Shift run · Space jump · P save`;
+  $("hud").textContent = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}\nWASD move · Shift run · Space jump · P save cartridge`;
   ($("hud-stamina").firstElementChild as HTMLElement).style.width = `${stamina * 100}%`;
 }
 
