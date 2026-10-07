@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wildlands</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #111; font-family: "Courier New", monospace; color: #fff; }
+    canvas { display: block; }
+    #title { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #1b2a1f; z-index: 10; }
+    #title h1 { font-size: 56px; letter-spacing: 8px; margin: 0 0 20px; text-shadow: 4px 4px 0 #0a120c; }
+    #title button { font: inherit; font-size: 18px; padding: 10px 24px; width: 260px; background: #e8dcb0; border: 3px solid #0a120c; cursor: pointer; }
+    #title button:hover { background: #fff2c0; }
+    #title p { opacity: .7; margin: 0; font-size: 13px; }
+    #hud { position: fixed; left: 12px; top: 12px; font-size: 13px; text-shadow: 1px 1px 0 #000; pointer-events: none; white-space: pre; }
+    #hud-stamina { position: fixed; left: 12px; bottom: 16px; width: 180px; height: 10px; background: #0008; border: 2px solid #000; }
+    #hud-stamina div { height: 100%; background: #7bd36b; }
+    #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #000a; padding: 8px 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div id="title">
+    <h1>WILDLANDS</h1>
+    <button id="btn-new">New Game</button>
+    <button id="btn-load">Insert Cartridge (Load)</button>
+    <p>or drag a save file here</p>
+    <input id="file" type="file" accept=".json,application/json" hidden />
+  </div>
+  <div id="hud"></div>
+  <div id="hud-stamina"><div></div></div>
+  <div id="toast"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
