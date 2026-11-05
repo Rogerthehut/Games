@@ -3,6 +3,7 @@ import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { DAY, SECURE_BOX, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
 import { exportProfile, importProfile } from "../engine/storage";
 import { yearLabel } from "../engine/diagnostic";
+import { applyTheme, getTheme, resolveSkin, skinForYear, type ThemeChoice } from "./skin";
 import { useApp } from "./context";
 import { Maths } from "./maths";
 
@@ -15,6 +16,7 @@ export function Parent() {
   const [exportText, setExportText] = useState("");
   const [pasted, setPasted] = useState("");
   const [msg, setMsg] = useState("");
+  const [theme, setTheme] = useState<ThemeChoice>(getTheme());
 
   const touched = SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0);
   const byStatus = (st: string) => SKILLS.filter((s) => statusOf(profile.skills[s.id]) === st);
@@ -140,6 +142,23 @@ export function Parent() {
             {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => <option value={y}>Year {y}</option>)}
           </select>
         </label>
+        <h3>Appearance</h3>
+        <label class="inline">
+          <span class="field-label">Look and feel</span>
+          <select id="skin" value={profile.skin ?? "auto"} onChange={(e) => update((p) => ({ ...p, skin: (e.target as HTMLSelectElement).value as Profile["skin"] }))}>
+            <option value="auto">Automatic (suits Year {profile.year}: {skinForYear(profile.year)})</option>
+            <option value="explorer">Explorer: playful, with a mascot</option>
+            <option value="navigator">Navigator: clean and friendly</option>
+            <option value="scholar">Scholar: calm and minimal</option>
+          </select>
+        </label>
+        <label class="inline">
+          <span class="field-label">Colour mode</span>
+          <select id="theme" value={theme} onChange={(e) => { const t = (e.target as HTMLSelectElement).value as ThemeChoice; setTheme(t); applyTheme(t); }}>
+            <option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option>
+          </select>
+        </label>
+        <p class="small muted">Now showing: {resolveSkin(profile)}.</p>
         <h3>Move progress to another device</h3>
         <div class="actions">
           <button class="btn" onClick={() => setExportText(exportProfile(profile))}>Create save text</button>

@@ -11,14 +11,27 @@ import { Checkup } from "./checkup";
 import { Report } from "./report";
 import { Mock } from "./mock";
 import { PlanView } from "./planview";
+import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
 
 export function App() {
   const [store, setStore] = useState<Store>(() => loadStore());
-  const [route, setRoute] = useState<Route>(() => (loadStore().profiles.length ? { name: "home" } : { name: "onboard", first: true }));
+  const [route, setRouteRaw] = useState<Route>(() => (loadStore().profiles.length ? { name: "home" } : { name: "onboard", first: true }));
   useEffect(() => saveStore(store), [store]);
+  useEffect(() => applyTheme(getTheme()), []);
+
+  // Screen changes cross-fade and slide with the browser's View Transitions API where it exists.
+  const setRoute = (r: Route) => {
+    const d = document as Document & { startViewTransition?: (cb: () => Promise<void>) => unknown };
+    if (!d.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) return setRouteRaw(r);
+    // Resolve once Preact has committed the new screen (it renders in a microtask). Waiting for a frame here would
+    // stall until the browser's 4 second transition timeout, because rendering is paused during the callback.
+    d.startViewTransition(() => new Promise<void>((done) => { setRouteRaw(r); setTimeout(done, 0); }));
+  };
   useEffect(() => window.scrollTo(0, 0), [route.name]);
 
   const profile = store.profiles.find((p) => p.id === store.activeId) ?? store.profiles[0];
+  const skin = resolveSkin(profile);
+  useEffect(() => applySkin(skin), [skin]);
 
   const ctx = {
     profile: profile as Profile,

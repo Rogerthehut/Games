@@ -1,4 +1,4 @@
-import { useRef } from "preact/hooks";
+import { useEffect, useRef } from "preact/hooks";
 import type { Answer } from "../engine/types";
 import { previewLatex } from "../engine/expr";
 import { Tex } from "./maths";
@@ -19,6 +19,7 @@ export function AnswerInput(props: {
   const { answer, values, onChange, onSubmit, disabled } = props;
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const focused = useRef(0);
+  useEffect(() => { if (!disabled && matchMedia("(pointer: fine)").matches) refs.current[0]?.focus(); }, []);
   const labels = answer.kind === "multi" ? answer.fields.map((f) => f.label) : [answer.label ?? ""];
 
   const insert = (s: string) => {

@@ -8,6 +8,7 @@ import { AnswerInput } from "./answer-input";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
 import { Maths } from "./maths";
+import { Pip } from "./pip";
 
 /**
  * The check-up. Adaptive, untimed, and deliberately silent about right and wrong: the child sees no marks, so
@@ -71,6 +72,7 @@ export function Checkup() {
     return (
       <main class="page narrow">
         <div class="card">
+          <div class="pip-slot"><Pip pose="think" size={88} /></div>
           <h1>{resuming ? "Welcome back" : "Let's find your starting point"}</h1>
           {resuming ? (
             <p class="lede">You're {saved.length} of {TEST_LENGTH} questions into the check-up. Pick up where you left off.</p>

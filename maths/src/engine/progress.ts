@@ -85,6 +85,8 @@ export interface Profile {
   diag?: { startedAt: number; responses: DiagResponse[] };
   plan?: Plan;
   goal?: Goal;
+  /** Visual style. "auto" follows the school year. */
+  skin?: "auto" | "explorer" | "navigator" | "scholar";
 }
 
 export function newProfile(name: string, year: number, now = Date.now()): Profile {

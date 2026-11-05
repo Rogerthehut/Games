@@ -8,6 +8,7 @@ import { AnswerInput } from "./answer-input";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
 import { Maths } from "./maths";
+import { Pip, Sparkles } from "./pip";
 
 type Phase = "intro" | "ask" | "correct" | "reveal" | "done";
 const PRAISE = ["Correct!", "Nice work.", "That's it.", "Spot on.", "Yes, exactly."];
@@ -37,7 +38,7 @@ export function Practice({ plan }: { plan: Pick[] }) {
   const [showHint, setShowHint] = useState(false);
   const [stepsShown, setStepsShown] = useState(0);
   const [praise, setPraise] = useState(PRAISE[0]);
-  const tally = useRef({ answered: 0, correct: 0, points: 0, skills: new Set<string>(), seenPrompts: new Set<string>(), introduced: new Set<string>(), shownAt: Date.now(), activeMs: 0, logged: false });
+  const tally = useRef({ answered: 0, correct: 0, points: 0, skills: new Set<string>(), seenPrompts: new Set<string>(), introduced: new Set<string>(), shownAt: Date.now(), activeMs: 0, logged: false, giveUps: 0, bounces: 0 });
   const startedAt = useMemo(() => Date.now(), []);
 
   const total = plan.length;
@@ -102,6 +103,7 @@ export function Practice({ plan }: { plan: Pick[] }) {
     const res = check(q, values);
     if (res.outcome === "invalid" || res.outcome === "almost") { setResult(res); return; }
     if (res.outcome === "correct") {
+      if (attempts > 0) tally.current.bounces++; // got it after an earlier miss
       settle(attempts === 0 && !hinted ? "right" : "helped");
       setPraise(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
       setResult(res); setPhase("correct");
@@ -114,6 +116,7 @@ export function Practice({ plan }: { plan: Pick[] }) {
   };
 
   const giveUp = () => {
+    tally.current.giveUps++;
     settle("wrong");
     setResult(null); setPhase("reveal"); setStepsShown(99);
   };
@@ -139,7 +142,7 @@ export function Practice({ plan }: { plan: Pick[] }) {
     return () => removeEventListener("keydown", h);
   });
 
-  if (phase === "done") return <Summary plan={plan} points={tally.current.points} answered={tally.current.answered} correct={tally.current.correct} />;
+  if (phase === "done") return <Summary plan={plan} points={tally.current.points} answered={tally.current.answered} correct={tally.current.correct} giveUps={tally.current.giveUps} bounces={tally.current.bounces} />;
   if (!q || !skill) return null;
 
   const pct = Math.round((idx / total) * 100);
@@ -151,7 +154,7 @@ export function Practice({ plan }: { plan: Pick[] }) {
         <span class="small muted">{idx + 1} of {total}</span>
       </div>
 
-      <div class="card q-card">
+      <div class="card q-card" key={idx}>
         <div class="q-meta"><span class="badge">{skill.name}</span><span class="small muted">Level {q.level}</span></div>
 
         {phase === "intro" ? (
@@ -180,17 +183,24 @@ export function Practice({ plan }: { plan: Pick[] }) {
 
             {phase === "ask" && result && result.outcome !== "correct" && (
               <div class={`banner ${result.outcome}`} role="alert">
-                {result.outcome === "wrong" && <strong>Not quite. </strong>}
-                {result.outcome === "almost" && <strong>Nearly. </strong>}
-                {result.feedback ? <Maths text={result.feedback} /> : result.outcome === "wrong" ? "Have another go. The hint might help." : null}
+                <span class="banner-pip"><Pip pose="think" size={52} /></span>
+                <span>
+                  {result.outcome === "wrong" && <strong>Not quite. </strong>}
+                  {result.outcome === "almost" && <strong>Nearly. </strong>}
+                  {result.feedback ? <Maths text={result.feedback} /> : result.outcome === "wrong" ? "Have another go. The hint might help." : null}
+                </span>
               </div>
             )}
             {phase === "ask" && showHint && <div class="banner hint"><strong>Hint: </strong><Maths text={q.hint} /></div>}
 
             {phase === "correct" && (
               <div class="banner good" role="status">
-                <strong>{praise}</strong>{" "}
-                {attempts > 0 || hinted ? "It counts, and you'll see this one again soon to lock it in." : "That's the first time you've got this one without help."}
+                <span class="banner-pip"><Pip pose="cheer" size={60} /><Sparkles /></span>
+                <span class="banner-tick" aria-hidden="true">✓<Sparkles /></span>
+                <span>
+                  <strong>{praise}</strong>{" "}
+                  {attempts > 0 || hinted ? "It counts, and you'll see this one again soon to lock it in." : "That's the first time you've got this one without help."}
+                </span>
               </div>
             )}
             {phase === "reveal" && (
@@ -231,15 +241,30 @@ export function Practice({ plan }: { plan: Pick[] }) {
   );
 }
 
-function Summary({ plan, points, answered, correct }: { plan: Pick[]; points: number; answered: number; correct: number }) {
+function Summary({ plan, points, answered, correct, giveUps, bounces }: { plan: Pick[]; points: number; answered: number; correct: number; giveUps: number; bounces: number }) {
   const { profile, go } = useApp();
   const now = Date.now();
   const ids = [...new Set(plan.map((p) => p.skillId))];
+  // Stars reward effort and resilience, never speed or perfection.
+  const stars = [
+    { on: true, label: "Finished the session" },
+    { on: giveUps <= 2, label: "Kept going" },
+    { on: bounces >= 1, label: bounces >= 1 ? `Bounced back${bounces > 1 ? ` ${bounces} times` : ""}` : "Bounce back: get one right after a miss" },
+  ];
   return (
     <main class="page narrow">
       <div class="card summary">
+        <div class="pip-slot"><Pip pose="cheer" size={96} /></div>
         <h1>Session complete</h1>
         <p class="lede">{correct} of {answered} correct. +{points} effort points.</p>
+        <ul class="stars" aria-label="Effort stars">
+          {stars.map((st, i) => (
+            <li key={i} class={st.on ? "on" : ""} style={{ animationDelay: `${i * 160 + 200}ms` }}>
+              <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17.4 6.1 20.7l1.3-6.6L2.5 9.5l6.6-.8z" /></svg>
+              <span>{st.label}</span>
+            </li>
+          ))}
+        </ul>
         <ul class="recap">
           {ids.map((id) => {
             const st = profile.skills[id];

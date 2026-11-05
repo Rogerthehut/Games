@@ -1,11 +1,16 @@
 import { SKILLS, STAGE_LABEL, STRANDS } from "../curriculum";
 import { isUnlocked, skillName, statusOf, type Status } from "../engine/progress";
+import { useState } from "preact/hooks";
 import { useApp } from "./context";
+import { Journey } from "./journey";
+import { resolveSkin } from "./skin";
 
 const LABEL: Record<Status, string> = { new: "Not started", assumed: "Assumed known", learning: "Learning", growing: "Growing", secure: "Secure" };
 
 export function SkillMap() {
   const { profile, go } = useApp();
+  const [list, setList] = useState(false);
+  if (resolveSkin(profile) === "explorer" && !list) return <Journey onList={() => setList(true)} />;
   return (
     <div class="map">
       <h1>Skills</h1>

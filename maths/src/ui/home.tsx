@@ -5,6 +5,7 @@ import { currentWeek, planFocus } from "../engine/plan";
 import { TEST_LENGTH, yearLabel } from "../engine/diagnostic";
 import { SKILLS } from "../curriculum";
 import { useApp } from "./context";
+import { Pip } from "./pip";
 
 const REASON: Record<Reason, string> = { review: "Keep it fresh", focus: "Grown-up's pick", continue: "Keep going", next: "New" };
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; };
@@ -27,7 +28,7 @@ export function Home() {
 
   return (
     <div class="home">
-      <h1 class="greet">{greeting()}, {profile.name}</h1>
+      <div class="greet-row"><h1 class="greet">{greeting()}, {profile.name}</h1><Pip pose="wave" size={84} /></div>
       {!last && (
         <section class="card checkup-card" aria-labelledby="cu">
           <h2 id="cu">{midTest ? "Finish your check-up" : "Start with a check-up"}</h2>
@@ -67,7 +68,7 @@ export function Home() {
         <button class="btn primary big" onClick={() => go({ name: "practice", plan })}>{started ? "Continue" : "Start"}</button>
       </section>
       <section class="card week" aria-labelledby="week-h">
-        <h2 id="week-h">This week</h2>
+        <h2 id="week-h">Your week</h2>
         <ol class="dots" aria-label="Days practised this week">
           {days.map((on, i) => (
             <li key={i} class={`${on ? "on" : ""} ${i === todayIdx ? "today" : ""}`}>
