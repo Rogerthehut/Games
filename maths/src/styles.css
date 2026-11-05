@@ -50,7 +50,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .lede { color: var(--muted); max-width: 60ch; }
 
 /* shell */
-.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .6rem max(16px, env(safe-area-inset-left, 0px)); background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .6rem max(16px, env(safe-area-inset-left, 0px)); background: var(--surface); border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: .4rem; border: 0; background: none; color: var(--accent); font-weight: 700; font-size: 1.1rem; cursor: pointer; padding: .4rem .2rem; }
 .tabs { display: flex; gap: .25rem; margin-left: auto; }
 .tabs button { border: 0; background: none; padding: .55rem .9rem; border-radius: 999px; cursor: pointer; color: var(--muted); font-weight: 600; min-height: 44px; }
