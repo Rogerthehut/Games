@@ -12,6 +12,9 @@ import { Report } from "./report";
 import { Mock } from "./mock";
 import { PlanView } from "./planview";
 import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
+import { Shell, type Tab } from "./shell";
+import { Me } from "./me";
+import { ParentGate, parentUnlocked } from "./gate";
 
 export function App() {
   const [store, setStore] = useState<Store>(() => loadStore());
@@ -31,7 +34,7 @@ export function App() {
 
   const profile = store.profiles.find((p) => p.id === store.activeId) ?? store.profiles[0];
   const skin = resolveSkin(profile);
-  useEffect(() => applySkin(skin), [skin]);
+  useEffect(() => applySkin(skin), [skin, route.name]);
 
   const ctx = {
     profile: profile as Profile,
@@ -64,37 +67,17 @@ export function App() {
   if (route.name === "practice")
     return <Ctx.Provider value={ctx}><Practice plan={route.plan} /></Ctx.Provider>;
 
-  const tab = route.name;
+  const tab: Tab = route.name === "map" ? "skills" : route.name === "plan" || route.name === "report" ? "plan" : route.name === "me" || route.name === "parent" ? "me" : "today";
   return (
     <Ctx.Provider value={ctx}>
-      <header class="topbar">
-        <button class="brand" onClick={() => setRoute({ name: "home" })} aria-label="MathPath home">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 18 L9 9 L13 14 L21 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /><circle cx="21" cy="5" r="2.2" fill="var(--effort)" /></svg>
-          MathPath
-        </button>
-        <nav class="tabs" aria-label="Main">
-          <button class={tab === "home" ? "on" : ""} onClick={() => setRoute({ name: "home" })}>Today</button>
-          <button class={tab === "plan" || tab === "report" ? "on" : ""} onClick={() => setRoute({ name: "plan" })}>Plan</button>
-          <button class={tab === "map" ? "on" : ""} onClick={() => setRoute({ name: "map" })}>Skills</button>
-          <button class={tab === "parent" ? "on" : ""} onClick={() => setRoute({ name: "parent" })}>Grown-up</button>
-        </nav>
-        <select class="who" aria-label="Who is learning" value={profile.id}
-          onChange={(e) => {
-            const el = e.target as HTMLSelectElement;
-            if (el.value === "__new") { el.value = profile.id; setRoute({ name: "onboard" }); } else ctx.switchTo(el.value);
-          }}>
-          {store.profiles.map((p) => <option value={p.id}>{p.name} · Year {p.year}</option>)}
-          <option value="__new">＋ Add a learner or change age group…</option>
-        </select>
-      </header>
-      <main class="page">
+      <Shell tab={tab}>
         {route.name === "home" && <Home />}
         {route.name === "map" && <SkillMap />}
         {route.name === "plan" && <PlanView />}
         {route.name === "report" && <Report />}
-        {route.name === "parent" && <Parent />}
-      </main>
+        {route.name === "me" && <Me />}
+        {route.name === "parent" && (parentUnlocked() ? <Parent /> : <ParentGate onPass={() => setRoute({ name: "parent" })} onCancel={() => setRoute({ name: "me" })} />)}
+      </Shell>
     </Ctx.Provider>
   );
 }
-

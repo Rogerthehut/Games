@@ -205,6 +205,17 @@ export function practiceDaysThisWeek(p: Profile, now = Date.now()): boolean[] {
   );
 }
 
+/** Consecutive days with a session, ending today or yesterday. Today not being done yet does not break it. */
+export function currentStreak(p: Profile, now = Date.now()): number {
+  const start = (t: number) => { const d = new Date(t); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+  const days = new Set(p.sessions.map((s) => start(s.at).getTime()));
+  const cursor = start(now);
+  if (!days.has(cursor.getTime())) cursor.setDate(cursor.getDate() - 1);
+  let n = 0;
+  while (days.has(cursor.getTime())) { n++; cursor.setDate(cursor.getDate() - 1); }
+  return n;
+}
+
 export function weekStats(p: Profile, now = Date.now()) {
   const since = now - 7 * DAY;
   const recent = p.sessions.filter((s) => s.at >= since);

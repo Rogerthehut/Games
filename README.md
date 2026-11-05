@@ -32,6 +32,7 @@ npm run build
 - **11+ set-up:** exam type (GL style, CEM style, not sure), coarse area, schools as typed. Stored on the device only. CEM-style practice is not built yet; the exam format is meant to become a configurable profile.
 - **Mock paper:** 20 original questions in a general 11+ style with a 25 minute guide timer, marks at the end, and a review of every mistake with steps.
 - **Practice:** spaced repetition (Leitner boxes), hints and worked examples, kind feedback. Grown-up view with weekly progress, repeated mistakes, how to explain each topic, and a focus switch.
+- **Design:** one clear action per screen, inputs that fit the answer (stacked fractions, an on-screen number pad on touch), a bottom tab bar on phones and a side rail on desktop, a "Me" hub, and a maths gate in front of the parents' area. See `docs/DESIGN.md`.
 - **Look and feel:** one token system with three skins chosen by school year (Explorer Y3-6, Navigator Y7-9, Scholar Y10+; a grown-up can override). Colours derive from a hue plus per-theme lightness, so every skin works in light and dark; all text pairings are checked at 4.5:1 or better. Shared motion tokens, screen transitions via the View Transitions API (with a no-animation fallback and full `prefers-reduced-motion` support), the Pip mascot and journey map (Explorer only), effort-based stars. Fonts are bundled locally (no third-party requests).
 - **Data:** progress is stored on the device; export and import as text or a file.
 

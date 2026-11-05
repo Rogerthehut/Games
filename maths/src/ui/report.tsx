@@ -2,17 +2,35 @@ import { SKILL_BY_ID } from "../curriculum";
 import { BAND_TEXT, BELOW_RANGE, yearLabel } from "../engine/diagnostic";
 import type { BaselineRecord } from "../engine/progress";
 import { useApp } from "./context";
+import { Icon } from "./icons";
 
-const AXIS_MIN = 3, AXIS_MAX = 11;
+const AXIS_MIN = 3, AXIS_MAX = 12;
 const pos = (y: number) => `${Math.max(0, Math.min(100, ((y - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)) * 100))}%`;
 
-function compare(theta: number, startYear: number): string {
+function sentence(theta: number, startYear: number): string {
   const diff = theta - (startYear + 0.3);
-  if (diff >= 0.8) return `about ${diff >= 1.6 ? "two years" : "a year"} ahead of Year ${startYear}`;
-  if (diff >= 0.3) return `a little ahead of Year ${startYear}`;
-  if (diff > -0.4) return `right where we'd expect for Year ${startYear}`;
-  if (diff >= -1.1) return `a little behind Year ${startYear}, which is very fixable`;
-  return `about ${Math.round(-diff)} year${Math.round(-diff) > 1 ? "s" : ""} behind Year ${startYear}, so the plan starts with the foundations`;
+  if (diff >= 1.6) return `Around two years ahead of Year ${startYear}.`;
+  if (diff >= 0.8) return `About a year ahead of Year ${startYear}.`;
+  if (diff >= 0.3) return `A little ahead of Year ${startYear}.`;
+  if (diff > -0.4) return `Right on track for Year ${startYear}.`;
+  if (diff >= -1.1) return `A little behind Year ${startYear}. Very fixable.`;
+  return `About ${Math.round(-diff)} year${Math.round(-diff) > 1 ? "s" : ""} behind Year ${startYear}, so we'll start with the foundations.`;
+}
+
+/** Where the child is on the school-year scale, next to where they are at school. */
+function LevelScale({ theta, se, school }: { theta: number; se: number; school: number }) {
+  const lo = Math.max(AXIS_MIN, theta - se), hi = Math.min(AXIS_MAX, theta + se);
+  return (
+    <div class="scale" role="img" aria-label={`Working at ${yearLabel(theta)}. At school in Year ${school}.`}>
+      <div class="scale-track">
+        <i class="scale-band" style={{ left: pos(lo), width: `${((hi - lo) / (AXIS_MAX - AXIS_MIN)) * 100}%` }} />
+        <i class="scale-school" style={{ left: pos(school + 0.3) }} />
+        <i class="scale-you" style={{ left: pos(theta) }} />
+      </div>
+      <div class="scale-axis"><span>Year 3</span><span>Year 6</span><span>Year 9</span><span>Year 12</span></div>
+      <p class="scale-key"><i class="k-you" /> You <i class="k-school" /> At school, Year {school}</p>
+    </div>
+  );
 }
 
 export function Report({ rec: given }: { rec?: BaselineRecord }) {
@@ -20,50 +38,50 @@ export function Report({ rec: given }: { rec?: BaselineRecord }) {
   const rec = given ?? profile.baselines[profile.baselines.length - 1];
   if (!rec) {
     return (
-      <div class="card"><h1>No check-up yet</h1><p class="lede">Take the check-up to see a report here.</p>
+      <div class="empty"><h1>No check-up yet</h1><p class="lede">Do the check-up and your report will show up here.</p>
         <button class="btn primary" onClick={() => go({ name: "checkup" })}>Start the check-up</button></div>
     );
   }
   const prev = profile.baselines.length > 1 ? profile.baselines[profile.baselines.length - 2] : undefined;
   const band = BAND_TEXT[rec.readiness];
   const show11 = profile.year <= 7 || profile.goal?.exam === "gl" || profile.goal?.exam === "cem" || profile.goal?.exam === "unsure";
-  const lo = rec.theta - rec.se, hi = rec.theta + rec.se;
-  const gaps = rec.gaps.map((id) => SKILL_BY_ID[id]).filter(Boolean);
+  const gaps = rec.gaps.map((id) => SKILL_BY_ID[id]).filter(Boolean).slice(0, 5);
   const strengths = rec.strengths.map((id) => SKILL_BY_ID[id]).filter(Boolean).slice(0, 6);
   const sorted = [...rec.strands].sort((a, b) => b.theta - a.theta);
+  const low = rec.theta < BELOW_RANGE;
 
   return (
     <div class="report">
-      <h1>{profile.name}'s check-up</h1>
-      <p class="muted small">{new Date(rec.at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} · {rec.questions} questions · {rec.minutes} minute{rec.minutes === 1 ? "" : "s"}</p>
+      <header>
+        <p class="kicker">Check-up · {new Date(rec.at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+        <h1>{profile.name}'s level</h1>
+      </header>
 
-      <section class="card hero" aria-labelledby="lvl">
-        <h2 id="lvl">Working level</h2>
+      <section class="level-card" aria-labelledby="lvl">
+        <p class="eyebrow" id="lvl">Working at</p>
         <p class="big-level">{yearLabel(rec.theta)}</p>
-        <p class="lede">
-          {rec.theta < BELOW_RANGE
-            ? <>Most questions were a stretch, and that's useful to know. The check-up starts at Year 3 level, so the plan begins with the foundations: number, place value and times tables.</>
-            : <>{profile.name} is {compare(rec.theta, rec.startYear)}. Likely between {yearLabel(lo)} and {yearLabel(hi)}.</>}
-          {prev && <> Since the last check-up this has moved {rec.theta >= prev.theta ? "up" : "down"} by about {Math.abs(rec.theta - prev.theta).toFixed(1)} of a school year.</>}
+        <p class="level-sentence">
+          {low ? "Most of it was a stretch, which is useful to know. We'll start with the basics: number, place value and times tables." : sentence(rec.theta, rec.startYear)}
+          {prev && !low && <> {rec.theta >= prev.theta ? "Up" : "Down"} {Math.abs(rec.theta - prev.theta).toFixed(1)} of a year since last time.</>}
         </p>
+        {!low && <LevelScale theta={rec.theta} se={rec.se} school={rec.startYear} />}
       </section>
 
       {show11 && (
-        <section class="card" aria-labelledby="r11">
-          <h2 id="r11">11+ readiness <span class="badge">indicative</span></h2>
+        <section class="block" aria-labelledby="r11">
+          <h2 id="r11">11+ check <span class="badge">estimate</span></h2>
           <p class="band-label">{band.label}</p>
           <p>{band.detail}</p>
-          <p class="small muted">This compares {profile.name}'s working level with the level we expect 11+ maths to need. It is an estimate to guide practice, not a prediction of any exam result, and it is not a score from GL Assessment or CEM.</p>
+          <p class="small muted">A guide for practice. Not a prediction, and not a GL or CEM score.</p>
         </section>
       )}
 
-      <section class="card" aria-labelledby="str">
-        <h2 id="str">By topic area</h2>
-        <p class="small muted">Each bar is the working level in that area. The marker shows the school year.</p>
+      <section class="block" aria-labelledby="str">
+        <h2 id="str">By topic</h2>
         <ul class="bars">
           {sorted.map((s) => (
             <li key={s.strand}>
-              <div class="bar-head"><span>{s.strand === "Ratio" ? "Ratio" : s.strand}</span><span class="muted small">{yearLabel(s.theta)}{s.n < 3 ? " · few questions" : ""}</span></div>
+              <div class="bar-head"><span>{s.strand}</span><span class="muted small">{yearLabel(s.theta)}</span></div>
               <div class="bar-track" role="img" aria-label={`${s.strand}: ${yearLabel(s.theta)}`}>
                 <i class="bar-fill" style={{ width: pos(s.theta) }} />
                 <i class="bar-mark" style={{ left: pos(rec.startYear + 0.3) }} title={`Year ${rec.startYear}`} />
@@ -71,42 +89,37 @@ export function Report({ rec: given }: { rec?: BaselineRecord }) {
             </li>
           ))}
         </ul>
-        <div class="axis"><span>Year 3</span><span>Year 7</span><span>Year 11</span></div>
+        <p class="small muted legend"><i class="bar-mark inline" /> Where you are at school</p>
       </section>
 
-      <section class="card" aria-labelledby="gp">
-        <h2 id="gp">Gaps to work on</h2>
-        {gaps.length === 0 ? <p>{rec.theta < BELOW_RANGE ? "Nothing was secure enough to call a single gap, so the plan simply starts at the beginning." : "No clear gaps showed up in this check-up. The plan focuses on moving up."}</p> : (
-          <ul class="finding-list">
-            {gaps.map((s) => {
-              const miss = rec.responses.find((r) => r.skillId === s.id && !r.correct);
-              return (
-                <li key={s.id}>
-                  <div><strong>{s.name}</strong> <span class="badge">Year {s.year}</span></div>
-                  <p class="small muted">{miss ? `Missed a Year ${s.year}-level question. ` : ""}Ask: {s.talkAbout}</p>
-                </li>
-              );
-            })}
+      <section class="block" aria-labelledby="gp">
+        <h2 id="gp">Let's work on</h2>
+        {gaps.length === 0 ? <p>{low ? "We'll start from the beginning." : "Nothing stood out. We'll focus on moving you up."}</p> : (
+          <ul class="rows tight">
+            {gaps.map((s) => (
+              <li key={s.id} class="gap-row"><strong>{s.name}</strong><span class="badge">Year {s.year}</span></li>
+            ))}
           </ul>
         )}
-        {strengths.length > 0 && (<><h3>Strengths</h3><p>{strengths.map((s) => s.name).join(", ")}.</p></>)}
+        {strengths.length > 0 && (
+          <>
+            <h3>You're strong at</h3>
+            <p class="chips">{strengths.map((s) => <span class="chip good" key={s.id}>{s.name}</span>)}</p>
+          </>
+        )}
       </section>
 
-      <section class="card">
-        <h2>What to do next</h2>
-        <p>Turn this into a weekly plan, built from the gaps above and your exam date if there is one.</p>
-        <div class="actions">
-          <button class="btn primary" onClick={() => go({ name: "plan" })}>{profile.plan ? "See the plan" : "Build our plan"}</button>
-          <button class="btn" onClick={() => go({ name: "home" })}>Start practising</button>
-        </div>
-      </section>
+      <div class="cta">
+        <button class="btn primary big" onClick={() => go({ name: "plan" })} data-testid="to-plan">{profile.plan ? "See my plan" : "Build my plan"} <Icon name="arrow" size={20} /></button>
+        <button class="btn ghost" onClick={() => go({ name: "home" })}>Start practising</button>
+      </div>
 
-      <details class="card how">
-        <summary>How this works, and what it can't tell you</summary>
-        <p>The check-up picks each question to be close to the child's current level and adjusts after every answer. It spreads questions across topic areas, and follows up when something foundational might be missing.</p>
-        <p><strong>It samples, so it can't find every gap.</strong> {rec.questions} questions can't cover every skill. Practice picks up the rest: any skill that goes wrong during practice is brought back and added to the plan. Re-take the check-up every 6 to 8 weeks to see progress.</p>
-        <p><strong>It's an estimate.</strong> Question difficulty is based on when each topic is taught in the UK National Curriculum. We haven't yet calibrated it against large numbers of real children, so treat levels as a guide (the range above shows the uncertainty), not an official score.</p>
-        <p><strong>A bad day shows.</strong> Tiredness, distraction or a new keyboard can pull the result down. If a result surprises you, repeat it on a better day.</p>
+      <details class="block how">
+        <summary>About this score</summary>
+        <p>The check-up picks each question close to your level and adjusts as you answer. It covers every topic area, and follows up when a basic skill might be missing.</p>
+        <p><strong>It can't find every gap.</strong> {rec.questions} questions can't cover everything. Practice picks up the rest, and any skill that goes wrong gets brought back. Do the check-up again in 6 to 8 weeks to see how far you've come.</p>
+        <p><strong>It's an estimate.</strong> Difficulty follows when each topic is taught in the UK National Curriculum. It hasn't been tested on large numbers of children yet, so read the level as a guide, not an official score.</p>
+        <p><strong>Bad days show.</strong> If the result surprises you, try again on a better day.</p>
       </details>
     </div>
   );

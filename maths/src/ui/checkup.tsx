@@ -7,8 +7,10 @@ import type { Question } from "../engine/types";
 import { AnswerInput } from "./answer-input";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
+import { Icon } from "./icons";
 import { Maths } from "./maths";
 import { Pip } from "./pip";
+import { QBar, QTop } from "./qshell";
 
 /**
  * The check-up. Adaptive, untimed, and deliberately silent about right and wrong: the child sees no marks, so
@@ -63,58 +65,47 @@ export function Checkup() {
   const submit = () => {
     if (!q) return;
     const res = check(q, values);
-    if (res.outcome === "invalid") { setNote("Type an answer, or choose “Not sure”."); return; }
+    if (res.outcome === "invalid") { setNote(res.feedback ?? "Type an answer, or tap Not sure."); return; }
     record(res.outcome === "correct" || res.outcome === "almost"); // presentation isn't what this test measures
   };
 
   if (!started) {
     const resuming = saved.length > 0;
     return (
-      <main class="page narrow">
-        <div class="card">
-          <div class="pip-slot"><Pip pose="think" size={88} /></div>
-          <h1>{resuming ? "Welcome back" : "Let's find your starting point"}</h1>
-          {resuming ? (
-            <p class="lede">You're {saved.length} of {TEST_LENGTH} questions into the check-up. Pick up where you left off.</p>
-          ) : (
-            <>
-              <p class="lede">A short check-up of about {TEST_LENGTH} questions, around 20 minutes. It adjusts as you go: some questions will feel easy and some hard, and that's exactly how it's meant to work.</p>
-              <ul class="plain-list">
-                <li>You won't be told if an answer is right or wrong.</li>
-                <li>There's no timer, and no hints in this one.</li>
-                <li>If you're not sure, choose <strong>Not sure</strong>. That helps just as much as a guess.</li>
-                <li>No calculator, but paper and a pencil are fine.</li>
-              </ul>
-            </>
+      <main class="splash">
+        <div class="splash-in">
+          <div class="pip-slot"><Pip pose="think" size={110} /></div>
+          <h1>{resuming ? "Welcome back" : "Quick check-up"}</h1>
+          <p class="splash-sub">{resuming ? `${saved.length} of ${TEST_LENGTH} done. Pick up where you left off.` : `${TEST_LENGTH} questions, about 20 minutes. It finds the right place to start.`}</p>
+          {!resuming && (
+            <ul class="tips">
+              <li>Questions get easier or harder as you go.</li>
+              <li>You won't see if you're right. That's normal.</li>
+              <li>Not sure? Tap <strong>Not sure</strong>. That helps too.</li>
+            </ul>
           )}
-          <div class="actions">
-            <button class="btn primary" onClick={begin}>{resuming ? "Continue" : "Start the check-up"}</button>
-            <button class="btn" onClick={() => go({ name: "home" })}>Not now</button>
-          </div>
+          <button class="btn primary big" onClick={begin} data-testid="checkup-start">{resuming ? "Keep going" : "Start"} <Icon name="arrow" size={20} /></button>
+          <button class="linkish" onClick={() => go({ name: "home" })}>Not now</button>
         </div>
       </main>
     );
   }
 
   if (!q) return null;
-  const pct = Math.round((state.n / TEST_LENGTH) * 100);
   return (
-    <main class="page practice">
-      <div class="p-top">
-        <button class="linkish" onClick={() => go({ name: "home" })}>Pause and come back later</button>
-        <div class="progress" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Check-up progress"><i style={{ width: `${pct}%` }} /></div>
-        <span class="small muted">{state.n + 1} of {TEST_LENGTH}</span>
-      </div>
-      <div class="card q-card">
-        <p class="q-text"><Maths text={q.prompt} /></p>
+    <div class="qpage" data-phase="ask">
+      <QTop onClose={() => go({ name: "home" })} closeLabel="Pause and come back later" index={state.n} total={TEST_LENGTH} />
+      <div class="qbody" key={state.n}>
+        <p class="q-topic">Check-up</p>
+        <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
         {q.figure && <FigureView fig={q.figure} />}
         <AnswerInput answer={q.answer} values={values} onChange={setValues} onSubmit={submit} />
-        {note && <div class="banner almost" role="alert">{note}</div>}
-        <div class="actions">
-          <button class="btn primary" onClick={submit} disabled={values.every((v) => !v.trim())}>Next</button>
-          <button class="btn" onClick={() => record(false)}>Not sure</button>
-        </div>
+        <div class="fb-zone" aria-live="polite">{note && <div class="fb nearly" role="alert"><p>{note}</p></div>}</div>
       </div>
-    </main>
+      <QBar
+        left={<button class="btn ghost" onClick={() => record(false)} data-testid="not-sure">Not sure</button>}
+        right={<button class="btn primary" onClick={submit} disabled={!values.some((v) => v.trim())} data-testid="next">Next <Icon name="arrow" size={20} /></button>}
+      />
+    </div>
   );
 }

@@ -1,11 +1,12 @@
 import { useState } from "preact/hooks";
 import { SKILLS } from "../curriculum";
-import { SECURE_BOX, isUnlocked, statusOf, type Status } from "../engine/progress";
+import { SECURE_BOX, isUnlocked, statusOf } from "../engine/progress";
 import { useApp } from "./context";
 import { Pip } from "./pip";
+import { STATUS_LABEL } from "./labels";
 
 const GLYPH: Record<string, string> = { Number: "+", Ratio: ":", Algebra: "x", Measures: "cm", Geometry: "△", Statistics: "%", Calculus: "∫" };
-const STATUS_TEXT: Record<Status, string> = { new: "Not started", assumed: "Assumed known", learning: "Learning", growing: "Growing", secure: "Secure" };
+const STATUS_TEXT = STATUS_LABEL;
 const STEP = 118, TOP = 70, W = 360;
 
 /** The Explorer skin's skills screen: a winding path through the curriculum, in teaching order. */
@@ -25,10 +26,10 @@ export function Journey({ onList }: { onList: () => void }) {
   return (
     <div class="journey-wrap">
       <div class="journey-head">
-        <h1>Your journey</h1>
+        <h1>Skills</h1>
         <button class="linkish" onClick={onList}>Show as a list</button>
       </div>
-      <p class="lede">Follow the path. Tap a stop to see it, then practise it.</p>
+      <p class="lede">Tap a stop, then practise it.</p>
       <div class="journey" style={{ height: `${H}px` }}>
         <svg class="journey-path" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
           <path d={path} pathLength="100" class="trail" />
@@ -63,7 +64,7 @@ export function Journey({ onList }: { onList: () => void }) {
             <div><strong>{sel.name}</strong> <span class={`status ${selStatus}`}>{STATUS_TEXT[selStatus]}</span></div>
             <p class="small muted">{sel.blurb}</p>
             <div class="actions">
-              <button class="btn primary" onClick={() => go({ name: "practice", plan: Array.from({ length: 9 }, () => ({ skillId: sel.id, reason: "continue" as const })) })}>Practise this</button>
+              <button class="btn primary" onClick={() => go({ name: "practice", plan: Array.from({ length: 9 }, () => ({ skillId: sel.id, reason: "continue" as const })) })}>Practise</button>
               <button class="btn" onClick={() => setPicked(null)}>Close</button>
             </div>
           </>

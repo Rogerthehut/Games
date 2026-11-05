@@ -8,7 +8,10 @@ import type { Question, Strand } from "../engine/types";
 import { AnswerInput } from "./answer-input";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
+import { Icon } from "./icons";
 import { Maths } from "./maths";
+import { Pip } from "./pip";
+import { QBar, QTop } from "./qshell";
 
 interface Taken { q: Question; inputs: string[]; correct: boolean; tag?: string; message?: string }
 
@@ -80,17 +83,19 @@ export function Mock() {
 
   if (phase === "intro") {
     return (
-      <main class="page narrow">
-        <div class="card">
+      <main class="splash">
+        <div class="splash-in">
+          <div class="pip-slot"><Pip pose="think" size={110} /></div>
           <h1>Practice paper</h1>
-          <p class="lede">{MOCK_TOTAL} questions in the style of 11+ maths, with a guide time of {MOCK_SECONDS / 60} minutes.</p>
-          <ul class="plain-list">
-            <li>The clock runs, but it won't stop you. Try to finish in time, as in a real paper.</li>
-            <li>No hints, and no marks until the end. Then you'll see every question you missed, with the steps.</li>
-            <li>Paper and a pencil are fine. No calculator.</li>
+          <p class="splash-sub">{MOCK_TOTAL} questions in the style of 11+ maths. Aim for {MOCK_SECONDS / 60} minutes.</p>
+          <ul class="tips">
+            <li>The clock runs but won't stop you.</li>
+            <li>No hints, and no marks until the end.</li>
+            <li>Then you'll see every miss, with the steps.</li>
           </ul>
-          <p class="small muted">This is original practice material in a general 11+ style. It is not an official or past paper, and real tests vary by area and exam provider.</p>
-          <div class="actions"><button class="btn primary" onClick={start}>Start the paper</button><button class="btn" onClick={() => go({ name: "plan" })}>Not now</button></div>
+          <p class="small muted">Original practice, written in a general 11+ style. Not an official paper.</p>
+          <button class="btn primary big" onClick={start} data-testid="mock-start">Start <Icon name="arrow" size={20} /></button>
+          <button class="linkish" onClick={() => go({ name: "plan" })}>Not now</button>
         </div>
       </main>
     );
@@ -143,24 +148,25 @@ export function Mock() {
   if (!q) return null;
   const left = MOCK_SECONDS - elapsed;
   return (
-    <main class="page practice">
-      <div class="p-top">
-        <button class="linkish" onClick={() => finish(taken)} disabled={taken.length === 0}>End paper early</button>
-        <div class="progress" role="progressbar" aria-valuenow={idx} aria-valuemin={0} aria-valuemax={MOCK_TOTAL} aria-label="Paper progress"><i style={{ width: `${(idx / MOCK_TOTAL) * 100}%` }} /></div>
-        <span class={`timer ${left < 0 ? "over" : left < 120 ? "low" : ""}`} aria-label="Time left">{left >= 0 ? clock(left) : `+${clock(left)}`}</span>
-      </div>
-      <div class="card q-card">
-        <div class="q-meta"><span class="small muted">Question {idx + 1} of {MOCK_TOTAL}</span></div>
-        <p class="q-text"><Maths text={q.prompt} /></p>
+    <div class="qpage" data-phase="ask">
+      <QTop
+        onClose={() => (taken.length ? finish(taken) : go({ name: "plan" }))} closeLabel="End the paper" index={idx} total={MOCK_TOTAL}
+        right={<span class={`timer ${left < 0 ? "over" : left < 120 ? "low" : ""}`} aria-label="Time left">{left >= 0 ? clock(left) : `+${clock(left)}`}</span>}
+      />
+      <div class="qbody" key={idx}>
+        <p class="q-topic">Question {idx + 1} of {MOCK_TOTAL}</p>
+        <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
         {q.figure && <FigureView fig={q.figure} />}
         <AnswerInput answer={q.answer} values={values} onChange={setValues} onSubmit={submit} />
-        {note && <div class="banner almost" role="alert">{note}</div>}
-        {left < 0 && <div class="banner hint">The guide time is up. In a real paper you'd stop here; carry on to finish and see your result.</div>}
-        <div class="actions">
-          <button class="btn primary" onClick={submit} disabled={values.every((v) => !v.trim())}>Next</button>
-          <button class="btn" onClick={() => record([""], false)}>Leave blank</button>
+        <div class="fb-zone" aria-live="polite">
+          {note && <div class="fb nearly" role="alert"><p>{note}</p></div>}
+          {left < 0 && <div class="fb hint"><span class="fb-icon"><Icon name="bulb" size={20} /></span><p>Time's up. In a real paper you'd stop here. Carry on to see your result.</p></div>}
         </div>
       </div>
-    </main>
+      <QBar
+        left={<button class="btn ghost" onClick={() => record([""], false)} data-testid="leave-blank">Leave blank</button>}
+        right={<button class="btn primary" onClick={submit} disabled={!values.some((v) => v.trim())} data-testid="next">Next <Icon name="arrow" size={20} /></button>}
+      />
+    </div>
   );
 }

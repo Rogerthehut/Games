@@ -7,6 +7,7 @@ export type Route =
   | { name: "map" }
   | { name: "parent" }
   | { name: "plan" }
+  | { name: "me" }
   | { name: "checkup" }
   | { name: "mock" }
   | { name: "report" }
