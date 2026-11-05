@@ -6,6 +6,10 @@ export type Route =
   | { name: "home" }
   | { name: "map" }
   | { name: "parent" }
+  | { name: "plan" }
+  | { name: "checkup" }
+  | { name: "mock" }
+  | { name: "report" }
   | { name: "onboard"; first?: boolean }
   | { name: "practice"; plan: Pick[] };
 

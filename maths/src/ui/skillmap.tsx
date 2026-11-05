@@ -15,7 +15,7 @@ export function SkillMap() {
         if (!skills.length) return null;
         return (
           <section key={strand} class="strand">
-            <h2>{strand === "Ratio" ? "Ratio and proportion" : strand === "Geometry" ? "Geometry and measures" : strand}</h2>
+            <h2>{strand === "Ratio" ? "Ratio and proportion" : strand === "Measures" ? "Measures" : strand === "Statistics" ? "Statistics" : strand}</h2>
             <ul class="skill-list">
               {skills.map((s) => {
                 const st = profile.skills[s.id];

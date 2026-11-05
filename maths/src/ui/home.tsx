@@ -1,6 +1,8 @@
 import { useMemo } from "preact/hooks";
 import { DAY, buildSession, practiceDaysThisWeek, skillName, statusOf, type Reason } from "../engine/progress";
 import { mulberry32 } from "../engine/rng";
+import { currentWeek, planFocus } from "../engine/plan";
+import { TEST_LENGTH, yearLabel } from "../engine/diagnostic";
 import { SKILLS } from "../curriculum";
 import { useApp } from "./context";
 
@@ -11,7 +13,12 @@ const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 export function Home() {
   const { profile, go } = useApp();
   const now = Date.now();
-  const plan = useMemo(() => buildSession(profile, now, mulberry32(Math.floor(now / DAY))), [profile]);
+  // The grown-up's focus topics and this week's plan topics both steer today's session.
+  const steer = useMemo(() => ({ ...profile, focus: [...new Set([...profile.focus, ...planFocus(profile, now)])] }), [profile]);
+  const plan = useMemo(() => buildSession(steer, now, mulberry32(Math.floor(now / DAY))), [steer]);
+  const last = profile.baselines[profile.baselines.length - 1];
+  const week = profile.plan ? currentWeek(profile.plan, now) : undefined;
+  const midTest = profile.diag?.responses.length ?? 0;
   const shown = [...new Map(plan.map((p) => [p.skillId, p])).values()];
   const days = practiceDaysThisWeek(profile, now);
   const todayIdx = (new Date(now).getDay() + 6) % 7;
@@ -21,6 +28,31 @@ export function Home() {
   return (
     <div class="home">
       <h1 class="greet">{greeting()}, {profile.name}</h1>
+      {!last && (
+        <section class="card checkup-card" aria-labelledby="cu">
+          <h2 id="cu">{midTest ? "Finish your check-up" : "Start with a check-up"}</h2>
+          <p>{midTest ? `You're ${midTest} of ${TEST_LENGTH} questions in.` : `About ${TEST_LENGTH} questions, around 20 minutes. It finds your real starting point and any gaps, so practice and the plan fit you.`}</p>
+          <button class="btn primary" onClick={() => go({ name: "checkup" })}>{midTest ? "Continue" : "Start the check-up"}</button>
+        </section>
+      )}
+      {last && !profile.plan && (
+        <section class="card checkup-card" aria-labelledby="cp">
+          <h2 id="cp">Your check-up is done</h2>
+          <p>Working at {yearLabel(last.theta)}. Build a weekly plan from the gaps it found.</p>
+          <div class="actions"><button class="btn primary" onClick={() => go({ name: "plan" })}>Build our plan</button><button class="btn" onClick={() => go({ name: "report" })}>See the report</button></div>
+        </section>
+      )}
+      {week && (
+        <section class="card checkup-card" aria-labelledby="wf">
+          <h2 id="wf">{week.kind === "learn" ? `This week: ${week.note}` : week.kind === "review" ? "This week: revision" : "This week: mock paper"}</h2>
+          <p class="muted small">Week {week.n} of {profile.plan!.weeks.length} · {profile.plan!.sessionsPerWeek} sessions of about 10 minutes</p>
+          {week.kind !== "learn" && <p>{week.note}.</p>}
+          <div class="actions">
+            {week.kind === "mock" && <button class="btn primary" onClick={() => go({ name: "mock" })}>Start a practice paper</button>}
+            <button class="btn" onClick={() => go({ name: "plan" })}>See the plan</button>
+          </div>
+        </section>
+      )}
       <section class="card today" aria-labelledby="today-h">
         <h2 id="today-h">{started ? "Today's practice" : "Let's get started"}</h2>
         <p class="muted">{plan.length} questions · about 10 minutes · no timer</p>

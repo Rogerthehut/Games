@@ -7,6 +7,10 @@ import { Home } from "./home";
 import { SkillMap } from "./skillmap";
 import { Practice } from "./practice";
 import { Parent } from "./parent";
+import { Checkup } from "./checkup";
+import { Report } from "./report";
+import { Mock } from "./mock";
+import { PlanView } from "./planview";
 
 export function App() {
   const [store, setStore] = useState<Store>(() => loadStore());
@@ -40,6 +44,10 @@ export function App() {
 
   if (!profile || route.name === "onboard")
     return <Ctx.Provider value={ctx}><Onboarding first={!profile} /></Ctx.Provider>;
+  if (route.name === "mock")
+    return <Ctx.Provider value={ctx}><Mock /></Ctx.Provider>;
+  if (route.name === "checkup")
+    return <Ctx.Provider value={ctx}><Checkup /></Ctx.Provider>;
   if (route.name === "practice")
     return <Ctx.Provider value={ctx}><Practice plan={route.plan} /></Ctx.Provider>;
 
@@ -53,6 +61,7 @@ export function App() {
         </button>
         <nav class="tabs" aria-label="Main">
           <button class={tab === "home" ? "on" : ""} onClick={() => setRoute({ name: "home" })}>Today</button>
+          <button class={tab === "plan" || tab === "report" ? "on" : ""} onClick={() => setRoute({ name: "plan" })}>Plan</button>
           <button class={tab === "map" ? "on" : ""} onClick={() => setRoute({ name: "map" })}>Skills</button>
           <button class={tab === "parent" ? "on" : ""} onClick={() => setRoute({ name: "parent" })}>Grown-up</button>
         </nav>
@@ -65,6 +74,8 @@ export function App() {
       <main class="page">
         {route.name === "home" && <Home />}
         {route.name === "map" && <SkillMap />}
+        {route.name === "plan" && <PlanView />}
+        {route.name === "report" && <Report />}
         {route.name === "parent" && <Parent />}
       </main>
     </Ctx.Provider>

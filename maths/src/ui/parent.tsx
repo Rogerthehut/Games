@@ -2,6 +2,7 @@ import { useState } from "preact/hooks";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { DAY, SECURE_BOX, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
 import { exportProfile, importProfile } from "../engine/storage";
+import { yearLabel } from "../engine/diagnostic";
 import { useApp } from "./context";
 import { Maths } from "./maths";
 
@@ -48,6 +49,21 @@ export function Parent() {
     <div class="parent">
       <h1>Grown-up view · {profile.name}</h1>
       <p class="lede">Year {profile.year}, following the UK National Curriculum. Progress is stored on this device only.</p>
+
+      <section class="card">
+        <h2>Check-up</h2>
+        {profile.baselines.length === 0 ? (
+          <p class="muted">No check-up yet. It finds the starting point and any gaps.</p>
+        ) : (
+          <p>Last check-up {when(profile.baselines[profile.baselines.length - 1].at)}: working at {yearLabel(profile.baselines[profile.baselines.length - 1].theta)}.
+            {Date.now() - profile.baselines[profile.baselines.length - 1].at > 42 * DAY && <> It has been over six weeks, so a re-check would show progress.</>}</p>
+        )}
+        <div class="actions">
+          {profile.baselines.length > 0 && <button class="btn" onClick={() => go({ name: "report" })}>See the report</button>}
+          <button class="btn" onClick={() => go({ name: "checkup" })}>{profile.baselines.length ? "Re-take the check-up" : "Start the check-up"}</button>
+          <button class="btn" onClick={() => go({ name: "plan" })}>Plan</button>
+        </div>
+      </section>
 
       <section class="card">
         <h2>Last 7 days</h2>
@@ -121,7 +137,7 @@ export function Parent() {
         <label class="inline">
           <span class="field-label">School year</span>
           <select value={profile.year} onChange={(e) => changeYear(+(e.target as HTMLSelectElement).value)}>
-            {[7, 8, 9, 10, 11, 12, 13].map((y) => <option value={y}>Year {y}</option>)}
+            {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => <option value={y}>Year {y}</option>)}
           </select>
         </label>
         <h3>Move progress to another device</h3>

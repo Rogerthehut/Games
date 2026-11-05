@@ -16,7 +16,7 @@ export function loadStore(): Store {
     const raw = localStorage.getItem(KEY);
     if (!raw) return emptyStore();
     const s = JSON.parse(raw) as Store;
-    return s?.version === STORE_VERSION && Array.isArray(s.profiles) ? s : emptyStore();
+    return s?.version === STORE_VERSION && Array.isArray(s.profiles) ? { ...s, profiles: s.profiles.map((p) => ({ ...p, baselines: p.baselines ?? [] })) } : emptyStore();
   } catch {
     return emptyStore();
   }
@@ -44,5 +44,5 @@ export function importProfile(text: string): Profile {
   if (f?.app !== "mathpath" || !f.profile) throw new Error("That isn't a MathPath save.");
   if ((f.version ?? 0) > STORE_VERSION) throw new Error("This save is from a newer version of MathPath.");
   if (f.checksum !== checksum(JSON.stringify(f.profile))) throw new Error("This save looks damaged or has been edited.");
-  return f.profile;
+  return { ...f.profile, baselines: f.profile.baselines ?? [] };
 }

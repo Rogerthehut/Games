@@ -15,6 +15,7 @@ function normalise(s: string): string {
     .replace(/÷/g, "/")
     .replace(/²/g, "^2")
     .replace(/³/g, "^3")
+    .replace(/,/g, "")
     .replace(/\s+/g, "");
 }
 

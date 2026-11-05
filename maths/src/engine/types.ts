@@ -1,7 +1,7 @@
 import type { Poly } from "./poly";
 
-export type Strand = "Number" | "Ratio" | "Algebra" | "Geometry" | "Calculus";
-export type Stage = "KS3" | "KS4" | "KS5";
+export type Strand = "Number" | "Ratio" | "Algebra" | "Geometry" | "Measures" | "Statistics" | "Calculus";
+export type Stage = "KS2" | "KS3" | "KS4" | "KS5";
 
 export type Figure =
   | { type: "rtriangle"; base: string; height: string; hyp: string; angle?: string };
@@ -39,7 +39,7 @@ export interface Skill {
   id: string;
   name: string;
   stage: Stage;
-  /** UK school year the skill is first taught (7-13). */
+  /** UK school year the skill is first taught (3-13). */
   year: number;
   strand: Strand;
   blurb: string;

@@ -1,5 +1,6 @@
 import { SKILLS, SKILL_BY_ID } from "../curriculum";
-import type { Skill } from "./types";
+import type { Skill, Strand } from "./types";
+import type { Plan } from "./plan";
 import type { Rng } from "./rng";
 
 export const DAY = 86_400_000;
@@ -26,6 +27,46 @@ export interface SessionLog {
   skills: string[];
 }
 
+export interface DiagResponse { skillId: string; level: number; correct: boolean; ms: number }
+export type ReadinessBand = "early" | "building" | "on-track" | "ready";
+
+/** The outcome of one check-up. Kept so progress between check-ups can be shown. */
+export interface BaselineRecord {
+  at: number;
+  startYear: number;
+  /** Working level on a school-year scale: 5.5 is "mid Year 5". */
+  theta: number;
+  /** Rough uncertainty in the same units. */
+  se: number;
+  strands: { strand: Strand; theta: number; n: number; right: number }[];
+  gaps: string[];
+  strengths: string[];
+  readiness: ReadinessBand;
+  questions: number;
+  correct: number;
+  minutes: number;
+  responses: DiagResponse[];
+}
+
+/** What the family is working towards. Location is kept coarse on purpose (town or postcode area only). */
+export interface Goal {
+  exam: "gl" | "cem" | "unsure" | "none";
+  area: string;
+  schools: string[];
+  examDate?: number;
+  sessionsPerWeek: number;
+}
+
+/** A timed practice paper. */
+export interface MockRecord {
+  at: number;
+  total: number;
+  score: number;
+  seconds: number;
+  limitSeconds: number;
+  byStrand: { strand: Strand; right: number; n: number }[];
+}
+
 export interface Profile {
   id: string;
   name: string;
@@ -38,6 +79,12 @@ export interface Profile {
   /** Skills the grown-up has asked the child to focus on. */
   focus: string[];
   points: number;
+  baselines: BaselineRecord[];
+  mocks?: MockRecord[];
+  /** A check-up in progress, so a child can pause and carry on. */
+  diag?: { startedAt: number; responses: DiagResponse[] };
+  plan?: Plan;
+  goal?: Goal;
 }
 
 export function newProfile(name: string, year: number, now = Date.now()): Profile {
@@ -46,7 +93,7 @@ export function newProfile(name: string, year: number, now = Date.now()): Profil
     if (s.year < year) skills[s.id] = { box: 3, due: now + 3 * DAY, seen: 0, right: 0, wrong: 0, last: 0, assumed: true };
   return {
     id: `p_${now.toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`,
-    name, year, createdAt: now, skills, sessions: [], mistakes: {}, focus: [], points: 0,
+    name, year, createdAt: now, skills, sessions: [], mistakes: {}, focus: [], points: 0, baselines: [],
   };
 }
 
