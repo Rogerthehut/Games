@@ -494,3 +494,12 @@ textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8r
 .years .year:last-child:nth-child(odd) { grid-column: 1 / -1; max-width: 50%; justify-self: center; width: 100%; }
 @media (min-width: 520px) { .years .year:last-child:nth-child(odd) { grid-column: auto; max-width: none; justify-self: stretch; } }
 .keypad.digits { max-width: 300px; grid-template-columns: repeat(3, 1fr); }
+
+/* how to write the answer */
+.field-tag.money { padding-right: 0; }
+.field-unit { padding: 0 16px 0 0; font-family: var(--font-display); font-weight: 800; color: var(--muted); font-size: 1.1rem; white-space: nowrap; }
+.format-hint { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; color: var(--muted); font-size: .88rem; font-weight: 600; padding-left: 2px; }
+.format-hint .icon { color: var(--accent); }
+.linkish.tiny { min-height: 28px; padding: 0 4px; font-size: .85rem; }
+.also { margin: 0; font-size: .88rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.also code { font: inherit; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }

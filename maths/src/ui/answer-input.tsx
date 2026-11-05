@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
+import { formatHelp } from "../engine/answer";
 import type { Answer } from "../engine/types";
 import { previewLatex } from "../engine/expr";
 import { Icon } from "./icons";
@@ -71,6 +72,10 @@ export function AnswerInput(props: {
   const fraction = answer.kind === "number" && !!answer.simplestFraction;
   const fieldCount = answer.kind === "multi" ? answer.fields.length : fraction ? 2 : 1;
   const labels = answer.kind === "multi" ? answer.fields.map((f) => f.label) : [answer.label ?? ""];
+  const money = answer.kind === "number" && !!answer.money;
+  const unit = answer.kind === "number" ? answer.unit : undefined;
+  const help = formatHelp(answer);
+  const [showAlso, setShowAlso] = useState(false);
   const keypadMode: "number" | "expr" | null = answer.kind === "expr" ? "expr" : "number";
 
   useEffect(() => { if (!disabled && !touch) refs.current[0]?.focus(); }, []);
@@ -133,13 +138,23 @@ export function AnswerInput(props: {
         <div class={`fields ${fieldCount > 1 ? "multi" : ""}`}>
           {labels.map((label, i) => (
             <label class="field" key={i}>
+              {money && <span class="field-tag money">£</span>}
               {label && <span class="field-tag">{label.replace(/\s*=\s*$/, "")}{/=/.test(label) ? " =" : ""}</span>}
               {field(i, "field-input", label)}
+              {unit && <span class="field-unit">{unit}</span>}
             </label>
           ))}
         </div>
       )}
       <div class="preview" aria-live="polite">{pv && !disabled ? <Tex src={pv} /> : null}</div>
+      {!disabled && (
+        <div class="format-hint" data-testid="format-hint">
+          <Icon name="info" size={16} />
+          <span>{help.line}</span>
+          {help.also.length > 0 && <button type="button" class="linkish tiny" aria-expanded={showAlso} onClick={() => setShowAlso(!showAlso)}>What counts?</button>}
+        </div>
+      )}
+      {!disabled && showAlso && help.also.length > 0 && <p class="also" role="note">These all work: {help.also.map((x, i) => <code key={i}>{x}</code>)}</p>}
       {!disabled && touch && keypadMode && <Keypad mode={keypadMode} onKey={press} />}
     </div>
   );

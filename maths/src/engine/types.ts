@@ -16,7 +16,16 @@ export interface Misconception {
 }
 
 export type Answer =
-  | { kind: "number"; value: number; tol?: number; label?: string; simplestFraction?: boolean }
+  | {
+      kind: "number"; value: number; tol?: number; label?: string; simplestFraction?: boolean;
+      /** How the answer is meant to be written. Worked out for every skill from its wording (see curriculum/index.ts). */
+      unit?: string;
+      money?: boolean;
+      /** Decimal places asked for, and the unrounded value, so "right but rounded wrongly" can be told apart from "wrong". */
+      dp?: number;
+      exact?: number;
+      form?: "integer" | "decimal" | "fraction";
+    }
   | { kind: "expr"; value: Poly; form: "collected" | "factorised"; label?: string }
   | { kind: "multi"; fields: { label: string; value: number }[] };
 

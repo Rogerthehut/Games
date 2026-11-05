@@ -30,7 +30,7 @@ function pythagoras(r: () => number, level: number): Question {
     skill: "pythagoras", level,
     prompt: `Find the length $x$ in this right-angled triangle.${dp}`,
     figure: { type: "rtriangle", base: baseLabel, height: `${b} cm`, hyp: hypLabel },
-    answer: { kind: "number", value: ans, tol: integer ? 1e-9 : 1e-4, label: "x =" },
+    answer: { kind: "number", value: ans, tol: integer ? 1e-9 : 1e-4, label: "x =", exact: integer ? undefined : exact },
     hint: findHyp
       ? "Use $a^{2} + b^{2} = c^{2}$, where $c$ is the longest side (opposite the right angle)."
       : "Use $a^{2} + b^{2} = c^{2}$. Here you know the longest side, so you need to subtract.",
@@ -109,7 +109,7 @@ function trig(r: () => number, level: number): Question {
       skill: "trig", level,
       prompt: `Find the angle $\\theta$. Give your answer to 1 decimal place.`,
       figure: { type: "rtriangle", base: kind === "sin" ? "" : `${adj} cm`, height: kind === "cos" ? "" : `${opp} cm`, hyp: kind === "tan" ? "" : `${hyp} cm`, angle: "θ" },
-      answer: { kind: "number", value: angle, tol: 1e-4, label: "θ =" },
+      answer: { kind: "number", value: angle, tol: 1e-4, label: "θ =", exact: deg({ sin: Math.asin, cos: Math.acos, tan: Math.atan }[kind](ratio)) },
       hint: "Label the sides O (opposite), A (adjacent), H (hypotenuse) from the angle. Which two do you know? SOH CAH TOA tells you the ratio.",
       solution: [
         `You know the ${names[0] === "O" ? "opposite" : "adjacent"} and the ${names[1] === "A" ? "adjacent" : "hypotenuse"}, so use $\\${kind}\\theta = ${names[2]}$.`,
@@ -136,7 +136,7 @@ function trig(r: () => number, level: number): Question {
     skill: "trig", level,
     prompt: `Find the length $x$. Give your answer to 1 decimal place.`,
     figure: { type: "rtriangle", base: label("adj"), height: label("opp"), hyp: label("hyp"), angle: `${theta}°` },
-    answer: { kind: "number", value: ans, tol: 1e-4, label: "x =" },
+    answer: { kind: "number", value: ans, tol: 1e-4, label: "x =", exact: val },
     hint: `From the ${theta}° angle, the side you know is the ${word[cs.known]} and the side you want is the ${word[cs.unknown]}. Which of SOH, CAH, TOA uses those two?`,
     solution: [
       `Known: ${word[cs.known]}. Wanted: ${word[cs.unknown]}. That's ${cs.fn === "sin" ? "SOH" : cs.fn === "cos" ? "CAH" : "TOA"}: $\\${cs.fn} ${theta}^\\circ = ${frac}$.`,

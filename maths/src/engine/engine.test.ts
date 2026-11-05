@@ -1,3 +1,4 @@
+import { asFraction } from "./answer";
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../curriculum";
 import { check } from "./check";
@@ -20,7 +21,10 @@ const fromShown = (s: string) => s.replace(/\$|\\left|\\right|[{}]/g, "").replac
 
 function correctInputs(q: Question): string[] {
   const a = q.answer;
-  if (a.kind === "number") return [String(a.value)];
+  if (a.kind === "number") {
+    const f = a.form === "fraction" ? asFraction(a.value) : null;
+    return [f && f[1] !== 1 ? `${f[0]}/${f[1]}` : String(a.value)];
+  }
   if (a.kind === "multi") return a.fields.map((f) => String(f.value));
   return [a.form === "factorised" ? fromShown(q.shown) : plain(a.value)];
 }
