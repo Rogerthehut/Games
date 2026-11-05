@@ -359,3 +359,6 @@ details[open] > summary::before { transform: rotate(90deg); }
 .sheet.open { transform: none; opacity: 1; pointer-events: auto; }
 .sheet .actions { margin-top: .6rem; }
 @media (prefers-reduced-motion: reduce) { .node.here, .pip-sprout, .pip-wave .pip-arm, .pip-eyes, .pip-z { animation: none; } }
+
+.who { max-width: 190px; text-overflow: ellipsis; }
+@media (max-width: 720px) { .topbar .brand { order: 0; } .who { order: 1; margin-left: auto; } .tabs { order: 2; } }

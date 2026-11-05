@@ -78,11 +78,14 @@ export function App() {
           <button class={tab === "map" ? "on" : ""} onClick={() => setRoute({ name: "map" })}>Skills</button>
           <button class={tab === "parent" ? "on" : ""} onClick={() => setRoute({ name: "parent" })}>Grown-up</button>
         </nav>
-        {store.profiles.length > 1 && (
-          <select class="who" aria-label="Who is learning" value={profile.id} onChange={(e) => ctx.switchTo((e.target as HTMLSelectElement).value)}>
-            {store.profiles.map((p) => <option value={p.id}>{p.name}</option>)}
-          </select>
-        )}
+        <select class="who" aria-label="Who is learning" value={profile.id}
+          onChange={(e) => {
+            const el = e.target as HTMLSelectElement;
+            if (el.value === "__new") { el.value = profile.id; setRoute({ name: "onboard" }); } else ctx.switchTo(el.value);
+          }}>
+          {store.profiles.map((p) => <option value={p.id}>{p.name} · Year {p.year}</option>)}
+          <option value="__new">＋ Add a learner or change age group…</option>
+        </select>
       </header>
       <main class="page">
         {route.name === "home" && <Home />}
