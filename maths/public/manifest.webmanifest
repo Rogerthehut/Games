@@ -1,0 +1,10 @@
+{
+  "name": "MathPath",
+  "short_name": "MathPath",
+  "description": "Maths for ages 11-18, following the UK National Curriculum",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0f766e",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
