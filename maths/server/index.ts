@@ -4,7 +4,7 @@ import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { handleTutor } from "./tutor/handler";
 import { DEFAULT_LIMITS, Limiter } from "./tutor/policy";
-import { AnthropicProvider, DEFAULT_CONFIG } from "./tutor/provider";
+import { AnthropicProvider, DEFAULT_CONFIG, ScriptedProvider, type Provider } from "./tutor/provider";
 
 /**
  * The tutor service. It holds the API key, checks everything in both directions, rate limits, and stores nothing:
@@ -15,7 +15,7 @@ const ALLOWED = (process.env.TUTOR_ALLOWED_ORIGINS ?? "").split(",").map((s) => 
 const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const DIST = fileURLToPath(new URL("../dist", import.meta.url));
 
-if (!process.env.ANTHROPIC_API_KEY) console.warn("ANTHROPIC_API_KEY is not set: the tutor will answer 'unavailable' until it is.");
+if (!process.env.ANTHROPIC_API_KEY && process.env.TUTOR_FAKE !== "1") console.warn("ANTHROPIC_API_KEY is not set: the tutor will answer 'unavailable' until it is.");
 
 const limiter = new Limiter({
   perDeviceDay: Number(process.env.TUTOR_PER_DEVICE_DAY ?? DEFAULT_LIMITS.perDeviceDay),
@@ -23,7 +23,16 @@ const limiter = new Limiter({
   perIpDay: Number(process.env.TUTOR_PER_IP_DAY ?? DEFAULT_LIMITS.perIpDay),
   globalDay: Number(process.env.TUTOR_GLOBAL_DAY ?? DEFAULT_LIMITS.globalDay),
 });
-const provider = new AnthropicProvider(DEFAULT_CONFIG);
+// TUTOR_FAKE=1 answers from a script, so the app can be developed and tested without a key or any spend.
+const FAKE = process.env.TUTOR_FAKE === "1";
+const provider: Provider = FAKE
+  ? new ScriptedProvider((req) => ({
+      text: /answer please|tell me the answer/i.test(req.messages.at(-1)?.content ?? "")
+        ? "Sure! The answer is 9." // a deliberately bad reply, to show the safety check catching it
+        : "Good thinking. What is the very first thing you could do to this question? Try it and tell me what you get.",
+      refused: false,
+    }))
+  : new AnthropicProvider(DEFAULT_CONFIG);
 
 const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json" };
 
@@ -56,7 +65,7 @@ createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://x");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
-  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: !!process.env.ANTHROPIC_API_KEY });
+  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || !!process.env.ANTHROPIC_API_KEY });
 
   if (url.pathname === "/api/tutor" && req.method === "POST") {
     const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";

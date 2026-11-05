@@ -9,6 +9,8 @@ import { useApp } from "./context";
 import { FigureView } from "./figure";
 import { Maths } from "./maths";
 import { Pip, Sparkles } from "./pip";
+import { TutorPanel, useTutorAvailable } from "./tutor";
+import type { TutorContext } from "../tutor/types";
 
 type Phase = "intro" | "ask" | "correct" | "reveal" | "done";
 const PRAISE = ["Correct!", "Nice work.", "That's it.", "Spot on.", "Yes, exactly."];
@@ -38,6 +40,9 @@ export function Practice({ plan }: { plan: Pick[] }) {
   const [showHint, setShowHint] = useState(false);
   const [stepsShown, setStepsShown] = useState(0);
   const [praise, setPraise] = useState(PRAISE[0]);
+  const [showTutor, setShowTutor] = useState(false);
+  const tutorUp = useTutorAvailable();
+  const tutorOn = !!profile.tutor?.enabled && tutorUp === true;
   const tally = useRef({ answered: 0, correct: 0, points: 0, skills: new Set<string>(), seenPrompts: new Set<string>(), introduced: new Set<string>(), shownAt: Date.now(), activeMs: 0, logged: false, giveUps: 0, bounces: 0 });
   const startedAt = useMemo(() => Date.now(), []);
 
@@ -64,7 +69,7 @@ export function Practice({ plan }: { plan: Pick[] }) {
       setPhase("ask");
     }
     setValues([""]);
-    setResult(null); setAttempts(0); setHinted(false); setShowHint(false); setStepsShown(0);
+    setResult(null); setAttempts(0); setHinted(false); setShowHint(false); setStepsShown(0); setShowTutor(false);
     t.shownAt = Date.now();
   }, [idx]);
 
@@ -228,6 +233,11 @@ export function Practice({ plan }: { plan: Pick[] }) {
                 <button class="btn primary" onClick={next}>{idx + 1 >= total ? "Finish" : "Next"}</button>
               )}
             </div>
+            {tutorOn && (phase === "ask" || phase === "correct" || phase === "reveal") && (
+              showTutor
+                ? <TutorPanel key={idx} ctx={tutorContext(q, skill.name, profile.year, phase, values, attempts, hinted)} onClose={() => setShowTutor(false)} />
+                : <button class="linkish tutor-open" onClick={() => setShowTutor(true)}>Ask the tutor</button>
+            )}
           </>
         )}
 
@@ -239,6 +249,13 @@ export function Practice({ plan }: { plan: Pick[] }) {
       </div>
     </main>
   );
+}
+
+function tutorContext(q: Question, skillName: string, year: number, phase: "ask" | "correct" | "reveal", values: string[], attempts: number, hinted: boolean): TutorContext {
+  return {
+    skillId: q.skill, skillName, year: Math.max(1, Math.min(13, year)), level: q.level, question: q.prompt, referenceAnswer: q.shown,
+    referenceSteps: q.solution.slice(0, 8), hint: q.hint, phase, childAttempts: values.filter((v) => v.trim()).map((v) => v.slice(0, 120)).slice(0, 6), attempts, hinted,
+  };
 }
 
 function Summary({ plan, points, answered, correct, giveUps, bounces }: { plan: Pick[]; points: number; answered: number; correct: number; giveUps: number; bounces: number }) {

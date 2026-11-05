@@ -7,8 +7,11 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.server.json",
+    "test": "vitest run",
+    "server": "tsx server/index.ts",
+    "server:fake": "TUTOR_FAKE=1 tsx server/index.ts",
+    "eval:tutor": "tsx server/eval/tutor-eval.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.5.0",

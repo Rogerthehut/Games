@@ -4,6 +4,7 @@ import { DAY, SECURE_BOX, skillName, statusOf, weekStats, type Profile, type Ski
 import { exportProfile, importProfile } from "../engine/storage";
 import { yearLabel } from "../engine/diagnostic";
 import { applyTheme, getTheme, resolveSkin, skinForYear, type ThemeChoice } from "./skin";
+import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
 import { Maths } from "./maths";
 
@@ -17,6 +18,10 @@ export function Parent() {
   const [pasted, setPasted] = useState("");
   const [msg, setMsg] = useState("");
   const [theme, setTheme] = useState<ThemeChoice>(getTheme());
+  const tutorUp = useTutorAvailable();
+  const log = profile.tutorLog ?? [];
+  const worries = log.filter((e) => e.flag === "wellbeing" && !e.seen);
+  const flagLabel: Record<string, string> = { wellbeing: "Wellbeing", "personal-info": "Personal details", "off-topic": "Off topic", limit: "Daily limit", unavailable: "Tutor unavailable" };
 
   const touched = SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0);
   const byStatus = (st: string) => SKILLS.filter((s) => statusOf(profile.skills[s.id]) === st);
@@ -51,6 +56,15 @@ export function Parent() {
     <div class="parent">
       <h1>Grown-up view · {profile.name}</h1>
       <p class="lede">Year {profile.year}, following the UK National Curriculum. Progress is stored on this device only.</p>
+
+      {worries.length > 0 && (
+        <section class="card alert" role="alert" aria-labelledby="wb">
+          <h2 id="wb">A message in the tutor chat may need your attention</h2>
+          <p>{profile.name} wrote something in the tutor chat that suggested they may be upset or unsafe. The tutor replied kindly, told them to speak to a trusted adult, and pointed to Childline (0800 1111, free). It is worth a gentle conversation.</p>
+          <ul class="finding-list">{worries.map((e) => <li key={e.at}><span class="small muted">{new Date(e.at).toLocaleString("en-GB")}</span><p>“{e.child}”</p></li>)}</ul>
+          <button class="btn" onClick={() => update((p) => ({ ...p, tutorLog: (p.tutorLog ?? []).map((e) => (e.flag === "wellbeing" ? { ...e, seen: true } : e)) }))}>I've seen this</button>
+        </section>
+      )}
 
       <section class="card">
         <h2>Check-up</h2>
@@ -132,6 +146,37 @@ export function Parent() {
             );
           })}
         </ul>
+      </section>
+
+      <section class="card" aria-labelledby="tut">
+        <h2 id="tut">AI tutor</h2>
+        <p>An optional helper in practice that explains and guides, without just giving the answer. It is switched off until you turn it on.</p>
+        <label class="check"><input type="checkbox" id="tutor-on" checked={!!profile.tutor?.enabled} onChange={(e) => update((p) => ({ ...p, tutor: { enabled: (e.target as HTMLInputElement).checked, reveal: p.tutor?.reveal ?? "guide" } }))} /> Allow the AI tutor for {profile.name}</label>
+        <label class="inline">
+          <span class="field-label">How much help</span>
+          <select id="tutor-reveal" value={profile.tutor?.reveal ?? "guide"} onChange={(e) => update((p) => ({ ...p, tutor: { enabled: p.tutor?.enabled ?? false, reveal: (e.target as HTMLSelectElement).value as "guide" | "after-tries" } }))}>
+            <option value="guide">Guide only: never gives the final answer</option>
+            <option value="after-tries">May show the working after two wrong tries</option>
+          </select>
+        </label>
+        <p class="small muted">Status: {tutorUp === null ? "checking…" : tutorUp ? "connected" : "not connected on this version of the app, so the tutor button won't appear yet"}.</p>
+        <details class="how"><summary>What happens to what is typed</summary>
+          <p>When your child sends a message, it goes to our tutor service along with the current question and what they have typed for it. Nothing else about them is sent: no name, school or progress. The service passes it to an AI provider to write a reply, checks the reply, and sends it back. Our service does not store messages. They are kept only in the log below, on this device.</p>
+          <p>Messages that contain contact details or look like a safety concern are not sent to the AI at all. The tutor can still make mistakes, so for anything that matters, check with a teacher or a trusted resource. We suggest being nearby while younger children use it.</p>
+        </details>
+        <h3>Conversation log</h3>
+        {log.length === 0 ? <p class="muted">Nothing yet. Every exchange will appear here, newest first.</p> : (
+          <ul class="finding-list">
+            {[...log].reverse().slice(0, 40).map((e) => (
+              <li key={e.at} class={e.flag === "wellbeing" ? "flagged" : ""}>
+                <div class="small muted">{new Date(e.at).toLocaleString("en-GB")} · {SKILLS.find((s) => s.id === e.skillId)?.name ?? e.skillId}{e.flag && <> · <span class="badge">{flagLabel[e.flag] ?? e.flag}</span></>}</div>
+                <p><strong>Child:</strong> {e.child}</p>
+                <p><strong>Tutor:</strong> <Maths text={e.tutor} /></p>
+              </li>
+            ))}
+          </ul>
+        )}
+        {log.length > 0 && <div class="actions"><button class="btn" onClick={() => update((p) => ({ ...p, tutorLog: [] }))}>Clear the log</button></div>}
       </section>
 
       <section class="card">

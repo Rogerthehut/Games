@@ -1,6 +1,7 @@
 import { SKILLS, SKILL_BY_ID } from "../curriculum";
 import type { Skill, Strand } from "./types";
 import type { Plan } from "./plan";
+import type { RevealPolicy, TutorFlag } from "../tutor/types";
 import type { Rng } from "./rng";
 
 export const DAY = 86_400_000;
@@ -57,6 +58,18 @@ export interface Goal {
   sessionsPerWeek: number;
 }
 
+/** One exchange with the AI tutor, kept on the device for the grown-up to read. */
+export interface TutorLogEntry {
+  at: number;
+  skillId: string;
+  question: string;
+  child: string;
+  tutor: string;
+  flag?: TutorFlag;
+  /** A grown-up has looked at a flagged exchange. */
+  seen?: boolean;
+}
+
 /** A timed practice paper. */
 export interface MockRecord {
   at: number;
@@ -87,6 +100,9 @@ export interface Profile {
   goal?: Goal;
   /** Visual style. "auto" follows the school year. */
   skin?: "auto" | "explorer" | "navigator" | "scholar";
+  /** The AI tutor is off until a grown-up turns it on. */
+  tutor?: { enabled: boolean; reveal: RevealPolicy };
+  tutorLog?: TutorLogEntry[];
 }
 
 export function newProfile(name: string, year: number, now = Date.now()): Profile {
