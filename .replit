@@ -7,12 +7,12 @@ run = ["sh", "-c", "cd maths && npm ci --no-audit --no-fund && npm run build && 
 channel = "stable-24_05"
 
 [env]
-PORT = "8787"
+PORT = "5000"
 # Replit sits behind a proxy, so the tutor service should read the real visitor address for rate limits.
 TRUST_PROXY = "1"
 
 [[ports]]
-localPort = 8787
+localPort = 5000
 externalPort = 80
 
 [deployment]

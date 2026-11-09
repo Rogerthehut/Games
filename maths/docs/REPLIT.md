@@ -3,7 +3,7 @@
 ## Import
 
 1. In Replit choose **Import from GitHub** and pick `Rogerthehut/games`, branch `main`.
-2. The repo's `.replit` file does the rest. Press Run. It installs, builds the app, and starts one server that serves the app and the tutor API on port 8787 (shown as port 80 in the preview).
+2. The repo's `.replit` file does the rest. Press Run. It installs, builds the app, and starts one server that serves the app and the tutor API on port 5000 (shown as port 80 in the preview).
 
 The app lives in `maths/`, which is why `.replit` starts with `cd maths`. Nothing else is needed for the app to work: progress is stored in each learner's browser.
 
