@@ -9,6 +9,7 @@ import type { TutorContext } from "../tutor/types";
 import { AnswerInput, type InputState } from "./answer-input";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
+import { describeGlyph } from "./glyph";
 import { Icon } from "./icons";
 import { Maths } from "./maths";
 import { Sparkles } from "./pip";
@@ -337,10 +338,23 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
   );
 }
 
+/** Multiple-choice questions only make sense with their options, and pictures are described in words. */
+function questionForTutor(q: Question): string {
+  const a = q.answer;
+  if (a.kind !== "choice") return q.prompt;
+  const options = a.options.map((o, i) => `${"ABCDE"[i]}) ${"glyph" in o ? describeGlyph(o.glyph) : o.text}`).join("; ");
+  const fig = q.figure?.type === "glyphs" ? ` The pictures shown: ${q.figure.items.map(describeGlyph).join("; ")}.` : q.figure?.type === "working" ? ` The working: ${q.figure.lines.join(" ")}` : "";
+  return `${q.prompt}${fig} Options: ${options}.`;
+}
+function attemptsForTutor(q: Question, values: string[]): string[] {
+  const mine = values.filter((v) => v.trim()).map((v) => v.slice(0, 120)).slice(0, 6);
+  return q.answer.kind === "choice" ? mine.map((v) => (/^\d$/.test(v) ? `Option ${"ABCDE"[+v]}` : v)) : mine;
+}
+
 function tutorContext(q: Question, skillName: string, year: number, phase: "ask" | "correct" | "reveal", values: string[], attempts: number, hinted: boolean): TutorContext {
   return {
-    skillId: q.skill, skillName, year: Math.max(1, Math.min(13, year)), level: q.level, question: q.prompt, referenceAnswer: q.shown,
-    referenceSteps: q.solution.slice(0, 8), hint: q.hint, phase, childAttempts: values.filter((v) => v.trim()).map((v) => v.slice(0, 120)).slice(0, 6), attempts, hinted,
+    skillId: q.skill, skillName, year: Math.max(1, Math.min(13, year)), level: q.level, question: questionForTutor(q), referenceAnswer: q.shown,
+    referenceSteps: q.solution.slice(0, 8), hint: q.hint, phase, childAttempts: attemptsForTutor(q, values), attempts, hinted,
   };
 }
 

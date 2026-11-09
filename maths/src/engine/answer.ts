@@ -84,6 +84,7 @@ export function formatHelp(a: Answer): FormatHelp {
     const base = a.form === "decimal" ? "Type a decimal." : Number.isInteger(a.value) ? "Type a whole number." : "Type a decimal or a fraction.";
     return { line: `${base}${unitNote}`, also: [] };
   }
+  if (a.kind === "choice") return { line: "Tap the answer you think is right, then check.", also: [] };
   if (a.kind === "multi") {
     const rem = a.fields.some((f) => /remainder/i.test(f.label));
     return { line: rem ? "Fill both boxes: the whole-number answer, then what's left over." : "Fill in each box.", also: rem ? ["Or type the quotient, the letter r, and the remainder in the first box."] : [] };

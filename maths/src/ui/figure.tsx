@@ -1,6 +1,16 @@
 import type { Figure } from "../engine/types";
+import { GlyphFigure } from "./glyph";
+import { Maths } from "./maths";
 
 export function FigureView({ fig }: { fig: Figure }) {
+  if (fig.type === "glyphs") return <GlyphFigure layout={fig.layout} items={fig.items} caption={fig.caption} />;
+  if (fig.type === "working") {
+    return (
+      <ol class="working-lines" aria-label="Someone's working">
+        {fig.lines.map((line, i) => <li key={i}><span class="line-no">Line {i + 1}</span> <Maths text={line} /></li>)}
+      </ol>
+    );
+  }
   if (fig.type === "bar-chart") {
     const baseline = 163;
     const row = 16;

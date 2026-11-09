@@ -1,4 +1,4 @@
-import { SKILLS, SKILL_BY_ID, STAGE_LABEL } from "../curriculum";
+import { ALL_SKILLS, SKILL_BY_ID, STAGE_LABEL } from "../curriculum";
 import { STAGE_ORDER } from "../engine/activity";
 import { canTakePathwayTest, pathwayTestName } from "../engine/pathway";
 import { currentWeek } from "../engine/plan";
@@ -70,7 +70,7 @@ const lessons = [
 const curriculum = [
   ...STAGE_ORDER.map((stage) =>
     entry(WORLDS[stage], `World · ${STAGE_LABEL[stage]}`, `${stage} ${STAGE_LABEL[stage]} journey map path`, { name: "map", stage, view: "journey" })),
-  ...SKILLS.map((skill) => entry(
+  ...ALL_SKILLS.map((skill) => entry(
     skill.name, `Skill · ${STAGE_LABEL[skill.stage]} · Year ${skill.year}`,
     `${skill.blurb} ${skill.strand} ${skill.stage} ${STAGE_LABEL[skill.stage]} year ${skill.year} y${skill.year} ${WORLDS[skill.stage]}`,
     { name: "map", skill: skill.id },

@@ -1,5 +1,5 @@
 import { useRef, useState } from "preact/hooks";
-import { SKILLS, STAGE_LABEL } from "../curriculum";
+import { ALL_SKILLS, SKILLS, STAGE_LABEL } from "../curriculum";
 import { DAY, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
 import { exportProfile, importProfile } from "../engine/storage";
 import { yearLabel } from "../engine/diagnostic";
@@ -29,8 +29,8 @@ export function Parent() {
   const worries = log.filter((e) => e.flag === "wellbeing" && !e.seen);
   const flagLabel: Record<string, string> = { wellbeing: "Wellbeing", "personal-info": "Personal details", "off-topic": "Off topic", limit: "Daily limit", unavailable: "Tutor unavailable" };
 
-  const touched = SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0);
-  const byStatus = (st: string) => SKILLS.filter((s) => statusOf(profile.skills[s.id]) === st);
+  const touched = ALL_SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0);
+  const byStatus = (st: string) => ALL_SKILLS.filter((s) => statusOf(profile.skills[s.id]) === st);
   const mistakes = Object.values(profile.mistakes).sort((a, b) => b.count - a.count).slice(0, 5);
   const toggleFocus = (id: string) => update((p) => ({ ...p, focus: p.focus.includes(id) ? p.focus.filter((x) => x !== id) : [...p.focus, id] }));
   const needsWork = touched.filter((s) => (profile.skills[s.id] as SkillState).wrong > (profile.skills[s.id] as SkillState).right * 0.5 && (profile.skills[s.id] as SkillState).seen >= 3);

@@ -3,7 +3,8 @@ import { formatHelp } from "../engine/answer";
 import type { Answer } from "../engine/types";
 import { previewLatex } from "../engine/expr";
 import { Icon } from "./icons";
-import { Tex } from "./maths";
+import { Maths, Tex } from "./maths";
+import { GlyphView, describeGlyph } from "./glyph";
 
 export type InputState = "idle" | "right" | "wrong" | "nearly";
 
@@ -84,7 +85,7 @@ export function AnswerInput(props: {
   const touch = isTouch();
   const fraction = answer.kind === "number" && !!answer.simplestFraction;
   const fieldCount = answer.kind === "multi" ? answer.fields.length : fraction ? 2 : 1;
-  const labels = answer.kind === "multi" ? answer.fields.map((f) => f.label) : [answer.label ?? ""];
+  const labels = answer.kind === "multi" ? answer.fields.map((f) => f.label) : [("label" in answer ? answer.label : undefined) ?? ""];
   const money = answer.kind === "number" && !!answer.money;
   const unit = answer.kind === "number" ? answer.unit : undefined;
   const example = answer.kind === "expr"
@@ -121,6 +122,8 @@ export function AnswerInput(props: {
     put(i, out.text);
     requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(out.caret, out.caret); });
   };
+
+  if (answer.kind === "choice") return <ChoiceInput answer={answer} values={values} onChange={onChange} onSubmit={onSubmit} disabled={disabled} state={state} help={help.line} />;
 
   const field = (i: number, cls: string, label?: string) => (
     <input
@@ -177,6 +180,40 @@ export function AnswerInput(props: {
         <p>{words}</p>
       </details>}
       {!disabled && touch && keypadMode && <Keypad mode={keypadMode} onKey={press} />}
+    </div>
+  );
+}
+
+/** Multiple choice: words or pictures, A to E. Tapping picks; the Check button marks. Keys 1 to 5 and A to E also pick. */
+function ChoiceInput({ answer, values, onChange, onSubmit, disabled, state, help }: {
+  answer: Extract<Answer, { kind: "choice" }>; values: string[]; onChange: (v: string[]) => void; onSubmit: () => void; disabled?: boolean; state: InputState; help: string;
+}) {
+  const picked = values[0] ?? "";
+  const pictures = answer.options.some((o) => "glyph" in o);
+  const pick = (i: number) => { if (!disabled) onChange([String(i)]); };
+  return (
+    <div class="answer" data-state={state}>
+      <div
+        class={`choices ${pictures ? "pictures" : "words"}`} role="radiogroup" aria-label="Choose an answer"
+        onKeyDown={(e) => {
+          const n = /^[1-5]$/.test(e.key) ? +e.key - 1 : /^[a-e]$/i.test(e.key) ? e.key.toUpperCase().charCodeAt(0) - 65 : -1;
+          if (n >= 0 && n < answer.options.length) { e.preventDefault(); pick(n); }
+          else if (e.key === "Enter" && picked !== "") { e.preventDefault(); onSubmit(); }
+        }}
+      >
+        {answer.options.map((o, i) => (
+          <button
+            type="button" role="radio" key={i} aria-checked={picked === String(i)} disabled={disabled}
+            class={`choice ${picked === String(i) ? "picked" : ""}`} data-testid={`choice-${i}`}
+            aria-label={`${"ABCDE"[i]}: ${"glyph" in o ? describeGlyph(o.glyph) : o.text.replace(/\$/g, "")}`}
+            onClick={() => pick(i)}
+          >
+            <span class="choice-letter" aria-hidden="true">{"ABCDE"[i]}</span>
+            <span class="choice-body">{"glyph" in o ? <GlyphView glyph={o.glyph} size={78} label="" /> : <Maths text={o.text} />}</span>
+          </button>
+        ))}
+      </div>
+      {!disabled && <div class="format-hint" data-testid="format-hint"><Icon name="info" size={16} /><span>{help}</span></div>}
     </div>
   );
 }

@@ -29,6 +29,15 @@ export function check(q: Question, inputs: string[]): Result {
   const a = q.answer;
   if (inputs.every((s) => !s.trim())) return { outcome: "invalid", feedback: "Type your answer first." };
 
+  if (a.kind === "choice") {
+    const typed = inputs[0].trim();
+    const pick = /^[a-e]$/i.test(typed) ? typed.toUpperCase().charCodeAt(0) - 65 : /^\d$/.test(typed) ? +typed : -1;
+    if (pick < 0 || pick >= a.options.length) return { outcome: "invalid", feedback: "Pick one of the answers." };
+    if (pick === a.correct) return { outcome: "correct" };
+    const w = q.wrong?.find((m) => m.number === pick);
+    return w ? { outcome: "wrong", feedback: w.message, tag: w.tag } : { outcome: "wrong" };
+  }
+
   if (a.kind === "number") {
     const pn = parseNumberAnswer(inputs[0], a);
     if (pn.value === null) return { outcome: "invalid", feedback: CANT_READ };

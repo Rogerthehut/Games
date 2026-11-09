@@ -27,6 +27,7 @@ function correctInputs(q: Question): string[] {
     return [f && f[1] !== 1 ? `${f[0]}/${f[1]}` : String(a.value)];
   }
   if (a.kind === "multi") return a.fields.map((f) => String(f.value));
+  if (a.kind === "choice") return [String(a.correct)];
   return [a.form === "factorised" ? fromShown(q.shown) : plain(a.value)];
 }
 

@@ -66,7 +66,14 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
       <h1>Skills</h1>
     </div>
   );
-  if (view === "journey") return <Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}</>} />;
+  const reasoningCard = (
+    <button type="button" class="reasoning-card" data-testid="open-reasoning" onClick={() => { setFilters({ topic: "Reasoning" }); changeView("list"); }}>
+      <span class="reasoning-card-title">11+ reasoning</span>
+      <span class="reasoning-card-text">Word puzzles, shape puzzles and problem solving, for 11+ practice.</span>
+      <Icon name="arrow" size={20} />
+    </button>
+  );
+  if (view === "journey") return <Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}{reasoningCard}</>} />;
   return (
     <div class="map">
       {heading}

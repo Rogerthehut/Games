@@ -6,6 +6,7 @@ import { geometrySkills } from "./geometry";
 import { calculusSkills } from "./calculus";
 import { expansionSkills } from "./expansion";
 import { primarySkills } from "./primary";
+import { reasoningSkills } from "./reasoning";
 
 /** A "common mistake" that happens to equal the right answer is not a mistake: drop it. */
 function withoutAccidentalCorrect(q: Question): Question {
@@ -15,6 +16,7 @@ function withoutAccidentalCorrect(q: Question): Question {
     if (w.number !== undefined && a.kind === "number") return Math.abs(w.number - a.value) > 1e-9;
     if (w.poly && a.kind === "expr") return !eq(w.poly, a.value);
     if (w.multi && a.kind === "multi") return !w.multi.every((x, i) => Math.abs(x - a.fields[i].value) < 1e-9);
+    if (w.number !== undefined && a.kind === "choice") return w.number !== a.correct;
     return true;
   });
   return { ...q, wrong: wrong.length ? wrong : undefined };
@@ -60,7 +62,12 @@ function withAnswerFormat(q: Question): Question {
 }
 
 const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
-export const SKILLS: Skill[] = raw.map((s) => ({ ...s, generate: (r, l) => withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l))) }));
-export const SKILL_BY_ID: Record<string, Skill> = Object.fromEntries(SKILLS.map((s) => [s.id, s]));
-export const STRANDS: Strand[] = ["Number", "Ratio", "Algebra", "Measures", "Geometry", "Statistics", "Calculus"];
+const prepared = (s: Skill): Skill => ({ ...s, generate: (r, l) => withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l))) });
+/** The maths curriculum. The check-up, pathway tests, plans and daily practice all work from this list. */
+export const SKILLS: Skill[] = raw.map(prepared);
+/** Verbal reasoning, non-verbal reasoning and problem solving, for the 11+. Practised from the Skills page, not part of the maths pathway. */
+export const REASONING_SKILLS: Skill[] = reasoningSkills.map(prepared);
+export const ALL_SKILLS: Skill[] = [...SKILLS, ...REASONING_SKILLS];
+export const SKILL_BY_ID: Record<string, Skill> = Object.fromEntries(ALL_SKILLS.map((s) => [s.id, s]));
+export const STRANDS: Strand[] = ["Number", "Ratio", "Algebra", "Measures", "Geometry", "Statistics", "Calculus", "Reasoning"];
 export const STAGE_LABEL = { KS2: "Key Stage 2", KS3: "Key Stage 3", KS4: "GCSE", KS5: "A-level" } as const;

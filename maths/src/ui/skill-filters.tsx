@@ -1,20 +1,20 @@
 import type { ComponentChildren } from "preact";
-import { SKILLS, STAGE_LABEL, STRANDS } from "../curriculum";
+import { ALL_SKILLS, STAGE_LABEL, STRANDS } from "../curriculum";
 import { STAGE_ORDER } from "../engine/activity";
 import type { Stage, Strand } from "../engine/types";
 
 export type SkillFilters = { stage?: Stage; topic?: Strand };
 
-export const topicLabel = (topic: Strand) => topic === "Ratio" ? "Ratio and proportion" : topic;
+export const topicLabel = (topic: Strand) => topic === "Ratio" ? "Ratio and proportion" : topic === "Reasoning" ? "Reasoning (11+)" : topic;
 
 export function filterSkills({ stage, topic }: SkillFilters) {
-  return SKILLS.filter((skill) => (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
+  return ALL_SKILLS.filter((skill) => (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
 }
 
 export function SkillFilterControls({ filters, onChange, count, children }: {
   filters: SkillFilters; onChange: (filters: SkillFilters) => void; count: number; children?: ComponentChildren;
 }) {
-  const topics = STRANDS.filter((topic) => SKILLS.some((skill) => (!filters.stage || skill.stage === filters.stage) && skill.strand === topic));
+  const topics = STRANDS.filter((topic) => ALL_SKILLS.some((skill) => (!filters.stage || skill.stage === filters.stage) && skill.strand === topic));
   return (
     <div class={`skills-filter${children ? " has-view" : ""}`} role="group" aria-label="Filter skills">
       <label>
