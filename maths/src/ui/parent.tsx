@@ -5,6 +5,8 @@ import { exportProfile, importProfile } from "../engine/storage";
 import { yearLabel } from "../engine/diagnostic";
 import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
+import { useAccount } from "./account-context";
+import { AccountSection } from "./account-section";
 import { Icon } from "./icons";
 import { STATUS_LABEL_PARENT } from "./labels";
 import { Maths } from "./maths";
@@ -15,6 +17,7 @@ type Part = "progress" | "tutor" | "settings";
 
 export function Parent() {
   const { profile, update, go, removeProfile, replaceProfile } = useApp();
+  const account = useAccount();
   const [part, setPart] = useState<Part>("progress");
   const [filters, setFilters] = useState<SkillFilters>({});
   const visibleSkills = filterSkills(filters).sort((a, b) => a.year - b.year);
@@ -211,7 +214,7 @@ export function Parent() {
             </label>
           </section>
 
-          <section class="card">
+          {account ? <AccountSection /> : <section class="card">
             <h2>Move progress to another device</h2>
             <div class="actions"><button class="btn" onClick={() => setExportText(exportProfile(profile))}>Create save text</button></div>
             {exportText && (
@@ -226,13 +229,13 @@ export function Parent() {
             </label>
             <div class="actions"><button class="btn" disabled={!pasted.trim()} onClick={doImport}>Load</button></div>
             {msg && <p role="status" class="small">{msg}</p>}
-          </section>
+          </section>}
 
           <section class="card">
             <h2>Remove {profile.name}</h2>
             {!confirmDel
               ? <button class="btn danger" onClick={() => setConfirmDel(true)}>Delete this learner</button>
-              : <div class="actions"><span>This erases their progress on this device.</span><button class="btn danger" onClick={() => removeProfile(profile.id)}>Yes, delete</button><button class="btn" onClick={() => setConfirmDel(false)}>Cancel</button></div>}
+              : <div class="actions"><span>{account ? "This erases their progress from your account." : "This erases their progress on this device."}</span><button class="btn danger" onClick={() => removeProfile(profile.id)}>Yes, delete</button><button class="btn" onClick={() => setConfirmDel(false)}>Cancel</button></div>}
           </section>
         </>
       )}

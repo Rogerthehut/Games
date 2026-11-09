@@ -149,3 +149,17 @@ describe("removing a learner", () => {
     expect(s.status).toBe("saved");
   });
 });
+
+describe("timers", () => {
+  it("works when the browser's own setTimeout refuses to be called as a method", async () => {
+    // a stand-in for a browser: setTimeout throws unless its `this` is the global object
+    const real = globalThis.setTimeout, realClear = globalThis.clearTimeout;
+    const strict = function (this: unknown, ...a: Parameters<typeof setTimeout>) { if (this !== undefined && this !== globalThis) throw new TypeError("Illegal invocation"); return real(...a); } as typeof setTimeout;
+    const strictClear = function (this: unknown, t?: Parameters<typeof clearTimeout>[0]) { if (this !== undefined && this !== globalThis) throw new TypeError("Illegal invocation"); realClear(t); } as typeof clearTimeout;
+    vi.stubGlobal("setTimeout", strict); vi.stubGlobal("clearTimeout", strictClear);
+    try {
+      const f = fakeApi(); const s = new Sync(f.api, hooks());     // the default timers
+      expect(() => { s.notify(store(prof("p_local"))); s.notify(store(prof("p_local"))); s.dispose(); }).not.toThrow();
+    } finally { vi.unstubAllGlobals(); }
+  });
+});

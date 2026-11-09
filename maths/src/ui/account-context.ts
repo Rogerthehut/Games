@@ -1,0 +1,22 @@
+import { createContext } from "preact";
+import { useContext } from "preact/hooks";
+import type { RemoteLearner, SyncStatus } from "../account/sync";
+import type { Store } from "../engine/storage";
+
+/** What the app needs from the account while it runs. */
+export interface AccountBridge {
+  persist(store: Store): void;
+  forget(id: string): void;
+  setHandlers(h: { remap(localId: string, remoteId: string): void; remote(r: RemoteLearner): void }): void;
+}
+export interface AccountInfoCtx {
+  email?: string;
+  status: SyncStatus;
+  notice: string;
+  signOut(): Promise<void>;
+  exportData(): Promise<unknown>;
+  deleteAccount(): Promise<void>;
+}
+export const AccountCtx = createContext<AccountInfoCtx | null>(null);
+/** The signed-in account, or null when the app is running without accounts. */
+export const useAccount = () => useContext(AccountCtx);

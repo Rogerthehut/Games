@@ -2324,3 +2324,21 @@ html:has(.quarter-search[open]),
 .paper-choice .field-label { margin-bottom: 4px; }
 .option input[type="radio"], .option input[type="checkbox"] { flex: none; width: 20px; height: 20px; }
 .see-question { margin: 6px 0; }
+
+/* Accounts: sign-in, consent, and the saved-status line. */
+.account-card.wide { max-width: 520px; }
+.account-card h1 { margin-bottom: 4px; }
+.account-tabs { margin: 16px 0 12px; width: 100%; }
+.account-tabs button { flex: 1; min-height: 48px; }
+.clerk-mount { width: 100%; min-height: 120px; display: flex; justify-content: center; }
+.account-points { list-style: none; margin: 12px 0 16px; padding: 0; display: grid; gap: 10px; text-align: left; }
+.account-points li { padding: 12px 14px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); line-height: 1.4; }
+.account-check { display: flex; gap: 12px; align-items: flex-start; text-align: left; margin: 8px 0 16px; line-height: 1.4; }
+.account-check input { flex: none; width: 24px; height: 24px; margin-top: 2px; }
+.account-legal { margin-top: 16px; text-align: center; }
+.account-legal a { display: inline-block; padding-block: 8px; }
+.fake-auth { display: grid; gap: 10px; width: 100%; }
+.fake-auth input { min-height: 52px; padding-inline: 14px; border-radius: var(--r-md); border: 2px solid var(--line); font: inherit; background: var(--surface); color: var(--ink); }
+.sync-chip { margin: 4px 0 0; font-size: .9rem; color: var(--muted); }
+.sync-chip.saved { color: var(--good-ink, var(--ink)); }
+.sync-chip.offline, .sync-chip.error { color: var(--ink); font-weight: 700; }

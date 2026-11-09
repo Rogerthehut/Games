@@ -4,6 +4,7 @@ import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { currentStreak, statusOf, type Profile } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
 import { useApp } from "./context";
+import { SyncChip } from "./account-section";
 import { ParentGate, parentUnlocked } from "./gate";
 import { Icon } from "./icons";
 import { Avatar, avatarVariants } from "./avatar";
@@ -58,6 +59,7 @@ export function Me() {
         <div>
           <h1>{profile.name}</h1>
           <p class="muted">Year {profile.year}{last ? ` · working at ${yearLabel(last.theta)}` : ""}</p>
+          <SyncChip />
         </div>
       </header>
 

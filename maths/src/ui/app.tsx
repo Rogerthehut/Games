@@ -22,19 +22,30 @@ import { Shell } from "./shell";
 import { primaryNav, tabHref, tabRoute, type Tab } from "./navigation";
 import { Me } from "./me";
 import { ParentGate, parentUnlocked } from "./gate";
+import type { AccountBridge } from "./account-context";
+import type { RemoteLearner } from "../account/sync";
 
 function hrefForRoute(route: Route): string | undefined {
   const tab = primaryNav.find((item) => item.route.name === route.name);
   return tab && tabHref(tab.id);
 }
 
-export function App() {
-  const [store, setStore] = useState<Store>(() => loadStore());
+/** Without `bridge` the app keeps progress on the device only. With one, a signed-in parent's learners are saved to their account. */
+export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: AccountBridge } = {}) {
+  const [store, setStore] = useState<Store>(() => initialStore ?? loadStore());
   const [showWelcome, setShowWelcome] = useState(() => store.profiles.length > 0);
   const closeWelcome = useCallback(() => setShowWelcome(false), []);
   const session = useRef(Math.random().toString(36).slice(2));
   const [route, setRouteRaw] = useState<Route>(() => tabRoute(location.search) ?? (store.profiles.length ? { name: "home" } : { name: "onboard", first: true }));
-  useEffect(() => saveStore(store), [store]);
+  useEffect(() => { if (bridge) bridge.persist(store); else saveStore(store); }, [store]);
+  useEffect(() => {
+    bridge?.setHandlers({
+      // a learner made on this device got its permanent id from the server
+      remap: (localId: string, remoteId: string) => setStore((s) => ({ ...s, profiles: s.profiles.map((p) => (p.id === localId ? { ...p, id: remoteId } : p)), activeId: s.activeId === localId ? remoteId : s.activeId })),
+      // another device saved newer progress: take it, but keep this device's tutor chat log
+      remote: (r: RemoteLearner) => setStore((s) => ({ ...s, profiles: s.profiles.map((p) => (p.id === r.id ? ({ ...(r.data as unknown as Profile), id: r.id, tutorLog: p.tutorLog } as Profile) : p)) })),
+    });
+  }, []);
   useEffect(() => applyTheme(getTheme()), []);
 
   // Screen changes cross-fade and slide with the browser's View Transitions API where it exists.
@@ -111,6 +122,7 @@ export function App() {
         return { ...s, profiles: has ? s.profiles.map((x) => (x.id === p.id ? p : x)) : [...s.profiles, p], activeId: p.id };
       }),
     removeProfile: (id: string) => {
+      bridge?.forget(id);
       setStore((s) => {
         const profiles = s.profiles.filter((p) => p.id !== id);
         return { ...s, profiles, activeId: profiles[0]?.id ?? null };
@@ -121,7 +133,7 @@ export function App() {
   };
 
   if (!profile || route.name === "onboard")
-    return <Ctx.Provider value={ctx}><Onboarding first={!profile} destination={route.name === "onboard" ? undefined : route} /></Ctx.Provider>;
+    return <Ctx.Provider value={ctx}><Onboarding first={!profile} account={!!bridge} destination={route.name === "onboard" ? undefined : route} /></Ctx.Provider>;
   if (showWelcome && route.name === "home") return <Welcome name={profile.name} onContinue={closeWelcome} />;
   if (route.name === "mock")
     return <Ctx.Provider value={ctx}><Mock /></Ctx.Provider>;

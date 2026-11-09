@@ -14,7 +14,7 @@ const YEARS: { y: number; age: string; stage: string }[] = [
   { y: 10, age: "14–15", stage: "GCSE" }, { y: 11, age: "15–16", stage: "GCSE" }, { y: 12, age: "16–17", stage: "A-level" }, { y: 13, age: "17–18", stage: "A-level" },
 ];
 
-export function Onboarding({ first, destination = { name: "home" } }: { first: boolean; destination?: Route }) {
+export function Onboarding({ first, destination = { name: "home" }, account = false }: { first: boolean; destination?: Route; account?: boolean }) {
   const { addProfile, replaceProfile, go } = useApp();
   const [step, setStep] = useState<"name" | "year">("name");
   const [name, setName] = useState("");
@@ -44,14 +44,14 @@ export function Onboarding({ first, destination = { name: "home" } }: { first: b
         {step === "name" ? (
           <>
             <div class="welcome-mark"><CubeMark /></div>
-            <h1>{first ? <>Hi, welcome to <Wordmark /></> : "Who's joining?"}</h1>
-            <p class="onboard-sub">{first ? "Let's get you set up. What should I call you? A nickname is fine." : "What should I call them?"}</p>
+            <h1>{account ? "Who's learning?" : first ? <>Hi, welcome to <Wordmark /></> : "Who's joining?"}</h1>
+            <p class="onboard-sub">{account ? "What should we call them? A nickname is best: please don't use a full name." : first ? "Let's get you set up. What should I call you? A nickname is fine." : "What should I call them?"}</p>
             <div>
               <input id="name" class="big-input" value={name} onInput={(e) => setName((e.target as HTMLInputElement).value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.isComposing) continueToYear(); }} autoComplete="off" autoFocus placeholder="First name" maxLength={24} aria-label="First name" />
               <button class="btn primary big" type="button" onClick={continueToYear} disabled={!name.trim()} data-testid="name-next">Next <Icon name="arrow" size={20} /></button>
             </div>
             <div class="onboard-links">
-              <button class="linkish" onClick={() => { setShowImport(!showImport); setError(""); }}>I have a saved profile</button>
+              {!account && <button class="linkish" onClick={() => { setShowImport(!showImport); setError(""); }}>I have a saved profile</button>}
               {!first && <button class="linkish" onClick={() => go({ name: "me" })}>Cancel</button>}
             </div>
             {showImport && (

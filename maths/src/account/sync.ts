@@ -54,7 +54,14 @@ export class Sync {
   private pendingDeletes = new Set<string>();
   status: SyncStatus = "idle";
 
-  constructor(private api: SyncApi, private hooks: SyncHooks, private timing: SyncTiming = DEFAULT_TIMING, private clock = { set: setTimeout, clear: clearTimeout }) {}
+  constructor(private api: SyncApi, private hooks: SyncHooks, private timing: SyncTiming = DEFAULT_TIMING, private clock: { set: (f: () => void, ms: number) => ReturnType<typeof setTimeout>; clear: (t: ReturnType<typeof setTimeout>) => void } = {
+    // wrapped, not passed bare: browsers refuse to call setTimeout as a method of another object ("Illegal invocation")
+    set: (f, ms) => setTimeout(f, ms),
+    clear: (t) => clearTimeout(t),
+  }) {}
+
+  /** The version of each learner this device last saw, kept in the offline copy. */
+  versions(): [string, number][] { return [...this.known].map(([id, k]) => [id, k.version]); }
 
   /** Tell it what the server already holds (after signing in), so nothing is sent back for no reason. */
   seed(learners: RemoteLearner[]) {
