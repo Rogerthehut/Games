@@ -222,7 +222,7 @@ export function Parent() {
             )}
             <label>
               <span class="field-label">Load saved text</span>
-              <textarea rows={3} value={pasted} onInput={(e) => setPasted((e.target as HTMLTextAreaElement).value)} placeholder="Paste saved text here" />
+              <textarea rows={3} value={pasted} onInput={(e) => { setPasted((e.target as HTMLTextAreaElement).value); setMsg(""); }} placeholder="Paste saved text here" />
             </label>
             <div class="actions"><button class="btn" disabled={!pasted.trim()} onClick={doImport}>Load</button></div>
             {msg && <p role="status" class="small">{msg}</p>}

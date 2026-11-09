@@ -51,12 +51,13 @@ export function Onboarding({ first, destination = { name: "home" } }: { first: b
               <button class="btn primary big" type="button" onClick={continueToYear} disabled={!name.trim()} data-testid="name-next">Next <Icon name="arrow" size={20} /></button>
             </div>
             <div class="onboard-links">
-              <button class="linkish" onClick={() => setShowImport(!showImport)}>I have a saved profile</button>
+              <button class="linkish" onClick={() => { setShowImport(!showImport); setError(""); }}>I have a saved profile</button>
               {!first && <button class="linkish" onClick={() => go({ name: "me" })}>Cancel</button>}
             </div>
             {showImport && (
               <div class="import">
-                <textarea rows={5} value={pasted} onInput={(e) => setPasted((e.target as HTMLTextAreaElement).value)} placeholder="Paste your saved text here" aria-label="Saved profile text" />
+                <p class="small muted">Moving to a new device? Paste the save text from the grown-ups' area of Quarter on your old one. Progress is kept only on the device, so this is how it travels.</p>
+                <textarea rows={5} value={pasted} onInput={(e) => { setPasted((e.target as HTMLTextAreaElement).value); setError(""); }} placeholder="Paste your saved text here" aria-label="Saved profile text" />
                 {error && <p class="error" role="alert">{error}</p>}
                 <button class="btn" onClick={load} disabled={!pasted.trim()}>Load it</button>
               </div>
