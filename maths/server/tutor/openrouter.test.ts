@@ -118,7 +118,7 @@ describe("the tutor's own checks still protect children when the model is a free
     const n = net(ok("Sure! x = 9."));
     const d = { provider: new OpenRouterProvider(cfg(), n.fetchFn), limiter: new Limiter() };
     const out = await handleTutor(req, "1.2.3.4", d);
-    expect(out.body.reply).not.toMatch(/\bx\s*=\s*9\b|\b9\b/);
+    expect((out.body as { reply: string }).reply).not.toMatch(/\bx\s*=\s*9\b|\b9\b/);
   });
 
   it("answers 'unavailable' rather than failing when the free model is down", async () => {
@@ -127,7 +127,7 @@ describe("the tutor's own checks still protect children when the model is a free
     const d = { provider: new OpenRouterProvider(cfg(), n.fetchFn), limiter: new Limiter(), log: (e: { flag?: string }) => events.push(e) };
     const out = await handleTutor(req, "1.2.3.4", d);
     expect(out.status).toBe(200);
-    expect(out.body.flag).toBe("unavailable");
+    expect((out.body as { flag?: string }).flag).toBe("unavailable");
     expect(events.some((e) => e.flag === "unavailable")).toBe(true);
   });
 
