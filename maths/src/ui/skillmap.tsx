@@ -44,8 +44,10 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
     if (revisiting) setPicked(targetSkill);
     const id = targetSkill ? `skill-${targetSkill}` : `${view}-world-${destination.stage}`;
     const frame = requestAnimationFrame(() => {
-      const target = document.getElementById(id);
-      target?.scrollIntoView({ block: targetSkill ? "center" : "start" });
+      // With nothing chosen, open the map where the learner is now, not at the top of their stage.
+      const here = !targetSkill && view === "journey" ? document.querySelector<HTMLElement>(".journey .node.here") : null;
+      const target = here ?? document.getElementById(id);
+      target?.scrollIntoView({ block: targetSkill || here ? "center" : "start" });
       target?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
@@ -54,7 +56,8 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
   const viewSwitch = (
     <button type="button" class="btn small" onClick={() => changeView(view === "journey" ? "list" : "journey")}>
       <Icon name={view === "journey" ? "list" : "route"} size={18} />
-      {view === "journey" ? "Show as a list" : "Show journey map"}
+      <span class="lbl-long">{view === "journey" ? "Show as a list" : "Show journey map"}</span>
+      <span class="lbl-short">{view === "journey" ? "List" : "Map"}</span>
     </button>
   );
   const heading = (

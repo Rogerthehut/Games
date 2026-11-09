@@ -2218,3 +2218,33 @@ html:has(.quarter-search[open]),
 /* This heading receives focus on navigation so screen readers announce Today. */
 #activity-title[tabindex="-1"]:focus { outline: none; }
 .footer-credit { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+
+
+/* Phones: keep the bottom bar to one row so the answer and keypad stay in view. */
+.qbar .lbl-short { display: none; }
+@media (max-width: 600px) {
+  .qpage .qbar-in { flex-wrap: nowrap; gap: 6px; }
+  .qpage .qbar-in:has(.qbar-left > :nth-child(3)) { flex-wrap: wrap; }
+  .qpage .qbar-left { flex: 0 1 auto; flex-wrap: nowrap; gap: 0; }
+  .qpage .qbar .btn.ghost { padding-inline: .5rem; font-size: .9rem; gap: 5px; }
+  .qpage .qbar .btn.primary { min-width: 0; padding-inline: 1.1rem; white-space: nowrap; }
+  .qbar .lbl-long { display: none; }
+  .qbar .lbl-short { display: inline; }
+}
+@media (max-height: 900px) and (pointer: coarse) {
+  .keypad { gap: 6px; }
+  .keypad .pad-key { min-height: 48px; }
+  .qpage .field { min-height: 58px; }
+  .qpage .answer { gap: 6px; }
+  .qpage .qbody > p.small.muted { display: none; }
+  .qbar-more { min-height: 40px; margin-bottom: 6px; }
+}
+
+.skills-view-control .lbl-short { display: none; }
+@media (max-width: 600px) {
+  .skills-view-control .lbl-long { display: none; }
+  .skills-view-control .lbl-short { display: inline; }
+}
+
+/* The live-preview line only takes room when there is something to preview (expression answers). */
+.preview:empty { min-height: 0; }

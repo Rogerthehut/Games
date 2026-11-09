@@ -78,7 +78,7 @@ export function QBar({ left, right, help = false }: { left?: ComponentChildren; 
       <div class="qbar-in">
         <div class="qbar-left">
           {left}
-          {help && <button type="button" class="btn ghost" aria-controls="question-tools" aria-expanded={helpOpen} onClick={toggleHelp}><Icon name="pencil" size={20} /> {helpOpen ? "Hide tools" : "Working-out tools"}</button>}
+          {help && <button type="button" class="btn ghost" aria-controls="question-tools" aria-expanded={helpOpen} onClick={toggleHelp}><Icon name="pencil" size={20} /> <span class="lbl-long">{helpOpen ? "Hide tools" : "Working-out tools"}</span><span class="lbl-short">{helpOpen ? "Hide" : "Tools"}</span></button>}
         </div>
         <div class="qbar-right">
           {right}
