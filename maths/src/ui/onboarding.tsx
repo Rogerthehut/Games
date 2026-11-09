@@ -1,6 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
 import { newProfile } from "../engine/progress";
-import { importProfile } from "../engine/storage";
 import { useApp, type Route } from "./context";
 import { Icon } from "./icons";
 import { applySkin, skinForYear } from "./skin";
@@ -15,13 +14,10 @@ const YEARS: { y: number; age: string; stage: string }[] = [
 ];
 
 export function Onboarding({ first, destination = { name: "home" }, account = false }: { first: boolean; destination?: Route; account?: boolean }) {
-  const { addProfile, replaceProfile, go } = useApp();
+  const { addProfile, go } = useApp();
   const [step, setStep] = useState<"name" | "year">("name");
   const [name, setName] = useState("");
   const [year, setYear] = useState<number | null>(null);
-  const [pasted, setPasted] = useState("");
-  const [showImport, setShowImport] = useState(false);
-  const [error, setError] = useState("");
 
   // Picking a year previews the look that goes with it.
   useEffect(() => { if (year) applySkin(skinForYear(year)); }, [year]);
@@ -32,10 +28,6 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
     if (!name.trim() || !year) return;
     addProfile(newProfile(name.trim(), year));
     go(destination);
-  };
-  const load = () => {
-    try { replaceProfile(importProfile(pasted.trim())); go(destination); }
-    catch (e) { setError((e as Error).message); }
   };
 
   return (
@@ -51,17 +43,8 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
               <button class="btn primary big" type="button" onClick={continueToYear} disabled={!name.trim()} data-testid="name-next">Next <Icon name="arrow" size={20} /></button>
             </div>
             <div class="onboard-links">
-              {!account && <button class="linkish" onClick={() => { setShowImport(!showImport); setError(""); }}>I have a saved profile</button>}
               {!first && <button class="linkish" onClick={() => go({ name: "me" })}>Cancel</button>}
             </div>
-            {showImport && (
-              <div class="import">
-                <p class="small muted">Moving to a new device? Paste the save text from the grown-ups' area of Quarter on your old one. Progress is kept only on the device, so this is how it travels.</p>
-                <textarea rows={5} value={pasted} onInput={(e) => { setPasted((e.target as HTMLTextAreaElement).value); setError(""); }} placeholder="Paste your saved text here" aria-label="Saved profile text" />
-                {error && <p class="error" role="alert">{error}</p>}
-                <button class="btn" onClick={load} disabled={!pasted.trim()}>Load it</button>
-              </div>
-            )}
           </>
         ) : (
           <>

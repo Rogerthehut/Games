@@ -1,7 +1,6 @@
 import { useRef, useState } from "preact/hooks";
 import { ALL_SKILLS, SKILLS, STAGE_LABEL } from "../curriculum";
 import { DAY, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
-import { exportProfile, importProfile } from "../engine/storage";
 import { yearLabel } from "../engine/diagnostic";
 import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
@@ -16,7 +15,7 @@ const when = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "nume
 type Part = "progress" | "tutor" | "settings";
 
 export function Parent() {
-  const { profile, update, go, removeProfile, replaceProfile } = useApp();
+  const { profile, update, go, removeProfile } = useApp();
   const account = useAccount();
   const [part, setPart] = useState<Part>("progress");
   const [filters, setFilters] = useState<SkillFilters>({});
@@ -24,9 +23,6 @@ export function Parent() {
   const topicsHeading = useRef<HTMLHeadingElement>(null);
   const stats = weekStats(profile);
   const [confirmDel, setConfirmDel] = useState(false);
-  const [exportText, setExportText] = useState("");
-  const [pasted, setPasted] = useState("");
-  const [msg, setMsg] = useState("");
   const tutorUp = useTutorAvailable();
   const log = profile.tutorLog ?? [];
   const worries = log.filter((e) => e.flag === "wellbeing" && !e.seen);
@@ -45,22 +41,6 @@ export function Parent() {
       for (const s of SKILLS) if (s.year < year && !skills[s.id]) skills[s.id] = { box: 3, due: Date.now() + 3 * DAY, seen: 0, right: 0, wrong: 0, last: 0, assumed: true };
       return { ...p, year, skills };
     });
-
-  const doImport = () => {
-    try { replaceProfile(importProfile(pasted.trim())); setMsg("Progress loaded."); setPasted(""); }
-    catch (e) { setMsg((e as Error).message); }
-  };
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(exportText); setMsg("Copied. Keep it somewhere safe, like a notes app or an email to yourself."); }
-    catch { setMsg("Select the text and copy it yourself."); }
-  };
-  const download = () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([exportText], { type: "application/json" }));
-    a.download = `quarter-${profile.name.toLowerCase().replace(/\W+/g, "-")}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
 
   return (
     <div class="parent">
@@ -214,22 +194,7 @@ export function Parent() {
             </label>
           </section>
 
-          {account ? <AccountSection /> : <section class="card">
-            <h2>Move progress to another device</h2>
-            <div class="actions"><button class="btn" onClick={() => setExportText(exportProfile(profile))}>Create save text</button></div>
-            {exportText && (
-              <>
-                <textarea readOnly rows={5} value={exportText} onFocus={(e) => (e.target as HTMLTextAreaElement).select()} aria-label="Save text" />
-                <div class="actions"><button class="btn" onClick={copy}>Copy</button><button class="btn" onClick={download}>Download file</button></div>
-              </>
-            )}
-            <label>
-              <span class="field-label">Load saved text</span>
-              <textarea rows={3} value={pasted} onInput={(e) => { setPasted((e.target as HTMLTextAreaElement).value); setMsg(""); }} placeholder="Paste saved text here" />
-            </label>
-            <div class="actions"><button class="btn" disabled={!pasted.trim()} onClick={doImport}>Load</button></div>
-            {msg && <p role="status" class="small">{msg}</p>}
-          </section>}
+          {account && <AccountSection />}
 
           <section class="card">
             <h2>Remove {profile.name}</h2>
