@@ -72,7 +72,17 @@
         "label": "Buckinghamshire Council Secondary Transfer Test",
         "path": "https://www.buckinghamshire.gov.uk/schools-libraries-and-parks/school-admissions-and-appeals/grammar-schools-and-transfer-testing-11/the-secondary-transfer-test/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment",
+      "status": "confirmed",
+      "note": "The council's guide names GL Assessment for the Secondary Transfer Test.",
+      "source": {
+        "label": "Buckinghamshire Council: guide to grammar schools and the Secondary Transfer Test",
+        "path": "https://www.buckinghamshire.gov.uk/schools-libraries-and-parks/school-admissions-and-appeals/guides-and-policies/guide-to-grammar-schools-and-the-secondary-school-transfer-test-11-plus/"
+      },
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "calderdale",
@@ -139,7 +149,17 @@
         "label": "Gloucestershire County Council grammar school testing",
         "path": "https://www.gloucestershire.gov.uk/schooladmissions/grammar-schools/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Varies by school",
+      "status": "confirmed",
+      "note": "The grammar schools announced Future Stories Community Enterprise (FSCE) as provider for the 2028 intake, and some schools, such as The Crypt and Marling, set their own tests. The council page is about 18 months old, so confirm with each school.",
+      "source": {
+        "label": "Gloucestershire County Council: grammar schools",
+        "path": "https://www.gloucestershire.gov.uk/education-and-learning/school-admissions/grammar-schools/"
+      },
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "hertfordshire",
@@ -165,7 +185,13 @@
         "label": "Kent County Council test preparation and familiarisation",
         "path": "https://www.kent.gov.uk/education-and-children/schools/school-places/kent-test/prepare-for-the-kent-test"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment",
+      "status": "reported",
+      "note": "Several tutoring sites say the Kent Test is set by GL Assessment for Kent County Council. The council site blocked our automated check, so please confirm on kent.gov.uk.",
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "kingston",
@@ -217,7 +243,13 @@
         "label": "King Edward VI Grammar School 11+ FAQs",
         "path": "https://www.kevigs.org/admissions/faqs/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment",
+      "status": "reported",
+      "note": "The council points to the Lincolnshire Consortium test but does not name its provider. GL Assessment comes from tutoring sites only.",
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "liverpool",
@@ -239,7 +271,17 @@
         "label": "Medway Council test guidance",
         "path": "https://www.medway.gov.uk/medwaytest"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment",
+      "status": "confirmed",
+      "note": "Medway Council says its test provider is GL Assessment. The Medway Test is written for Medway.",
+      "source": {
+        "label": "Medway Council: about the Medway Test",
+        "path": "https://www.medway.gov.uk/info/200137/schools_and_learning/1049/medway_test_11"
+      },
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "north-yorkshire",
@@ -369,7 +411,13 @@
         "label": "Urmston Grammar School admissions updates",
         "path": "https://www.urmstongrammar.org.uk/page/?pid=297"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment, with a change expected",
+      "status": "disputed",
+      "note": "Most sources say GL Assessment for the September 2026 sitting and Future Stories Community Enterprise (FSCE) later, but one says FSCE already. Loreto and St Ambrose use a separate test.",
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "warwickshire",
@@ -395,7 +443,13 @@
         "label": "West Midlands Grammar Schools official test preparation",
         "path": "https://westmidlandsgrammarschools.co.uk/preparing-for-the-test"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Birmingham (King Edward VI Foundation): GL Assessment",
+      "status": "reported",
+      "note": "Tutoring sites say the shared Birmingham test moved from CEM to GL Assessment for 2023 entry. Other schools in this area are not checked.",
+      "checked": "2026-11-09"
+    }
   },
   {
     "id": "westmorland",
@@ -432,6 +486,16 @@
         "label": "Wirral grammar schools 11+ admissions",
         "path": "https://www.wirral11plus.co.uk/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Quest Assessments",
+      "status": "confirmed",
+      "note": "For the 2026-27 assessment of the non-Catholic grammar schools. Earlier years used GL Assessment. St Anselm's College and Upton Hall School run their own assessments.",
+      "source": {
+        "label": "Wirral Council: assessment for grammar school education",
+        "path": "https://www.wirral.gov.uk/schools-and-learning/school-admissions/step-by-step/apply-secondary-school-place/assessment-grammar"
+      },
+      "checked": "2026-11-09"
+    }
   }
 ]

@@ -2248,3 +2248,6 @@ html:has(.quarter-search[open]),
 
 /* The live-preview line only takes room when there is something to preview (expression answers). */
 .preview:empty { min-height: 0; }
+
+.test-provider { margin: 0 0 2px; }
+.test-provider.unchecked { color: var(--muted); }

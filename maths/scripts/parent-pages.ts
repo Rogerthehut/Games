@@ -25,19 +25,37 @@ function sectionBody(section: Section) {
     + (section.link ? `<p>${link(section.link)}</p>` : "");
 }
 
+const TEST_STATUS = {
+  confirmed: "Confirmed on an official page",
+  reported: "Reported by tutoring sites. Check the official page",
+  disputed: "Sources disagree. Check with the school",
+} as const;
+
+function checkedOn(iso: string) {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+function testNote(test: (typeof admissions)[number]["test"]) {
+  if (!test) return `<p class="test-provider unchecked"><strong>Test provider:</strong> not checked yet. Ask the school or council.</p>`;
+  return `<p class="test-provider ${test.status}"><strong>Test provider:</strong> ${escapeHtml(test.provider)}</p>
+<p class="small muted">${TEST_STATUS[test.status as keyof typeof TEST_STATUS]}. Checked ${checkedOn(test.checked)}. ${escapeHtml(test.note)}${test.source ? ` ${link(test.source)}` : ""}</p>`;
+}
+
 function testFinder() {
   return `<section id="test-finder" aria-labelledby="test-finder-title" class="test-finder">
 <h2 id="test-finder-title">Find your local 11+ test</h2>
 <p>Search by area, school or test name. The directory covers state selective admissions and includes Northern Ireland’s transfer test. Open the official admissions page for your child’s entry year and look for any familiarisation materials it recommends.</p>
+<p class="small muted">Test providers change, and councils and schools can run different tests. We show who sets each test only where we have checked, and say how sure we are. Always confirm with the school before choosing what to practise.</p>
 <div class="test-finder-search" hidden>
 <label for="test-finder-query">Search 11+ guidance</label>
 <input id="test-finder-query" type="search" placeholder="For example, Bromley or Tiffin" autocomplete="off">
 <p class="small muted" role="status"></p>
 </div>
-<ul class="rows sitemap-links">${admissions.map(({ id, area, keywords, links }) => `
+<ul class="rows sitemap-links">${admissions.map(({ id, area, keywords, links, test }) => `
 <li id="${id}" data-test-area="${escapeHtml(area + " " + keywords)}">
 <article class="test-finder-entry">
 <h3>${escapeHtml(area)}</h3>
+${testNote(test)}
 <ul>${links.map((item) => `<li>${link(item)}</li>`).join("")}</ul>
 </article>
 </li>`).join("")}</ul>
