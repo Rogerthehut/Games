@@ -78,8 +78,10 @@ export function AnswerInput(props: {
   onSubmit: () => void;
   disabled?: boolean;
   state?: InputState;
+  /** Mark the right answer (multiple choice), for review. */
+  reveal?: boolean;
 }) {
-  const { answer, values, onChange, onSubmit, disabled, state = "idle" } = props;
+  const { answer, values, onChange, onSubmit, disabled, state = "idle", reveal } = props;
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const focused = useRef(0);
   const touch = isTouch();
@@ -123,7 +125,7 @@ export function AnswerInput(props: {
     requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(out.caret, out.caret); });
   };
 
-  if (answer.kind === "choice") return <ChoiceInput answer={answer} values={values} onChange={onChange} onSubmit={onSubmit} disabled={disabled} state={state} help={help.line} />;
+  if (answer.kind === "choice") return <ChoiceInput answer={answer} values={values} onChange={onChange} onSubmit={onSubmit} disabled={disabled} state={state} help={help.line} reveal={reveal} />;
 
   const field = (i: number, cls: string, label?: string) => (
     <input
@@ -185,8 +187,8 @@ export function AnswerInput(props: {
 }
 
 /** Multiple choice: words or pictures, A to E. Tapping picks; the Check button marks. Keys 1 to 5 and A to E also pick. */
-function ChoiceInput({ answer, values, onChange, onSubmit, disabled, state, help }: {
-  answer: Extract<Answer, { kind: "choice" }>; values: string[]; onChange: (v: string[]) => void; onSubmit: () => void; disabled?: boolean; state: InputState; help: string;
+function ChoiceInput({ answer, values, onChange, onSubmit, disabled, state, help, reveal }: {
+  answer: Extract<Answer, { kind: "choice" }>; values: string[]; onChange: (v: string[]) => void; onSubmit: () => void; disabled?: boolean; state: InputState; help: string; reveal?: boolean;
 }) {
   const picked = values[0] ?? "";
   const pictures = answer.options.some((o) => "glyph" in o);
@@ -212,7 +214,7 @@ function ChoiceInput({ answer, values, onChange, onSubmit, disabled, state, help
         {answer.options.map((o, i) => (
           <button
             type="button" role="radio" key={i} aria-checked={picked === String(i)} disabled={disabled}
-            class={`choice ${picked === String(i) ? "picked" : ""}`} data-testid={`choice-${i}`}
+            class={`choice ${picked === String(i) ? "picked" : ""} ${reveal && i === answer.correct ? "correct" : ""}`} data-testid={`choice-${i}`}
             aria-label={`${"ABCDE"[i]}: ${"glyph" in o ? describeGlyph(o.glyph) : o.text.replace(/\$/g, "")}`}
             onClick={() => pick(i)}
           >

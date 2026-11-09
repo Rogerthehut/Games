@@ -9,7 +9,7 @@ import { Icon } from "./icons";
 
 const EXAMS: { id: Goal["exam"]; label: string; note: string }[] = [
   { id: "gl", label: "GL Assessment style", note: "Used in many grammar-school areas." },
-  { id: "cem", label: "CEM style", note: "Mixed, quick-fire papers. CEM-style practice isn't built yet, so the plan covers the maths both tests share." },
+  { id: "cem", label: "Another provider (for example FSCE, Quest or CEM)", note: "Several areas have moved away from GL and CEM. The plan covers the maths and reasoning skills these tests share." },
   { id: "unsure", label: "Not sure yet", note: "We'll plan around general 11+ maths. You can change this any time." },
   { id: "none", label: "No 11+, just getting stronger", note: "Build your confidence with regular maths practice." },
 ];
@@ -26,6 +26,7 @@ export function PlanView({ initialWeek }: { initialWeek?: number }) {
   const [schools, setSchools] = useState(goal.schools.join("\n"));
   const [date, setDate] = useState(dateInput(goal.examDate));
   const [spw, setSpw] = useState(goal.sessionsPerWeek);
+  const [reasoning, setReasoning] = useState(!!goal.reasoning);
   const [editing, setEditing] = useState(!profile.plan);
   const [showAll, setShowAll] = useState((initialWeek ?? 0) > 5);
 
@@ -45,9 +46,9 @@ export function PlanView({ initialWeek }: { initialWeek?: number }) {
   const save = (e: Event) => {
     e.preventDefault();
     const examDate = date ? new Date(date + "T09:00:00").getTime() : undefined;
-    const g: Goal = { exam, area: area.trim().slice(0, 12), schools: schools.split("\n").map((x) => x.trim()).filter(Boolean).slice(0, 8), examDate, sessionsPerWeek: spw };
+    const g: Goal = { exam, area: area.trim().slice(0, 12), schools: schools.split("\n").map((x) => x.trim()).filter(Boolean).slice(0, 8), examDate, sessionsPerWeek: spw, reasoning: exam !== "none" && reasoning };
     const target: PlanTarget = exam === "none" ? "general" : "11plus";
-    update((p) => ({ ...p, goal: g, plan: buildPlan(p, Date.now(), { sessionsPerWeek: spw, target, examDate }) }));
+    update((p) => ({ ...p, goal: g, plan: buildPlan(p, Date.now(), { sessionsPerWeek: spw, target, examDate, reasoning: g.reasoning }) }));
     setEditing(false);
   };
 
@@ -111,7 +112,7 @@ export function PlanView({ initialWeek }: { initialWeek?: number }) {
 
           <ul class="rows">
             {profile.goal?.exam !== "none" && (
-              <li><button class="row" onClick={() => go({ name: "mock" })} data-testid="take-mock"><Icon name="target" /><span>Take a practice paper<small>{profile.mocks?.length ? `Last time: ${profile.mocks[profile.mocks.length - 1].score} out of ${profile.mocks[profile.mocks.length - 1].total}` : "20 questions · 25 minutes"}</small></span><Icon name="chevron" size={18} /></button></li>
+              <li><button class="row" onClick={() => go({ name: "mock" })} data-testid="take-mock"><Icon name="target" /><span>Take a practice paper<small>{profile.mocks?.length ? `Last time: ${profile.mocks[profile.mocks.length - 1].score} out of ${profile.mocks[profile.mocks.length - 1].total}` : profile.plan?.reasoning ? "Maths, reasoning, or both" : "20 questions · 25 minutes"}</small></span><Icon name="chevron" size={18} /></button></li>
             )}
             <li><button class="row" onClick={() => setEditing(true)} data-testid="edit-plan"><Icon name="sliders" /><span>Change the plan<small>{examInfo?.label}{plan.examDate ? ` · ${new Date(plan.examDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}{profile.goal?.area ? ` · ${profile.goal.area}` : ""}</small></span><Icon name="chevron" size={18} /></button></li>
             <li><button class="row" onClick={() => go({ name: "report" })}><Icon name="book" /><span>Read the check-up report</span><Icon name="chevron" size={18} /></button></li>
@@ -130,6 +131,13 @@ export function PlanView({ initialWeek }: { initialWeek?: number }) {
               </label>
             ))}
           </fieldset>
+
+          {exam !== "none" && (
+            <label class={`option ${reasoning ? "on" : ""}`}>
+              <input type="checkbox" checked={reasoning} onChange={() => setReasoning(!reasoning)} data-testid="plan-reasoning" />
+              <span><strong>Include reasoning practice</strong><br /><span class="small muted">Verbal reasoning, non-verbal reasoning and problem solving. Many 11+ tests include them, but not all. Your schools' admissions pages say which parts the test has.</span></span>
+            </label>
+          )}
 
           <label>
             <span class="field-label">Exam date (optional)</span>

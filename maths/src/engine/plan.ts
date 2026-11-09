@@ -1,4 +1,4 @@
-import { SKILLS, SKILL_BY_ID } from "../curriculum";
+import { REASONING_SKILLS, SKILLS, SKILL_BY_ID } from "../curriculum";
 import { DAY, SECURE_BOX, type Profile } from "./progress";
 import type { Skill } from "./types";
 
@@ -16,6 +16,8 @@ export interface Plan {
   createdAt: number;
   sessionsPerWeek: number;
   target: PlanTarget;
+  /** Verbal reasoning, non-verbal reasoning and problem solving are part of this plan. */
+  reasoning?: boolean;
   examDate?: number;
   /** All skills in the order they should be tackled. */
   ordered: string[];
@@ -29,10 +31,11 @@ export const SESSIONS_PER_SKILL = 3;
 const MOCK_WEEKS_BEFORE_EXAM = 2;
 
 /** What counts as in scope: for the 11+, primary content; otherwise up to just above the working level. */
-export function inScope(p: Profile, target: PlanTarget): Skill[] {
+export function inScope(p: Profile, target: PlanTarget, reasoning = false): Skill[] {
   const theta = p.baselines.length ? p.baselines[p.baselines.length - 1].theta : p.year;
   const ceiling = target === "11plus" ? 6.99 : Math.max(p.year, theta) + 0.5;
-  return SKILLS.filter((s) => s.year <= ceiling);
+  const maths = SKILLS.filter((s) => s.year <= ceiling);
+  return reasoning && target === "11plus" ? [...maths, ...REASONING_SKILLS] : maths;
 }
 
 const isOpen = (p: Profile, id: string) => {
@@ -41,8 +44,8 @@ const isOpen = (p: Profile, id: string) => {
 };
 
 /** Order the skills still to learn so that prerequisites come first and known gaps come before new ground. */
-export function orderSkills(p: Profile, target: PlanTarget): string[] {
-  const todo = inScope(p, target).filter((s) => isOpen(p, s.id));
+export function orderSkills(p: Profile, target: PlanTarget, reasoning = false): string[] {
+  const todo = inScope(p, target, reasoning).filter((s) => isOpen(p, s.id));
   const ids = new Set(todo.map((s) => s.id));
   const gap = (id: string) => ((p.skills[id]?.seen ?? 0) > 0 && (p.skills[id]?.box ?? 0) < 2 ? 0 : 1);
   const key = (s: Skill) => gap(s.id) * 100 + s.year * 10 + (s.strand === "Number" ? 0 : 1);
@@ -58,9 +61,10 @@ export function orderSkills(p: Profile, target: PlanTarget): string[] {
   return placed;
 }
 
-export function buildPlan(p: Profile, now: number, opts: { sessionsPerWeek: number; target: PlanTarget; examDate?: number }): Plan {
+export function buildPlan(p: Profile, now: number, opts: { sessionsPerWeek: number; target: PlanTarget; examDate?: number; reasoning?: boolean }): Plan {
   const S = Math.max(1, Math.min(7, Math.round(opts.sessionsPerWeek)));
-  const ordered = orderSkills(p, opts.target);
+  const reasoning = !!opts.reasoning && opts.target === "11plus";
+  const ordered = orderSkills(p, opts.target, reasoning);
 
   let learnWeeks = Math.ceil((ordered.length * SESSIONS_PER_SKILL) / S);
   let mockWeeks = opts.target === "11plus" ? 1 : 0;
@@ -89,9 +93,9 @@ export function buildPlan(p: Profile, now: number, opts: { sessionsPerWeek: numb
       weeks.push({ n: weeks.length + 1, start: now + weeks.length * 7 * DAY, kind: "review", skills: [], note: "Revision: mixed practice on everything covered, plus anything that has slipped" });
   }
   for (let m = 0; m < mockWeeks; m++) {
-    weeks.push({ n: weeks.length + 1, start: now + weeks.length * 7 * DAY, kind: "mock", skills: [], note: m === mockWeeks - 1 ? "Final mock paper, then review any mistakes" : "Timed mock paper, then review mistakes" });
+    weeks.push({ n: weeks.length + 1, start: now + weeks.length * 7 * DAY, kind: "mock", skills: [], note: m === mockWeeks - 1 ? "Final mock paper, then review any mistakes" : reasoning ? "Timed mock paper (maths, reasoning or both), then review mistakes" : "Timed mock paper, then review mistakes" });
   }
-  return { createdAt: now, sessionsPerWeek: S, target: opts.target, examDate: opts.examDate, ordered, deferred, weeks };
+  return { createdAt: now, sessionsPerWeek: S, target: opts.target, reasoning: reasoning || undefined, examDate: opts.examDate, ordered, deferred, weeks };
 }
 
 export function currentWeek(plan: Plan, now: number): PlanWeek | undefined {

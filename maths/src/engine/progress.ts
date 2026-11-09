@@ -59,6 +59,8 @@ export interface Goal {
   schools: string[];
   examDate?: number;
   sessionsPerWeek: number;
+  /** Include verbal and non-verbal reasoning and problem solving in the plan. */
+  reasoning?: boolean;
 }
 
 /** One exchange with the AI tutor, kept on the device for the grown-up to read. */
@@ -81,6 +83,10 @@ export interface MockRecord {
   seconds: number;
   limitSeconds: number;
   byStrand: { strand: Strand; right: number; n: number }[];
+  /** Which paper it was. Older records are maths papers. */
+  paper?: "maths" | "reasoning" | "both";
+  /** Results by part of the paper, when the paper had parts. */
+  bySection?: { section: string; right: number; n: number }[];
 }
 
 export interface Profile {

@@ -2317,3 +2317,10 @@ html:has(.quarter-search[open]),
   .qpage .qbar-right { flex: 1 1 100%; margin-left: 0; }
   .qpage .qbar .btn.primary { width: 100%; }
 }
+
+.choice.correct { border-color: var(--good); background: var(--good-soft); }
+.choice.correct .choice-letter { background: var(--good); color: #fff; }
+.paper-choice { display: grid; gap: 8px; margin: 12px 0; padding: 0; border: 0; text-align: left; }
+.paper-choice .field-label { margin-bottom: 4px; }
+.option input[type="radio"], .option input[type="checkbox"] { flex: none; width: 20px; height: 20px; }
+.see-question { margin: 6px 0; }

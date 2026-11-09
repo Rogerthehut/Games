@@ -268,7 +268,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
             <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
             {q.figure && <FigureView fig={q.figure} />}
             <p class="practice-answer-label">Your answer</p>
-            <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={inputState} />
+            <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={inputState} reveal={phase === "reveal"} />
 
             <div class="fb-zone" ref={feedback} aria-live="polite">
               {phase === "ask" && result && (result.outcome === "wrong" || result.outcome === "almost" || result.outcome === "invalid") && !stale && (
