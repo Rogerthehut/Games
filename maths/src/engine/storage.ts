@@ -23,7 +23,10 @@ export function loadStore(): Store {
 }
 
 export function saveStore(s: Store): void {
-  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable: progress lasts this visit only */ }
+  try {
+    if (s.profiles.length) localStorage.setItem(KEY, JSON.stringify(s));
+    else localStorage.removeItem(KEY);
+  } catch { /* storage unavailable: progress lasts this visit only */ }
 }
 
 /* --- Exporting a learner as a file or pasteable text, so progress can move between devices --- */
@@ -40,9 +43,9 @@ export function exportProfile(p: Profile, now = new Date()): string {
 
 export function importProfile(text: string): Profile {
   let f: { app?: string; version?: number; checksum?: string; profile?: Profile };
-  try { f = JSON.parse(text); } catch { throw new Error("That text isn't a MathPath save (it isn't valid JSON)."); }
-  if (f?.app !== "mathpath" || !f.profile) throw new Error("That isn't a MathPath save.");
-  if ((f.version ?? 0) > STORE_VERSION) throw new Error("This save is from a newer version of MathPath.");
+  try { f = JSON.parse(text); } catch { throw new Error("That text isn't a valid Quarter save."); }
+  if (f?.app !== "mathpath" || !f.profile) throw new Error("That isn't a Quarter save.");
+  if ((f.version ?? 0) > STORE_VERSION) throw new Error("This save is from a newer version of Quarter.");
   if (f.checksum !== checksum(JSON.stringify(f.profile))) throw new Error("This save looks damaged or has been edited.");
   return { ...f.profile, baselines: f.profile.baselines ?? [] };
 }

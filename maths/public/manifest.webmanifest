@@ -1,7 +1,7 @@
 {
-  "name": "MathPath",
-  "short_name": "MathPath",
-  "description": "Maths for ages 11-18, following the UK National Curriculum",
+  "name": "1/4 (quarter)",
+  "short_name": "1/4",
+  "description": "Selected topics from England’s maths curriculum for ages 7 to 18",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fb",

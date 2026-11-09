@@ -1,6 +1,7 @@
 import { asFraction } from "./answer";
 import { describe, expect, it } from "vitest";
-import { SKILLS } from "../curriculum";
+import { SKILLS, SKILL_BY_ID } from "../curriculum";
+import { withBarChartHelp } from "../curriculum/expansion";
 import { check } from "./check";
 import { mulberry32 } from "./rng";
 import { numberOf, parse, polyOf, previewLatex } from "./expr";
@@ -28,6 +29,40 @@ function correctInputs(q: Question): string[] {
   if (a.kind === "multi") return a.fields.map((f) => String(f.value));
   return [a.form === "factorised" ? fromShown(q.shown) : plain(a.value)];
 }
+
+describe("tenths and hundredths", () => {
+  it("explains when an equivalent fraction needs to be written as a decimal", () => {
+    const question = SKILLS.find((entry) => entry.id === "hundredths")!.generate(() => 0, 1);
+    expect(check(question, ["1/10"]).outcome).toBe("almost");
+    expect(check(question, ["0.1"]).outcome).toBe("correct");
+  });
+});
+
+describe("worked bar charts", () => {
+  it("reads both vote counts, including when a saved question had older help", () => {
+    const numbers = [0, 0.5, 0];
+    const q = SKILL_BY_ID["read-bar-charts"].generate(() => numbers.shift() ?? 0, 1);
+    expect(q.hint).toContain("numbers on the left");
+    expect(q.solution.join(" ")).not.toContain("interval");
+    expect(q.solution.at(-1)).toContain("12 − 4 = 8");
+    expect(check(q, ["8"]).outcome).toBe("correct");
+    expect(withBarChartHelp({ ...q, hint: "Old hint", solution: ["Old step"] })).toEqual(q);
+  });
+});
+
+describe("worked percentages", () => {
+  it("teaches 50% of 40 by halving", () => {
+    const skill = SKILLS.find((entry) => entry.id === "pct-amount")!;
+    const rolls = [0.65, 0];
+    const example = skill.generate(() => rolls.shift() ?? 0, 1);
+    expect(example.prompt).toBe("Work out $50\\%$ of $40$.");
+    expect(example.solution).toEqual([
+      "$50\\%$ means half. Split $40$ into 2 equal groups.",
+      "One group has $40 \\div 2 = 20$.",
+    ]);
+    expect(check(example, ["20"]).outcome).toBe("correct");
+  });
+});
 
 describe("expression parsing", () => {
   it("reads numbers and fractions", () => {

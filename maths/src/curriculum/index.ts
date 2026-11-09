@@ -4,6 +4,7 @@ import { numberSkills } from "./number";
 import { algebraSkills } from "./algebra";
 import { geometrySkills } from "./geometry";
 import { calculusSkills } from "./calculus";
+import { expansionSkills } from "./expansion";
 import { primarySkills } from "./primary";
 
 /** A "common mistake" that happens to equal the right answer is not a mistake: drop it. */
@@ -45,7 +46,7 @@ function withAnswerFormat(q: Question): Question {
   if (unitLabel) { out.unit = unitLabel[1]; delete out.label; }
 
   if (q.skill === "angles-basic" || /in degrees/.test(prompt) || (q.skill === "trig" && /angle/.test(prompt))) out.unit = "°";
-  else if (!out.unit && q.figure && /cm/.test(`${q.figure.base} ${q.figure.height} ${q.figure.hyp}`)) out.unit = "cm";
+  else if (!out.unit && q.figure?.type === "rtriangle" && /cm/.test(`${q.figure.base} ${q.figure.height} ${q.figure.hyp}`)) out.unit = "cm";
   else if (!out.unit && q.skill === "perimeter-area") out.unit = /cm²/.test(prompt) ? "cm²" : /cm/.test(prompt) ? "cm" : undefined;
   if (out.unit === undefined) delete out.unit;
 
@@ -53,12 +54,12 @@ function withAnswerFormat(q: Question): Question {
   if (dp) out.dp = +dp[1];
 
   if (a.simplestFraction) out.form = "fraction";
+  else if (/as a decimal\b/.test(prompt)) out.form = "decimal";
   else if (!out.money && out.dp === undefined && Number.isInteger(a.value)) out.form = "integer";
-  else out.form = out.form ?? "decimal";
   return { ...q, answer: out };
 }
 
-const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
+const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
 export const SKILLS: Skill[] = raw.map((s) => ({ ...s, generate: (r, l) => withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l))) }));
 export const SKILL_BY_ID: Record<string, Skill> = Object.fromEntries(SKILLS.map((s) => [s.id, s]));
 export const STRANDS: Strand[] = ["Number", "Ratio", "Algebra", "Measures", "Geometry", "Statistics", "Calculus"];

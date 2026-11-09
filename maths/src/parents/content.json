@@ -1,0 +1,112 @@
+{
+  "hub": {
+    "path": "parents.html",
+    "title": "Parent guides",
+    "description": "Practical guides for supporting primary maths at home, understanding Key Stage 2 and getting started with 11+ maths practice."
+  },
+  "faq": {
+    "path": "faqs.html",
+    "title": "FAQs for parents",
+    "description": "Find out how Quarter works, what it covers and how to save your child's maths progress.",
+    "sections": [
+      {
+        "heading": "Who is Quarter for?",
+        "paragraphs": ["Quarter is a maths practice app for school-age learners. The primary pathway starts at Year 3, and older learners can explore selected topics through secondary school and A-level."]
+      },
+      {
+        "heading": "Does Quarter follow the school curriculum?",
+        "paragraphs": ["Quarter covers selected topics from England's maths curriculum. In Skills, you can look up a topic by school year or by name. If a teacher has suggested something to practise, start with that skill."]
+      },
+      {
+        "heading": "Where should my child start?",
+        "paragraphs": ["If they already know what they want to practise, open Skills and pick a topic. If they are unsure, try the check-up. Quarter uses the results to suggest what to work on next."]
+      },
+      {
+        "heading": "Can Quarter help with the 11+?",
+        "paragraphs": ["Quarter offers original 11+ maths-style practice. Check the admissions guidance for your chosen school or area for the subjects, timings and format your child will face."],
+        "link": { "path": "11-plus-maths.html", "label": "Read the 11+ maths guide" }
+      },
+      {
+        "heading": "Can we use it alongside school or tutoring?",
+        "paragraphs": ["Yes. Try asking your child's teacher or tutor which topic to revisit, then find it in Skills. After a session, ask your child to show you how they worked out one question. Their explanation can help you decide what to ask the teacher or tutor next."]
+      },
+      {
+        "heading": "What can my child do if they get stuck?",
+        "paragraphs": ["In practice, they can ask for a hint or use Working-out tools to draw or type their steps. Worked examples are available for some activities. Encourage them to try the next step themselves after looking at an example."]
+      },
+      {
+        "heading": "Can my child stop and carry on another day?",
+        "paragraphs": ["When an activity offers Save and leave, use it to keep your place. Look on Today for the option to continue. Timed activities can work differently, so check the instructions before starting."]
+      },
+      {
+        "heading": "Where is my child's progress saved?",
+        "paragraphs": ["In this preview, progress is saved in the browser you use. To keep a copy, go to Me, then Parents’ area, then Settings. You can use that copy to load the learner's profile in another browser."],
+        "link": { "path": "?info=cookies", "label": "Read about cookies and browser storage" }
+      }
+    ]
+  },
+  "guides": [
+    {
+      "path": "11-plus-maths.html",
+      "title": "Getting started with 11+ maths",
+      "description": "Find out what to check before your child starts 11+ maths practice, how to choose a topic and when to try a timed question.",
+      "keywords": "grammar school entrance exam preparation kent maths reasoning timed practice",
+      "sections": [
+        {
+          "heading": "Find out what your child will sit",
+          "paragraphs": ["Start with the admissions pages for your chosen school or local test. Check which subjects are tested, how answers are recorded and whether there are official familiarisation materials. Quarter focuses on maths practice."]
+        },
+        {
+          "heading": "Choose one topic to work on",
+          "paragraphs": ["Start with something your child has met at school, such as fractions of amounts, time or reading charts. Ask them to explain what the question is asking before they calculate. If they can do the calculation but miss the question, practise spotting what the answer needs to tell you."]
+        },
+        {
+          "heading": "Try timing once the method feels familiar",
+          "paragraphs": ["Try a few questions without a timer first. When your child can explain how they got an answer, try a short timed set. Afterwards, choose one question to revisit together. Work out whether the difficulty was understanding the question, choosing a method or checking the calculation."]
+        }
+      ]
+    },
+    {
+      "path": "key-stage-2-maths.html",
+      "title": "A parent’s guide to Key Stage 2 maths",
+      "description": "Understand what Years 3 to 6 cover in England and find practical ways to talk about maths at home.",
+      "keywords": "ks2 primary school curriculum number fractions decimals percentages",
+      "sections": [
+        {
+          "heading": "What does Key Stage 2 cover?",
+          "paragraphs": ["In England, Key Stage 2 covers Years 3 to 6. In Years 3 and 4, children build confidence with whole numbers, place value, addition, subtraction, multiplication and division. In Years 5 and 6, they work with larger numbers and develop their understanding of fractions, decimals and percentages. Shape, measures and statistics are also part of the curriculum."],
+          "link": { "path": "https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study", "label": "Department for Education maths programmes of study" }
+        },
+        {
+          "heading": "Start with what they recognise",
+          "paragraphs": ["Ask your child what they have been doing in class. If the topic is fractions, try sharing 12 grapes between four people. Ask how many each person gets, then write 12 ÷ 4 = 3 together. Link the calculation to the question by asking what the 12, the 4 and the 3 each mean."]
+        },
+        {
+          "heading": "Use the school year as a starting point",
+          "paragraphs": ["If your child finds a topic difficult, try a simpler example and see where they get stuck. They might be able to work out a quarter of 12 with objects but need time to recognise the same idea when it is written as a fraction. In Quarter, use Skills to find a topic and the year it is first taught."]
+        }
+      ]
+    },
+    {
+      "path": "maths-practice-at-home.html",
+      "title": "A simple routine for maths practice at home",
+      "description": "A practical ten-minute maths routine for families, with examples of questions to ask when your child gets stuck.",
+      "keywords": "homework tutoring daily practice routine confidence working out",
+      "sections": [
+        {
+          "heading": "Pick one small goal",
+          "paragraphs": ["Try setting aside about ten minutes when your child is ready to concentrate. Choose one thing to practise, such as finding half of a number. Start with a question they can already do, then change one part of it. For example, find half of 20, then half of 40."]
+        },
+        {
+          "heading": "Ask them to show their thinking",
+          "paragraphs": ["If your child is unsure, ask what they know already. Try drawing two boxes and sharing counters equally between them. Then write the calculation together and ask how it matches the picture. The same idea can be shown with objects, a drawing and numbers."],
+          "link": { "path": "https://educationendowmentfoundation.org.uk/early-years/maths/use-manipulatives-and-representations-to-develop-understanding/", "label": "Education Endowment Foundation guidance on using objects and pictures in maths" }
+        },
+        {
+          "heading": "End with one thing to remember",
+          "paragraphs": ["Ask your child to finish the sentence ‘Next time I could…’. If they made a mistake, pick one step to change and try it on a similar question. If a difficulty keeps coming up, make a note of the question and what your child tried so you can share it with their teacher or tutor."]
+        }
+      ]
+    }
+  ]
+}

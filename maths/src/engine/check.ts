@@ -37,6 +37,7 @@ export function check(q: Question, inputs: string[]): Result {
       const wantsFraction = a.simplestFraction || a.form === "fraction";
       if (wantsFraction && !Number.isInteger(a.value) && !pn.typedFraction && !pn.mixed) return { outcome: "almost", feedback: formNudge.fraction };
       if (wantsFraction && pn.typedFraction && !pn.mixed && unsimplified(inputs[0])) return { outcome: "almost", feedback: formNudge.simplify };
+      if (a.form === "decimal" && pn.typedFraction) return { outcome: "almost", feedback: formNudge.decimal };
       if (a.unit && a.unit !== "£" && pn.unit && pn.unit !== a.unit) return { outcome: "almost", feedback: formNudge.unit(a.unit) };
       return { outcome: "correct" };
     }

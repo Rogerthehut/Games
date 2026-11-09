@@ -1,0 +1,437 @@
+[
+  {
+    "id": "barnet",
+    "area": "Barnet",
+    "keywords": "Henrietta Barnett Queen Elizabeth QE Boys St Michael Catholic",
+    "links": [
+      {
+        "label": "Barnet Council admission arrangements",
+        "path": "https://www.barnet.gov.uk/schools-and-education/school-admissions/admission-arrangements"
+      },
+      {
+        "label": "Queen Elizabeth’s School admissions",
+        "path": "https://www.qebarnet.co.uk/admissions-information/"
+      }
+    ]
+  },
+  {
+    "id": "bexley",
+    "area": "Bexley",
+    "keywords": "Bexley Selection Test Beths Chislehurst Sidcup Townley",
+    "links": [
+      {
+        "label": "Bexley Council selection test guidance",
+        "path": "https://www.bexley.gov.uk/services/schools-and-education/selection-tests/about-test"
+      },
+      {
+        "label": "Official familiarisation materials",
+        "path": "https://www.questassessments.com/parent-guidance-consortium/bexley-selection-test"
+      }
+    ]
+  },
+  {
+    "id": "bcp",
+    "area": "Bournemouth, Christchurch and Poole",
+    "keywords": "BCP Dorset Parkstone Bournemouth Girls Poole Grammar",
+    "links": [
+      {
+        "label": "Bournemouth School admissions and 11+",
+        "path": "https://bournemouth-school.bcpschools.co.uk/admissions/"
+      },
+      {
+        "label": "Parkstone Grammar School admissions",
+        "path": "https://www.parkstone.poole.sch.uk/information/admissions/"
+      },
+      {
+        "label": "Bournemouth School for Girls admissions",
+        "path": "https://wearebsg.uk/school-information/admissions/"
+      }
+    ]
+  },
+  {
+    "id": "bromley",
+    "area": "Bromley",
+    "keywords": "Orpington Newstead Wood St Olave Saint Olaves SET",
+    "links": [
+      {
+        "label": "Bromley Council secondary admissions",
+        "path": "https://www.bromley.gov.uk/secondaryadmissions"
+      },
+      {
+        "label": "Bromley grammar school test information",
+        "path": "https://bromleyeducationmatters.uk/Article/182532"
+      }
+    ]
+  },
+  {
+    "id": "buckinghamshire",
+    "area": "Buckinghamshire",
+    "keywords": "Bucks Secondary Transfer Test Aylesbury High Wycombe Amersham Chesham Beaconsfield Marlow",
+    "links": [
+      {
+        "label": "Buckinghamshire Council Secondary Transfer Test",
+        "path": "https://www.buckinghamshire.gov.uk/schools-libraries-and-parks/school-admissions-and-appeals/grammar-schools-and-transfer-testing-11/the-secondary-transfer-test/"
+      }
+    ]
+  },
+  {
+    "id": "calderdale",
+    "area": "Calderdale",
+    "keywords": "Halifax Crossley Heath North Halifax West Yorkshire",
+    "links": [
+      {
+        "label": "Calderdale Council guidance for North Halifax Grammar School",
+        "path": "https://new.calderdale.gov.uk/schools-and-learning/schools/admissions/secondary-criteria/north-halifax-grammar"
+      },
+      {
+        "label": "Calderdale Council guidance for Crossley Heath School",
+        "path": "https://new.calderdale.gov.uk/schools-and-learning/schools/admissions/secondary-criteria/crossley-heath"
+      }
+    ]
+  },
+  {
+    "id": "devon",
+    "area": "Devon",
+    "keywords": "Colyton East Devon Seaton",
+    "links": [
+      {
+        "label": "Colyton Grammar School familiarisation from the test provider",
+        "path": "https://questassessments.com/parent-guidance-consortium/colyton-11-plus"
+      }
+    ]
+  },
+  {
+    "id": "enfield",
+    "area": "Enfield",
+    "keywords": "Latymer Edmonton North London",
+    "links": [
+      {
+        "label": "The Latymer School Year 7 admissions",
+        "path": "https://www.latymer.co.uk/page/?pid=84&title=Year+7+admissions"
+      }
+    ]
+  },
+  {
+    "id": "essex",
+    "area": "Essex and Southend-on-Sea",
+    "keywords": "CSSE Chelmsford County High CCHS Colchester Westcliff Southend King Edward VI KEGS",
+    "links": [
+      {
+        "label": "Essex County Council grammar school places",
+        "path": "https://www.essex.gov.uk/schools-and-learning/schools/admissions/grammar-school-places"
+      },
+      {
+        "label": "Consortium of Selective Schools in Essex",
+        "path": "https://csse.org.uk/?view=schools"
+      },
+      {
+        "label": "Southend-on-Sea City Council secondary admissions",
+        "path": "https://www.southend.gov.uk/school-admissions/secondary-school-admissions"
+      }
+    ]
+  },
+  {
+    "id": "gloucestershire",
+    "area": "Gloucestershire",
+    "keywords": "Gloucester Cheltenham Stroud Pate Ribston Denmark Road Crypt Marling Sir Thomas Rich",
+    "links": [
+      {
+        "label": "Gloucestershire County Council grammar school testing",
+        "path": "https://www.gloucestershire.gov.uk/schooladmissions/grammar-schools/"
+      }
+    ]
+  },
+  {
+    "id": "hertfordshire",
+    "area": "Hertfordshire",
+    "keywords": "South West Herts Watford Parmiter Rickmansworth Croxley Queens",
+    "links": [
+      {
+        "label": "Hertfordshire County Council guidance on ability tests",
+        "path": "https://www.hertfordshire.gov.uk/services/schools-and-education/school-admissions/secondary-and-upper-schools/admission-rules-secondary-and-upper-schools/aptitude-or-ability-testing.aspx"
+      },
+      {
+        "label": "South West Herts Schools Consortium",
+        "path": "https://www.swhertsschools.org.uk/"
+      }
+    ]
+  },
+  {
+    "id": "kent",
+    "area": "Kent",
+    "keywords": "Kent Test Sevenoaks Dartford Tonbridge Tunbridge Wells Maidstone Canterbury Ashford Folkestone Dover Thanet Gravesend",
+    "links": [
+      {
+        "label": "Kent County Council test preparation and familiarisation",
+        "path": "https://www.kent.gov.uk/education-and-children/schools/school-places/kent-test/prepare-for-the-kent-test"
+      }
+    ]
+  },
+  {
+    "id": "kingston",
+    "area": "Kingston upon Thames",
+    "keywords": "Tiffin Tiffin Girls Kingston Surrey",
+    "links": [
+      {
+        "label": "Tiffin School Year 7 admissions",
+        "path": "https://www.tiffinschool.co.uk/admissions/year-7-admissions/"
+      },
+      {
+        "label": "The Tiffin Girls’ School Year 7 admissions",
+        "path": "https://www.tiffingirls.org/admissions/year-7/"
+      }
+    ]
+  },
+  {
+    "id": "kirklees",
+    "area": "Kirklees",
+    "keywords": "Heckmondwike West Yorkshire Huddersfield",
+    "links": [
+      {
+        "label": "Heckmondwike Grammar School admissions",
+        "path": "https://www.heckgrammar.co.uk/admissions/admissions-policy/"
+      }
+    ]
+  },
+  {
+    "id": "lancashire",
+    "area": "Lancashire",
+    "keywords": "Lancaster Royal Grammar LRGS Lancaster Girls Clitheroe Royal Bacup Rawtenstall",
+    "links": [
+      {
+        "label": "Lancashire County Council school admissions and selection",
+        "path": "https://live.lancashire.gov.uk/schools-and-education/school-admissions/how-we-allocate-school-places/"
+      }
+    ]
+  },
+  {
+    "id": "lincolnshire",
+    "area": "Lincolnshire",
+    "keywords": "Lincolnshire Consortium Bourne Louth Grantham Spalding Sleaford Boston Skegness",
+    "links": [
+      {
+        "label": "Bourne Grammar School 11+ registration",
+        "path": "https://bourne-grammar.lincs.sch.uk/page/?pid=13&title=Register+for+the+11%2B+test"
+      },
+      {
+        "label": "King Edward VI Grammar School 11+ FAQs",
+        "path": "https://www.kevigs.org/admissions/faqs/"
+      }
+    ]
+  },
+  {
+    "id": "liverpool",
+    "area": "Liverpool",
+    "keywords": "Blue Coat Merseyside",
+    "links": [
+      {
+        "label": "The Blue Coat School Year 7 admissions",
+        "path": "https://www.bluecoatschoolliverpool.org.uk/page/?pid=58&title=Year+7"
+      }
+    ]
+  },
+  {
+    "id": "medway",
+    "area": "Medway",
+    "keywords": "Medway Test Rochester Chatham Gillingham Rainham Holcombe Fort Pitt",
+    "links": [
+      {
+        "label": "Medway Council test guidance",
+        "path": "https://www.medway.gov.uk/medwaytest"
+      }
+    ]
+  },
+  {
+    "id": "north-yorkshire",
+    "area": "North Yorkshire",
+    "keywords": "Ripon Skipton Ermysted Skipton Girls",
+    "links": [
+      {
+        "label": "North Yorkshire Council selective school admissions",
+        "path": "https://www.northyorks.gov.uk/education-and-learning/school-admissions/selective-schools"
+      }
+    ]
+  },
+  {
+    "id": "northern-ireland",
+    "area": "Northern Ireland",
+    "keywords": "SEAG transfer test Belfast post primary entrance assessment",
+    "links": [
+      {
+        "label": "SEAG guidance and key dates",
+        "path": "https://seagni.co.uk/guidance-for-parents/key-dates-milestones"
+      },
+      {
+        "label": "Department of Education post-primary transfer guidance",
+        "path": "https://www.education-ni.gov.uk/publications/circular-202619-procedure-transfer-primary-post-primary-education"
+      }
+    ]
+  },
+  {
+    "id": "plymouth",
+    "area": "Plymouth",
+    "keywords": "Plymouth High Devonport DHSG boys girls",
+    "links": [
+      {
+        "label": "Plymouth City Council secondary admissions",
+        "path": "https://www.plymouth.gov.uk/apply-secondary-school-place"
+      },
+      {
+        "label": "Plymouth High School for Girls 11+ information",
+        "path": "https://www.phsg.org/page/?pid=425"
+      }
+    ]
+  },
+  {
+    "id": "reading",
+    "area": "Reading",
+    "keywords": "Berkshire Reading School Kendrick",
+    "links": [
+      {
+        "label": "Reading School admissions",
+        "path": "https://www.reading-school.co.uk/admissions"
+      },
+      {
+        "label": "Kendrick School Year 7 admissions",
+        "path": "https://www.kendrick.reading.sch.uk/page/?pid=71&title=Year+7+Admissions"
+      }
+    ]
+  },
+  {
+    "id": "redbridge",
+    "area": "Redbridge",
+    "keywords": "Woodford County Ilford",
+    "links": [
+      {
+        "label": "Redbridge 11+ registration and guidance",
+        "path": "https://www.redbridge11plus.co.uk/"
+      }
+    ]
+  },
+  {
+    "id": "slough",
+    "area": "Slough",
+    "keywords": "Slough Consortium Herschel Langley Upton Court St Bernard Berkshire",
+    "links": [
+      {
+        "label": "Slough Consortium familiarisation via Herschel Grammar School",
+        "path": "https://www.herschel.slough.sch.uk/admissions/free-11-familiarisation/"
+      }
+    ]
+  },
+  {
+    "id": "stoke-on-trent",
+    "area": "Stoke-on-Trent",
+    "keywords": "St Joseph Josephs College Staffordshire Trent Vale",
+    "links": [
+      {
+        "label": "St Joseph’s College admissions",
+        "path": "https://www.stjosephstrentvale.com/admissions/"
+      }
+    ]
+  },
+  {
+    "id": "sutton",
+    "area": "Sutton",
+    "keywords": "Selective Eligibility Test SET Wilson Wallington Nonsuch Sutton Grammar Greenshaw",
+    "links": [
+      {
+        "label": "Sutton Council school selection tests",
+        "path": "https://www.sutton.gov.uk/schools-and-learning/school-admissions/apply-start-secondary-school/secondary-school-tests-assessments-and-supplementary-forms"
+      }
+    ]
+  },
+  {
+    "id": "torbay",
+    "area": "Torbay",
+    "keywords": "Torquay Boys Torquay Girls Churston Ferrers Brixham Paignton",
+    "links": [
+      {
+        "label": "Torbay Council directory for Torquay Boys’ Grammar School",
+        "path": "https://www.torbay.gov.uk/schools-and-learning/schools/secondary-schools/torquay-boys-grammar-school/"
+      },
+      {
+        "label": "Churston Ferrers Grammar School admissions",
+        "path": "https://www.churstongrammar.com/admissions-process"
+      }
+    ]
+  },
+  {
+    "id": "trafford",
+    "area": "Trafford",
+    "keywords": "Greater Manchester Altrincham Sale Stretford Urmston Loreto St Ambrose",
+    "links": [
+      {
+        "label": "Stretford Grammar School admissions and consortium guidance",
+        "path": "https://www.stretfordgrammar.com/page/?pid=292"
+      },
+      {
+        "label": "Urmston Grammar School admissions updates",
+        "path": "https://www.urmstongrammar.org.uk/page/?pid=297"
+      }
+    ]
+  },
+  {
+    "id": "warwickshire",
+    "area": "Warwickshire",
+    "keywords": "West Midlands Entrance Test Stratford Alcester Rugby Lawrence Sheriff Ashlawn",
+    "links": [
+      {
+        "label": "Warwickshire County Council grammar schools and 11+",
+        "path": "https://www.warwickshire.gov.uk/elevenplus"
+      },
+      {
+        "label": "West Midlands Grammar Schools official test preparation",
+        "path": "https://westmidlandsgrammarschools.co.uk/preparing-for-the-test"
+      }
+    ]
+  },
+  {
+    "id": "west-midlands",
+    "area": "West Midlands and Shropshire",
+    "keywords": "Birmingham Walsall Wolverhampton Telford and Wrekin Newport Shropshire Queen Mary Adams Wolverhampton Girls King Edward Bishop Vesey Sutton Coldfield",
+    "links": [
+      {
+        "label": "West Midlands Grammar Schools official test preparation",
+        "path": "https://westmidlandsgrammarschools.co.uk/preparing-for-the-test"
+      }
+    ]
+  },
+  {
+    "id": "westmorland",
+    "area": "Westmorland and Furness",
+    "keywords": "Cumbria Penrith Queen Elizabeth QEGS",
+    "links": [
+      {
+        "label": "Queen Elizabeth Grammar School, Penrith admissions",
+        "path": "https://qegspenrith.education/admissions/"
+      }
+    ]
+  },
+  {
+    "id": "wiltshire",
+    "area": "Wiltshire",
+    "keywords": "Salisbury South Wilts Bishop Wordsworth",
+    "links": [
+      {
+        "label": "South Wilts Grammar School 11+ guidance",
+        "path": "https://www.swgs.wilts.sch.uk/the-11-plus-process/"
+      },
+      {
+        "label": "Bishop Wordsworth’s School Year 7 admissions FAQs",
+        "path": "https://www.bishopwordsworths.org.uk/admissions/year-7-admissions/frequently-asked-questions"
+      }
+    ]
+  },
+  {
+    "id": "wirral",
+    "area": "Wirral",
+    "keywords": "West Kirby Calday Grange Wirral Girls Wirral Boys St Anselm Upton Hall",
+    "links": [
+      {
+        "label": "Wirral grammar schools 11+ admissions",
+        "path": "https://www.wirral11plus.co.uk/"
+      }
+    ]
+  }
+]

@@ -7,6 +7,18 @@ import { Tex } from "./maths";
 
 export type InputState = "idle" | "right" | "wrong" | "nearly";
 
+const FRACTION_WORDS = "The numerator (top number) counts the parts you have. The denominator (bottom number) tells you how many equal parts make one whole.";
+const MATHS_WORDS: Record<string, string> = {
+  division: "When dividing into whole groups, the quotient is how many full groups you can make. The remainder is what’s left. For example, 17 counters make 3 groups of 5, with 2 left over. The quotient is 3 and the remainder is 2.",
+  "frac-add": FRACTION_WORDS,
+  "frac-equiv": FRACTION_WORDS + " Equivalent fractions describe the same amount.",
+  "frac-amount": FRACTION_WORDS,
+  "factors-multiples": "A factor divides into a number exactly. A multiple is what you get by multiplying a number by a whole number.",
+  "perimeter-area": "Perimeter is the distance around the outside. Area is the space inside, measured in square units.",
+  averages: "Mean means add the values and divide by how many there are. Median is the middle of the ordered list. Mode is the most frequent value. Range is the largest value minus the smallest.",
+  "ratio-share": "A ratio compares amounts in equal-sized parts. Each number in the ratio tells you how many parts one share gets.",
+};
+
 const isTouch = () => typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
 
 interface Key { k: string; span?: number; fn?: boolean; label?: string }
@@ -59,6 +71,7 @@ export function applyKey(text: string, key: string, from: number, to: number): {
 
 export function AnswerInput(props: {
   answer: Answer;
+  skill?: string;
   values: string[];
   onChange: (v: string[]) => void;
   onSubmit: () => void;
@@ -74,7 +87,11 @@ export function AnswerInput(props: {
   const labels = answer.kind === "multi" ? answer.fields.map((f) => f.label) : [answer.label ?? ""];
   const money = answer.kind === "number" && !!answer.money;
   const unit = answer.kind === "number" ? answer.unit : undefined;
+  const example = answer.kind === "expr"
+    ? answer.form === "factorised" ? "e.g. (x+1)(x+2)" : "e.g. 3x + 5"
+    : undefined;
   const help = formatHelp(answer);
+  const words = props.skill ? MATHS_WORDS[props.skill] : undefined;
   const [showAlso, setShowAlso] = useState(false);
   const keypadMode: "number" | "expr" | null = answer.kind === "expr" ? "expr" : "number";
 
@@ -114,7 +131,7 @@ export function AnswerInput(props: {
       inputMode={touch ? "none" : answer.kind === "expr" ? "text" : "decimal"}
       enterKeyHint="done"
       autoCapitalize="off" autoComplete="off" spellcheck={false}
-      placeholder={answer.kind === "expr" ? "Your answer, like 3x + 5" : ""}
+      placeholder={example}
       aria-label={label || (fraction ? (i === 0 ? "Top number" : "Bottom number") : "Your answer")}
       data-testid={`answer-${i}`}
       onFocus={() => (focused.current = i)}
@@ -154,7 +171,11 @@ export function AnswerInput(props: {
           {help.also.length > 0 && <button type="button" class="linkish tiny" aria-expanded={showAlso} onClick={() => setShowAlso(!showAlso)}>What counts?</button>}
         </div>
       )}
-      {!disabled && showAlso && help.also.length > 0 && <p class="also" role="note">These all work: {help.also.map((x, i) => <code key={i}>{x}</code>)}</p>}
+      {!disabled && showAlso && help.also.length > 0 && <p class="also" role="note">{help.also.join(" ")}</p>}
+      {!disabled && words && <details class="maths-words">
+        <summary>Maths words</summary>
+        <p>{words}</p>
+      </details>}
       {!disabled && touch && keypadMode && <Keypad mode={keypadMode} onKey={press} />}
     </div>
   );

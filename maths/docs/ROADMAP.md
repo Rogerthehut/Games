@@ -1,0 +1,87 @@
+# Quarter delivery and testing roadmap
+
+## Scope and release order
+
+1. Map the England mathematics programmes of study against actual question types. Label what Quarter covers and what needs building or teacher review.
+2. Fix return journeys and make the choices clear on Today, Skills and Plan.
+3. Pilot a complete equivalent fractions lesson, with a visual model, a guided example, an independent task and a scheduled revisit.
+4. Expand England Key Stage 2 first. Give each outcome a worked example, several independent questions and an application. Build Key Stage 3, GCSE and A-level in that order after this.
+5. Exercise the full assessment journey, including access, marking, feedback, retry and certificate persistence.
+6. Run the first child UX pilot with Years 3–4 and Years 5–6 in parallel with curriculum work. Use the findings to prioritise the [UX and gamification backlog](#child-ux-and-gamification). Resolve the pilot and accessibility release gates, and obtain subject review before describing a pathway as complete.
+7. Pursue a regulated qualification through a partner in parallel. See [qualification route](QUALIFICATIONS.md).
+
+## England Key Stage 2 coverage audit
+
+The table groups statutory outcomes by year and strand. Existing generators sometimes combine years and vary by difficulty. A skill title or a single question type does not establish full coverage. Complete the mapping at individual-outcome level and have a primary maths teacher sign it off before making a coverage claim.
+
+| Year | Strand | Evidence in Quarter | Remaining work |
+| --- | --- | --- | --- |
+| 3 | Place value | Place value and written calculation | Audit hundreds and number ranges at each difficulty. Add counting in 4, 8, 50 and 100, missing numbers, and representing numbers in multiple ways. |
+| 3 | Four operations | Addition, subtraction, tables, equal groups lesson | Make the Year 3 limits explicit. Add mental calculation, inverse checks, and more missing-number and correspondence problems. |
+| 3 | Fractions | Same-denominator comparisons and a related equivalence lesson | Add unit and non-unit fractions on number lines, tenths, visual equivalence and adding and subtracting same-denominator fractions within one whole. |
+| 3 | Measurement | Money and change, elapsed time | Add reading scales, analogue and Roman numeral clocks, time facts, practical length, mass, capacity and perimeter. |
+| 3 | Geometry | Later-year geometry practice | Add drawing 2-D shapes, making 3-D shapes, turns, right angles, lines and orientation. |
+| 3 | Statistics | A bar chart in Year 4 | Add Year 3 bar charts, pictograms, tables and interpretation at the appropriate difficulty. |
+| 4 | Place value and calculation | Rounding, written multiplication, division and earlier place value | Add specific 4-digit and Roman numeral tasks, counting across zero, inverse checks, mental strategies and scaling. Audit the 12 × 12 range. |
+| 4 | Fractions and decimals | Equivalent fractions, tenths and hundredths | Add fraction-of-quantity tasks scoped to Year 4, common-denominator arithmetic, dividing by 10 and 100, decimal comparison and rounding, and ¼, ½ and ¾ as decimals. |
+| 4 | Measurement | Earlier money and time, later metric conversions and perimeter | Add converting time, using 12- and 24-hour clocks, compound rectilinear perimeter and area by counting squares. |
+| 4 | Geometry and position | Horizontal translation in the first quadrant | Add plotting points, drawing polygons, movements on both axes, shape classification, angle ordering and symmetry. |
+| 4 | Statistics | Reading a labelled bar chart with a scale | Add time graphs, tables, sum and comparison questions with varying scales. |
+| 5 | Place value and calculation | Factors and multiples, rounding and written operations | Add numbers to one million, powers of ten, Roman numerals, primes and composites, squares and cubes, and contextual interpretation of remainders. |
+| 5 | Fractions, decimals and percentages | Fractions of amounts, decimals, mixed numbers | Add improper fraction to mixed number, ordering related denominators, fraction arithmetic and multiplication by whole numbers, thousandths and percentage equivalents. |
+| 5 | Measurement | Metric units, perimeter, area and cuboid volume | Add metric and common imperial equivalents, compound shapes, estimating area, volume and capacity, and time conversions. |
+| 5 | Geometry and position | Angle calculations and an interactive angle lesson with a static transfer question | Pilot the lesson with learners. Add wider measuring and drawing tasks, regular polygons, 3-D shapes from 2-D representations, reflection and translation. |
+| 5 | Statistics | Related bar chart and averages skills | Add reading line graphs and extracting information from tables and timetables. |
+| 6 | Place value and calculation | Negatives, order of operations, multi-step questions | Audit up to ten million, long multiplication and division, mental methods, estimation and choice of operations. |
+| 6 | Fractions, decimals and percentages | Adding fractions, decimal operations, percentages of amounts | Add subtracting unlike fractions, multiplying and dividing fractions, fraction-to-decimal division and mixed-format comparisons. |
+| 6 | Ratio and proportion | Sharing in a ratio and scaling recipes | Add similar shapes and scale factors, unequal sharing and selecting multiplicative strategies from context. |
+| 6 | Algebra | Sequences and using a formula | Add missing-number equations, pairs satisfying two unknowns, and enumerating possibilities. |
+| 6 | Measurement | Unit conversion, area and volume; formula applications | Add miles and kilometres, unit conversions with decimals, parallelogram area, and distinguishing area from perimeter. |
+| 6 | Geometry and position | Angle facts across shapes | Add nets, circles and their parts, missing angles in more varied figures, four-quadrant coordinates, reflection and translation. |
+| 6 | Statistics | Mean within averages, numerical pie-chart interpretation | Add visible pie charts, construction tasks, line graphs and deciding when the mean is useful. |
+
+Source [DfE mathematics programmes of study](https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study).
+
+## Teaching and writing standards
+
+- **Key Stage 2.** Show the idea using familiar objects or pictures where they help. Link the picture to the symbols. Model one example, guide a second, then remove the prompts for an independent problem. Return to the idea later in a different context.
+- **Key Stage 3.** Link arithmetic to algebra and connect tables, graphs and equations. Use examples and non-examples. Ask learners to compare methods and explain a step. Remove scaffolding gradually.
+- **GCSE.** Teach the method before introducing exam-style wording. Map each item to the chosen specification, Foundation or Higher as applicable, and assessment objective. Use mixed retrieval, reasoning, unfamiliar problems and calculator/non-calculator practice. Existing GCSE skills are a sample bank. Tier selection, full assessment-objective coverage and specification-specific papers are future work.
+- **A-level and beyond.** Expect accurate notation, justification and model interpretation. Build pure maths, statistics and mechanics together. Existing calculus and constant-acceleration questions are a starting bank. Proof, modelling with open responses, statistics and wider mechanics require separate work and assessment rubrics.
+- **Copy.** Use British English. Write one clear action per step. Introduce the maths word beside its meaning, then reuse it consistently. Make the requested answer and units explicit. In tests, preserve the mathematical demand while removing ambiguity and unnecessary reading.
+- **Example.** “50% means half. Split 40 into two equal groups. 40 ÷ 2 = 20.” For a hint, give the first useful move. Use “Show the steps” for a worked explanation and “Working-out tools” for the pupil's own work.
+
+Sources [EEF maths teaching guidance](https://educationendowmentfoundation.org.uk/education-evidence/guidance-reports/maths-ks-2-3), [DfE GCSE content and assessment objectives](https://www.gov.uk/government/publications/gcse-mathematics-subject-content-and-assessment-objectives), [DfE AS and A-level content](https://www.gov.uk/government/publications/gce-as-and-a-level-mathematics).
+
+## Child UX and gamification
+
+Use the current workbook and Skills worlds in the first pilot. Compare how younger and older primary learners respond to the amount of illustration, motion and guidance. Use the observations to choose refinements within the existing styles.
+
+| Work item | Delivery and acceptance check |
+| --- | --- |
+| **Run the first learner pilot** | Start with moderated sessions for Years 3–4 and Years 5–6, with appropriate consent and data safeguards. Start younger learners on a tablet, then repeat key tasks on a phone. Ask both groups to open their first activity, find a topic, recover from a wrong answer, find a hint, save and leave, return to the same activity and explain what they learnt. Watch before prompting. Record where they hesitate, mis-tap, need help or miss a scroll cue. Repeat the affected journeys after fixes and extend testing to secondary learners as those pathways develop. |
+| **Teach the first interaction by doing** | Trial one short, illustrated first task in which the learner takes an action and sees the result. Introduce extra tools when they are first useful. Pair important controls with short labels and familiar icons, and check whether younger readers understand them without prompting. Offer read-aloud on demand where written instructions get in the way. Keep setup and permissions in the grown-up flow. |
+| **Test a calmer default for Years 5–6** | Compare Explorer with a quieter presentation using the same tasks. Check whether learners can find the main actions and whether the style feels right for them. Keep navigation and control labels consistent across styles. Preserve the learner's choice of style, avatar and colour mode. Choose a default after the pilot. |
+| **Make progress meaningful** | Prototype a **My progress** shelf in Me. Lead with skills secured in the learner's current pathway and a clear next step. Use milestones a child can explain, such as reading an analogue clock, and award them when the relevant learning check is met. Keep certificates for pathway completion and give points and streaks less prominence. Check that a learner can name an achievement and what to try next. |
+| **Audit touch controls and accessibility** | Measure the keypad, Hint, Save and leave, Next, map stops and working-out tools on phones and tablets. Increase effective hit areas and spacing where needed, especially near gripping edges. Keep labelled tap alternatives for essential gestures. Verify touch, keyboard, screen reader, reduced motion and larger text. Use the WCAG target-size criteria as a separate accessibility check and validate practical usability with children. |
+| **Confirm actions and make mistakes easier to recover from** | Give immediate visible acknowledgement when a learner taps, checks an answer or saves, including while a slower operation finishes. Check that repeated taps cannot submit twice and that confirmation is clear with sound and animation off. Trial a neutral highlight in place of the red border and shake in practice. Keep the answer and working visible and give one specific next move. Let learners revisit and experiment in lessons without risking earned milestones. Check that they know what happened and can explain what to try next. |
+| **Keep time pressure in exam practice** | Keep the countdown on the clearly labelled timed 11+ paper. Keep normal learning and untimed assessments free of countdown pressure. Keep progress and rewards free of expiring offers or penalties for taking a break. Check that learners can tell when an activity is timed before they start. |
+| **Review grown-up controls and tutor privacy before launch** | Treat the maths gate as a deterrent to accidental entry. Review access to sensitive settings, what a child sees when grown-up controls apply, which data Quarter needs, browser-local storage and the tutor's data flows and retention against the ICO Children's Code. Keep the online tutor off by default and document the review before enabling it in production. Review any future analytics, advertising or purchase flows separately, with spending decisions in the grown-up area and learning progress independent of purchases. |
+
+Quarter currently starts at Year 3. Revisit preschool-specific patterns such as voice-led navigation if the product expands to that age group.
+
+Sources [Gapsy Studio's child UX guide](https://gapsystudio.com/blog/ux-design-for-kids/), [Nielsen Norman Group's research on children's usability](https://www.nngroup.com/articles/childrens-websites-usability-issues/), [WCAG target-size guidance](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [EEF guidance on feedback](https://educationendowmentfoundation.org.uk/education-evidence/teaching-learning-toolkit/feedback) and the [ICO Children's Code](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/childrens-information/childrens-code-guidance-and-resources/age-appropriate-design-a-code-of-practice-for-online-services/code-standards/).
+
+## End-to-end acceptance checks
+
+| Journey | Pass condition |
+| --- | --- |
+| Today and Plan | The next action is obvious. First-time learners, learners with a paused check-up and learners with a plan all get a relevant route. Returning from weekly practice brings the learner back to the right week. |
+| Skills | Map and list retain the same topic. Browser Back and the activity's exit restore the topic and focus. Keyboard and touch users can reach all controls. |
+| Lesson | The pupil can explain why equivalent fractions are equal, stop and resume at the saved step, complete an independent question and see the skill again in a later practice. Hints and retries remain recorded after leaving. |
+| Practice and test controls | Bottom actions are reachable and the scroll cue appears only when more content is below. The question, input and working-out tools remain usable on a phone, tablet and desktop. |
+| Assessment | New profiles cannot start a pathway test. Secure all pathway topics, generate a paper covering all current topics and include applied questions. Test pass, fail, retry and exit. Passing creates one certificate and moves the pathway forward. Existing certificates survive upgrades and profile export/import. |
+| Real-device testing | Check iPhone Safari, iPad Safari in both orientations, Android Chrome and desktop. Include keyboard navigation, VoiceOver or equivalent, reduced motion, larger text, reload and older hardware. |
+| Teacher and learner pilot | Run moderated sessions across age bands, with appropriate consent and data safeguards. Observe confusion without coaching, check that learners can explain the maths, and track whether they can use the method again after a delay. Record issues and resolve blockers before claiming readiness. |
+
+The current preview is a test build. The coverage gaps above, tiered exam pathways, teacher review and the full real-device and learner pilot remain release gates.

@@ -1,8 +1,9 @@
 import { useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
-import { buildPlan, currentWeek, planProgress, type PlanTarget } from "../engine/plan";
+import { buildPlan, currentWeek, planFocus, planProgress, type PlanTarget } from "../engine/plan";
 import type { Goal } from "../engine/progress";
-import { DAY } from "../engine/progress";
+import { DAY, buildSession, type Pick } from "../engine/progress";
+import { mulberry32 } from "../engine/rng";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 
@@ -10,14 +11,15 @@ const EXAMS: { id: Goal["exam"]; label: string; note: string }[] = [
   { id: "gl", label: "GL Assessment style", note: "Used in many grammar-school areas." },
   { id: "cem", label: "CEM style", note: "Mixed, quick-fire papers. CEM-style practice isn't built yet, so the plan covers the maths both tests share." },
   { id: "unsure", label: "Not sure yet", note: "We'll plan around general 11+ maths. You can change this any time." },
-  { id: "none", label: "No 11+, just getting stronger", note: "A general plan to close gaps and move up." },
+  { id: "none", label: "No 11+, just getting stronger", note: "Build your confidence with regular maths practice." },
 ];
 
 const dateInput = (t?: number) => (t ? new Date(t).toISOString().slice(0, 10) : "");
 
-export function PlanView() {
+export function PlanView({ initialWeek }: { initialWeek?: number }) {
   const { profile, update, go } = useApp();
   const last = profile.baselines[profile.baselines.length - 1];
+  const paused = !!profile.diag?.draft || (profile.diag?.responses.length ?? 0) > 0;
   const goal: Goal = profile.goal ?? { exam: profile.year <= 6 ? "gl" : "none", area: "", schools: [], sessionsPerWeek: 4 };
   const [exam, setExam] = useState<Goal["exam"]>(goal.exam);
   const [area, setArea] = useState(goal.area);
@@ -25,14 +27,17 @@ export function PlanView() {
   const [date, setDate] = useState(dateInput(goal.examDate));
   const [spw, setSpw] = useState(goal.sessionsPerWeek);
   const [editing, setEditing] = useState(!profile.plan);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState((initialWeek ?? 0) > 5);
 
   if (!last) {
     return (
-      <div class="empty">
-        <h1>Your plan</h1>
-        <p class="lede">Do the check-up first. It shows what to work on, and the plan is built from that.</p>
-        <button class="btn primary" onClick={() => go({ name: "checkup" })}>Start the check-up</button>
+      <div class="plan-page">
+        <div class="empty plan-empty workbook-panel paper-edge">
+          <span class="workbook-stamp" aria-hidden="true"><Icon name="book" size={32} /></span>
+          <h1>Your plan</h1>
+          <p class="lede">{paused ? "Finish your check-up so we can make your weekly plan. We’ve saved your place." : "Take the maths check-up to find out what you can already do. We’ll use your answers to plan what to practise each week."}</p>
+          <button class="btn primary" onClick={() => go({ name: "checkup" })}>{paused ? "Continue the check-up" : "Start the check-up"}</button>
+        </div>
       </div>
     );
   }
@@ -58,10 +63,11 @@ export function PlanView() {
   return (
     <div class="plan-page">
       <h1>Your plan</h1>
+      <p class="lede">See what to practise each week and track your progress.</p>
 
       {plan && !editing && (
         <>
-          <section class="summary-card" aria-labelledby="ps">
+          <section class="summary-card workbook-panel" aria-labelledby="ps">
             <p class="eyebrow" id="ps">Still to go</p>
             <p class="big-number">{left}<small> topic{left === 1 ? "" : "s"}</small></p>
             <p class="level-sentence">About {plan.weeks.filter((w) => w.kind === "learn").length} weeks at {plan.sessionsPerWeek} sessions a week{weeksToExam !== undefined && weeksToExam >= 0 ? `. The exam is in about ${weeksToExam} weeks` : ""}.</p>
@@ -70,7 +76,7 @@ export function PlanView() {
           </section>
 
           {plan.deferred.length > 0 && (
-            <div class="fb bad" role="status"><p><strong>Not everything fits before the exam at this pace.</strong> Left out for now: {plan.deferred.map((id) => SKILL_BY_ID[id].name).join(", ")}. More sessions a week would bring them back.</p></div>
+            <div class="fb bad" role="status"><p><strong>Your plan has more topics than you have time for before the exam.</strong> Left out for now: {plan.deferred.map((id) => SKILL_BY_ID[id].name).join(", ")}. You can add more sessions each week to cover more topics.</p></div>
           )}
           {profile.goal?.exam === "cem" && examInfo && <div class="fb hint"><span class="fb-icon"><Icon name="bulb" size={20} /></span><p>{examInfo.note}</p></div>}
 
@@ -78,11 +84,23 @@ export function PlanView() {
             <h2 id="wk">Week by week</h2>
             <ol class="weeks">
               {visible.map((w) => (
-                <li key={w.n} class={`week ${cw?.n === w.n ? "now" : ""} ${w.kind}`}>
+                <li key={w.n} id={`plan-week-${w.n}`} tabIndex={-1} class={`week ${cw?.n === w.n ? "now" : ""} ${w.kind}`}>
                   <span class="week-n">{w.n}</span>
                   <div>
                     <p class="week-title">{w.kind === "mock" ? "Practice paper" : w.kind === "review" ? "Revision" : w.note}</p>
                     {w.kind !== "learn" && <p class="small muted">{w.note}</p>}
+                    {cw?.n === w.n && w.kind === "mock" && (
+                      <button class="btn primary small week-practice" onClick={() => go({ name: "mock" }, { name: "plan", week: w.n })}>Start this week’s practice paper</button>
+                    )}
+                    {cw?.n === w.n && w.kind !== "mock" && (
+                      <button class="btn primary small week-practice" onClick={() => {
+                        const focus = planFocus(profile, now);
+                        const picks = focus.length
+                          ? Array.from({ length: 9 }, (_, i): Pick => ({ skillId: focus[i % focus.length], reason: "focus" }))
+                          : buildSession(profile, now, mulberry32(now));
+                        go({ name: "practice", plan: picks }, { name: "plan", week: w.n });
+                      }}>Start this week’s practice</button>
+                    )}
                   </div>
                   {cw?.n === w.n && <span class="chip next">This week</span>}
                 </li>

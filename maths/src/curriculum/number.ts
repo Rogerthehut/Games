@@ -31,6 +31,48 @@ function fracAdd(r: () => number, level: number): Question {
   };
 }
 
+/** Use a familiar share first, then build less familiar percentages from tenths. */
+function percentageMethod(p: number, amount: number): Pick<Question, "hint" | "solution"> {
+  const shares: Partial<Record<number, { name: string; groups: number }>> = {
+    10: { name: "one tenth", groups: 10 },
+    20: { name: "one fifth", groups: 5 },
+    25: { name: "one quarter", groups: 4 },
+    50: { name: "half", groups: 2 },
+  };
+  const share = shares[p];
+  if (share) {
+    return {
+      hint: `${p}% means ${share.name}. Can you split ${amount} into ${share.groups} equal groups?`,
+      solution: [
+        `$${p}\\%$ means ${share.name}. Split $${amount}$ into ${share.groups} equal groups.`,
+        `One group has $${amount} \\div ${share.groups} = ${amount / share.groups}$.`,
+      ],
+    };
+  }
+  if (p === 75) {
+    return {
+      hint: "75% is three quarters. Start by finding one quarter.",
+      solution: [
+        `$75\\%$ means three quarters. Split $${amount}$ into four equal groups. One group has $${amount} \\div 4 = ${amount / 4}$.`,
+        `Take three of those groups: $3 \\times ${amount / 4} = ${3 * amount / 4}$.`,
+      ],
+    };
+  }
+  const tenth = amount / 10;
+  const halfTenth = tenth / 2;
+  const tens = Math.floor(p / 10);
+  const steps = [`$10\\%$ means one tenth. Divide by ten: $${amount} \\div 10 = ${tenth}$.`];
+  if (tens > 0) steps.push(`$${tens * 10}\\%$ is ${tens} lots of $10\\%$: $${tens} \\times ${tenth} = ${tens * tenth}$.`);
+  if (p % 10 === 5) {
+    steps.push(`$5\\%$ is half of $10\\%$: $${tenth} \\div 2 = ${halfTenth}$.`);
+    if (tens > 0) steps.push(`Put the two parts together: $${tens * tenth} + ${halfTenth} = ${tens * tenth + halfTenth}$.`);
+  }
+  return {
+    hint: p === 5 ? "5% is half of 10%. Start by finding 10%." : "Find 10% first, then use it to build the percentage you need.",
+    solution: steps,
+  };
+}
+
 function percentOf(r: () => number, level: number): Question {
   if (level < 3) {
     const p = level === 1 ? pick(r, [10, 20, 25, 50, 75]) : 5 * int(r, 1, 19);
@@ -40,21 +82,21 @@ function percentOf(r: () => number, level: number): Question {
       skill: "pct-amount", level,
       prompt: `Work out $${p}\\%$ of $${N}$.`,
       answer: { kind: "number", value: ans },
-      hint: "Find 10% by dividing by 10, then build up to the percentage you need. 5% is half of 10%.",
-      solution: [`$1\\%$ of $${N}$ is $${N / 100}$.`, `So $${p}\\%$ is $${p} \\times ${N / 100} = ${ans}$.`],
+      ...percentageMethod(p, N),
       shown: `$${ans}$`,
     };
   }
   const p = 5 * int(r, 1, 12), N = pick(r, [20, 40, 60, 80, 120, 160, 200, 240]);
   const up = r() < 0.5;
   const change = (p * N) / 100;
+  const method = percentageMethod(p, N);
   const ans = up ? N + change : N - change;
   return {
     skill: "pct-amount", level,
     prompt: `A jacket costs £${N}. The price ${up ? "goes up" : "is reduced"} by $${p}\\%$. What is the new price in pounds?`,
     answer: { kind: "number", value: ans, label: "£" },
-    hint: `First find $${p}\\%$ of £${N}. Then ${up ? "add it to" : "take it away from"} the original price.`,
-    solution: [`$${p}\\%$ of $${N}$ is $${change}$.`, `${up ? "Add" : "Subtract"}: $${N} ${up ? "+" : "-"} ${change} = ${ans}$.`],
+    hint: `${method.hint} Then ${up ? "add the change to" : "take the change away from"} the starting price.`,
+    solution: [...method.solution, `The price goes ${up ? "up, so add" : "down, so take away"} £${change}: $${N} ${up ? "+" : "-"} ${change} = ${ans}$.`],
     shown: `£$${ans}$`,
     wrong: dedupeWrong([{ tag: "change-only", number: change, message: `That's the ${up ? "increase" : "reduction"} itself. The question asks for the new price, so ${up ? "add it to" : "subtract it from"} the original.` }], ans),
   };
@@ -90,7 +132,7 @@ export const numberSkills: Skill[] = [
     parentNote: "Think of fractions as pieces of a pizza. You can only add pieces that are the same size, so rewrite both fractions with the same denominator first.",
     talkAbout: "Why can't we just add the bottom numbers together?", generate: fracAdd },
   { id: "pct-amount", name: "Percentages of amounts", stage: "KS3", year: 7, strand: "Number", blurb: "Find percentages, then increase and decrease amounts.", prereqs: [],
-    parentNote: "Build percentages from 10% and 1%. 10% is a tenth, so divide by 10. 5% is half of that. Increases and decreases mean finding the change, then adding or subtracting it.",
+    parentNote: "Start with familiar shares. 50% is half, 25% is a quarter and 10% is a tenth. For other percentages, build from 10% and 5%. For a price change, find the amount of the change first.",
     talkAbout: "A shop takes 20% off £60. How would you work out the sale price without a calculator?", generate: percentOf },
   { id: "ratio-share", name: "Sharing in a ratio", stage: "KS3", year: 8, strand: "Ratio", blurb: "Split an amount in a given ratio.", prereqs: [],
     parentNote: "Add the parts of the ratio to get the total number of equal pieces. Divide the amount by that to find one piece, then multiply for each share.",

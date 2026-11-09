@@ -1,5 +1,8 @@
 import { SKILLS, SKILL_BY_ID } from "../curriculum";
-import type { Skill, Strand } from "./types";
+import type { AvatarChoice } from "./avatar";
+import type { Question, Skill, Stage, Strand } from "./types";
+import type { PathwayCertificate } from "./pathway";
+import type { PathwayDraft, PracticeDraft } from "./activity";
 import type { Plan } from "./plan";
 import type { RevealPolicy, TutorFlag } from "../tutor/types";
 import type { Rng } from "./rng";
@@ -81,6 +84,18 @@ export interface MockRecord {
 }
 
 export interface Profile {
+  lastSkill?: string;
+  skillsView?: "list" | "journey";
+  practiceDraft?: PracticeDraft;
+  pathwayDrafts?: Partial<Record<Stage, PathwayDraft>>;
+  anglesLesson?: { step: number; degrees: number; longDoor: boolean; answer: string; checked: boolean };
+  timeLesson?: { step: number; answer: string; example?: number };
+  groupsLesson?: { step: number; answer: string; groups: number[]; places: number[] };
+  fractionsLesson?: number;
+  fractionsLessonHelped?: boolean;
+  fractionsLessonAnswer?: string;
+  narrationVoice?: "female" | "male";
+  avatar?: AvatarChoice;
   id: string;
   name: string;
   year: number;
@@ -94,8 +109,9 @@ export interface Profile {
   points: number;
   baselines: BaselineRecord[];
   mocks?: MockRecord[];
+  certificates?: PathwayCertificate[];
   /** A check-up in progress, so a child can pause and carry on. */
-  diag?: { startedAt: number; responses: DiagResponse[] };
+  diag?: { startedAt: number; responses: DiagResponse[]; draft?: { question: Question; values: string[] } };
   plan?: Plan;
   goal?: Goal;
   /** Visual style. "auto" follows the school year. */

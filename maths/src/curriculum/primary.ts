@@ -98,7 +98,12 @@ function timesTables(r: R, level: number): Question {
   const a = pick(r, pool), b = level === 3 ? int(r, 2, 12) : int(r, 2, 12);
   const p = a * b;
   const form = level === 1 ? 0 : level === 2 ? int(r, 0, 1) : int(r, 1, 3);
-  if (form === 0) return { skill: "times-tables", level, prompt: `Work out $${a} \\times ${b}$.`, answer: { kind: "number", value: p }, hint: `Count in ${a}s, or use a fact you know and add or double.`, solution: [`$${a} \\times ${b} = ${p}$.`], shown: `$${p}$` };
+  if (form === 0) {
+    const count = Array.from({ length: a }, (_, i) => (i + 1) * b).join(", ");
+    return { skill: "times-tables", level, prompt: `Work out $${a} \\times ${b}$.`, answer: { kind: "number", value: p },
+      hint: `Think of ${a} equal groups with ${b} in each. Count in ${b}s.`,
+      solution: [`Think of $${a} \\times ${b}$ as ${a} groups with ${b} in each group.`, `Count in ${b}s once for each group: ${count}. So there are ${p} altogether.`], shown: `$${p}$` };
+  }
   if (form === 1) return { skill: "times-tables", level, prompt: `Work out $${p} \\div ${a}$.`, answer: { kind: "number", value: b }, hint: `Think: ${a} times what makes ${p}?`, solution: [`$${a} \\times ${b} = ${p}$, so $${p} \\div ${a} = ${b}$.`], shown: `$${b}$` };
   if (form === 2) return { skill: "times-tables", level, prompt: `Find the missing number: $\\square \\times ${a} = ${p}$.`, answer: { kind: "number", value: b }, hint: `Divide ${p} by ${a}.`, solution: [`$${p} \\div ${a} = ${b}$.`], shown: `$${b}$` };
   return { skill: "times-tables", level, prompt: `Find the missing number: $${a} \\times \\square = ${p}$.`, answer: { kind: "number", value: b }, hint: `Divide ${p} by ${a}.`, solution: [`$${p} \\div ${a} = ${b}$.`], shown: `$${b}$` };
@@ -134,7 +139,7 @@ function division(r: R, level: number): Question {
       prompt: `Work out $${n} \\div ${b}$. Give the whole-number answer and the remainder.`,
       answer: { kind: "multi", fields: [{ label: "quotient =", value: q }, { label: "remainder =", value: rem }] },
       hint: `How many whole lots of ${b} fit into ${n}? What is left over?`,
-      solution: [`$${b} \\times ${q} = ${b * q}$, which is the biggest multiple of ${b} that fits.`, `$${n} - ${b * q} = ${rem}$, so the answer is ${q} remainder ${rem}.`],
+      solution: [`$${b} \\times ${q} = ${b * q}$, so ${q} groups of ${b} fit into ${n}. There isn’t enough left for another group.`, `$${n} - ${b * q} = ${rem}$, so the answer is ${q} remainder ${rem}.`],
       shown: `$${q}$ remainder $${rem}$`,
     };
   }
@@ -144,10 +149,10 @@ function division(r: R, level: number): Question {
     skill: "division", level,
     prompt: `Work out $${n$(n)} \\div ${b}$.`,
     answer: { kind: "number", value: q },
-    hint: level === 1 ? "Use short division, or think about how many lots of the number fit." : `Use chunking: take away easy multiples like ${b * 10} and ${b * 5}, and count what you've removed.`,
+    hint: level === 1 ? "Use short division, or think about how many lots of the number fit." : `Take away groups of ${b}. Start by taking away 10 groups at a time.`,
     solution: level === 1
       ? [`$${b} \\times ${q} = ${n}$, so $${n} \\div ${b} = ${q}$.`]
-      : [`Chunk it: $${b} \\times 10 = ${b * 10}$. Keep taking away multiples of ${b} until you reach 0.`, `$${n} \\div ${b} = ${q}$.`],
+      : [`Start with 10 groups: $${b} \\times 10 = ${b * 10}$. Keep taking away groups of ${b} until nothing is left. Count how many groups you took away.`, `$${n} \\div ${b} = ${q}$.`],
     shown: `$${q}$`,
   };
 }
@@ -245,7 +250,11 @@ function fracAmount(r: R, level: number): Question {
   if (level === 1) {
     const d = pick(r, [2, 3, 4, 5, 10]), amt = d * int(r, 3, 12);
     return { skill: "frac-amount", level, prompt: `Work out $\\frac{1}{${d}}$ of $${amt}$.`, answer: { kind: "number", value: amt / d },
-      hint: `Finding one ${d === 2 ? "half" : "part out of " + d} means dividing by ${d}.`, solution: [`$${amt} \\div ${d} = ${amt / d}$.`], shown: `$${amt / d}$` };
+      hint: `The bottom number tells you to split ${amt} into ${d} equal groups.`,
+      solution: [
+        `${d === 2 ? "A half" : "The top number 1"} means take one of the ${d} equal groups.`,
+        `Split $${amt}$ into ${d} equal groups: $${amt} \\div ${d} = ${amt / d}$ in each group.`,
+      ], shown: `$${amt / d}$` };
   }
   const d = pick(r, [3, 4, 5, 6, 8, 10]), n = int(r, 2, d - 1), unit = int(r, 3, 12), amt = d * unit;
   if (level === 2)
@@ -347,7 +356,7 @@ function angles(r: R, level: number): Question {
     if (x > 0) return { skill: "angles-basic", level, prompt: `Angles around a point are $${a}^\\circ$, $${b}^\\circ$, $${c}^\\circ$ and $x^\\circ$. Find $x$.`, answer: { kind: "number", value: x, label: "x =" }, hint: "Angles around a point add up to 360°.", solution: [`$${a} + ${b} + ${c} = ${a + b + c}$.`, `$360 - ${a + b + c} = ${x}$.`], shown: `$x = ${x}^\\circ$` };
     return angles(r, level);
   }
-  if (r() < 0.5) { const apex = 2 * int(r, 10, 40); return { skill: "angles-basic", level, prompt: `An isosceles triangle has an angle of $${apex}^\\circ$ between its two equal sides. What size is each of the other two angles?`, answer: { kind: "number", value: (180 - apex) / 2 }, hint: "The two base angles are equal. Take the apex angle from 180°, then share what's left.", solution: [`$180 - ${apex} = ${180 - apex}$.`, `Share between two equal angles: $${180 - apex} \\div 2 = ${(180 - apex) / 2}$.`], shown: `$${(180 - apex) / 2}^\\circ$` }; }
+  if (r() < 0.5) { const apex = 2 * int(r, 10, 40); return { skill: "angles-basic", level, prompt: `An isosceles triangle has an angle of $${apex}^\\circ$ between its two equal sides. What size is each of the other two angles?`, answer: { kind: "number", value: (180 - apex) / 2 }, hint: "The other two angles are the same size. Take the angle you know away from 180°, then split what’s left in half.", solution: [`$180 - ${apex} = ${180 - apex}$.`, `Share between two equal angles: $${180 - apex} \\div 2 = ${(180 - apex) / 2}$.`], shown: `$${(180 - apex) / 2}^\\circ$` }; }
   const a = 10 * int(r, 6, 12), b = 10 * int(r, 6, 12), c = 10 * int(r, 5, 11), x = 360 - a - b - c;
   if (x <= 0) return angles(r, level);
   return { skill: "angles-basic", level, prompt: `Three angles of a quadrilateral are $${a}^\\circ$, $${b}^\\circ$ and $${c}^\\circ$. Find the fourth angle.`, answer: { kind: "number", value: x }, hint: "Angles in a quadrilateral add up to 360°.", solution: [`$${a} + ${b} + ${c} = ${a + b + c}$.`, `$360 - ${a + b + c} = ${x}$.`], shown: `$${x}^\\circ$` };

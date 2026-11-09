@@ -4,7 +4,8 @@ export type Strand = "Number" | "Ratio" | "Algebra" | "Geometry" | "Measures" | 
 export type Stage = "KS2" | "KS3" | "KS4" | "KS5";
 
 export type Figure =
-  | { type: "rtriangle"; base: string; height: string; hyp: string; angle?: string };
+  | { type: "rtriangle"; base: string; height: string; hyp: string; angle?: string }
+  | { type: "bar-chart"; interval: number; intervals: number; bars: { label: string; height: number }[] };
 
 /** Something a student commonly gets wrong, matched against what they typed. */
 export interface Misconception {

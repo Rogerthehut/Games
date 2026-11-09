@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { DAY, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
 import { exportProfile, importProfile } from "../engine/storage";
@@ -8,6 +8,7 @@ import { useApp } from "./context";
 import { Icon } from "./icons";
 import { STATUS_LABEL_PARENT } from "./labels";
 import { Maths } from "./maths";
+import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
 const when = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 type Part = "progress" | "tutor" | "settings";
@@ -15,6 +16,9 @@ type Part = "progress" | "tutor" | "settings";
 export function Parent() {
   const { profile, update, go, removeProfile, replaceProfile } = useApp();
   const [part, setPart] = useState<Part>("progress");
+  const [filters, setFilters] = useState<SkillFilters>({});
+  const visibleSkills = filterSkills(filters).sort((a, b) => a.year - b.year);
+  const topicsHeading = useRef<HTMLHeadingElement>(null);
   const stats = weekStats(profile);
   const [confirmDel, setConfirmDel] = useState(false);
   const [exportText, setExportText] = useState("");
@@ -50,7 +54,7 @@ export function Parent() {
   const download = () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([exportText], { type: "application/json" }));
-    a.download = `mathpath-${profile.name.toLowerCase().replace(/\W+/g, "-")}.json`;
+    a.download = `quarter-${profile.name.toLowerCase().replace(/\W+/g, "-")}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -130,10 +134,14 @@ export function Parent() {
           </section>
 
           <section class="card">
-            <h2>Topics, explained</h2>
+            <h2 ref={topicsHeading}>Topics, explained</h2>
             <p class="small muted">Tick “Focus” to move a topic into the next sessions, for example to match what you're teaching this week.</p>
+            <SkillFilterControls filters={filters} onChange={(next) => {
+              setFilters(next);
+              topicsHeading.current?.scrollIntoView({ block: "start" });
+            }} count={visibleSkills.length} />
             <ul class="topics">
-              {[...SKILLS].sort((a, b) => a.year - b.year).map((s) => {
+              {visibleSkills.map((s) => {
                 const st = profile.skills[s.id];
                 return (
                   <li key={s.id}>
@@ -172,8 +180,8 @@ export function Parent() {
           </label>
           <p class="small muted">Status: {tutorUp === null ? "checking…" : tutorUp ? "connected" : "not connected in this version, so the tutor button won't show yet"}.</p>
           <details class="how"><summary>What happens to what's typed</summary>
-            <p>A message goes to our tutor service with the current question and what your child has typed for it. Nothing else about them is sent: no name, school or progress. The service passes it to an AI provider to write a reply, checks the reply, and sends it back. We don't store messages. They're kept only in the log below, on this device.</p>
-            <p>Messages with contact details, or that look like a safety concern, never reach the AI. The tutor can still make mistakes, so for anything important, check with a teacher. We'd suggest being nearby while younger children use it.</p>
+            <p>The service receives the message, recent chat, school year and current maths question and attempts. It uses a random browser ID and IP address to limit requests. It may pass the chat and maths context to an AI provider for a reply. The app keeps a conversation log in this browser.</p>
+            <p>Keep personal details out of messages. The tutor can make mistakes, so check anything important with a teacher. <a class="legal-link" href="./?info=privacy">Read the Privacy notice</a>.</p>
           </details>
           <h3>Conversation log</h3>
           {log.length === 0 ? <p class="muted">Nothing yet. Every exchange shows up here, newest first.</p> : (

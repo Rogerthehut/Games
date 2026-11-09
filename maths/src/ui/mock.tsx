@@ -1,50 +1,84 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
+import type { AnsweredQuestion } from "../engine/activity";
 import { check } from "../engine/check";
 import { MOCK_SECONDS, MOCK_TOTAL, buildMock } from "../engine/mock";
+import { awardPathwayCertificate, buildPathwayTest, canTakePathwayTest, pathwayPassMark, pathwayTestName } from "../engine/pathway";
 import { addPoints, recordAnswer, recordMistake, type MockRecord } from "../engine/progress";
 import { mulberry32 } from "../engine/rng";
-import type { Question, Strand } from "../engine/types";
+import type { Stage, Strand } from "../engine/types";
 import { AnswerInput } from "./answer-input";
+import { WorkingOut } from "./working-out";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
 import { Icon } from "./icons";
 import { Maths } from "./maths";
 import { Pip } from "./pip";
 import { QBar, QTop } from "./qshell";
-
-interface Taken { q: Question; inputs: string[]; correct: boolean; tag?: string; message?: string }
+import { ExamTimer } from "./clock";
 
 const clock = (s: number) => `${Math.floor(Math.abs(s) / 60)}:${String(Math.abs(s) % 60).padStart(2, "0")}`;
 
-export function Mock() {
-  const { profile, update, go } = useApp();
-  const items = useMemo(() => buildMock(mulberry32(Date.now() & 0xffffff)), []);
+export function Mock({ pathway }: { pathway?: Stage }) {
+  const { profile, update, go, leave } = useApp();
+  const [saved] = useState(() => pathway ? profile.pathwayDrafts?.[pathway] : undefined);
+  const questions = useMemo(() => {
+    if (saved) return saved.questions;
+    const seed = Date.now();
+    const rng = mulberry32(seed);
+    const items = pathway ? buildPathwayTest(pathway, rng) : buildMock(rng);
+    return items.map((item, index) => SKILL_BY_ID[item.skillId].generate(mulberry32(seed + index * 7919), item.level));
+  }, [pathway, saved]);
+  const total = questions.length;
   const [phase, setPhase] = useState<"intro" | "run" | "done">("intro");
-  const [idx, setIdx] = useState(0);
-  const [q, setQ] = useState<Question | null>(null);
-  const [values, setValues] = useState<string[]>([""]);
+  const [idx, setIdx] = useState(saved?.taken.length ?? 0);
+  const q = questions[idx];
+  const [values, setValues] = useState<string[]>(saved?.values ?? [""]);
   const [note, setNote] = useState("");
-  const [taken, setTaken] = useState<Taken[]>([]);
+  const [taken, setTaken] = useState<AnsweredQuestion[]>(saved?.taken ?? []);
   const [elapsed, setElapsed] = useState(0);
   const startedAt = useRef(0);
+  const finished = useRef(false);
+
+  const start = () => { startedAt.current = Date.now(); setPhase("run"); };
+  const endOnTime = () => finish([
+    ...taken,
+    ...questions.slice(taken.length).map((question) => ({ q: question, inputs: [""], correct: false })),
+  ], MOCK_SECONDS);
 
   useEffect(() => {
-    if (phase !== "run") return;
-    const t = setInterval(() => setElapsed(Math.floor((Date.now() - startedAt.current) / 1000)), 1000);
+    if (phase !== "run" || pathway) return;
+    const tick = () => {
+      const seconds = Math.floor((Date.now() - startedAt.current) / 1000);
+      setElapsed(seconds);
+      if (seconds >= MOCK_SECONDS) endOnTime();
+    };
+    const t = setInterval(tick, 250);
     return () => clearInterval(t);
-  }, [phase]);
+  }, [phase, pathway, taken]);
 
-  const show = (i: number) => {
-    const it = items[i];
-    setQ(SKILL_BY_ID[it.skillId].generate(mulberry32((Date.now() + i * 7919) & 0x7fffffff), it.level));
-    setValues([""]);
-    setNote("");
+  const saveAndLeave = () => {
+    if (!pathway || finished.current) return;
+    update((p) => ({ ...p, lastSkill: q?.skill ?? p.lastSkill, pathwayDrafts: { ...p.pathwayDrafts, [pathway]: { questions, taken, values } } }));
+    leave({ name: "map", stage: pathway });
   };
-  const start = () => { startedAt.current = Date.now(); setPhase("run"); show(0); };
 
-  const finish = (all: Taken[]) => {
-    const seconds = Math.floor((Date.now() - startedAt.current) / 1000);
+  const finish = (all: AnsweredQuestion[], secondsAtEnd?: number) => {
+    if (finished.current) return;
+    finished.current = true;
+    setTaken(all);
+    if (pathway) {
+      const score = all.filter((item) => item.correct).length;
+      const at = Date.now();
+      update((p) => {
+        const pathwayDrafts = { ...p.pathwayDrafts };
+        delete pathwayDrafts[pathway];
+        return awardPathwayCertificate({ ...p, pathwayDrafts }, pathway, score, all.length, at);
+      });
+      setPhase("done");
+      return;
+    }
+    const seconds = secondsAtEnd ?? Math.floor((Date.now() - startedAt.current) / 1000);
     const by = new Map<Strand, { right: number; n: number }>();
     for (const t of all) {
       const st = SKILL_BY_ID[t.q.skill].strand;
@@ -55,24 +89,26 @@ export function Mock() {
       at: Date.now(), total: all.length, score: all.filter((t) => t.correct).length, seconds, limitSeconds: MOCK_SECONDS,
       byStrand: [...by].map(([strand, v]) => ({ strand, ...v })),
     };
+    const attempted = secondsAtEnd === MOCK_SECONDS ? taken : all;
     update((p) => {
       let n = p;
-      for (const t of all) {
+      for (const t of attempted) {
         n = recordAnswer(n, t.q.skill, t.correct ? "right" : "wrong");
         if (!t.correct && t.tag && t.message) n = recordMistake(n, t.tag, t.q.skill, t.message);
       }
       n = addPoints(n, 20 + rec.score);
-      return { ...n, mocks: [...(n.mocks ?? []), rec], sessions: [...n.sessions, { at: startedAt.current, minutes: Math.max(1, Math.round(seconds / 60)), answered: all.length, correct: rec.score, skills: [...new Set(all.map((t) => t.q.skill))] }] };
+      return { ...n, mocks: [...(n.mocks ?? []), rec], sessions: [...n.sessions, { at: startedAt.current, minutes: Math.max(1, Math.round(seconds / 60)), answered: attempted.length, correct: rec.score, skills: [...new Set(attempted.map((t) => t.q.skill))] }] };
     });
     setPhase("done");
   };
 
   const record = (inputs: string[], correct: boolean, tag?: string, message?: string) => {
-    if (!q) return;
+    if (!q || finished.current) return;
+    if (!pathway && Date.now() >= startedAt.current + MOCK_SECONDS * 1000) { endOnTime(); return; }
     const all = [...taken, { q, inputs, correct, tag, message }];
     setTaken(all);
-    if (idx + 1 >= MOCK_TOTAL) finish(all);
-    else { setIdx(idx + 1); show(idx + 1); }
+    if (idx + 1 >= total) finish(all);
+    else { setIdx(idx + 1); setValues([""]); setNote(""); }
   };
   const submit = () => {
     if (!q) return;
@@ -82,6 +118,22 @@ export function Mock() {
   };
 
   if (phase === "intro") {
+    if (pathway) {
+      const ready = canTakePathwayTest(profile, pathway);
+      return (
+        <main class="splash">
+          <div class="splash-in">
+            <div class="pip-slot"><Pip pose="think" size={110} /></div>
+            <h1>{pathwayTestName(pathway)}</h1>
+            <p class="splash-sub">{ready
+              ? `This test covers every topic in your Quarter pathway. You can save it and come back later. You need to answer at least ${pathwayPassMark(total)} of the ${total} questions correctly to earn your Quarter certificate.`
+              : "Practise every topic in this pathway to unlock the final test."}</p>
+            {ready && <button class="btn primary big" onClick={start} data-testid="pathway-start">{saved ? `Continue from question ${idx + 1}` : "Start the test"} <Icon name="arrow" size={20} /></button>}
+            <button class="linkish" onClick={() => leave({ name: "map", stage: pathway })}>Go back</button>
+          </div>
+        </main>
+      );
+    }
     return (
       <main class="splash">
         <div class="splash-in">
@@ -89,13 +141,13 @@ export function Mock() {
           <h1>Practice paper</h1>
           <p class="splash-sub">{MOCK_TOTAL} questions in the style of 11+ maths. Aim for {MOCK_SECONDS / 60} minutes.</p>
           <ul class="tips">
-            <li>The clock runs but won't stop you.</li>
+            <li>The paper ends when the timer reaches zero. Any unfinished questions will count as blank.</li>
             <li>No hints, and no marks until the end.</li>
             <li>Then you'll see every miss, with the steps.</li>
           </ul>
           <p class="small muted">Original practice, written in a general 11+ style. Not an official paper.</p>
           <button class="btn primary big" onClick={start} data-testid="mock-start">Start <Icon name="arrow" size={20} /></button>
-          <button class="linkish" onClick={() => go({ name: "plan" })}>Not now</button>
+          <button class="linkish" onClick={() => leave({ name: "plan" })}>Not now</button>
         </div>
       </main>
     );
@@ -104,15 +156,22 @@ export function Mock() {
   if (phase === "done") {
     const score = taken.filter((t) => t.correct).length;
     const missed = taken.filter((t) => !t.correct);
-    const rec = profile.mocks?.[profile.mocks.length - 1];
+    const rec = pathway ? undefined : profile.mocks?.[profile.mocks.length - 1];
+    const certificate = pathway && profile.certificates?.find((item) => item.stage === pathway);
     const prev = profile.mocks && profile.mocks.length > 1 ? profile.mocks[profile.mocks.length - 2] : undefined;
     return (
       <main class="page report">
         <div class="card hero">
-          <h1>Practice paper result</h1>
+          <h1>{pathway ? (certificate ? "You earned your certificate!" : "Keep going") : "Practice paper result"}</h1>
           <p class="big-level">{score} / {taken.length}</p>
-          <p class="lede">Finished in {clock(rec?.seconds ?? elapsed)} of {clock(MOCK_SECONDS)}.{prev && <> Last paper: {prev.score} / {prev.total}.</>}</p>
-          <p class="small muted">An indicator for practice, not a prediction. Real 11+ pass marks vary by area and year, and this is not a standardised score.</p>
+          {pathway ? (
+            <p class="lede">{certificate
+              ? "You’ve completed this Quarter pathway. Take a look at your certificate."
+              : `You need at least ${pathwayPassMark(total)} correct answers to earn your certificate. Look through the questions below, then try again when you’re ready.`}</p>
+          ) : <>
+            <p class="lede">{rec?.seconds === MOCK_SECONDS ? "Time’s up. Unanswered questions were left blank." : `Finished in ${clock(rec?.seconds ?? elapsed)} of ${clock(MOCK_SECONDS)}.`}{prev && <> Last paper: {prev.score} / {prev.total}.</>}</p>
+            <p class="small muted">An indicator for practice, not a prediction. Real 11+ pass marks vary by area and year, and this is not a standardised score.</p>
+          </>}
         </div>
         {rec && (
           <div class="card">
@@ -138,9 +197,12 @@ export function Mock() {
               </li>
             ))}
           </ul>
-          <p class="small muted">Topics you missed will come back in your next practice sessions.</p>
+          {!pathway && <p class="small muted">Topics you missed will come back in your next practice sessions.</p>}
         </div>
-        <div class="actions"><button class="btn primary" onClick={() => go({ name: "home" })}>Done</button></div>
+        <div class="actions">
+          {pathway && certificate && <button class="btn primary" onClick={() => go({ name: "certificate", stage: pathway })}>See your certificate</button>}
+          <button class={certificate ? "btn" : "btn primary"} onClick={() => leave(pathway ? { name: "map", stage: pathway } : { name: "home" })}>{pathway ? "Back to skills" : "Done"}</button>
+        </div>
       </main>
     );
   }
@@ -150,20 +212,25 @@ export function Mock() {
   return (
     <div class="qpage" data-phase="ask">
       <QTop
-        onClose={() => (taken.length ? finish(taken) : go({ name: "plan" }))} closeLabel="End the paper" index={idx} total={MOCK_TOTAL}
-        right={<span class={`timer ${left < 0 ? "over" : left < 120 ? "low" : ""}`} aria-label="Time left">{left >= 0 ? clock(left) : `+${clock(left)}`}</span>}
+        onClose={pathway ? saveAndLeave : () => taken.length ? finish(taken) : leave({ name: "plan" })} closeLabel={pathway ? "Save and leave pathway test" : "End the paper"} closeText={pathway ? "Save and leave" : undefined} index={idx} total={total}
+        right={pathway ? undefined : <ExamTimer seconds={left} total={MOCK_SECONDS} />}
       />
       <div class="qbody" key={idx}>
-        <p class="q-topic">Question {idx + 1} of {MOCK_TOTAL}</p>
-        <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
-        {q.figure && <FigureView fig={q.figure} />}
-        <AnswerInput answer={q.answer} values={values} onChange={setValues} onSubmit={submit} />
-        <div class="fb-zone" aria-live="polite">
-          {note && <div class="fb nearly" role="alert"><p>{note}</p></div>}
-          {left < 0 && <div class="fb hint"><span class="fb-icon"><Icon name="bulb" size={20} /></span><p>Time's up. In a real paper you'd stop here. Carry on to see your result.</p></div>}
+        <p class="q-topic">Question {idx + 1} of {total}</p>
+        <div class="question-desk">
+          <div class="question-main">
+            <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
+            {q.figure && <FigureView fig={q.figure} />}
+            <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} />
+            <div class="fb-zone" aria-live="polite">
+              {note && <div class="fb nearly" role="alert"><p>{note}</p></div>}
+            </div>
+          </div>
+          <WorkingOut />
         </div>
       </div>
       <QBar
+        help
         left={<button class="btn ghost" onClick={() => record([""], false)} data-testid="leave-blank">Leave blank</button>}
         right={<button class="btn primary" onClick={submit} disabled={!values.some((v) => v.trim())} data-testid="next">Next <Icon name="arrow" size={20} /></button>}
       />

@@ -4,10 +4,10 @@ import type { Answer } from "./types";
 
 type NumberAnswer = Extract<Answer, { kind: "number" }>;
 
-const UNIT_RE = /\s*(cm²|cm2|cm\^2|cm³|cm3|cm\^3|m²|m2|m\^2|km|cm|mm|kg|ml|litres?|metres?|degrees?|grams?|pounds?|pence|°|%|m|g|l|p)\s*$/;
+const UNIT_RE = /\s*(cm²|cm2|cm\^2|cm³|cm3|cm\^3|m²|m2|m\^2|km|cm|mm|kg|ml|litres?|metres?|degrees?|grams?|minutes?|mins?|pounds?|pence|°|%|m|g|l|p)\s*$/;
 const UNIT_CANON: Record<string, string> = {
   "cm2": "cm²", "cm^2": "cm²", "cm3": "cm³", "cm^3": "cm³", "m2": "m²", "m^2": "m²",
-  litre: "l", litres: "l", metre: "m", metres: "m", degree: "°", degrees: "°", gram: "g", grams: "g", pound: "£", pounds: "£", pence: "p",
+  litre: "l", litres: "l", metre: "m", metres: "m", degree: "°", degrees: "°", gram: "g", grams: "g", pound: "£", pounds: "£", pence: "p", minute: "min", minutes: "min", mins: "min",
 };
 
 export interface ParsedNumber {
@@ -59,7 +59,7 @@ export function asFraction(value: number, maxDen = 400): [number, number] | null
 export interface FormatHelp {
   /** One plain line shown under the answer box. */
   line: string;
-  /** Other ways of writing the right answer that will also be accepted. */
+  /** Extra instructions about accepted formats, without using the solution. */
   also: string[];
 }
 
@@ -68,43 +68,34 @@ const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
 /** How to write this answer, in words a child can follow. */
 export function formatHelp(a: Answer): FormatHelp {
   if (a.kind === "number") {
-    const frac = asFraction(a.value);
     if (a.simplestFraction || a.form === "fraction") {
-      const [n, d] = frac ?? [1, 2];
-      const improper = Math.abs(a.value) > 1 && d !== 1;
       return {
-        line: "Write it as a fraction in its simplest form, like 3/4.",
-        also: [d === 1 ? String(n) : `${n}/${d}`, ...(improper ? [`${Math.trunc(a.value)} ${Math.abs(n) - Math.trunc(a.value) * d}/${d}`] : [])].filter((x, i, arr) => arr.indexOf(x) === i),
+        line: "Write it as a fraction in its simplest form.",
+        also: ["Use a slash between the numerator and denominator."],
       };
     }
     if (a.money) {
-      const v = a.value;
-      return { line: "Write the amount in pounds, like 12.50. Whole pounds can be just 12.", also: [String(v), v.toFixed(2), `£${v.toFixed(2)}`, ...(v < 1 ? [`${Math.round(v * 100)}p`] : [])].filter((x, i, arr) => arr.indexOf(x) === i) };
+      return { line: "Write the amount in pounds.", also: ["You can include the £ sign or leave it out."] };
     }
     if (a.dp !== undefined) {
-      const ex = (a.exact ?? a.value).toFixed(a.dp);
-      return { line: `Round it to ${plural(a.dp, "decimal place")}, like ${ex}.`, also: [ex, `${ex}${a.unit ? ` ${a.unit}` : ""}`] };
+      return { line: `Round it to ${plural(a.dp, "decimal place")}.`, also: [] };
     }
     const unitNote = a.unit ? ` The unit (${a.unit}) is added for you, so just type the number.` : "";
-    const base = Number.isInteger(a.value) ? "Type a whole number." : "Type a decimal like 2.5, or a fraction like 5/2.";
-    const neg = a.value < 0 ? " Use − for minus." : "";
-    const also = [String(a.value)];
-    if (Number.isInteger(a.value)) also.push(a.value >= 1000 ? a.value.toLocaleString("en-GB") : `${a.value}.0`);
-    if (a.unit) also.push(`${a.value} ${a.unit}`);
-    if (a.label && /=\s*$/.test(a.label)) also.push(`${a.label.trim()} ${a.value}`);
-    return { line: `${base}${neg}${unitNote}`, also };
+    const base = a.form === "decimal" ? "Type a decimal." : Number.isInteger(a.value) ? "Type a whole number." : "Type a decimal or a fraction.";
+    return { line: `${base}${unitNote}`, also: [] };
   }
   if (a.kind === "multi") {
     const rem = a.fields.some((f) => /remainder/i.test(f.label));
-    return { line: rem ? "Fill both boxes: the whole-number answer, then what's left over." : "Fill in each box.", also: rem ? [`${a.fields[0].value} r ${a.fields[1].value}  (in the first box)`] : [] };
+    return { line: rem ? "Fill both boxes: the whole-number answer, then what's left over." : "Fill in each box.", also: rem ? ["Or type the quotient, the letter r, and the remainder in the first box."] : [] };
   }
   return a.form === "factorised"
-    ? { line: "Write it as brackets multiplied together, like (x + 2)(x + 3).", also: [] }
-    : { line: "Multiply out and simplify. Write powers with ^, like x^2.", also: ["Any order of terms is fine: 3 + 2x or 2x + 3"] };
+    ? { line: "Write it as brackets multiplied together.", also: [] }
+    : { line: "Multiply out and simplify. Use ^ to write a power.", also: ["You can write the terms in any order."] };
 }
 
 /** A kind, specific nudge when the right value was written in the wrong form. */
 export const formNudge = {
+  decimal: "That’s the right value. Now write it as a decimal.",
   fraction: "That's the right value. Write it as a fraction, like 3/4.",
   simplify: "That's the right value. Now simplify the fraction as far as you can.",
   unit: (u: string) => `Right number. This answer is in ${u === "£" ? "pounds" : u}.`,

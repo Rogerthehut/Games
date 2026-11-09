@@ -118,7 +118,7 @@ export function Report({ rec: given }: { rec?: BaselineRecord }) {
         <summary>About this score</summary>
         <p>The check-up picks each question close to your level and adjusts as you answer. It covers every topic area, and follows up when a basic skill might be missing.</p>
         <p><strong>It can't find every gap.</strong> {rec.questions} questions can't cover everything. Practice picks up the rest, and any skill that goes wrong gets brought back. Do the check-up again in 6 to 8 weeks to see how far you've come.</p>
-        <p><strong>It's an estimate.</strong> Difficulty follows when each topic is taught in the UK National Curriculum. It hasn't been tested on large numbers of children yet, so read the level as a guide, not an official score.</p>
+        <p><strong>It's an estimate.</strong> The estimate uses the difficulty of the topics covered in Quarter. It hasn't been tested on large numbers of children yet, so read the level as a guide, not an official score.</p>
         <p><strong>Bad days show.</strong> If the result surprises you, try again on a better day.</p>
       </details>
     </div>

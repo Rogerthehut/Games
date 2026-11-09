@@ -55,7 +55,7 @@ function variants(q: Question): string[] {
     if (f && a.simplestFraction) {
       out.push(f[1] === 1 ? String(f[0]) : `${f[0]}/${f[1]}`);
       if (f[1] !== 1 && Math.abs(v) > 1) out.push(`${Math.trunc(v)} ${Math.abs(f[0]) - Math.trunc(v) * f[1]}/${f[1]}`);
-    } else if (f && f[1] !== 1 && !a.dp && a.exact === undefined && a.form !== "fraction") out.push(`${f[0]}/${f[1]}`);
+    } else if (f && f[1] !== 1 && !a.dp && a.exact === undefined && a.form !== "fraction" && a.form !== "decimal") out.push(`${f[0]}/${f[1]}`);
   } else if (a.kind === "multi") {
     if (a.fields.length === 2 && /remainder/i.test(a.fields[1].label)) out.push(`${a.fields[0].value} r ${a.fields[1].value}`);
   }
@@ -138,13 +138,13 @@ describe("how-to-write hints", () => {
     expect(hintFor("factorise-quad", 1).line).toMatch(/brackets/i);
     expect(hintFor("times-tables", 1).line).toMatch(/whole number/i);
   });
-  it("lists forms that really are accepted", () => {
-    for (const skill of SKILLS) {
-      const q = skill.generate(mulberry32(9), 2);
-      if (q.answer.kind !== "number") continue;
-      const h = formatHelp(q.answer);
-      for (const form of h.also) expect(check(q, [form]).outcome, `${skill.id}: "${form}"`).toBe("correct");
-    }
+  it("does not use the solution as a format example", () => {
+    expect(formatHelp({ kind: "number", value: 907.54, dp: 2 }))
+      .toEqual(formatHelp({ kind: "number", value: 1.29, dp: 2 }));
+    const division = (quotient: number, remainder: number) => formatHelp({
+      kind: "multi", fields: [{ label: "quotient =", value: quotient }, { label: "remainder =", value: remainder }],
+    });
+    expect(division(36, 5)).toEqual(division(24, 1));
   });
   it("gcd sanity", () => expect(gcd(12, 18)).toBe(6));
 });
