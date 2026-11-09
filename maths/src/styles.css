@@ -2305,3 +2305,15 @@ html:has(.quarter-search[open]),
 .reasoning-card-title { font-weight: 800; }
 .reasoning-card-text { grid-column: 1; color: var(--muted); font-size: .92rem; }
 .reasoning-card .icon { grid-row: 1 / span 2; grid-column: 2; color: var(--accent); }
+
+.matrix-grid { display: grid; grid-template-columns: repeat(3, auto); gap: 6px; justify-content: center; }
+
+.explainer { font-weight: 700; color: var(--ink); }
+
+/* Very narrow phones: let the bottom bar wrap rather than clip the Check button. */
+@media (max-width: 360px) {
+  .qpage .qbar-in { flex-wrap: wrap; justify-content: flex-end; }
+  .qpage .qbar-left { flex: 1 1 100%; justify-content: flex-start; }
+  .qpage .qbar-right { flex: 1 1 100%; margin-left: 0; }
+  .qpage .qbar .btn.primary { width: 100%; }
+}

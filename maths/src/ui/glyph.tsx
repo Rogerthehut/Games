@@ -102,9 +102,10 @@ const Unknown = ({ size }: { size: number }) => (
 );
 
 /** The picture part of a reasoning question. */
-export function GlyphFigure({ layout, items, caption }: { layout: "series" | "analogy" | "mirror" | "single"; items: (Glyph | null)[]; caption?: string }) {
+export function GlyphFigure({ layout, items, caption }: { layout: "series" | "analogy" | "mirror" | "single" | "matrix"; items: (Glyph | null)[]; caption?: string }) {
   const narrow = typeof matchMedia !== "undefined" && matchMedia("(max-width: 480px)").matches;
-  const size = layout === "single" || layout === "mirror" ? (narrow ? 110 : 130)
+  const short = typeof innerHeight !== "undefined" && innerHeight < 900;
+  const size = layout === "matrix" ? (narrow ? 68 : short ? 70 : 90) : layout === "single" || layout === "mirror" ? (narrow ? 110 : 130)
     : layout === "analogy" ? (narrow ? 50 : 84)
     : items.length > 4 ? (narrow ? 54 : 80) : (narrow ? 70 : 90);
   const cell = (g: Glyph | null, i: number) => <div class="glyph-cell" key={i}>{g ? <GlyphView glyph={g} size={size} /> : <Unknown size={size} />}</div>;
@@ -116,6 +117,8 @@ export function GlyphFigure({ layout, items, caption }: { layout: "series" | "an
           <span class="glyph-gap" aria-label="as">as</span>
           {cell(items[2], 2)}<span class="glyph-arrow" aria-label="is to">→</span>{cell(items[3], 3)}
         </div>
+      ) : layout === "matrix" ? (
+        <div class="matrix-grid">{items.map((g2, i) => cell(g2, i))}</div>
       ) : layout === "mirror" ? (
         <div class="mirror-row">{cell(items[0], 0)}<span class="mirror-line" aria-label="mirror line" /></div>
       ) : (

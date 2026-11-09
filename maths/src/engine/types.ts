@@ -24,7 +24,7 @@ export type Figure =
   | { type: "rtriangle"; base: string; height: string; hyp: string; angle?: string }
   | { type: "bar-chart"; interval: number; intervals: number; bars: { label: string; height: number }[] }
   /** Pictures for reasoning questions. A null item is the missing one, drawn as a question mark. */
-  | { type: "glyphs"; layout: "series" | "analogy" | "mirror" | "single"; items: (Glyph | null)[]; caption?: string }
+  | { type: "glyphs"; layout: "series" | "analogy" | "mirror" | "single" | "matrix"; items: (Glyph | null)[]; caption?: string }
   /** Someone's working, one line per step, for "find the mistake" questions. */
   | { type: "working"; lines: string[] };
 
@@ -80,6 +80,8 @@ export interface Skill {
   strand: Strand;
   blurb: string;
   prereqs: string[];
+  /** One line for the child, shown the first time they meet the topic. */
+  explainer?: string;
   /** For the grown-up: how to explain it. */
   parentNote: string;
   /** For the grown-up: a question to ask to check understanding. */

@@ -191,15 +191,23 @@ function ChoiceInput({ answer, values, onChange, onSubmit, disabled, state, help
   const picked = values[0] ?? "";
   const pictures = answer.options.some((o) => "glyph" in o);
   const pick = (i: number) => { if (!disabled) onChange([String(i)]); };
+  // Keys 1 to 5 and A to E pick an answer from anywhere on the page, unless someone is typing in a box (the tutor chat, for example).
+  useEffect(() => {
+    if (disabled) return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (e.ctrlKey || e.metaKey || e.altKey || el?.closest("input, textarea, select, [contenteditable]")) return;
+      const n = /^[1-5]$/.test(e.key) ? +e.key - 1 : /^[a-e]$/i.test(e.key) ? e.key.toUpperCase().charCodeAt(0) - 65 : -1;
+      if (n >= 0 && n < answer.options.length) { e.preventDefault(); onChange([String(n)]); }
+      else if (e.key === "Enter" && picked !== "" && !el?.closest("button")) { e.preventDefault(); onSubmit(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  });
   return (
     <div class="answer" data-state={state}>
       <div
         class={`choices ${pictures ? "pictures" : "words"}`} role="radiogroup" aria-label="Choose an answer"
-        onKeyDown={(e) => {
-          const n = /^[1-5]$/.test(e.key) ? +e.key - 1 : /^[a-e]$/i.test(e.key) ? e.key.toUpperCase().charCodeAt(0) - 65 : -1;
-          if (n >= 0 && n < answer.options.length) { e.preventDefault(); pick(n); }
-          else if (e.key === "Enter" && picked !== "") { e.preventDefault(); onSubmit(); }
-        }}
       >
         {answer.options.map((o, i) => (
           <button

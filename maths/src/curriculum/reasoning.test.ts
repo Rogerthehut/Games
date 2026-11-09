@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { REASONING_SKILLS, SKILLS, SKILL_BY_ID } from ".";
+import { HIDDEN_WORDS, LETTER_BRIDGES, WORD_FRONTS } from "./word-data";
 import {
-  ANALOGIES, CLAIMS, NEAR_GROUPS, WORD_GROUPS, counterexample, fittingNext, numberSeriesNext, oddIndex, reflectGrid, rotateGridCW, transformsBetween, visualKey,
+  AMBIGUOUS_WORDS, ANALOGIES, CLAIMS, GROUP_LABEL, NEAR_GROUPS, NEVER_MIX, WORD_GROUPS, matrixCandidates, oddNumbers, counterexample, fittingNext, numberSeriesNext, oddIndex, reflectGrid, rotateGridCW, transformsBetween, visualKey,
 } from "./reasoning";
 import { check } from "../engine/check";
 import { mulberry32 } from "../engine/rng";
@@ -19,14 +20,15 @@ const glyphOf = (q: Question, i: number) => (choice(q).options[i] as { glyph: Gl
 const textOf = (q: Question, i: number) => (choice(q).options[i] as { text: string }).text;
 
 describe("reasoning skills: set-up", () => {
-  it("has fifteen skills, none in the maths curriculum used by the check-up and pathway", () => {
-    expect(REASONING_SKILLS).toHaveLength(15);
+  it("has twenty-one skills, none in the maths curriculum used by the check-up and pathway", () => {
+    expect(REASONING_SKILLS).toHaveLength(21);
     for (const s of REASONING_SKILLS) {
       expect(s.strand).toBe("Reasoning");
       expect(SKILLS.some((m) => m.id === s.id), s.id).toBe(false);
       expect(SKILL_BY_ID[s.id]).toBeDefined();
       expect(s.parentNote.length, s.id).toBeGreaterThan(20);
       expect(s.talkAbout.length, s.id).toBeGreaterThan(10);
+      expect(s.explainer?.length, `${s.id} explainer`).toBeGreaterThan(30);
     }
   });
 });
@@ -75,7 +77,7 @@ describe("verbal reasoning: answers re-derived independently", () => {
     for (const [a, b] of NEAR_GROUPS) { expect(WORD_GROUPS[a]).toBeDefined(); expect(WORD_GROUPS[b]).toBeDefined(); }
     eachQuestion("vr-odd-word", (q) => {
       const words = choice(q).options.map((o) => (o as { text: string }).text);
-      const groupOf = (w: string) => Object.keys(WORD_GROUPS).find((g) => WORD_GROUPS[g].includes(w))!;
+      const groupOf = (w: string) => Object.keys(WORD_GROUPS).find((g) => WORD_GROUPS[g].includes(w.toLowerCase()))!;
       const groups = words.map(groupOf);
       const odd = groups.filter((g) => groups.filter((x) => x === g).length === 1);
       expect(odd).toHaveLength(1);
@@ -194,7 +196,7 @@ describe("non-verbal reasoning: answers re-derived independently", () => {
   });
 
   it("no two options in any picture question look the same", () => {
-    for (const id of ["nvr-series", "nvr-analogy", "nvr-reflection", "nvr-rotation"]) {
+    for (const id of ["nvr-series", "nvr-analogy", "nvr-reflection", "nvr-rotation", "nvr-matrix"]) {
       eachQuestion(id, (q) => {
         const keys = choice(q).options.map((_, i) => visualKey(glyphOf(q, i)));
         expect(new Set(keys).size, `${id}: ${q.prompt}`).toBe(keys.length);
@@ -272,6 +274,118 @@ describe("problem solving: answers re-derived independently", () => {
     eachQuestion("ps-deduction", (q) => {
       expect(q.prompt).toMatch(/Who has /);
       expect(choice(q).options.length).toBeGreaterThanOrEqual(3);
+    });
+  });
+});
+
+describe("word lists, reviewed", () => {
+  const groupOf = (w: string) => Object.keys(WORD_GROUPS).find((g) => WORD_GROUPS[g].includes(w.toLowerCase()))!;
+  it("every group has a child-friendly label, enough words, and no word that could belong to two ideas", () => {
+    for (const [g, words] of Object.entries(WORD_GROUPS)) {
+      expect(GROUP_LABEL[g], g).toBeTruthy();
+      expect(words.length, g).toBeGreaterThanOrEqual(5);
+      for (const w of words) expect(AMBIGUOUS_WORDS, `${g}: ${w}`).not.toContain(w);
+    }
+  });
+  it("odd one out never mixes groups a child could reasonably confuse", () => {
+    const never = (a: string, b: string) => NEVER_MIX.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+    eachQuestion("vr-odd-word", (q) => {
+      const words = choice(q).options.map((o) => (o as { text: string }).text);
+      const odd = words[choice(q).correct];
+      for (const w of words) if (w !== odd) expect(never(groupOf(w), groupOf(odd)), `${w} with ${odd}`).toBe(false);
+    });
+  });
+  it("word links: no answer or wrong option is repeated inside a question, and the new links are present", () => {
+    for (const a of ANALOGIES) expect(new Set([a.answer, ...a.others, a.a, a.b, a.c]).size, `${a.a}:${a.b}`).toBeGreaterThanOrEqual(7);
+    expect(ANALOGIES.length).toBeGreaterThanOrEqual(30);
+  });
+});
+
+describe("dictionary-checked word puzzles", () => {
+  const BAD = ["damn", "hell", "sex", "kill", "dead", "death", "gun", "bomb", "blood", "beer", "drunk", "stupid", "hate", "shot"];
+  it("hidden words cross the join with at least two letters on each side, and are unique and safe", () => {
+    expect(HIDDEN_WORDS.length).toBeGreaterThanOrEqual(30);
+    const seen = new Set<string>();
+    for (const h of HIDDEN_WORDS) {
+      const joined = h.a + h.b;
+      expect(h.word).toHaveLength(4);
+      const k = joined.indexOf(h.word, Math.max(0, h.a.length - 3));
+      expect(k, `${h.a}|${h.b}`).toBeGreaterThanOrEqual(0);
+      expect(h.a.length - k, `${h.a}|${h.b}`).toBeGreaterThanOrEqual(2);
+      expect(k + 4 - h.a.length, `${h.a}|${h.b}`).toBeGreaterThanOrEqual(2);
+      expect(new Set(h.others).size).toBe(h.others.length);
+      expect(h.others).not.toContain(h.word);
+      expect(seen.has(h.word), h.word).toBe(false); seen.add(h.word);
+      for (const w of [h.a, h.b, h.word, ...h.others]) expect(BAD, w).not.toContain(w);
+    }
+  });
+  it("words that go in front: three different words, an answer that is not a wrong option, and no unsafe words", () => {
+    expect(WORD_FRONTS.length).toBeGreaterThanOrEqual(30);
+    for (const f of WORD_FRONTS) {
+      expect(new Set(f.words).size).toBe(3);
+      expect(new Set(f.others).size).toBe(4);
+      expect(f.others).not.toContain(f.answer);
+      for (const w of [f.answer, ...f.words, ...f.others]) expect(BAD, w).not.toContain(w);
+    }
+  });
+  it("letter bridges: one letter, real stems, no unsafe words", () => {
+    expect(LETTER_BRIDGES.length).toBeGreaterThanOrEqual(40);
+    for (const b of LETTER_BRIDGES) {
+      expect(b.letter).toMatch(/^[a-z]$/);
+      expect(b.a.length).toBeGreaterThanOrEqual(3);
+      expect(b.b.length).toBeGreaterThanOrEqual(4);
+      for (const w of [b.a + b.letter, b.letter + b.b]) expect(BAD, w).not.toContain(w);
+    }
+  });
+  it("the questions built from them keep the right answer in the options once", () => {
+    eachQuestion("vr-hidden-word", (q) => {
+      const words = q.prompt.match(/words ([A-Z]+) and ([A-Z]+) are/)!;
+      const right = textOf(q, choice(q).correct);
+      expect((words[1] + words[2]).includes(right), q.prompt).toBe(true);
+    });
+    eachQuestion("vr-letter-bridge", (q) => {
+      const m = q.prompt.match(/end of ([A-Z]+) and to the start of ([A-Z]+)/)!;
+      const right = textOf(q, choice(q).correct).toLowerCase();
+      expect(LETTER_BRIDGES.some((b) => b.a === m[1].toLowerCase() && b.b === m[2].toLowerCase() && b.letter === right), q.prompt).toBe(true);
+    });
+    eachQuestion("vr-word-front", (q) => {
+      const words = q.prompt.split("words? ")[1].replace(/\.$/, "").split(", ");
+      const entry = WORD_FRONTS.find((f) => f.words.join(",") === words.join(","))!;
+      expect(entry, q.prompt).toBeDefined();
+      expect(textOf(q, choice(q).correct)).toBe(entry.answer);
+    });
+  });
+});
+
+describe("more puzzle types, re-derived independently", () => {
+  it("odd one out (numbers): exactly one number is singled out by any simple rule, and it is the keyed one", () => {
+    eachQuestion("vr-odd-number", (q) => {
+      const nums = q.prompt.split("out? ")[1].split(", ").map(Number);
+      const flagged = oddNumbers(nums);
+      expect(flagged.size, q.prompt).toBe(1);
+      expect(String([...flagged][0]), q.prompt).toBe(textOf(q, choice(q).correct));
+    });
+    // the checker is deliberately strict: it also flags numbers that a rule like "multiple of 8" singles out, so ambiguous lists are rejected
+    expect(oddNumbers([12, 18, 24, 25, 30]).has(25)).toBe(true);
+    expect(oddNumbers([12, 18, 24, 25, 30]).size).toBeGreaterThan(1);
+    expect(oddNumbers([2, 4, 6, 8, 10]).size).toBeGreaterThanOrEqual(0);
+  });
+  it("rearrange the letters: exactly one option uses the same letters", () => {
+    eachQuestion("vr-anagram", (q) => {
+      const letters = q.prompt.match(/The letters ([A-Z]+) can/)![1].toLowerCase();
+      const sorted = (w: string) => [...w.toLowerCase()].sort().join("");
+      const matches = choice(q).options.filter((o) => sorted((o as { text: string }).text) === sorted(letters));
+      expect(matches, q.prompt).toHaveLength(1);
+      expect((matches[0] as { text: string }).text).toBe(textOf(q, choice(q).correct));
+    });
+  });
+  it("grid puzzles: only one picture completes the grid, and it is the keyed one", () => {
+    eachQuestion("nvr-matrix", (q) => {
+      const cells = (q.figure as { items: (Glyph | null)[] }).items;
+      const found = matrixCandidates(cells);
+      expect(found, q.prompt).toHaveLength(1);
+      expect(visualKey(found[0])).toBe(visualKey(glyphOf(q, choice(q).correct)));
+      expect(choice(q).options.filter((_, i) => visualKey(glyphOf(q, i)) === visualKey(found[0]))).toHaveLength(1);
     });
   });
 });

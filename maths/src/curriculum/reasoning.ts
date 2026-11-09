@@ -6,6 +6,7 @@
 import type { ChoiceOption, Glyph, Mark, Misconception, Question, Skill } from "../engine/types";
 import { int, pick } from "../engine/rng";
 import { shuffle } from "./helpers";
+import { HIDDEN_WORDS, LETTER_BRIDGES, WORD_FRONTS } from "./word-data";
 
 type R = () => number;
 
@@ -137,7 +138,7 @@ function alphabetCodes(r: R, level: number): Question {
 /* ------------------------------------------------------------------ verbal: odd one out */
 
 export const WORD_GROUPS: Record<string, string[]> = {
-  mammals: ["dog", "cat", "horse", "cow", "sheep", "rabbit", "fox", "deer", "mouse", "whale", "goat", "pig"],
+  mammals: ["dog", "cat", "horse", "cow", "sheep", "rabbit", "fox", "deer", "mouse", "goat", "pig"],
   birds: ["robin", "eagle", "owl", "sparrow", "swan", "parrot", "crow", "duck", "hen", "goose"],
   fish: ["salmon", "trout", "cod", "haddock", "tuna", "carp", "eel"],
   insects: ["ant", "bee", "wasp", "beetle", "fly", "moth", "ladybird"],
@@ -151,26 +152,49 @@ export const WORD_GROUPS: Record<string, string[]> = {
   body: ["arm", "leg", "knee", "elbow", "wrist", "ankle", "hand", "foot"],
   instruments: ["drum", "flute", "harp", "piano", "violin", "oboe"],
   weather: ["rain", "snow", "wind", "fog", "hail", "frost"],
-  sports: ["rugby", "tennis", "golf", "hockey", "squash", "boxing"],
+  sports: ["rugby", "tennis", "golf", "hockey", "netball", "boxing"],
   countries: ["france", "spain", "italy", "japan", "chile", "kenya"],
   buildings: ["school", "church", "castle", "library", "shop", "hospital"],
+  trees: ["oak", "ash", "elm", "pine", "birch", "willow", "beech"],
+  flowers: ["rose", "tulip", "daisy", "lily", "poppy", "daffodil"],
+  metals: ["iron", "copper", "tin", "zinc", "aluminium"],
+  drinks: ["tea", "milk", "juice", "water", "coffee"],
+  rooms: ["kitchen", "bedroom", "bathroom", "lounge", "attic", "cellar"],
+  jobs: ["doctor", "teacher", "baker", "farmer", "nurse", "plumber", "pilot"],
+  planets: ["mars", "venus", "saturn", "jupiter", "mercury", "neptune"],
+  shapes: ["circle", "square", "triangle", "oval", "pentagon", "hexagon"],
+  toys: ["doll", "kite", "ball", "puzzle", "robot", "teddy"],
+  stationery: ["pencil", "ruler", "rubber", "eraser", "crayon", "marker"],
 };
+/** How a group is described to a child. */
+export const GROUP_LABEL: Record<string, string> = {
+  mammals: "an animal", birds: "a bird", fish: "a fish", insects: "an insect", fruit: "a fruit", vegetables: "a vegetable", colours: "a colour",
+  clothes: "something you wear", tools: "a tool", furniture: "a piece of furniture", vehicles: "a vehicle", body: "a part of the body",
+  instruments: "a musical instrument", weather: "a kind of weather", sports: "a sport", countries: "a country", buildings: "a building",
+  trees: "a tree", flowers: "a flower", metals: "a metal", drinks: "a drink", rooms: "a room in a house", jobs: "a job", planets: "a planet",
+  shapes: "a shape", toys: "a toy", stationery: "something you write or draw with",
+};
+/** Words that belong to two ideas at once, so they must not appear in any group (a colour as well as a metal, fruit, gem or flower...). */
+export const AMBIGUOUS_WORDS = ["gold", "silver", "orange", "violet", "lead", "squash", "bat", "lime", "hall", "whale", "ruby", "emerald", "bronze", "amber", "coral", "olive"];
+/** Pairs of groups that must never be mixed in a puzzle, because a child could reasonably put a word in either. */
+export const NEVER_MIX: [string, string][] = [["fruit", "colours"], ["flowers", "colours"], ["fruit", "drinks"], ["metals", "tools"], ["planets", "countries"], ["shapes", "buildings"], ["body", "clothes"], ["toys", "stationery"], ["rooms", "buildings"]];
 export const NEAR_GROUPS: [string, string][] = [
-  ["mammals", "birds"], ["birds", "insects"], ["fruit", "vegetables"], ["mammals", "fish"], ["tools", "furniture"], ["body", "clothes"], ["instruments", "sports"], ["vehicles", "buildings"],
+  ["mammals", "birds"], ["birds", "insects"], ["fruit", "vegetables"], ["mammals", "fish"], ["tools", "furniture"], ["instruments", "sports"], ["vehicles", "buildings"],
+  ["trees", "flowers"], ["rooms", "furniture"], ["jobs", "tools"],
 ];
 
 function oddWord(r: R, level: number): Question {
   const names = Object.keys(WORD_GROUPS);
   let main: string, other: string;
-  if (level === 1) { main = pick(r, names); do other = pick(r, names); while (other === main || NEAR_GROUPS.some(([a, b]) => (a === main && b === other) || (a === other && b === main))); }
-  else { [main, other] = pick(r, NEAR_GROUPS); if (r() < 0.5) [main, other] = [other, main]; }
+  const pair = (list: [string, string][], x: string, y: string) => list.some(([a, b]) => (a === x && b === y) || (a === y && b === x));
+  if (level === 1) { main = pick(r, names); do other = pick(r, names); while (other === main || pair(NEAR_GROUPS, main, other) || pair(NEVER_MIX, main, other)); }
+  else { [main, other] = pick(r, NEAR_GROUPS.filter(([a, b]) => !NEVER_MIX.some(([x, y]) => (x === a && y === b) || (x === b && y === a)))); if (r() < 0.5) [main, other] = [other, main]; }
   const four = shuffle(r, WORD_GROUPS[main]).slice(0, 4);
   const odd = pick(r, WORD_GROUPS[other]);
-  const b = choose(r, text(odd), four.map((w) => text(w)));
-  const nice = (g: string) => g === "mammals" ? "mammals" : g;
+  const b = choose(r, text(shownWord(other, odd)), four.map((w) => text(shownWord(main, w))));
   return build("vr-odd-word", level, "Which word is the odd one out?", b,
     "Think about what four of the words have in common.",
-    [`${four.join(", ")} are all ${nice(main)}.`, `${odd} is ${nice(other)}, so it does not belong.`]);
+    [`${four.map((w) => shownWord(main, w)).join(", ")} are all ${main}.`, `${shownWord(other, odd)} is one of the ${other}, so it does not belong.`]);
 }
 
 /* ------------------------------------------------------------------ verbal: analogies */
@@ -193,14 +217,25 @@ export const ANALOGIES: Analogy[] = [
   { a: "thermometer", b: "temperature", c: "ruler", answer: "length", others: ["wood", "straight", "draw", "metal"], level: 2 },
   { a: "library", b: "books", c: "gallery", answer: "paintings", others: ["artist", "frame", "museum", "visitors"], level: 2 },
   { a: "seed", b: "plant", c: "egg", answer: "chicken", others: ["shell", "nest", "farm", "yolk"], level: 2 },
+  { a: "shoe", b: "foot", c: "hat", answer: "head", others: ["coat", "hair", "cap", "brim"], level: 1 },
+  { a: "up", b: "down", c: "in", answer: "out", others: ["over", "through", "under", "around"], level: 1 },
+  { a: "wet", b: "dry", c: "full", answer: "empty", others: ["half", "heavy", "tall", "round"], level: 1 },
+  { a: "sheep", b: "wool", c: "cow", answer: "milk", others: ["grass", "farm", "bull", "field"], level: 1 },
+  { a: "captain", b: "ship", c: "pilot", answer: "plane", others: ["airport", "wing", "fly", "passenger"], level: 2 },
+  { a: "cows", b: "herd", c: "sheep", answer: "flock", others: ["pack", "swarm", "pride", "shoal"], level: 2 },
+  { a: "author", b: "book", c: "painter", answer: "picture", others: ["brush", "gallery", "artist", "colour"], level: 2 },
+  { a: "tree", b: "forest", c: "star", answer: "galaxy", others: ["sky", "planet", "space", "moon"], level: 3 },
   { a: "brave", b: "coward", c: "generous", answer: "selfish", others: ["kind", "rich", "happy", "giving"], level: 3 },
   { a: "increase", b: "decrease", c: "expand", answer: "contract", others: ["grow", "stretch", "bigger", "widen"], level: 3 },
   { a: "hungry", b: "eat", c: "tired", answer: "sleep", others: ["bed", "night", "pillow", "dream"], level: 3 },
   { a: "drought", b: "water", c: "famine", answer: "food", others: ["hunger", "crops", "farm", "rain"], level: 3 },
   { a: "map", b: "navigate", c: "recipe", answer: "cook", others: ["kitchen", "food", "chef", "oven"], level: 3 },
-  { a: "clock", b: "time", c: "scale", answer: "weight", others: ["balance", "kitchen", "numbers", "heavy"], level: 3 },
+  { a: "clock", b: "time", c: "scale", answer: "weight", others: ["pan", "kitchen", "numbers", "heavy"], level: 3 },
 ];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+/** Names of places and planets are written with a capital letter. */
+const PROPER = new Set(["countries", "planets"]);
+const shownWord = (g: string, w: string) => (PROPER.has(g) ? cap(w) : w);
 
 function wordAnalogy(r: R, level: number): Question {
   const pool = ANALOGIES.filter((a) => a.level === level);
@@ -780,11 +815,211 @@ function deduction(r: R, level: number): Question {
     ["Use the clues one at a time. A clue that says who does not have something rules that out.", `When only one person is left for ${noun(wanted)}, that is the answer.`, `${answerName} has ${noun(wanted)}.`]);
 }
 
+
+/* ------------------------------------------------------------------ verbal: more word puzzles (data checked against a dictionary) */
+
+const up = (w: string) => w.toUpperCase();
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+
+function hiddenWord(r: R, level: number): Question {
+  const size = (h: { a: string; b: string }) => h.a.length + h.b.length;
+  const pool = HIDDEN_WORDS.filter((h) => size(h) <= (level === 1 ? 8 : level === 2 ? 10 : 99));
+  const it = pick(r, pool.length >= 6 ? pool : HIDDEN_WORDS);
+  const b = choose(r, text(up(it.word)), it.others.map((o) => text(up(o))), level === 1 ? 4 : 5);
+  const joined = it.a + it.b;
+  const k = joined.indexOf(it.word, Math.max(0, it.a.length - 3));
+  const fromFirst = it.a.length - k, fromSecond = it.word.length - fromFirst;
+  return build("vr-hidden-word", level,
+    `The words ${up(it.a)} and ${up(it.b)} are written side by side. A four-letter word is hidden where they join. Which word is it?`, b,
+    "Write the two words together with no gap, then look for a four-letter word that uses the end of the first word and the start of the second.",
+    [`Write them together: ${up(joined)}.`, `Look for a word that crosses the join between ${up(it.a)} and ${up(it.b)}.`, `${up(it.word)} uses the last ${fromFirst} letter${fromFirst > 1 ? "s" : ""} of ${up(it.a)} and the first ${fromSecond} letter${fromSecond > 1 ? "s" : ""} of ${up(it.b)}.`]);
+}
+
+function wordInFront(r: R, level: number): Question {
+  const it = pick(r, WORD_FRONTS);
+  const b = choose(r, text(it.answer), it.others.map((o) => text(o)), level === 1 ? 4 : 5);
+  return build("vr-word-front", level,
+    `Which word can go in front of each of these three words to make three new words? ${it.words.join(", ")}.`, b,
+    "Try each answer in front of all three words. It must make a real word every time.",
+    [`${it.answer} + ${it.words[0]} = ${it.answer}${it.words[0]}.`, `${it.answer} + ${it.words[1]} = ${it.answer}${it.words[1]}, and ${it.answer} + ${it.words[2]} = ${it.answer}${it.words[2]}.`, `So the word is ${it.answer}.`]);
+}
+
+function letterBridge(r: R, level: number): Question {
+  const it = pick(r, LETTER_BRIDGES);
+  const others = shuffle(r, [...ALPHABET].filter((c) => c !== it.letter)).slice(0, 4).map((c) => text(up(c)));
+  const b = choose(r, text(up(it.letter)), others, level === 1 ? 4 : 5);
+  return build("vr-letter-bridge", level,
+    `Which one letter can be added to the end of ${up(it.a)} and to the start of ${up(it.b)} to make two new words?`, b,
+    "Try a letter on the end of the first word. Then check whether the same letter makes a word at the start of the second.",
+    [`${up(it.a)} + ${up(it.letter)} = ${up(it.a + it.letter)}.`, `${up(it.letter)} + ${up(it.b)} = ${up(it.letter + it.b)}.`, `Both are words, so the letter is ${up(it.letter)}.`]);
+}
+
+const sortedLetters = (w: string) => [...w].sort().join("");
+function anagram(r: R, level: number): Question {
+  const groups = Object.keys(WORD_GROUPS).filter((g) => WORD_GROUPS[g].length >= 5);
+  for (let tries = 0; tries < 100; tries++) {
+    const g = pick(r, groups);
+    const words = WORD_GROUPS[g].filter((w) => (level === 1 ? w.length <= 5 : level === 2 ? w.length >= 4 && w.length <= 6 : w.length >= 5));
+    if (words.length < 1) continue;
+    const answer = pick(r, words);
+    const rest = shuffle(r, WORD_GROUPS[g].filter((w) => w !== answer && sortedLetters(w) !== sortedLetters(answer)));
+    if (rest.length < 4) continue;
+    let scramble = answer;
+    for (let t = 0; t < 20 && scramble === answer; t++) scramble = shuffle(r, [...answer]).join("");
+    if (scramble === answer) continue;
+    const options = shuffle(r, [answer, ...rest.slice(0, 4)]);
+    if (options.filter((o) => sortedLetters(o) === sortedLetters(scramble)).length !== 1) continue;
+    const b = choose(r, text(shownWord(g, answer)), rest.slice(0, 4).map((w) => text(shownWord(g, w))));
+    return build("vr-anagram", level, `The letters ${up(scramble)} can be rearranged to make ${GROUP_LABEL[g]}. Which word is it?`, b,
+      "Check each answer: does it use exactly the same letters, no more and no fewer?",
+      [`The letters are ${[...sortedLetters(answer)].map(up).join(", ")} (in alphabetical order).`, `${shownWord(g, answer)} uses exactly these letters.`, `So the word is ${shownWord(g, answer)}.`]);
+  }
+  return anagram(r, level);
+}
+
+/* ---- odd one out (numbers) ---- */
+
+type NumberRule = { id: string; says: string; test: (n: number) => boolean };
+const isSquare = (n: number) => Number.isInteger(Math.sqrt(n));
+const isPrimeNum = (n: number) => n > 1 && Array.from({ length: n - 2 }, (_, i) => i + 2).every((d) => n % d);
+const isTriangular = (n: number) => Array.from({ length: 20 }, (_, i) => ((i + 1) * (i + 2)) / 2).includes(n);
+const multipleOf = (k: number): NumberRule => ({ id: `x${k}`, says: `multiples of ${k}`, test: (n) => n % k === 0 });
+export const NUMBER_RULES: NumberRule[] = [
+  { id: "even", says: "even numbers", test: (n) => n % 2 === 0 },
+  { id: "odd", says: "odd numbers", test: (n) => n % 2 === 1 },
+  ...[3, 4, 5, 6, 7, 8, 9, 10].map(multipleOf),
+  { id: "square", says: "square numbers", test: isSquare },
+  { id: "prime", says: "prime numbers", test: isPrimeNum },
+  { id: "triangular", says: "triangle numbers", test: isTriangular },
+  { id: "gt10", says: "numbers over 10", test: (n) => n > 10 },
+  { id: "lt20", says: "numbers under 20", test: (n) => n < 20 },
+];
+/** Every number in the list that some simple rule singles out (the rule is true for exactly one number, or false for exactly one). */
+export function oddNumbers(nums: number[]): Set<number> {
+  const out = new Set<number>();
+  for (const rule of NUMBER_RULES) {
+    const yes = nums.filter(rule.test);
+    if (yes.length === 1) out.add(yes[0]);
+    if (yes.length === nums.length - 1) out.add(nums.find((n) => !rule.test(n))!);
+  }
+  return out;
+}
+
+function oddNumber(r: R, level: number): Question {
+  const rules = NUMBER_RULES.filter((x) => (level === 1 ? ["even", "odd", "x5", "x10"] : level === 2 ? ["x3", "x4", "x6", "x7", "x8", "x9"] : ["square", "prime", "triangular"]).includes(x.id));
+  for (let tries = 0; tries < 500; tries++) {
+    const rule = pick(r, rules);
+    const range = level === 1 ? 60 : level === 2 ? 90 : 60;
+    const matching = shuffle(r, Array.from({ length: range }, (_, i) => i + 1).filter(rule.test));
+    const failing = shuffle(r, Array.from({ length: range }, (_, i) => i + 1).filter((n) => !rule.test(n)));
+    if (matching.length < 4 || failing.length < 1) continue;
+    const four = matching.slice(0, 4), odd = failing[0];
+    const nums = shuffle(r, [...four, odd]);
+    const flagged = oddNumbers(nums);
+    if (flagged.size !== 1 || !flagged.has(odd)) continue;
+    const b = choose(r, text(String(odd)), four.map((n) => text(String(n))));
+    return build("vr-odd-number", level, `Which number is the odd one out? ${nums.join(", ")}`, b,
+      "Look for something that four of the numbers share, such as being in the same times table.",
+      [`${[...four].sort((x, y) => x - y).join(", ")} are all ${rule.says}.`, `${odd} is not, so it is the odd one out.`]);
+  }
+  return oddNumber(r, level);
+}
+
+/* ---- non-verbal: 3 x 3 matrix ---- */
+
+const MATRIX_SHAPES: Mark["shape"][] = ["circle", "square", "triangle", "diamond", "pentagon", "star", "hexagon", "cross"];
+const markAt = (m: Glyph) => ("marks" in m ? m.marks[0] : null);
+
+/** All the pictures that could fill the gap, given the eight that are shown (null marks the gap). The rules it looks for: each shape, shading or size appears once in every row and column, or is the same along every row, or the same all over. */
+export function matrixCandidates(cells: (Glyph | null)[]): Glyph[] {
+  const gap = cells.findIndex((c) => c === null);
+  const gr = Math.floor(gap / 3), gc = gap % 3;
+  const marks = cells.map((c) => (c ? markAt(c) : null));
+  const attr = (m: Mark, a: "shape" | "fill" | "size") => m[a] as string | number;
+  const decide = (a: "shape" | "fill" | "size") => {
+    const known = marks.map((m, i) => ({ v: m ? attr(m, a) : null, r: Math.floor(i / 3), c: i % 3 })).filter((x) => x.v !== null) as { v: string | number; r: number; c: number }[];
+    const all = [...new Set(known.map((x) => x.v))];
+    if (all.length === 1) return [all[0]];                                       // the same everywhere
+    const rowMates = known.filter((x) => x.r === gr).map((x) => x.v);
+    const rowSame = [0, 1, 2].filter((r) => r !== gr).every((r) => new Set(known.filter((x) => x.r === r).map((x) => x.v)).size === 1);
+    if (rowSame) return [rowMates[0]];                                           // the same along each row
+    const colMates = known.filter((x) => x.c === gc).map((x) => x.v);
+    const colSame = [0, 1, 2].filter((c) => c !== gc).every((c) => new Set(known.filter((x) => x.c === c).map((x) => x.v)).size === 1);
+    if (colSame) return [colMates[0]];                                           // the same down each column
+    const used = new Set([...rowMates, ...colMates]);                            // once in every row and column
+    return all.filter((v) => !used.has(v));
+  };
+  const out: Glyph[] = [];
+  for (const shape of decide("shape")) for (const fill of decide("fill")) for (const size of decide("size")) {
+    out.push(one(mk(shape as Mark["shape"], size as Mark["size"], 0, fill as Mark["fill"])));
+  }
+  return out;
+}
+
+function shapeMatrix(r: R, level: number): Question {
+  for (let tries = 0; tries < 200; tries++) {
+    const shapes = shuffle(r, MATRIX_SHAPES).slice(0, 3);
+    const fills = shuffle(r, FILLS).slice(0, 3);
+    const sizes: Mark["size"][] = shuffle(r, [1, 2, 3]) as Mark["size"][];
+    const fixedFill = pick(r, FILLS), fixedSize = 2 as const;
+    const cell = (row: number, col: number): Glyph => one(mk(
+      shapes[(row + col) % 3],
+      level === 3 ? sizes[row] : fixedSize,
+      0,
+      level === 1 ? fixedFill : fills[(2 * row + col) % 3],
+    ));
+    const all = Array.from({ length: 9 }, (_, i) => cell(Math.floor(i / 3), i % 3));
+    const answer = all[8];
+    const shown: (Glyph | null)[] = [...all.slice(0, 8), null];
+    const found = matrixCandidates(shown);
+    if (found.length !== 1 || visualKey(found[0]) !== visualKey(answer)) continue;
+    const m = markAt(answer)!;
+    const wrongs: Glyph[] = [
+      one(mk(shapes[(0 + 2) % 3] === m.shape ? shapes[1] : shapes[(0 + 2) % 3], m.size, 0, m.fill)),
+      one(mk(m.shape, m.size, 0, m.fill === "solid" ? "none" : "solid")),
+      one(mk(m.shape, (m.size === 3 ? 2 : m.size + 1) as Mark["size"], 0, m.fill)),
+      one(mk(pick(r, MATRIX_SHAPES.filter((x) => !shapes.includes(x))), m.size, 0, m.fill)),
+      all[4], all[7], all[5],
+    ];
+    const b = choose(r, glyph(answer), wrongs.map(glyph));
+    if (b.answer.options.length < 4) continue;
+    return build("nvr-matrix", level, "Which picture completes the grid?", b,
+      level === 1 ? "Look along each row and down each column. Each shape should appear once in every row and column." : "Check each thing separately: the shape, the shading and the size. Each follows its own pattern.",
+      [level === 1 ? "Each shape appears once in every row and once in every column." : "Each shape, and each shading, appears once in every row and every column." + (level === 3 ? " The size is the same along each row." : ""), "Find what is missing from the bottom row and the right-hand column.", "That picture goes in the gap."],
+      { type: "glyphs", layout: "matrix", items: shown });
+  }
+  return shapeMatrix(r, level);
+}
+
 /* ------------------------------------------------------------------ the skills */
 
 const common = { stage: "KS2" as const, prereqs: [] as string[], strand: "Reasoning" as const };
 
-export const reasoningSkills: Skill[] = [
+const EXPLAINERS: Record<string, string> = {
+  "vr-odd-word": "Four words belong together and one does not. Find what the four share, then spot the outsider.",
+  "vr-ordering": "Read each clue and build a line of people, one clue at a time.",
+  "vr-letter-series": "Count how far each letter jumps along the alphabet. The jumps follow a pattern.",
+  "vr-alphabet-codes": "Work out how one letter changed into its code letter, then do the same to every letter of the new word.",
+  "vr-number-series": "Find how much the numbers go up or down each time. If the steps change, find how they change.",
+  "vr-analogy": "Say how the first two words go together. Then find the word that goes with the third in the same way.",
+  "vr-odd-number": "Four numbers share something, such as being in the same times table. Find what, then spot the outsider.",
+  "vr-anagram": "The letters of one answer have been jumbled up. Check which answer uses exactly the same letters.",
+  "vr-hidden-word": "Write the two words together without a gap. A word is hiding across the join.",
+  "vr-word-front": "One word can sit in front of all three words to make three new words. Try each option on all three.",
+  "vr-letter-bridge": "One letter goes on the end of the first word and on the start of the second. It has to make a word both times.",
+  "nvr-odd-one-out": "Four pictures match in some way and one does not. Ignore size and turning unless they are the clue.",
+  "nvr-series": "Each picture changes in the same way. Work out the change, then follow it once more.",
+  "nvr-reflection": "A mirror swaps left and right. The part closest to the mirror stays closest to the mirror.",
+  "nvr-rotation": "Turn the picture a quarter of the way round clockwise, like a clock hand moving from 12 to 3.",
+  "nvr-analogy": "The first picture changes into the second. Do exactly the same change to the third picture.",
+  "nvr-matrix": "Look along the rows and down the columns. The missing picture completes the pattern.",
+  "ps-always-true": "A statement is only 'always true' if nothing can break it. Try numbers to see if you can break it.",
+  "ps-find-error": "Redo each line yourself. The mistake could be in the sum, or in how the sum was set out.",
+  "ps-combinations": "List every possibility in order, so you do not miss any or count one twice.",
+  "ps-deduction": "Use the clues one at a time. Cross out what cannot be true until only one answer is left.",
+};
+
+const rawReasoning: Skill[] = [
   { ...common, id: "vr-odd-word", name: "Odd one out (words)", year: 4, blurb: "Find the word that does not belong with the others.",
     parentNote: "Verbal reasoning is not taught in most primary schools, so it helps to talk about groups: what do these words have in common?", talkAbout: "Say four things that are fruit and one that is not. How did you decide?", generate: oddWord },
   { ...common, id: "vr-ordering", name: "Who is first? (ordering clues)", year: 4, blurb: "Put people in order from clues like 'Ben is taller than Cara'.",
@@ -807,6 +1042,18 @@ export const reasoningSkills: Skill[] = [
     parentNote: "Turn the page itself. Mark the top left corner of the pattern so you can see where it ends up.", talkAbout: "Which way is clockwise? Where does the top row go after a quarter turn?", generate: (r, l) => gridPuzzle("nvr-rotation", r, l) },
   { ...common, id: "nvr-analogy", name: "Picture links", year: 6, blurb: "The first picture changes into the second. Do the same to the third.",
     parentNote: "Say what has happened in words ('it turned and got bigger'). Then do exactly that to the third picture.", talkAbout: "What happened to the first shape? Do you need to do more than one thing?", generate: shapeAnalogy },
+  { ...common, id: "vr-odd-number", name: "Odd one out (numbers)", year: 5, blurb: "Find the number that does not belong in the list.",
+    parentNote: "Look for a times table, odd or even, squares or primes. Check the rule on every number before deciding.", talkAbout: "Which numbers in 6, 12, 18, 25, 30 are in the 6 times table? Which one is not?", generate: oddNumber },
+  { ...common, id: "vr-anagram", name: "Rearrange the letters", year: 5, blurb: "Rearrange scrambled letters to make a word.",
+    parentNote: "Cross off letters as you use them. Try the first letters first: which ones can start a word?", talkAbout: "Can you scramble a word for someone else to unscramble?", generate: anagram },
+  { ...common, id: "vr-hidden-word", name: "Hidden words", year: 6, blurb: "Find the word hidden where two words join.",
+    parentNote: "Write the two words as one long word and slide a four-letter window along the join.", talkAbout: "Which letters come from the first word and which from the second?", generate: hiddenWord },
+  { ...common, id: "vr-word-front", name: "Words that go together", year: 6, blurb: "Find the word that goes in front of three others.",
+    parentNote: "Try the answer in front of every word. It has to work for all three. A word that works for two is a good clue, not the answer.", talkAbout: "Can you think of another word that goes in front of 'light'?", generate: wordInFront },
+  { ...common, id: "vr-letter-bridge", name: "Letter bridge", year: 6, blurb: "Find the one letter that finishes one word and starts the next.",
+    parentNote: "Try each likely letter on the end of the first part, then check the same letter on the front of the second.", talkAbout: "How do you know when a letter works for the first word but not the second?", generate: letterBridge },
+  { ...common, id: "nvr-matrix", name: "Grid puzzles", year: 6, blurb: "Work out the missing picture in a 3 by 3 grid.",
+    parentNote: "Look at one thing at a time: shape first, then shading, then size. Each usually follows its own simple rule.", talkAbout: "Which shapes are in the top row? Which one is missing from the bottom row?", generate: shapeMatrix },
   { ...common, id: "ps-always-true", name: "Always, sometimes, never", year: 5, blurb: "Decide whether a statement about numbers is always true.",
     parentNote: "One example that breaks a statement proves it is not always true. Hunting for that example is the skill.", talkAbout: "Can you find an example that proves 'all prime numbers are odd' is not always true?", generate: alwaysTrue },
   { ...common, id: "ps-find-error", name: "Spot the mistake", year: 5, blurb: "Look at someone's working and find the line that goes wrong.",
@@ -816,3 +1063,4 @@ export const reasoningSkills: Skill[] = [
   { ...common, id: "ps-deduction", name: "Logic puzzles", year: 6, blurb: "Use clues to work out who has what.",
     parentNote: "A small grid with ticks and crosses keeps track. Every cross can help fill in a tick elsewhere.", talkAbout: "Which clue helped most? What did it let you rule out?", generate: deduction },
 ];
+export const reasoningSkills: Skill[] = rawReasoning.map((k) => ({ ...k, explainer: EXPLAINERS[k.id] }));

@@ -252,9 +252,13 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
 
         {phase === "intro" ? (
           <>
+            {skill.explainer && <p class="q-lead explainer" data-testid="explainer">{skill.explainer}</p>}
             <p class="q-lead">Here's one worked through.</p>
             <p class="q-text"><Maths text={q.prompt} /></p>
             {q.figure && <FigureView fig={q.figure} />}
+            {q.answer.kind === "choice" && (
+              <AnswerInput answer={q.answer} values={introDone ? [String(q.answer.correct)] : []} onChange={() => {}} onSubmit={() => {}} disabled state={introDone ? "right" : "idle"} />
+            )}
             <ol class="steps">{q.solution.slice(0, stepsShown).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
             {introDone && <p class="answer-shown">Answer: <Maths text={q.shown} /></p>}
           </>
