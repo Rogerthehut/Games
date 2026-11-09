@@ -1,0 +1,25 @@
+# Quarter Maths on Replit. The app lives in maths/. One Node process serves the built app and the tutor API.
+modules = ["nodejs-20"]
+hidden = [".config", "maths/node_modules", "maths/dist", "maths/native"]
+run = ["sh", "-c", "cd maths && npm ci --no-audit --no-fund && npm run build && npm run server"]
+
+[nix]
+channel = "stable-24_05"
+
+[env]
+PORT = "8787"
+# Replit sits behind a proxy, so the tutor service should read the real visitor address for rate limits.
+TRUST_PROXY = "1"
+
+[[ports]]
+localPort = 8787
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["sh", "-c", "cd maths && npm ci --no-audit --no-fund && npm run build"]
+run = ["sh", "-c", "cd maths && npm run server"]
+
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
