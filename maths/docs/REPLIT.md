@@ -14,6 +14,7 @@ Add these in the Secrets tool, never in files:
 | Secret | Purpose |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | Turns the AI tutor on. Without it the tutor answers "unavailable" and everything else works. |
+| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` | Use OpenRouter instead, for example a free model. By default only providers that do not keep prompts are allowed, which stops most free models. See "Using an OpenRouter free model" in `docs/TUTOR.md` before changing `OPENROUTER_DATA_COLLECTION`. |
 | `TUTOR_MODEL`, `TUTOR_EFFORT` | Optional. Defaults are in `server/tutor/provider.ts`. |
 
 `maths/.env.example` lists every setting. `TRUST_PROXY=1` is already set in `.replit` so rate limits see the real visitor address.

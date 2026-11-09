@@ -60,8 +60,23 @@ Also not verified: the keyword screens are not a substitute for a safeguarding r
 | `TRUST_PROXY` | off | Set to `1` behind a proxy so the real client address is used for limits. |
 | `TUTOR_PER_DEVICE_DAY`, `_HOUR`, `TUTOR_PER_IP_DAY`, `TUTOR_GLOBAL_DAY` | 40, 20, 200, 5000 | Limits. |
 | `TUTOR_FAKE` | off | `1` answers from a script, with no key and no spend. |
+| `TUTOR_PROVIDER` | automatic | `anthropic` or `openrouter`. If unset, Anthropic is used when its key is set, otherwise OpenRouter when that key is set. |
+| `OPENROUTER_API_KEY` | none | Key for OpenRouter, server side only. |
+| `OPENROUTER_MODEL` | `openrouter/free` | The free router picks a free model that suits the request. Any id ending `:free` is a free model. |
+| `OPENROUTER_DATA_COLLECTION` | `deny` | `deny` only uses providers that do not keep or train on prompts. `allow` lifts that filter: see below. |
+| `OPENROUTER_PROVIDER_ONLY`, `OPENROUTER_ALLOW_FALLBACKS` | none | Optional routing: a comma list of providers, and `false` to stay on them. |
+| `OPENROUTER_BASE_URL`, `OPENROUTER_REFERER` | OpenRouter's, a placeholder | Optional. Set the referer to your site's URL. |
 
 In the app, `VITE_TUTOR_URL` points at a separate service; empty means the same origin. If the service isn't reachable, the tutor button simply doesn't appear.
+
+## Using an OpenRouter free model
+
+The tutor can use any OpenRouter model through the same safety layers (screening, the answer-leak check with a stock-hint fallback, sanitising, rate limits, nothing stored). What is different:
+
+- **Privacy: a decision for you.** Free providers may keep or train on prompts. The service therefore sends `data_collection: deny` by default, which makes most free models refuse the request ("no model is available under the privacy setting"). The tutor sends the question, the child's short messages and our reference steps, with no names or other personal details, but a child's own words can still contain something personal. Setting `OPENROUTER_DATA_COLLECTION=allow` is a conscious choice to accept that. Decide it as part of the privacy review below, and tell parents in the privacy notice which provider the tutor uses.
+- **Reliability.** Free models are slower, rate limited and follow instructions less well. Empty answers (a thinking model using its whole allowance) are retried once with more room. A 402 "can only afford N" is retried once with fewer tokens. If there is still no answer, the tutor says it is unavailable and the app carries on without it.
+- **Which model answered** is logged as a model name only, never any message text. The free router varies, so the name matters when something goes wrong.
+- **Check before you rely on it.** Run `OPENROUTER_API_KEY=... npx tsx server/eval/tutor-eval.ts` and read the leak count. The checks in this repo were tuned against the Anthropic model. A weaker model may leak answers more often (the leak check will catch most of them and substitute a stock hint, but that makes the tutor less helpful).
 
 ## Cost, and a decision for you
 

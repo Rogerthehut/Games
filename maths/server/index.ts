@@ -4,7 +4,7 @@ import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { handleTutor } from "./tutor/handler";
 import { DEFAULT_LIMITS, Limiter } from "./tutor/policy";
-import { AnthropicProvider, DEFAULT_CONFIG, ScriptedProvider, type Provider } from "./tutor/provider";
+import { AnthropicProvider, DEFAULT_CONFIG, OpenRouterProvider, ScriptedProvider, openRouterConfig, type Provider } from "./tutor/provider";
 
 /**
  * The tutor service. It holds the API key, checks everything in both directions, rate limits, and stores nothing:
@@ -15,7 +15,10 @@ const ALLOWED = (process.env.TUTOR_ALLOWED_ORIGINS ?? "").split(",").map((s) => 
 const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const DIST = fileURLToPath(new URL("../dist", import.meta.url));
 
-if (!process.env.ANTHROPIC_API_KEY && process.env.TUTOR_FAKE !== "1") console.warn("ANTHROPIC_API_KEY is not set: the tutor will answer 'unavailable' until it is.");
+// Which model answers: TUTOR_PROVIDER=anthropic|openrouter, otherwise whichever key is set (Anthropic first).
+const WHICH = (process.env.TUTOR_PROVIDER ?? (process.env.ANTHROPIC_API_KEY ? "anthropic" : process.env.OPENROUTER_API_KEY ? "openrouter" : "anthropic")).toLowerCase();
+const HAS_KEY = WHICH === "openrouter" ? !!process.env.OPENROUTER_API_KEY : !!process.env.ANTHROPIC_API_KEY;
+if (!HAS_KEY && process.env.TUTOR_FAKE !== "1") console.warn(`${WHICH === "openrouter" ? "OPENROUTER_API_KEY" : "ANTHROPIC_API_KEY"} is not set: the tutor will answer 'unavailable' until it is.`);
 
 const limiter = new Limiter({
   perDeviceDay: Number(process.env.TUTOR_PER_DEVICE_DAY ?? DEFAULT_LIMITS.perDeviceDay),
@@ -32,7 +35,7 @@ const provider: Provider = FAKE
         : "Good thinking. What is the very first thing you could do to this question? Try it and tell me what you get.",
       refused: false,
     }))
-  : new AnthropicProvider(DEFAULT_CONFIG);
+  : WHICH === "openrouter" ? new OpenRouterProvider(openRouterConfig()) : new AnthropicProvider(DEFAULT_CONFIG);
 
 const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json" };
 
@@ -65,7 +68,7 @@ createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://x");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
-  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || !!process.env.ANTHROPIC_API_KEY });
+  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY, provider: FAKE ? "fake" : WHICH });
 
   if (url.pathname === "/api/tutor" && req.method === "POST") {
     const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
@@ -73,7 +76,7 @@ createServer(async (req, res) => {
     try { body = await readBody(req); } catch { return send(res, 400, { error: "Bad request." }); }
     const out = await handleTutor(body, ip, {
       provider, limiter,
-      log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), ...e })), // counts and flags only
+      log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), ...e, ...(provider instanceof OpenRouterProvider && provider.lastModel ? { model: provider.lastModel } : {}) })), // counts, flags and the model name only
     });
     return send(res, out.status, out.body);
   }
@@ -88,4 +91,4 @@ createServer(async (req, res) => {
     }
   }
   send(res, 404, { error: "Not found." });
-}).listen(PORT, () => console.log(`MathPath tutor service on :${PORT} (model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort})`));
+}).listen(PORT, () => console.log(WHICH === "openrouter" && !FAKE ? `Quarter tutor service on :${PORT} (OpenRouter, model ${openRouterConfig().model}, data collection ${openRouterConfig().dataCollection})` : `Quarter tutor service on :${PORT} (model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort})`));

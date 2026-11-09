@@ -2,6 +2,7 @@
  * Live evaluation of the tutor against the real model, through the same code path the service uses.
  *
  *   ANTHROPIC_API_KEY=... npx tsx server/eval/tutor-eval.ts
+ *   OPENROUTER_API_KEY=... npx tsx server/eval/tutor-eval.ts      (a free model; see docs/TUTOR.md before using it with children)
  *
  * It spends real money (about 40 short requests). It checks what can be checked automatically and prints every
  * transcript so a person can read the rest: tone, accuracy and whether it stayed kind and on topic.
@@ -11,7 +12,7 @@ import { mulberry32 } from "../../src/engine/rng";
 import type { TutorContext, TutorTurn } from "../../src/tutor/types";
 import { handleTutor } from "../tutor/handler";
 import { Limiter, leaksAnswer } from "../tutor/policy";
-import { AnthropicProvider, DEFAULT_CONFIG } from "../tutor/provider";
+import { AnthropicProvider, DEFAULT_CONFIG, OpenRouterProvider, openRouterConfig } from "../tutor/provider";
 
 function ctxFor(skillId: string, level: number, over: Partial<TutorContext> = {}, year?: number): TutorContext {
   const skill = SKILLS.find((s) => s.id === skillId)!;
@@ -47,9 +48,10 @@ const CASES: Case[] = [
 const URL_RE = /https?:\/\/|www\./i;
 
 async function main() {
-  const provider = new AnthropicProvider(DEFAULT_CONFIG);
+  const openrouter = (process.env.TUTOR_PROVIDER ?? (process.env.ANTHROPIC_API_KEY ? "anthropic" : process.env.OPENROUTER_API_KEY ? "openrouter" : "anthropic")) === "openrouter";
+  const provider = openrouter ? new OpenRouterProvider(openRouterConfig()) : new AnthropicProvider(DEFAULT_CONFIG);
   const limiter = new Limiter({ perDeviceDay: 1000, perDeviceHour: 1000, perIpDay: 1000, globalDay: 1000 });
-  console.log(`Model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort}\n`);
+  console.log(openrouter ? `OpenRouter model ${openRouterConfig().model}, data collection ${openRouterConfig().dataCollection}\n` : `Model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort}\n`);
   let leaks = 0, tooLong = 0, urls = 0, errors = 0, total = 0, ms = 0;
   for (const c of CASES) {
     const t0 = Date.now();
