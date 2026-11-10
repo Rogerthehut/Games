@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { cookiesSections, copyright, footerGroups, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
+import { contactEmail, cookiesSections, copyright, footerGroups, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
 import { Icon } from "./icons";
 import { primaryNav, tabHref } from "./navigation";
@@ -107,7 +107,7 @@ export function LegalScreen({ page }: { page: LegalPage }) {
       <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
       <h1>{legalTitles[page]}</h1>
       <p class="small muted">Updated {legalUpdated[page]}</p>
-      {page !== "licences" && <p class="legal-preview-note">Preview information. quarter’s legal operator and privacy contact will be added before release.</p>}
+      {page !== "licences" && <p class="small">Questions about this page? Email <a class="legal-link" href={`mailto:${contactEmail}`}>{contactEmail}</a>.</p>}
       {sections.map(({ title, paragraphs }) => (
         <section key={title}>
           <h2>{title}</h2>

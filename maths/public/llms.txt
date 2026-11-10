@@ -1,0 +1,23 @@
+# quarter
+
+> quarter is a maths practice web app for children in Years 3 to 13 (ages 7 to 18), following the National Curriculum for England. Parents create the account; children use it under their supervision. It finds each learner's starting point, gives short practice sessions with worked explanations, includes original 11+ style maths and reasoning practice papers, and has a parents' area showing progress.
+
+Site: https://yourquarter.co.uk/
+Contact: hello@yourquarter.co.uk
+
+## Guides for parents
+- [Parent guides](https://yourquarter.co.uk/parents.html): practical guides to supporting maths at home
+- [FAQs](https://yourquarter.co.uk/faqs.html): how quarter works, what it covers and how progress is saved
+- [Getting started with 11+ maths](https://yourquarter.co.uk/11-plus-maths.html): what to check before starting, plus a finder for local 11+ tests
+- [A parent's guide to Key Stage 2 maths](https://yourquarter.co.uk/key-stage-2-maths.html): what Years 3 to 6 cover
+- [A simple routine for maths practice at home](https://yourquarter.co.uk/maths-practice-at-home.html)
+
+## Policies
+- [Privacy notice](https://yourquarter.co.uk/?info=privacy)
+- [Cookies and browser storage](https://yourquarter.co.uk/?info=cookies)
+- [Terms of use](https://yourquarter.co.uk/?info=terms)
+- [Third-party licences](https://yourquarter.co.uk/?info=licences)
+
+## Notes
+- The learning app itself needs a parent sign-in, so its practice screens are not public pages.
+- quarter does not use advertising or analytics cookies.

@@ -1,34 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Draft for the production domain. Confirm these URLs at launch. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://yourquarter.co.uk/</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/?info=privacy</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/?info=cookies</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/?info=terms</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/?info=licences</loc>
+    <lastmod>2026-11-10</lastmod>
+  </url>
+  <url>
+    <loc>https://yourquarter.co.uk/?info=sitemap</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/parents.html</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/faqs.html</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/11-plus-maths.html</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/key-stage-2-maths.html</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
   <url>
     <loc>https://yourquarter.co.uk/maths-practice-at-home.html</loc>
+    <lastmod>2026-11-10</lastmod>
   </url>
 </urlset>

@@ -63,6 +63,23 @@ ${testNote(test)}
 </section><script src="./test-finder.js" defer></script>`;
 }
 
+/** Structured data for search engines and AI tools: FAQs as questions and answers, guides as articles. */
+function jsonLd(page: (typeof pages)[number]) {
+  const url = `https://yourquarter.co.uk/${page.path}`;
+  const publisher = { "@type": "Organization", name: "quarter", url: "https://yourquarter.co.uk/", logo: "https://yourquarter.co.uk/icon-512.png" };
+  const crumbs = { "@type": "BreadcrumbList", itemListElement: [
+    { "@type": "ListItem", position: 1, name: "quarter", item: "https://yourquarter.co.uk/" },
+    ...(page === hub ? [] : [{ "@type": "ListItem", position: 2, name: hub.title, item: `https://yourquarter.co.uk/${hub.path}` }]),
+    { "@type": "ListItem", position: page === hub ? 2 : 3, name: page.title, item: url },
+  ] };
+  const main = page === faq && "sections" in page
+    ? { "@type": "FAQPage", url, inLanguage: "en-GB", mainEntity: page.sections.map((q) => ({ "@type": "Question", name: q.heading, acceptedAnswer: { "@type": "Answer", text: q.paragraphs.join(" ") } })) }
+    : page === hub
+      ? { "@type": "CollectionPage", url, name: page.title, description: page.description, inLanguage: "en-GB" }
+      : { "@type": "Article", url, headline: page.title, description: page.description, inLanguage: "en-GB", publisher };
+  return JSON.stringify({ "@context": "https://schema.org", "@graph": [main, crumbs] }).replace(/</g, "\\u003c");
+}
+
 function documentHtml(page: (typeof pages)[number], styles: string) {
   const body = page === hub
     ? `<nav aria-label="Parent resources"><ul class="rows sitemap-links">${[faq, ...guides].map(({ path, title, description }) =>
@@ -81,7 +98,24 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
 <title>${escapeHtml(page.title)} | quarter</title>
 <meta name="description" content="${escapeHtml(page.description)}">
 <link rel="canonical" href="https://yourquarter.co.uk/${page.path}">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0f766e">
 <link rel="icon" href="./icon.svg?v=quarter" type="image/svg+xml">
+<link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="quarter">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="${escapeHtml(page.title)} | quarter">
+<meta property="og:description" content="${escapeHtml(page.description)}">
+<meta property="og:url" content="https://yourquarter.co.uk/${page.path}">
+<meta property="og:image" content="https://yourquarter.co.uk/og-image.png">
+<meta property="og:image:alt" content="quarter: maths practice for Years 3 to 13">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(page.title)} | quarter">
+<meta name="twitter:description" content="${escapeHtml(page.description)}">
+<meta name="twitter:image" content="https://yourquarter.co.uk/og-image.png">
+<script type="application/ld+json">${jsonLd(page)}</script>
 ${styles}
 </head>
 <body>

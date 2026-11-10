@@ -12,6 +12,12 @@ import { tintScrollbars } from "./ui/scrollbars";
 tintScrollbars();
 
 const page = getInformationPage(location.search);
-if (page) applyTheme(getTheme());
+if (page) {
+  applyTheme(getTheme());
+  // these pages share index.html, so give each its own title and canonical address
+  const names: Record<string, string> = { sitemap: "Sitemap", privacy: "Privacy notice", cookies: "Cookies and browser storage", terms: "Terms of use", licences: "Third-party licences" };
+  document.title = `${names[page]} | quarter`;
+  document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://yourquarter.co.uk/?info=${page}`);
+}
 document.getElementById("app")!.textContent = ""; // drop the plain-HTML summary that search engines and no-script visitors see
 render(page === "sitemap" ? <SitemapScreen /> : page ? <LegalScreen page={page} /> : notSetUp ? <NotSetUp /> : accountsOn ? <AccountGate /> : <App />, document.getElementById("app")!);

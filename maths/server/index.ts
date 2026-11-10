@@ -57,7 +57,7 @@ const provider: Provider = FAKE
     }))
   : WHICH === "openrouter" ? new OpenRouterProvider(openRouterConfig()) : new AnthropicProvider(DEFAULT_CONFIG);
 
-const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json" };
+const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json", ".txt": "text/plain; charset=utf-8", ".xml": "application/xml; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp" };
 
 function cors(req: IncomingMessage, res: ServerResponse) {
   const origin = req.headers.origin;
@@ -119,12 +119,13 @@ createServer(async (req, res) => {
   }
 
   // the built app, so one process can serve everything
-  if (req.method === "GET" && existsSync(DIST)) {
+  if ((req.method === "GET" || req.method === "HEAD") && existsSync(DIST)) {
     const rel = normalize(url.pathname === "/" ? "/index.html" : url.pathname).replace(/^(\.\.[/\\])+/, "");
     const file = join(DIST, rel);
     if (file.startsWith(DIST) && existsSync(file)) {
-      res.writeHead(200, { "Content-Type": MIME[extname(file)] ?? "application/octet-stream" });
-      return res.end(readFileSync(file));
+      // built files in /assets carry a content hash in their name, so browsers may keep them; everything else is checked each time
+      res.writeHead(200, { "Content-Type": MIME[extname(file)] ?? "application/octet-stream", "Cache-Control": rel.replace(/\\/g, "/").startsWith("/assets/") ? "public, max-age=31536000, immutable" : "no-cache" });
+      return res.end(req.method === "HEAD" ? undefined : readFileSync(file));
     }
   }
   send(res, 404, { error: "Not found." });
