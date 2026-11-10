@@ -14,7 +14,7 @@ beforeEach(async () => { await db.execute("TRUNCATE parents CASCADE" as never); 
 describe("migrations", () => {
   it("run once and are remembered", async () => {
     const fresh = await connectMemory();
-    expect(await migrate(fresh)).toEqual(["0001_accounts.sql", "0002_billing.sql"]);
+    expect(await migrate(fresh)).toEqual(["0001_accounts.sql", "0002_billing.sql", "0003_feedback.sql"]);
     expect(await migrate(fresh)).toEqual([]);
   });
 });

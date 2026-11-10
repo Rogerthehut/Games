@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { TERMS_VERSION } from "../src/legal/terms-version";
 import { WriteLimiter, handleAccountApi, isAccountRoute, type AccountDeps } from "./accounts";
@@ -145,5 +146,52 @@ describe("limits", () => {
     expect(codes).toContain(429);
     // reading is never limited
     expect((await call("fake_a", "GET", "/api/account", undefined, tight)).status).toBe(200);
+  });
+});
+
+describe("feedback", () => {
+  const send = (user: string, body: unknown, d: AccountDeps = deps) => call(user, "POST", "/api/feedback", body, d);
+  const good = { category: "idea", message: "Please add dark mode", rating: 4, mayReply: true, context: "390x844" };
+
+  it("needs a sign-in and agreement to the terms", async () => {
+    expect((await call(null, "POST", "/api/feedback", good)).status).toBe(401);
+    expect((await send("fake_fb_new", good)).status).toBe(403);
+  });
+  it("saves a message and shows it in the family's own download", async () => {
+    await agree("fake_fb_a");
+    expect((await send("fake_fb_a", good)).status).toBe(201);
+    const out = (await call("fake_fb_a", "GET", "/api/account/export")).body as { feedback: { message: string; rating: number; mayReply: boolean }[] };
+    expect(out.feedback).toHaveLength(1);
+    expect(out.feedback[0]).toMatchObject({ message: "Please add dark mode", rating: 4, mayReply: true });
+  });
+  it("keeps one family's feedback out of another's download", async () => {
+    await agree("fake_fb_b"); await agree("fake_fb_c");
+    await send("fake_fb_b", good);
+    expect(((await call("fake_fb_c", "GET", "/api/account/export")).body as { feedback: unknown[] }).feedback).toHaveLength(0);
+  });
+  it("rejects an empty message or an unknown topic, and ignores a silly rating", async () => {
+    await agree("fake_fb_d");
+    expect((await send("fake_fb_d", { ...good, message: "   " })).status).toBe(400);
+    expect((await send("fake_fb_d", { ...good, category: "spam" })).status).toBe(400);
+    expect((await send("fake_fb_d", { ...good, rating: 99 })).status).toBe(201);
+    const out = (await call("fake_fb_d", "GET", "/api/account/export")).body as { feedback: { rating: number | null }[] };
+    expect(out.feedback[0].rating).toBeNull();
+  });
+  it("allows five a day, then asks to wait", async () => {
+    await agree("fake_fb_e");
+    const codes: number[] = [];
+    for (let i = 0; i < 6; i++) codes.push((await send("fake_fb_e", good)).status);
+    expect(codes).toEqual([201, 201, 201, 201, 201, 429]);
+  });
+  it("asks for the human check when it is switched on", async () => {
+    await agree("fake_fb_f");
+    expect((await send("fake_fb_f", good, { ...deps, humanPassOk: () => false })).status).toBe(401);
+  });
+  it("is removed when the account is deleted", async () => {
+    await agree("fake_fb_g"); await send("fake_fb_g", good);
+    const count = async () => ((await db.execute(sql`select count(*)::int as n from feedback`)) as unknown as { rows: { n: number }[] }).rows[0].n;
+    const before = await count();
+    expect((await call("fake_fb_g", "DELETE", "/api/account", { confirm: "delete my account" })).status).toBe(200);
+    expect(await count()).toBe(before - 1);
   });
 });

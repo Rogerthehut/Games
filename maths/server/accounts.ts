@@ -21,11 +21,24 @@ export class WriteLimiter {
   }
 }
 
+export const FEEDBACK_CATEGORIES = ["bug", "idea", "question", "other"] as const;
+export const FEEDBACK_MAX = 2000;
+const FEEDBACK_PER_DAY = 5;
+/** Checks a feedback message from the browser. Anything unexpected is dropped rather than stored. */
+export function cleanFeedback(b: Record<string, unknown>) {
+  const category = typeof b.category === "string" && (FEEDBACK_CATEGORIES as readonly string[]).includes(b.category) ? b.category : null;
+  const message = typeof b.message === "string" ? b.message.trim().slice(0, FEEDBACK_MAX) : "";
+  if (!category || !message) return null;
+  const rating = typeof b.rating === "number" && Number.isInteger(b.rating) && b.rating >= 1 && b.rating <= 5 ? b.rating : null;
+  const context = typeof b.context === "string" && b.context.trim() ? b.context.trim().slice(0, 120) : null;
+  return { category, rating, message, mayReply: b.mayReply === true, context };
+}
+
 export const MAX_BODY = MAX_PROFILE_BYTES + 20_000;
 const reply = (status: number, body: unknown, headers?: Record<string, string>): ApiResponse => ({ status, body, headers });
 const err = (status: number, code: string, message: string) => reply(status, { error: code, message });
 const LEARNER = /^\/api\/learners\/([^/]+)$/;
-export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/assistant" || path === "/api/learners" || LEARNER.test(path);
+export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/assistant" || path === "/api/feedback" || path === "/api/learners" || LEARNER.test(path);
 
 /**
  * Parents' accounts and their learners' saved progress. Signed-in parents only; every query is scoped to the parent.
@@ -74,6 +87,17 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to use the assistant.");
     const out = await handleAssistant(req.body, parent.id, deps.assistant);
     return reply(out.status, out.body, { "Cache-Control": "no-store" });
+  }
+
+  // feedback: any signed-in parent who has agreed to the terms (no subscription needed, so people can always tell us about a problem)
+  if (req.path === "/api/feedback" && req.method === "POST") {
+    if (deps.humanPassOk && !deps.humanPassOk(req.humanPass)) return err(401, "human-required", "Please complete the quick check and try again.");
+    if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+    const f = cleanFeedback(body);
+    if (!f) return err(400, "invalid", "Please choose a topic and write a short message.");
+    if ((await deps.repo.recentFeedbackCount(parent.id)) >= FEEDBACK_PER_DAY) return err(429, "slow-down", "Thanks, we have plenty from you today. Please try again tomorrow.");
+    await deps.repo.addFeedback(parent.id, f);
+    return reply(201, { saved: true });
   }
 
   // subscriptions

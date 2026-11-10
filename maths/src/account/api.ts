@@ -59,6 +59,12 @@ export class AccountApi implements SyncApi {
       throw e;
     }
   }
+  /** Send feedback to the quarter team. */
+  async sendFeedback(f: { category: string; rating: number | null; message: string; mayReply: boolean; context: string }) {
+    const go = async () => { await this.request("POST", "/api/feedback", f, await humanHeaders()); };
+    try { await go(); }
+    catch (e) { const err = e as AccountError; if (err.status === 401 && err.code === "human-required") { forgetHumanPass(); await go(); } else throw e; }
+  }
   /** Where to send the parent to pay. */
   async checkout(plan: Plan): Promise<string> { return (await this.request<{ url: string }>("POST", "/api/billing/checkout", { plan })).data.url; }
   /** Where to send the parent to change card, switch plan or cancel. */

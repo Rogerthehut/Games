@@ -60,6 +60,7 @@ export function privacySections(native: boolean): Section[] {
         "About each learner you add: a nickname, school year, avatar, maths progress, results, certificates, practice papers, plans and settings. We use this to pick questions, show progress and suggest what to practise next. Please use a nickname instead of a full name.",
         "We do not ask for real names, birthdays, photos, home addresses or school names for learners. Nothing is used for advertising, and we do not sell information.",
         "quarter is in public beta and free to use for now. The same privacy protections apply during the beta as will apply afterwards.",
+        "Feedback: if you send us feedback from the Parents’ area, we keep your message, the topic you chose, an optional star rating, whether you said we may reply, and your screen size, linked to your account. We don’t store your email address with it. If you say we may reply, we look it up from your sign-in account when we answer. It is used only to improve quarter and to reply to you, and it is deleted with your account. Please don’t put personal details about a child in it.",
         "If you subscribe, Stripe takes the payment and holds your card details. We keep only your Stripe customer reference, your plan, its status and its dates. We never see or store your card number.",
       ],
     }, {
@@ -97,7 +98,7 @@ export function privacySections(native: boolean): Section[] {
     {
       title: "Your choices and rights",
       paragraphs: [
-        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, remove a learner, turn the AI tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
+        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, including any feedback you have sent, remove a learner, turn the AI tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
         "Where data protection law applies, you may have rights to ask for a copy, correct or delete information, restrict its use or move it to another service. You can also object to some uses of your information. In the UK you can complain to the Information Commissioner’s Office.",
       ],
     },

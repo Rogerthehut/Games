@@ -22,6 +22,7 @@ export interface AccountInfoCtx {
   deleteAccount(): Promise<void>;
   billing: BillingInfo;
   manageBilling(): Promise<void>;
+  sendFeedback(f: { category: string; rating: number | null; message: string; mayReply: boolean; context: string }): Promise<void>;
   ask(message: string, history: AssistantTurn[], year: number | null): Promise<AssistantResponse>;
 }
 export const AccountCtx = createContext<AccountInfoCtx | null>(null);

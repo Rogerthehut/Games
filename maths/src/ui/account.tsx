@@ -182,6 +182,7 @@ export function AccountGate() {
     exportData: () => api.current!.exportData(),
     billing: billing.current,
     ask: (m, h, y) => api.current!.ask(m, h, y),
+    sendFeedback: (f) => api.current!.sendFeedback(f),
     manageBilling: async () => { location.assign(await api.current!.portal()); },
     deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearAllPins(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
   };

@@ -16,6 +16,7 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 | Subscription: Stripe customer id, plan, status, dates | Our database | Control access |
 | Parent email, sign-in method | Clerk | Sign-in |
 | Card, billing details, invoices | Stripe | Payment |
+| Feedback form (parent) | Message, topic, optional 1-5 rating, may-reply tick and screen size, linked to the parent account. No email stored (looked up from Clerk only if replying). Deleted with the account; included in the data download. Limited to 5 a day per parent and behind Turnstile | Improve the product, reply to the parent |
 | AI assistant questions (parent) | Not saved anywhere. Sent with the recent chat and the learner's school year (not nickname or account id) to the AI provider for a reply | Parent help |
 | AI tutor chats | The child's browser only. Sent to the tutor service and AI provider to get a reply; not saved to our database | Tutoring |
 

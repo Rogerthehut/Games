@@ -42,5 +42,16 @@ export const stripeEvents = pgTable("stripe_events", {
   receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const feedback = pgTable("feedback", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  parentId: uuid("parent_id").notNull().references(() => parents.id, { onDelete: "cascade" }),
+  category: text("category").notNull(),
+  rating: smallint("rating"),
+  message: text("message").notNull(),
+  mayReply: boolean("may_reply").notNull().default(false),
+  context: text("context"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Parent = typeof parents.$inferSelect;

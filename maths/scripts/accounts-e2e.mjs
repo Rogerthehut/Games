@@ -128,8 +128,18 @@ ok("it is added to the account", ben.learners.length === 1 && ben.learners[0].da
 ok("and the app opens on it", /Maya/.test(await text(p4)) || (await p4.getByRole("button", { name: /^Continue/ }).count()) > 0, (await text(p4)).slice(0, 80));
 ok("the old device copy is removed once it is safe", (await p4.evaluate(() => localStorage.getItem("mathpath.v1"))) === null);
 
-// 9. deleting an account
+// 8b. feedback from the Parents' area (the Parents' area is opened once, for this and the delete step)
 await openParents(p4);
+await p4.getByTestId("part-feedback").click(); await p4.waitForTimeout(300);
+ok("the Feedback tab shows the form", (await p4.getByTestId("feedback").count()) === 1);
+ok("send is disabled until something is written", await p4.getByTestId("feedback-send").isDisabled());
+await p4.getByTestId("feedback-message").fill("A test message"); await p4.getByTestId("feedback-send").click(); await p4.waitForTimeout(800);
+ok("sending shows a thank-you", /Thank you, that.s reached us/.test(await text(p4)));
+ok("and the server holds it for that parent", ((await api("ben", "/api/account/export")).feedback ?? []).length === 1);
+await p4.screenshot({ path: `${dir}/acct-feedback.png`, fullPage: true });
+
+// 9. deleting an account
+await p4.getByTestId("part-settings").click(); await p4.waitForTimeout(300);
 await p4.getByTestId("delete-account").click(); await p4.getByTestId("delete-confirm").fill("nope");
 ok("delete stays disabled until DELETE is typed", await p4.getByTestId("delete-everything").isDisabled());
 await p4.getByTestId("delete-confirm").fill("delete"); await p4.getByTestId("delete-everything").click(); await p4.waitForTimeout(1500);

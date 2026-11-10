@@ -1,6 +1,6 @@
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, gt, sql } from "drizzle-orm";
 import type { Db } from "./index";
-import { learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
+import { feedback, learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
 import { MAX_LEARNERS, cleanProfile } from "./profile-check";
 
 export interface StoredLearner { id: string; version: number; data: Record<string, unknown> }
@@ -118,12 +118,25 @@ export function makeRepo(db: Db) {
       return ins.length > 0;
     },
 
+    /** Saves a piece of feedback from a parent. */
+    async addFeedback(parentId: string, f: { category: string; rating: number | null; message: string; mayReply: boolean; context: string | null }): Promise<void> {
+      await db.insert(feedback).values({ parentId, ...f });
+    },
+
+    /** How many pieces of feedback this parent has sent in the last 24 hours (to keep it from being used for spam). */
+    async recentFeedbackCount(parentId: string): Promise<number> {
+      const since = new Date(Date.now() - 86_400_000);
+      const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(feedback).where(and(eq(feedback.parentId, parentId), gt(feedback.createdAt, since)));
+      return n;
+    },
+
     /** Everything held about a family, for them to download. */
     async exportParent(parentId: string) {
       const [parent] = await db.select().from(parents).where(eq(parents.id, parentId));
       const sub = await this.getSubscription(parentId);
       return { parent: parent ? { consentVersion: parent.consentVersion, consentedAt: parent.consentedAt, createdAt: parent.createdAt } : null,
-        subscription: sub ? { status: sub.status, plan: sub.plan, trialEnd: sub.trialEnd, currentPeriodEnd: sub.currentPeriodEnd, cancelAtPeriodEnd: sub.cancelAtPeriodEnd } : null, learners: await this.loadLearners(parentId) };
+        subscription: sub ? { status: sub.status, plan: sub.plan, trialEnd: sub.trialEnd, currentPeriodEnd: sub.currentPeriodEnd, cancelAtPeriodEnd: sub.cancelAtPeriodEnd } : null, learners: await this.loadLearners(parentId),
+        feedback: (await db.select().from(feedback).where(eq(feedback.parentId, parentId)).orderBy(asc(feedback.createdAt))).map((f) => ({ category: f.category, rating: f.rating, message: f.message, mayReply: f.mayReply, sentAt: f.createdAt })) };
     },
   };
 }

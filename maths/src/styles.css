@@ -2669,3 +2669,16 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 }
 
 .l-beta { display: inline-block; margin-left: 8px; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; font-size: .72em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: 1px; opacity: .8; }
+
+/* feedback form in the Parents' area */
+.feedback-form { display: grid; gap: 10px; max-width: 560px; }
+.feedback-form label { font-weight: 700; }
+.feedback-form select, .feedback-form textarea { font: inherit; padding: 10px 12px; border: 1.5px solid var(--line, #18192b55); border-radius: 12px; background: #fff; color: inherit; width: 100%; box-sizing: border-box; }
+.feedback-form textarea { resize: vertical; min-height: 110px; }
+.feedback-form .check-row { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+.fb-rating { border: 0; padding: 0; margin: 0; }
+.fb-rating legend { font-weight: 700; padding: 0; margin-bottom: 4px; }
+.fb-stars { display: flex; gap: 4px; }
+.fb-star { font-size: 1.7rem; line-height: 1; padding: 4px 6px; border: 0; background: none; color: #18192b40; cursor: pointer; }
+.fb-star.on { color: #e8a800; }
+.fb-star:focus-visible { outline: 3px solid var(--accent); border-radius: 8px; }
