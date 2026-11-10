@@ -22,12 +22,15 @@ const Sparkle = () => (
   <svg class="sparkle" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="currentColor" d="M50 0c4 28 22 46 50 50-28 4-46 22-50 50-4-28-22-46-50-50C28 46 46 28 50 0Z" /></svg>
 );
 
+/** A link to where independent reviews live (for example the Trustpilot page). Until one is set, the strip says reviews are on their way. */
+const REVIEW_URL = ((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_REVIEWS_URL ?? "").trim();
+
 /** Scroll to a section without touching the address, because the sign-in form reads the address hash. */
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
 
 /** Faint hand-written sums scattered behind the hero, like chalk on a classroom board. Decorative only. */
 const SCRIBBLES: { t: string; x: number; y: number; r: number; s: number; pink?: boolean; hide?: boolean }[] = [
-  { t: "3 × 4 = 12", x: 3, y: 12, r: -7, s: 1.1 },
+  { t: "3 × 4 = 12", x: 2, y: 2, r: -7, s: 1.1 },
   { t: "½ + ¼ = ¾", x: 58, y: 6, r: 4, s: 1.2, hide: true },
   { t: "x² + 2x = 15", x: 1, y: 70, r: 5, s: 1.15, hide: true },
   { t: "π", x: 90, y: 9, r: 12, s: 2.4 },
@@ -65,9 +68,9 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         <div class="l-wrap l-nav-in">
           <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
           <nav class="l-nav-links" aria-label="On this page">
+            <button type="button" onClick={() => jump("what")}>Discover</button>
             <button type="button" onClick={() => jump("how")}>How it works</button>
-            <button type="button" onClick={() => jump("what")}>What’s inside</button>
-            <button type="button" onClick={() => jump("trust")}>Privacy</button>
+            <button type="button" onClick={() => jump("trust")}>Our ethos</button>
             <a href={parentContent.hub.path}>Parent guides</a>
             <a href={parentContent.faq.path}>FAQs</a>
           </nav>
@@ -111,8 +114,19 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         </div>
       </section>
 
+      <section class="l-reviews" aria-labelledby="reviews">
+        <Torn color="#f6f1e4" seed={5} />
+        <div class="l-wrap l-reviews-in">
+          <h2 id="reviews">Good words travel.</h2>
+          <span class="l-reviews-rule" aria-hidden="true" />
+          <p>{REVIEW_URL
+            ? <>quarter’s gathering its first independent reviews. <a class="legal-link" href={REVIEW_URL} target="_blank" rel="noopener">Read or leave a review</a>.</>
+            : "quarter’s gathering its first independent reviews. We’ll share them here once they’re available."}</p>
+        </div>
+      </section>
+
       <div class="l-ticker" aria-hidden="true">
-        <Torn color="#f6f1e4" seed={3} />
+        <Torn color="#fffdf8" seed={3} />
         <div class="l-ticker-track">{ticker.map((name, i) => <span key={i}><Sparkle />{name}</span>)}</div>
       </div>
 
