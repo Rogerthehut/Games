@@ -86,14 +86,14 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         <Scribbles />
         <div class="l-wrap l-hero-grid">
           <div class="l-hero-copy">
-            <p class="l-kicker">Maths for Years 3 to 13</p>
+            <p class="l-kicker">Maths for Years 3 to 13 <span class="l-beta">Public beta</span></p>
             <h1 id="hero">Maths practice that starts <em class="l-mark">where your child is</em></h1>
             <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. quarter finds the right starting point, explains mistakes clearly, and shows you what’s going well.</p>
             <div class="l-cta">
               <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")} data-testid="landing-sign-up">Create an account <Icon name="arrow" size={20} /></button>
               <button type="button" class="l-btn l-btn-line l-btn-big" onClick={() => onStart("sign-in")}>Sign in</button>
             </div>
-            <p class="l-note">Set up by a parent or guardian. Children don’t need their own login, and a nickname for the child is all we need.</p>
+            <p class="l-note">Set up by a parent or guardian. Children don’t need their own login, and a nickname for the child is all we need. quarter is in public beta, so it’s free while we polish it.</p>
           </div>
           <div class="l-devices" aria-hidden="true">
             <div class="l-monitor">

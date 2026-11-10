@@ -59,6 +59,7 @@ export function privacySections(native: boolean): Section[] {
         "About the parent or guardian: the email address you sign up with, how you signed in (email, Google or Apple), and the date you agreed to our terms and privacy notice. If you use Apple’s Hide My Email, we only see the private address Apple gives us.",
         "About each learner you add: a nickname, school year, avatar, maths progress, results, certificates, practice papers, plans and settings. We use this to pick questions, show progress and suggest what to practise next. Please use a nickname instead of a full name.",
         "We do not ask for real names, birthdays, photos, home addresses or school names for learners. Nothing is used for advertising, and we do not sell information.",
+        "quarter is in public beta and free to use for now. The same privacy protections apply during the beta as will apply afterwards.",
         "If you subscribe, Stripe takes the payment and holds your card details. We keep only your Stripe customer reference, your plan, its status and its dates. We never see or store your card number.",
       ],
     }, {
@@ -149,9 +150,16 @@ export const termsSections: Section[] = [
     ],
   },
   {
+    title: "Public beta",
+    paragraphs: [
+      "quarter is currently in public beta. It is free to use while we test and improve it, and you may notice bugs, changes or the odd pause in service. Features may be added, changed or removed as we learn what works.",
+      "We plan to introduce paid features later. If we do, we will tell you well before anything changes, and you will never be charged unless you choose a plan and give us your payment details. Everything in these terms and our privacy notice applies during the beta.",
+    ],
+  },
+  {
     title: "Subscriptions and payments",
     paragraphs: [
-      "quarter is a paid subscription for the account, covering every learner on it. The price and plan are shown before you pay. A free trial, where offered, starts when you sign up for it with a payment method and turns into a paid subscription at the end unless you cancel before then. It then renews automatically each month or year until you cancel.",
+      "Once paid plans are introduced, quarter will be a paid subscription for the account, covering every learner on it. The price and plan are shown before you pay. A free trial, where offered, starts when you sign up for it with a payment method and turns into a paid subscription at the end unless you cancel before then. It then renews automatically each month or year until you cancel.",
       "You can cancel at any time in the Parents’ area, under Subscription. You keep access until the end of the period you have paid for. If a payment fails, we may pause access until it is put right. Payments are handled by Stripe.",
       "Nothing in this section affects your rights under consumer law, including any right to cancel within 14 days of buying. If you delete your account, your subscription is cancelled with it.",
     ],
@@ -168,7 +176,7 @@ export const termsSections: Section[] = [
   {
     title: "Our responsibility to you",
     paragraphs: [
-      "We will provide quarter with reasonable care and skill. We can’t promise it will always be available, uninterrupted or free of errors, and we may change, pause or remove features.",
+      "We will provide quarter with reasonable care and skill. As a public beta, we can’t promise it will always be available, uninterrupted or free of errors, and we may change, pause or remove features.",
       "Children should use quarter under the supervision of a parent or guardian, who decides what is suitable for them, including screen time and online safety. Links to other websites are provided for convenience, and we are not responsible for what they contain.",
       "Nothing in these terms limits our liability for death or personal injury caused by our negligence, for fraud, or for anything else the law does not allow us to limit. Subject to that, we are not responsible for losses that were not a foreseeable result of us breaking these terms, or for fees and costs paid to other people, such as tutors, schools or test providers. To the extent the law allows, our total liability to you is limited to what you have paid us for quarter in the 12 months before the problem.",
     ],
