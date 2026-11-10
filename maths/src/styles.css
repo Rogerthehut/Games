@@ -2372,3 +2372,4 @@ html:has(.quarter-search[open]),
 .landing-cta .btn, .landing-final .btn { width: auto; }
 @media (max-width: 520px) { .landing-cta .btn { width: 100%; } }
 .footer-company { margin: 0; padding-bottom: 8px; color: var(--muted); }
+.account-hint { margin: 12px 0 0; text-align: start; }

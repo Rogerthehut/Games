@@ -203,6 +203,7 @@ function SignedOut({ auth }: { auth: AuthClient }) {
         <button type="button" role="tab" aria-selected={kind === "sign-in"} class={kind === "sign-in" ? "on" : ""} onClick={() => setKind("sign-in")} data-testid="tab-sign-in">Sign in</button>
       </div>
       <div class="clerk-mount" ref={box} data-testid="auth-box" />
+      {!stuck && <p class="small muted account-hint" data-testid="check-junk">After you continue, we email you a code or link to confirm your address. If it doesn't arrive within a minute or two, check your junk or spam folder.</p>}
       {stuck && <p class="alert-note" role="alert" data-testid="auth-stuck">{stuck} Try opening this page in its own browser tab. If it still doesn't load, the site owner should check that this address is an allowed domain in the Clerk dashboard.</p>}
       <Legal />
     </Shell>
