@@ -2695,3 +2695,57 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .pr-practised { columns: 2; column-gap: 24px; }
 @media (max-width: 520px) { .pr-practised { columns: 1; } }
 @media print { .pr-period { display: none !important; } }
+
+/* times tables */
+.tt-screen { min-height: 100dvh; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(28px + env(safe-area-inset-bottom, 0px)); background: var(--bg); color: var(--ink); }
+.tt-wrap { max-width: 680px; margin: 0 auto; display: grid; gap: 14px; animation: rise var(--dur-3) var(--ease-out) both; }
+.tt-wrap h1 { margin: 0; font-family: var(--font-display); font-size: clamp(1.8rem, 6vw, 2.5rem); line-height: 1.1; }
+.tt-wrap h2 { margin: 0; font-size: 1.15rem; }
+.tt-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tt-lead, .tt-score { margin: 0; font-size: 1.05rem; }
+.tt-score { font-size: 1.3rem; }
+.tt-grid-wrap { overflow: hidden; border-radius: var(--r-md, 14px); }
+.tt-grid { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed; font-variant-numeric: tabular-nums; }
+.tt-grid th { font-size: .78rem; font-weight: 800; color: var(--muted); padding: 2px 0; text-align: center; }
+.tt-cell { aspect-ratio: 1; text-align: center; vertical-align: middle; font-size: clamp(.58rem, 2.3vw, .8rem); font-weight: 700; border-radius: 6px; border: 1.5px solid transparent; padding: 0; }
+.st-new { background: var(--surface); border: 1.5px dashed var(--line); color: var(--muted); }
+.st-learning { background: color-mix(in srgb, var(--bad) 26%, var(--surface)); border-color: color-mix(in srgb, var(--bad) 55%, transparent); }
+.st-slow { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--warn) 34%, var(--surface)) 0 5px, color-mix(in srgb, var(--warn) 16%, var(--surface)) 5px 10px); border-color: color-mix(in srgb, var(--warn) 55%, transparent); }
+.st-quick { background: color-mix(in srgb, var(--good) 42%, var(--surface)); border-color: color-mix(in srgb, var(--good) 70%, transparent); font-weight: 850; }
+.tt-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .88rem; }
+.tt-key li { display: flex; align-items: center; gap: 6px; }
+.tt-n { color: var(--muted); }
+.tt-swatch { width: 18px; height: 18px; border-radius: 5px; display: inline-block; }
+.tt-card { display: grid; gap: 10px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius, 16px); }
+.tt-card p { margin: 0; }
+.tt-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.tt-chips .chip-btn.on { background: var(--accent); color: var(--accent-ink); }
+.tt-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.tt-big { flex: 1 1 180px; min-height: 52px; font-size: 1.05rem; }
+.tt-trick { margin: 0; padding: 12px 14px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border-radius: 14px; }
+.tt-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 420px) { .tt-rows { grid-template-columns: 1fr; } }
+.tt-row { width: 100%; min-height: 48px; display: grid; grid-template-columns: 1fr auto 2.2ch; gap: 8px; align-items: center; padding: 8px 14px; font: inherit; font-size: 1.1rem; font-variant-numeric: tabular-nums; background: var(--surface); color: inherit; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer; text-align: left; }
+.tt-row strong { text-align: right; }
+.tt-row.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.tt-dots { width: 100%; max-width: 300px; max-height: 300px; margin-inline: auto; display: block; }
+.tt-dots circle { fill: var(--accent); }
+.tt-dots circle.alt { fill: color-mix(in srgb, var(--accent) 60%, var(--good)); }
+.tt-play { gap: 12px; }
+.tt-count { font-weight: 800; color: var(--muted); }
+.tt-clock { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.tt-clock i { display: block; height: 100%; background: var(--warn); transition: width 110ms linear; }
+.tt-q { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 22px 12px 10px; min-height: 230px; align-content: center; border-radius: 20px; transition: background var(--dur-2); }
+.tt-q.right { background: color-mix(in srgb, var(--good) 16%, transparent); }
+.tt-q.wrong { background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.tt-prompt { margin: 0; font-family: var(--font-display); font-weight: 750; font-size: clamp(2.6rem, 14vw, 4.2rem); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tt-answer { margin: 0; min-width: 3ch; padding: 4px 22px; font-size: clamp(2.4rem, 12vw, 3.6rem); font-weight: 800; border-bottom: 4px solid var(--accent); font-variant-numeric: tabular-nums; }
+.tt-answer.empty { color: var(--muted); }
+.tt-msg { margin: 0; font-size: 1.15rem; font-weight: 750; min-height: 1.6em; }
+.tt-msg.good { color: var(--good); }
+.tt-msg.bad { color: var(--bad); }
+.tt-hint { text-align: center; }
+.tt-play .keypad { max-width: 420px; margin: 0 auto; width: 100%; }
+.tt-missed { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
+.tables-row { margin-top: 14px; }
+@media (prefers-reduced-motion: reduce) { .tt-wrap, .tt-q, .tt-clock i { animation: none; transition: none; } }

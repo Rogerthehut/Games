@@ -2,6 +2,7 @@ import { ALL_SKILLS, SKILL_BY_ID, STAGE_LABEL, STRANDS } from "../curriculum";
 import { BAND_TEXT, yearLabel } from "./diagnostic";
 import { DAY, statusOf, type BaselineRecord, type MockRecord, type Profile, type Status } from "./progress";
 import type { Strand } from "./types";
+import { summarise as summariseTables, type TablesSummary } from "./tables";
 
 export const STATUS_ORDER: Status[] = ["secure", "growing", "learning", "assumed", "new"];
 export const STATUS_WORDS: Record<Status, string> = { secure: "Secure", growing: "Getting there", learning: "Learning", assumed: "Assumed known", new: "Not started" };
@@ -39,6 +40,8 @@ export interface ProgressReportData {
   focus: string[];
   plan: { target: string; sessionsPerWeek: number; examDate: number | null; weekNumber: number | null; weekSkills: string[] } | null;
   tutorOn: boolean;
+  /** Times tables, when the learner has used them: null if not. */
+  tables: TablesSummary | null;
 }
 
 const pct = (a: number, b: number) => (b > 0 ? Math.round((100 * a) / b) : null);
@@ -110,6 +113,7 @@ export function buildProgressReport(p: Profile, now = Date.now(), range?: Range 
     focus: p.focus.map(name),
     plan: p.plan ? { target: p.plan.target === "11plus" ? "11+ preparation" : "General", sessionsPerWeek: p.plan.sessionsPerWeek, examDate: p.goal?.examDate ?? p.plan.examDate ?? null, weekNumber: week?.n ?? null, weekSkills: (week?.skills ?? []).map(name) } : null,
     tutorOn: !!p.tutor?.enabled,
+    tables: p.tables && Object.keys(p.tables.facts).length > 0 ? summariseTables(p) : null,
   };
 }
 

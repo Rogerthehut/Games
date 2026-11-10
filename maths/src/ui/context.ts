@@ -7,6 +7,7 @@ export type Route =
   | { name: "home" }
   | { name: "map"; stage?: Stage; skill?: string; view?: "journey" | "list"; filters?: { stage?: Stage; topic?: Strand } }
   | { name: "equal-groups" }
+  | { name: "tables" }
   | { name: "time-lesson" }
   | { name: "angles-lesson" }
   | { name: "fractions-lesson" }

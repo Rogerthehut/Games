@@ -104,6 +104,10 @@ export function Home() {
         </section>
       ) : null}
 
+      <ul class="rows tables-row">
+        <li><button class="row" onClick={() => go({ name: "tables" })} data-testid="start-tables"><Icon name="grid" /><span>Times tables<small>Learn, practise and memorise your facts</small></span><Icon name="chevron" /></button></li>
+      </ul>
+
       {week?.kind === "mock" && (
         <ul class="rows">
         <li><button class="row" onClick={() => go({ name: "mock" })} data-testid="start-mock"><Icon name="target" /><span>Take a practice paper<small>20 questions · 25 minutes</small></span><Icon name="chevron" size={18} /></button></li>

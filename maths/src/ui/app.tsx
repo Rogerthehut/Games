@@ -10,6 +10,7 @@ import { FractionsLesson } from "./fractions-lesson";
 import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
+import { Tables } from "./tables";
 import { Practice } from "./practice";
 import { Parent } from "./parent";
 import { Checkup } from "./checkup";
@@ -160,6 +161,9 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
 
   if (route.name === "time-lesson")
     return <Ctx.Provider value={ctx}><TimeLesson /></Ctx.Provider>;
+
+  if (route.name === "tables")
+    return <Ctx.Provider value={ctx}><Tables /></Ctx.Provider>;
 
   if (route.name === "equal-groups")
     return <Ctx.Provider value={ctx}><EqualGroups /></Ctx.Provider>;

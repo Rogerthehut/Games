@@ -157,6 +157,22 @@ export function ProgressReport() {
           <p class="pr-key">{STATUS_ORDER.map((k) => <span key={k}><i class={`pr-seg st-${k}`} />{STATUS_WORDS[k]}</span>)}</p>
         </section>
 
+        {r.tables && (
+          <section class="pr-sec pr-keep" data-testid="report-tables">
+            <h2>Times tables</h2>
+            <p>{r.tables.counts.quick} of {r.tables.total} facts are quick and secure (answered right in about three seconds or less). {r.tables.counts.slow} are right but still slow, and {r.tables.counts.learning} are still being learned.</p>
+            <ul class="pr-strands">
+              {r.tables.byTable.map((t) => (
+                <li key={t.table}><span class="pr-strand-name">{t.table} times table</span>
+                  <span class="pr-bar" role="img" aria-label={`${t.quick} of ${t.of} quick`}><i class="pr-seg st-secure" style={{ width: `${(100 * t.quick) / t.of}%` }} /></span>
+                  <span class="pr-strand-n">{t.quick} / {t.of} quick</span></li>
+              ))}
+            </ul>
+            {r.tables.workOn.length > 0 && <p><strong>Worth practising:</strong> {r.tables.workOn.map((w) => `${w.text}${w.ms ? ` (about ${Math.round(w.ms / 100) / 10}s)` : ""}`).join(", ")}.</p>}
+            {r.tables.checks.length > 0 && <p><strong>Timed check practice:</strong> {r.tables.checks.slice(-3).map((c) => `${c.score}/${c.total} on ${fmt(c.at)}`).join(", ")}.</p>}
+          </section>
+        )}
+
         {(r.attention.length > 0 || r.mistakes.length > 0 || r.focus.length > 0) && (
           <section class="pr-sec pr-keep">
             <h2>Worth a conversation</h2>

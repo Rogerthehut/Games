@@ -6,6 +6,7 @@ import type { PathwayDraft, PracticeDraft } from "./activity";
 import type { Plan } from "./plan";
 import type { RevealPolicy, TutorFlag } from "../tutor/types";
 import type { Rng } from "./rng";
+import type { TablesState } from "./tables";
 
 export const DAY = 86_400_000;
 /** Days until a skill is due again, by Leitner box (0 = still learning). */
@@ -125,6 +126,8 @@ export interface Profile {
   /** The AI tutor is off until a grown-up turns it on. */
   tutor?: { enabled: boolean; reveal: RevealPolicy };
   tutorLog?: TutorLogEntry[];
+  /** Times tables: how well each fact is known, which tables are being worked on, and timed checks. */
+  tables?: TablesState;
 }
 
 export function newProfile(name: string, year: number, now = Date.now()): Profile {
