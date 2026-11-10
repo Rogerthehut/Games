@@ -2459,9 +2459,10 @@ html:has(.quarter-search[open]),
 .l-cards .activity-card { aspect-ratio: 1; min-height: 0; }
 @media (max-width: 640px) {
   .l-cards .activity-card { padding: 16px; gap: 6px; }
+  /* the drawing grows to fill the space left in the square tile */
+  .l-cards .activity-art { flex: 1 1 0; min-height: 0; width: 100%; max-width: none; height: auto; margin-block: 4px; }
   .l-cards .activity-title { font-size: 1.35rem; margin-top: 2px; }
   .l-cards .activity-detail { font-size: .88rem; line-height: 1.35; }
-  .l-cards .activity-art { width: min(100%, 92px); }
   .l-cards .activity-action { padding-top: 6px; font-size: .85rem; }
 }
 
