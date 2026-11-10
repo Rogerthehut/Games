@@ -76,14 +76,21 @@ const openParents = async (page) => {
   await page.getByTestId("open-parents").click(); await page.waitForTimeout(500);
   const q = await text(page); const m = q.match(/(\d+)\s*\+\s*(\d+)/) ?? q.match(/(\d+)\s*[×x]\s*(\d+)/);
   if (m) { const isMul = /[×x]/.test(q.slice(q.indexOf(m[0]), q.indexOf(m[0]) + m[0].length)); for (const d of String(isMul ? +m[1] * +m[2] : +m[1] + +m[2])) await page.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); await page.getByTestId("gate-go").click(); await page.waitForTimeout(600); }
+  await page.waitForTimeout(300);
+  const typePin = async (pin) => { for (const d of pin) await page.locator(".keypad .pad-key", { hasText: new RegExp("^" + d + "$") }).first().click(); await page.getByTestId("pin-go").click(); await page.waitForTimeout(400); };
+  if (/Make a PIN/.test(await text(page))) { await typePin("482915"); await typePin("482915"); } else await typePin("482915");
   await page.getByRole("tab", { name: "Settings" }).click().catch(async () => { await page.getByRole("button", { name: "Settings" }).first().click(); }); await page.waitForTimeout(400);
 };
 await openParents(p2);
 ok("the grown-ups' area shows the account, who is signed in, and no paste-in box", (await p2.getByTestId("account-section").count()) === 1 && /maya@test\.invalid/.test(await text(p2)) && !/Load saved text/.test(await text(p2)));
 await p2.screenshot({ path: `${dir}/acct-5-parents.png`, fullPage: true });
-const [dl] = await Promise.all([p2.waitForEvent("download"), p2.getByTestId("download-data").click()]);
+await p2.getByTestId("download-data").click(); await p2.waitForTimeout(1200);
+const info = await text(p2);
+ok("shows a readable page of everything held, not a data file", /What quarter holds/.test(info) && /Ella/.test(info) && /maya@test\.invalid/.test(info) && /What we don't keep/.test(info) && !/"learners"/.test(info));
+await p2.screenshot({ path: `${dir}/acct-5b-information.png`, fullPage: true });
+const [dl] = await Promise.all([p2.waitForEvent("download"), p2.getByTestId("mydata-json").click()]);
 const file = readFileSync(await dl.path(), "utf8");
-ok("downloads everything held about the family", /"learners"/.test(file) && /Ella/.test(file) && !/tutorLog/.test(file), dl.suggestedFilename());
+ok("and still offers the data file for other services", /"learners"/.test(file) && /Ella/.test(file) && !/tutorLog/.test(file), dl.suggestedFilename());
 
 // 6. conflict: another device saves first; this device's next save is turned down and it takes the newer copy
 await p2.close();

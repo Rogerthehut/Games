@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { MAX_BODY, WriteLimiter, handleAccountApi, handleStripeWebhook, isAccountRoute, type AccountDeps } from "./accounts";
 import { ClerkAuth, FakeAuth } from "./auth";
 import { connect, connectMemory, migrate } from "./db";
+import { AssistantLimiter } from "./assistant/policy";
+import { issuePass, passIsValid, turnstileConfig, verifyToken } from "./turnstile";
 import { FakeGateway, StripeGateway, stripeConfig, type Gateway } from "./billing";
 import { makeRepo } from "./db/repo";
 import { handleTutor } from "./tutor/handler";
@@ -66,6 +68,16 @@ const provider: Provider = FAKE
     }))
   : WHICH === "openrouter" ? new OpenRouterProvider(openRouterConfig()) : new AnthropicProvider(DEFAULT_CONFIG);
 
+// The parents' assistant uses the same model service as the tutor, with its own, separate limits.
+if (accounts) accounts.assistant = { provider, limiter: new AssistantLimiter(Number(process.env.ASSISTANT_PER_PARENT_DAY ?? 40), Number(process.env.ASSISTANT_PER_PARENT_HOUR ?? 20), Number(process.env.ASSISTANT_GLOBAL_DAY ?? 3000)), log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), assistant: true, ...e })) };
+
+// Cloudflare Turnstile: when TURNSTILE_SECRET_KEY is set, the AI endpoints need a pass from a solved check. Off otherwise.
+const turnstile = turnstileConfig(process.env);
+if (!turnstile) console.warn("Turnstile is off: set TURNSTILE_SECRET_KEY (and VITE_TURNSTILE_SITE_KEY when building) to require the human check on the AI endpoints.");
+const humanOk = (pass: string | undefined) => !turnstile || passIsValid(turnstile, pass);
+if (accounts) accounts.humanPassOk = humanOk;
+const verifyHits = new Map<string, number[]>();
+
 const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json", ".txt": "text/plain; charset=utf-8", ".xml": "application/xml; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp" };
 
 function cors(req: IncomingMessage, res: ServerResponse) {
@@ -97,7 +109,20 @@ createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://x");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
-  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY, provider: FAKE ? "fake" : WHICH, accounts: !!accounts });
+  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY, provider: FAKE ? "fake" : WHICH, accounts: !!accounts, human: !!turnstile });
+
+  if (url.pathname === "/api/humans/verify" && req.method === "POST") {
+    if (!turnstile) return send(res, 200, { pass: "", expiresInSeconds: 0, off: true });
+    const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
+    const recent = (verifyHits.get(ip) ?? []).filter((t) => Date.now() - t < 3_600_000);
+    if (recent.length >= 40) return send(res, 429, { error: "slow-down" });
+    verifyHits.set(ip, [...recent, Date.now()]);
+    let body: unknown;
+    try { body = await readBody(req, 4096); } catch { return send(res, 400, { error: "bad-request" }); }
+    const token = typeof (body as { token?: unknown })?.token === "string" ? (body as { token: string }).token : "";
+    if (!(await verifyToken(turnstile.secret, token, ip))) return send(res, 403, { error: "check-failed" });
+    return send(res, 200, issuePass(turnstile));
+  }
 
   if (url.pathname === "/api/stripe/webhook" && req.method === "POST") {
     if (!accounts?.billing) return send(res, 404, { error: "billing-off" });
@@ -121,7 +146,7 @@ createServer(async (req, res) => {
       }
       const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "");
       const proto = TRUST_PROXY ? String(req.headers["x-forwarded-proto"] ?? "https").split(",")[0] : "http";
-      const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, origin: host ? `${proto}://${host}` : undefined }, accounts);
+      const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, humanPass: String(req.headers["x-human-pass"] ?? "") || undefined, origin: host ? `${proto}://${host}` : undefined }, accounts);
       res.writeHead(out.status, { "Content-Type": "application/json", "Cache-Control": "no-store", ...out.headers });
       return res.end(JSON.stringify(out.body));
     } catch (e) {
@@ -131,6 +156,7 @@ createServer(async (req, res) => {
   }
 
   if (url.pathname === "/api/tutor" && req.method === "POST") {
+    if (!humanOk(String(req.headers["x-human-pass"] ?? "") || undefined)) return send(res, 401, { error: "human-required" });
     const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
     let body: unknown;
     try { body = await readBody(req); } catch { return send(res, 400, { error: "Bad request." }); }

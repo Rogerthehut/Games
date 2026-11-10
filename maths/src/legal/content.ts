@@ -66,9 +66,10 @@ export function privacySections(native: boolean): Section[] {
       paragraphs: [
         "Learner information is stored in a database run for quarter, protected so that each account can only reach its own learners. A copy is also kept in your browser so quarter works quickly. It is removed from the browser when you sign out.",
         "Stripe provides payments and billing. It handles your card details, billing address and invoices, and may process them outside the UK. Payment and invoice records are kept for as long as the law requires, even after an account is deleted.",
+        "Cloudflare provides a quick check (Turnstile) that you are a person, before the AI tutor or assistant can be used. It looks at your browser and connection to tell people from automated scripts. quarter does not use it to track you.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
         "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
-        "Clerk and the AI provider used by the optional AI tutor may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
+        "Clerk, Cloudflare and the AI provider used by the optional AI tutor and the assistant may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
       ],
     }, {
       title: "If a grown-up turns on the AI tutor",
@@ -117,6 +118,8 @@ export const cookiesSections: Section[] = [
       "A copy of your learners’ profiles and progress, so quarter loads quickly and works if the connection drops for a moment. It is cleared when you sign out. Your colour choice and the “Got it” choice on the storage message are also remembered.",
       "If a grown-up turns on the optional AI tutor, conversations are kept in the browser on that device, and a random browser ID is saved and sent to the tutor service to limit how often it is used.",
       "Text-to-speech uses your device’s own voices.",
+      "The Parents’ area PIN you choose is kept on that device only, as a scrambled code (not the PIN itself). Signing out removes it.",
+      "Before the AI tutor or assistant can be used, Cloudflare’s Turnstile may run a quick check in your browser. It can store a small token in your browser while it works.",
       "When you pay, you are sent to Stripe’s secure payment page, which sets its own cookies on its own address to process the payment and prevent fraud. quarter does not receive your card details.",
     ],
   },
@@ -159,7 +162,7 @@ export const termsSections: Section[] = [
       "quarter is a practice and learning aid. We can’t promise any particular result, such as a better school grade, a place at a school, or a pass in the 11+ or any other exam. What a learner gains depends on many things, including how often they practise and the teaching they get elsewhere.",
       "Levels, scores and reports, including the working level from a check-up and the progress report, are estimates to help you plan practice. They are not an official assessment and not a prediction of exam results.",
       "Our 11+ style practice is original and independent of exam boards and test providers. It may not match any particular test, and school admission rules and tests change, so always check with the school or local authority.",
-      "Our topics follow England’s maths curriculum as we understand it, but we can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactEmail + ". The AI tutor can also make mistakes and is not a replacement for a teacher.",
+      "Our topics follow England’s maths curriculum as we understand it, but we can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactEmail + ". The AI tutor and the AI assistant can also make mistakes and are not a replacement for a teacher.",
     ],
   },
   {

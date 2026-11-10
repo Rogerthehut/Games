@@ -16,13 +16,14 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 | Subscription: Stripe customer id, plan, status, dates | Our database | Control access |
 | Parent email, sign-in method | Clerk | Sign-in |
 | Card, billing details, invoices | Stripe | Payment |
+| AI assistant questions (parent) | Not saved anywhere. Sent with the recent chat and the learner's school year (not nickname or account id) to the AI provider for a reply | Parent help |
 | AI tutor chats | The child's browser only. Sent to the tutor service and AI provider to get a reply; not saved to our database | Tutoring |
 
 **Not collected:** real names, birthdays, photos, addresses, emails in our database, location beyond an optional coarse area, tracking or analytics.
 Up to 8 learners per account. Database held in **Europe (EU)**.
 
 ## Who else handles it
-Clerk (sign-in), Stripe (payments), Replit (hosting and database), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
+Clerk (sign-in), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
 **[CONFIRM]** data processing terms accepted with each, and the transfer safeguard for any processing outside the UK and EU.
 
 ## Lawful basis
@@ -37,6 +38,9 @@ Contract (the service the parent asked for) and legitimate interests (security).
 | AI tutor gives a wrong answer | Clearly labelled "AI tutor"; answers are not simply given; terms say it can be wrong; parent can switch it off | Low |
 | Data sent outside the UK/EU | Only what each provider needs; safeguards **[CONFIRM]** | Low |
 | Data kept too long | Parent can delete everything (also removes the Stripe customer) or download it; retention rule below | Low |
+
+## Other controls
+The Parents' area has a sum and a 6 or 8 digit PIN, kept on the device as a salted hash and slowed after wrong tries (a lock against a child, not a vault). The assistant is limited per parent per day, and screened for personal details and for worry about a child's safety (it signposts NSPCC, Childline and Samaritans).
 
 ## Retention
 Kept until the parent deletes the account. **[CONFIRM]** whether unused accounts are deleted after a set period (for example 24 months, with a warning email).

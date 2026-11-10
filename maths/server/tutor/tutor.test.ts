@@ -71,12 +71,14 @@ describe("tutor instructions", () => {
   it("tells the model the rules, the register for the age, and keeps the reference private", () => {
     const p = buildSystemPrompt(ctx({ year: 4 }), "guide");
     expect(p).toMatch(/Do NOT give the final answer/);
-    expect(p).toMatch(/about 7 to 11/);
+    expect(p).toMatch(/about 7 to 9/);
+    expect(p).toMatch(/at most about 45 words/);
+    expect(p).toMatch(/How quarter teaches this topic/);
     expect(p).toMatch(/only talk about maths/i);
     expect(p).toMatch(/not instructions to you/);
     expect(p).toMatch(/<private_reference_for_the_tutor>[\s\S]*x = 9[\s\S]*<\/private_reference_for_the_tutor>/);
     expect(buildSystemPrompt(ctx({ phase: "reveal" }), "guide")).not.toMatch(/Do NOT give the final answer/);
-    expect(buildSystemPrompt(ctx({ year: 12 }), "guide")).toMatch(/14 to 18/);
+    expect(buildSystemPrompt(ctx({ year: 12 }), "guide")).toMatch(/16 to 18/);
     expect(buildSystemPrompt(ctx(), "guide", true)).toMatch(/gave away the answer/);
   });
   it("builds alternating messages that start and end with the child", () => {

@@ -1,4 +1,6 @@
 import type { Profile } from "../engine/progress";
+import { forgetHumanPass, humanHeaders } from "../humans/turnstile";
+import type { AssistantResponse, AssistantTurn } from "../assistant/types";
 import { forServer, type RemoteLearner, type SaveOutcome, type SyncApi } from "./sync";
 
 export class AccountError extends Error {
@@ -17,13 +19,13 @@ export interface AccountInfo { termsVersion: string; consented: boolean; learner
 export class AccountApi implements SyncApi {
   constructor(private token: () => Promise<string | null>, private fetchFn: typeof fetch = (...a) => fetch(...a), private base = "") {}
 
-  private async request<T>(method: string, path: string, body?: unknown): Promise<{ status: number; data: T }> {
+  private async request<T>(method: string, path: string, body?: unknown, extra: Record<string, string> = {}): Promise<{ status: number; data: T }> {
     let res: Response;
     try {
       const token = await this.token();
       res = await this.fetchFn(`${this.base}${path}`, {
         method,
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { "Content-Type": "application/json", ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
     } catch {
@@ -45,6 +47,17 @@ export class AccountApi implements SyncApi {
   }
   async deleteLearner(id: string) {
     try { await this.request("DELETE", `/api/learners/${encodeURIComponent(id)}`); } catch (e) { if ((e as AccountError).status !== 404) throw e; }
+  }
+  /** Ask the parents' assistant a question. */
+  async ask(message: string, history: AssistantTurn[], year: number | null): Promise<AssistantResponse> {
+    const go = async () => (await this.request<AssistantResponse>("POST", "/api/assistant", { message, history, year }, await humanHeaders())).data;
+    try { return await go(); }
+    catch (e) {
+      const err = e as AccountError;
+      if (err.status === 401 && err.code === "human-required") { forgetHumanPass(); return go(); } // the quick check lapsed: do it again once
+      if (err.status === 429 && err.body) return err.body as AssistantResponse;
+      throw e;
+    }
   }
   /** Where to send the parent to pay. */
   async checkout(plan: Plan): Promise<string> { return (await this.request<{ url: string }>("POST", "/api/billing/checkout", { plan })).data.url; }

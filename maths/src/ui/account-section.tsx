@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
 import type { SyncStatus } from "../account/sync";
 import { useAccount } from "./account-context";
+import { useApp } from "./context";
 
 const LABEL: Record<SyncStatus, string> = { idle: "", saving: "Saving…", saved: "Saved to your account", offline: "Offline. Changes will save when you're back online.", error: "We couldn't save. Please check your connection." };
 
@@ -39,27 +40,16 @@ export function SubscriptionSection() {
   );
 }
 
-/** For the grown-ups' area: who is signed in, and the parent's rights over their family's data. */
+/** For the grown-ups' area: who is signed in, and the parent's rights over the information held. */
 export function AccountSection() {
   const a = useAccount();
+  const { go } = useApp();
   const [confirm, setConfirm] = useState(false);
   const [typed, setTyped] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   if (!a) return null;
 
-  const download = async () => {
-    setBusy(true); setMsg("");
-    try {
-      const data = await a.exportData();
-      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-      const link = document.createElement("a");
-      link.href = url; link.download = "quarter-data.json"; link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setMsg("Downloaded. This is everything quarter holds for this account.");
-    } catch { setMsg("We couldn't get your data just now. Please try again."); }
-    setBusy(false);
-  };
   const remove = async () => {
     setBusy(true); setMsg("");
     try { await a.deleteAccount(); } catch { setMsg("We couldn't delete the account just now. Please try again."); setBusy(false); }
@@ -72,7 +62,7 @@ export function AccountSection() {
       <SyncChip />
       <div class="actions">
         <button class="btn" onClick={() => void a.signOut()} data-testid="sign-out">Sign out</button>
-        <button class="btn" disabled={busy} onClick={download} data-testid="download-data">Download my family's data</button>
+        <button class="btn" onClick={() => go({ name: "my-data" })} data-testid="download-data">See and download my information</button>
       </div>
       {msg && <p role="status" class="small">{msg}</p>}
       <h3>Delete everything</h3>

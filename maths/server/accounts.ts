@@ -2,11 +2,12 @@ import { TERMS_VERSION } from "../src/legal/terms-version";
 import type { AuthProvider } from "./auth";
 import { MAX_PROFILE_BYTES } from "./db/profile-check";
 import type { Repo } from "./db/repo";
+import { handleAssistant, type AssistantDeps } from "./assistant/handler";
 import { applyEvent, hasAccess, summarise, type Gateway, type Plan } from "./billing";
 
-export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown; origin?: string }
+export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown; origin?: string; humanPass?: string }
 export interface ApiResponse { status: number; body: unknown; headers?: Record<string, string> }
-export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLimiter; billing?: Gateway; appUrl?: string }
+export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLimiter; billing?: Gateway; appUrl?: string; assistant?: AssistantDeps; humanPassOk?: (pass: string | undefined) => boolean }
 
 /** A cap on how often one parent can write, so a stuck or hostile client cannot flood the database. */
 export class WriteLimiter {
@@ -24,7 +25,7 @@ export const MAX_BODY = MAX_PROFILE_BYTES + 20_000;
 const reply = (status: number, body: unknown, headers?: Record<string, string>): ApiResponse => ({ status, body, headers });
 const err = (status: number, code: string, message: string) => reply(status, { error: code, message });
 const LEARNER = /^\/api\/learners\/([^/]+)$/;
-export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/learners" || LEARNER.test(path);
+export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/assistant" || path === "/api/learners" || LEARNER.test(path);
 
 /**
  * Parents' accounts and their learners' saved progress. Signed-in parents only; every query is scoped to the parent.
@@ -63,6 +64,16 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     await deps.repo.deleteParent(parent.id);
     await deps.auth.deleteUser?.(who.userId).catch(() => undefined); // our data is gone either way; the sign-in identity is removed if we can
     return reply(200, { deleted: true });
+  }
+
+  // the parents' AI assistant: signed in, agreed to the terms and, where payments are on, subscribed
+  if (req.path === "/api/assistant" && req.method === "POST") {
+    if (!deps.assistant) return err(503, "assistant-off", "The assistant is not available right now.");
+    if (deps.humanPassOk && !deps.humanPassOk(req.humanPass)) return err(401, "human-required", "Please complete the quick check and try again.");
+    if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+    if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to use the assistant.");
+    const out = await handleAssistant(req.body, parent.id, deps.assistant);
+    return reply(out.status, out.body, { "Cache-Control": "no-store" });
   }
 
   // subscriptions

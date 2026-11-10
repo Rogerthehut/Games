@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import { clearAllPins } from "./pin";
 import { AccountApi, AccountError, NO_BILLING, type BillingInfo, type Plan } from "../account/api";
 import { createAuth, type AuthClient } from "../account/auth";
 import { forgetAgreement, hasAgreed, rememberAgreement } from "../account/agree";
@@ -13,6 +14,7 @@ import { Icon } from "./icons";
 import { CubeMark, Wordmark } from "./wordmark";
 import { LegalFooter } from "./legal";
 import { Landing } from "./landing";
+import { MyDataPage } from "./my-data";
 
 export { AccountCtx, useAccount } from "./account-context";
 export type { AccountBridge, AccountInfoCtx } from "./account-context";
@@ -164,16 +166,18 @@ export function AccountGate() {
   const signOut = async () => {
     try { await sync.current?.flushNow(); } catch { /* signing out matters more than a last save */ }
     sync.current?.dispose(); sync.current = null;
-    clearCaches();           // nothing about the family stays on a shared device
+    clearCaches();           // nothing about the account stays on a shared device
+    clearAllPins();
     await auth.current?.signOut();
   };
 
   const info: AccountInfoCtx = {
-    email: email.current, status, notice, signOut,
+    email: email.current, userId: userId.current, status, notice, signOut,
     exportData: () => api.current!.exportData(),
     billing: billing.current,
+    ask: (m, h, y) => api.current!.ask(m, h, y),
     manageBilling: async () => { location.assign(await api.current!.portal()); },
-    deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
+    deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearAllPins(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
   };
 
   if (phase.name === "ready")
@@ -219,13 +223,8 @@ function Paywall({ billing, email, onChoose, onSignOut, onExport }: { billing: B
     try { location.assign(await onChoose(plan)); }
     catch (e) { setErr(e instanceof AccountError && e.code === "already-subscribed" ? "This account already has a subscription. Refresh the page." : "We couldn't open the payment page. Please try again."); setBusy(false); }
   };
-  const download = async () => {
-    try {
-      const url = URL.createObjectURL(new Blob([JSON.stringify(await onExport(), null, 2)], { type: "application/json" }));
-      const link = document.createElement("a"); link.href = url; link.download = "quarter-data.json"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch { setErr("We couldn't get your data just now. Please try again."); }
-  };
-
+  const [viewing, setViewing] = useState(false);
+  if (viewing) return <MyDataPage load={onExport} email={email} onBack={() => setViewing(false)} />;
   return (
     <Shell wide>
       <h1 data-testid="paywall-title">{trial ? `Start your ${billing.trialDays}\u2011day free trial` : "Subscribe to carry on"}</h1>
@@ -249,7 +248,7 @@ function Paywall({ billing, email, onChoose, onSignOut, onExport }: { billing: B
         </p>
       )}
       {err && <p class="alert-note" role="alert">{err}</p>}
-      <p class="small account-hint"><button type="button" class="linkish" onClick={download}>Download my data</button> · <button type="button" class="linkish" onClick={() => void onSignOut()} data-testid="paywall-sign-out">Sign out</button></p>
+      <p class="small account-hint"><button type="button" class="linkish" onClick={() => setViewing(true)} data-testid="paywall-info">See my information</button> · <button type="button" class="linkish" onClick={() => void onSignOut()} data-testid="paywall-sign-out">Sign out</button></p>
       <Legal />
     </Shell>
   );

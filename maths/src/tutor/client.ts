@@ -1,3 +1,4 @@
+import { forgetHumanPass, humanHeaders } from "../humans/turnstile";
 import type { TutorRequest, TutorResponse } from "./types";
 
 /** Empty means "same origin as the app". Set VITE_TUTOR_URL to point at a separate tutor service. */
@@ -32,8 +33,10 @@ export async function tutorAvailable(): Promise<boolean> {
   }
 }
 
-export async function askTutor(req: Omit<TutorRequest, "deviceId">): Promise<TutorResponse> {
-  const r = await timed(`${BASE}/api/tutor`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...req, deviceId: deviceId() }) }, 35_000);
+export async function askTutor(req: Omit<TutorRequest, "deviceId">, retried = false): Promise<TutorResponse> {
+  const r = await timed(`${BASE}/api/tutor`, { method: "POST", headers: { "Content-Type": "application/json", ...(await humanHeaders()) }, body: JSON.stringify({ ...req, deviceId: deviceId() }) }, 35_000);
+  // the quick check has lapsed: do it again once
+  if (r.status === 401 && !retried) { forgetHumanPass(); return askTutor(req, true); }
   const j = (await r.json().catch(() => null)) as TutorResponse | { error: string } | null;
   if (j && "reply" in j) return j;
   throw new Error(j && "error" in j ? j.error : `Tutor error ${r.status}`);

@@ -1,3 +1,4 @@
+import { noteById } from "../../src/engine/knowledge";
 import { LIMITS, type RevealPolicy, type TutorContext, type TutorFlag, type TutorRequest, type TutorTurn } from "../../src/tutor/types";
 
 /* ------------------------------------------------------------------ validation */
@@ -53,7 +54,7 @@ export function validateRequest(body: unknown): Validated {
 
 export type Screen = { action: "allow" } | { action: "block"; flag: TutorFlag; reply: string };
 
-const PERSONAL: RegExp[] = [
+export const PERSONAL: RegExp[] = [
   /[\w.+-]+@[\w-]+\.[\w.-]{2,}/i, // email
   /(?:\+|00)\d{1,3}[\s-]?\d{2,4}[\s-]?\d{3}[\s-]?\d{3,4}\b/, // international phone number
   /\b0\d{3,4}[\s-]?\d{3}[\s-]?\d{3,4}\b/, // UK phone number, which starts with 0 (so plain long numbers in maths are fine)
@@ -62,7 +63,7 @@ const PERSONAL: RegExp[] = [
   /\b(snapchat|instagram|tiktok|whatsapp|discord|telegram)\b.*\b(add|dm|message|handle|username|me)\b/i,
 ];
 
-const WELLBEING: RegExp[] = [
+export const WELLBEING: RegExp[] = [
   /\b(kill|hurt|harm|cut)\s+(my ?self|myself)\b/i,
   /\bself[- ]?harm/i,
   /\bsuicid/i,
@@ -74,7 +75,7 @@ const WELLBEING: RegExp[] = [
   /\b(i'?m|i am)\s+(scared|being hurt)\b.*\b(home|dad|mum|mom|teacher|stepdad)\b/i,
 ];
 
-const EXTRACTION: RegExp[] = [
+export const EXTRACTION: RegExp[] = [
   /ignore (all |the |your )?(previous|above|prior|earlier) (instructions|rules|prompt)/i,
   /\b(system|hidden|secret) prompt\b/i,
   /\b(reveal|show|print|repeat|tell me) (your|the) (instructions|rules|prompt)\b/i,
@@ -100,12 +101,25 @@ export function screenChildMessage(text: string): Screen {
 
 /* ------------------------------------------------------------------ what the tutor is told */
 
-export const YEAR_REGISTER = (year: number) =>
-  year <= 6
-    ? "The child is about 7 to 11. Use short sentences and simple, friendly words. Avoid jargon unless you explain it."
-    : year <= 9
-      ? "The child is about 11 to 14. Be friendly and clear, and use correct maths vocabulary with a quick explanation of new terms."
-      : "The child is about 14 to 18. Be concise and respectful, like a good teacher talking to a young adult. Use precise maths language.";
+/** How the tutor talks and how much it says, by school year. Younger children get less, in simpler words. */
+export const BANDS = [
+  { upTo: 4, ages: "7 to 9", words: 45, style: "Use very short sentences (about 10 words or fewer) and everyday words. Use things a child can picture, like sweets, coins or counters. Avoid maths jargon, or explain it in a few words." },
+  { upTo: 6, ages: "9 to 11", words: 65, style: "Use short sentences and simple, friendly words. When you use a maths word, give its meaning in a few words the first time." },
+  { upTo: 9, ages: "11 to 14", words: 85, style: "Be friendly and clear. Use correct maths vocabulary with a quick explanation of anything new. Link ideas to ones they already know." },
+  { upTo: 11, ages: "14 to 16", words: 110, style: "Be concise and respectful, like a good GCSE teacher. Use precise maths language and standard notation, and point to the method that earns marks." },
+  { upTo: 13, ages: "16 to 18", words: 130, style: "Be concise and precise, like a good A-level teacher talking to a young adult. Use proper notation and focus on reasoning and method." },
+] as const;
+export const bandFor = (year: number) => BANDS.find((b) => year <= b.upTo) ?? BANDS[BANDS.length - 1];
+export const YEAR_REGISTER = (year: number) => { const b = bandFor(year); return `The child is about ${b.ages}. ${b.style}`; };
+/** The most the tutor should say, in words, for this year. */
+export const wordCap = (year: number) => bandFor(year).words;
+
+/** quarter's own teaching notes for the topic, so the tutor uses the same method the app teaches. */
+function methodNotes(skillId: string): string[] {
+  const n = noteById(skillId);
+  if (!n) return [];
+  return [`How quarter teaches this topic: ${[n.childLine, n.explain].filter(Boolean).join(" ")}`];
+}
 
 /** Should the tutor be allowed to give the whole answer or the final step right now? */
 export function mayReveal(ctx: TutorContext, policy: RevealPolicy): boolean {
@@ -122,7 +136,7 @@ export function buildSystemPrompt(ctx: TutorContext, policy: RevealPolicy, stric
     "",
     "How to tutor:",
     "- Be warm and encouraging. Praise effort and specific good thinking, not just correct answers. Mistakes are normal and useful.",
-    "- Keep every reply short: at most about 80 words, in plain sentences. Give one idea or one small step at a time, then ask the child to try or answer a question.",
+    `- Keep every reply short: at most about ${wordCap(ctx.year)} words, in plain sentences. Say less rather than more. Give one idea or one small step at a time, then ask the child to try or answer a question.`,
     "- Never write long lectures, lists of many steps, or several questions at once.",
     reveal
       ? "- The child may now see how it is done. You can walk through the method step by step, and then check they understand by asking them to try a similar one."
@@ -146,6 +160,7 @@ export function buildSystemPrompt(ctx: TutorContext, policy: RevealPolicy, stric
     `Correct answer: ${ctx.referenceAnswer}`,
     "Worked solution:",
     ...ctx.referenceSteps.map((s, i) => `${i + 1}. ${s}`),
+    ...methodNotes(ctx.skillId),
     `Built-in hint the app already offers: ${ctx.hint}`,
     `The child has typed so far: ${ctx.childAttempts.length ? ctx.childAttempts.map((a) => `"${a}"`).join(", ") : "nothing yet"}.`,
     `Wrong submissions so far: ${ctx.attempts}. Used the hint: ${ctx.hinted ? "yes" : "no"}. Stage: ${ctx.phase === "ask" ? "still working on it" : ctx.phase === "correct" ? "answered correctly" : "the answer has been shown"}.`,

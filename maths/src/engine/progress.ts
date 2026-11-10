@@ -52,7 +52,7 @@ export interface BaselineRecord {
   responses: DiagResponse[];
 }
 
-/** What the family is working towards. Location is kept coarse on purpose (town or postcode area only). */
+/** What the learner is working towards. Location is kept coarse on purpose (town or postcode area only). */
 export interface Goal {
   exam: "gl" | "cem" | "unsure" | "none";
   area: string;

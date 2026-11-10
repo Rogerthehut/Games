@@ -19,6 +19,7 @@ export type Route =
   | { name: "certificate"; stage: Stage }
   | { name: "report" }
   | { name: "progress-report" }
+  | { name: "my-data" }
   | { name: "onboard"; first?: boolean }
   | { name: "practice"; plan: Pick[]; resume?: boolean };
 

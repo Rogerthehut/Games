@@ -2575,3 +2575,17 @@ html:has(.quarter-search[open]),
   .pr-table thead { display: table-header-group; }
   .pr-doc a { color: inherit; text-decoration: none; }
 }
+/* Parents' area: the help setting shows its whole choice, and four tabs fit on a phone */
+label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
+#tutor-reveal { width: 100%; text-overflow: clip; }
+.parts button { padding-inline: 6px; font-size: .92rem; }
+.assistant .starters { margin-block: 8px; }
+.gate-pin { letter-spacing: .3em; }
+.gate-note { margin: 4px 0 8px; color: var(--ink); font-weight: 700; }
+.turnstile-box { position: fixed; z-index: 80; inset-inline: 0; bottom: 12px; display: flex; justify-content: center; pointer-events: none; } .turnstile-box > * { pointer-events: auto; }
+/* "Your information": label and value rows a person can read at a glance */
+.md-rows { display: grid; grid-template-columns: minmax(140px, 40%) 1fr; gap: 6px 16px; margin: 6px 0 0; }
+.md-rows dt { color: var(--pr-muted); } .md-rows dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.md-learner { margin-top: 12px; border-left-color: var(--pr-mint); background: #f1faf6; }
+.md-tech { margin-top: 14px; text-align: center; }
+@media (max-width: 520px) { .md-rows { grid-template-columns: 1fr; gap: 0; } .md-rows dd { margin-bottom: 8px; } }

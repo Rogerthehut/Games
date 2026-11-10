@@ -1,5 +1,5 @@
 import type { TutorResponse } from "../../src/tutor/types";
-import { Limiter, buildMessages, buildSystemPrompt, fallbackReply, leaksAnswer, mayReveal, sanitizeReply, screenChildMessage, validateRequest } from "./policy";
+import { Limiter, buildMessages, wordCap, buildSystemPrompt, fallbackReply, leaksAnswer, mayReveal, sanitizeReply, screenChildMessage, validateRequest } from "./policy";
 import type { Provider } from "./provider";
 
 export interface Deps {
@@ -11,6 +11,9 @@ export interface Deps {
 }
 
 export interface Result { status: number; body: TutorResponse | { error: string } }
+
+/** A hard stop a little above the word target, in characters, so a chatty model cannot run on. */
+const capChars = (year: number) => Math.round(wordCap(year) * 7.5);
 
 const UNAVAILABLE = "The tutor can't answer right now. Try the Hint button, or ask a grown-up, and come back to me in a bit.";
 const LIMIT_REPLY = "You've asked the tutor a lot today, which is great effort. Let's pick this up tomorrow. The Hint button is still there to help.";
@@ -46,11 +49,11 @@ export async function handleTutor(body: unknown, ip: string, deps: Deps): Promis
       deps.log?.({ kind: "refused", ms: Date.now() - t0 });
       return { status: 200, body: { reply: REFUSED, flag: "off-topic", remainingToday: slot.remaining } };
     }
-    let reply = sanitizeReply(out.text);
+    let reply = sanitizeReply(out.text, capChars(req.context.year));
     if (guard && leaksAnswer(reply, req.context)) {
       retried = true;
       out = await deps.provider.complete({ system: buildSystemPrompt(req.context, req.revealPolicy, true), messages });
-      reply = sanitizeReply(out.text);
+      reply = sanitizeReply(out.text, capChars(req.context.year));
       if (out.refused || !reply || leaksAnswer(reply, req.context)) reply = fallbackReply(req.context);
     }
     deps.log?.({ kind: "ok", ms: Date.now() - t0, retried });

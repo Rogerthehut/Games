@@ -1,6 +1,6 @@
 import type { Store } from "../engine/storage";
 
-/** A copy of the signed-in family's data on this device, so the app opens fast and works without a connection. Removed on sign-out. */
+/** A copy of the signed-in account's data on this device, so the app opens fast and works without a connection. Removed on sign-out. */
 const PREFIX = "quarter.cache.";
 const LEGACY_KEY = "mathpath.v1";
 const DECLINED = "quarter.legacy.declined";
@@ -12,7 +12,7 @@ const safe = <T,>(fn: () => T, fallback: T): T => { try { return fn(); } catch {
 export const loadCache = (userId: string): Cached | null =>
   safe(() => { const raw = localStorage.getItem(PREFIX + userId); return raw ? (JSON.parse(raw) as Cached) : null; }, null);
 export const saveCache = (userId: string, c: Cached) => safe(() => localStorage.setItem(PREFIX + userId, JSON.stringify(c)), undefined);
-/** Everything held for any family: used when someone signs out of a shared device. */
+/** Everything held for any account: used when someone signs out of a shared device. */
 export const clearCaches = () => safe(() => {
   for (const k of Object.keys(localStorage)) if (k.startsWith(PREFIX) || k === "quarter.active") localStorage.removeItem(k);
 }, undefined);

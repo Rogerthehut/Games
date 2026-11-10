@@ -11,10 +11,12 @@ import { LegalFooter } from "./legal";
 import { STATUS_LABEL_PARENT } from "./labels";
 import { Maths } from "./maths";
 import { downloadProgressCsv } from "./progress-report";
+import { ParentAssistant } from "./assistant";
+import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
 const when = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-type Part = "progress" | "tutor" | "settings";
+type Part = "progress" | "assistant" | "tutor" | "settings";
 
 export function Parent() {
   const { profile, update, go, removeProfile } = useApp();
@@ -25,6 +27,8 @@ export function Parent() {
   const topicsHeading = useRef<HTMLHeadingElement>(null);
   const stats = weekStats(profile);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [nameDraft, setNameDraft] = useState(profile.name);
+  const [nameSaved, setNameSaved] = useState(false);
   const tutorUp = useTutorAvailable();
   const log = profile.tutorLog ?? [];
   const worries = log.filter((e) => e.flag === "wellbeing" && !e.seen);
@@ -61,7 +65,7 @@ export function Parent() {
       )}
 
       <div class="seg parts" role="tablist" aria-label="Sections">
-        {([["progress", "Progress"], ["tutor", "AI tutor"], ["settings", "Settings"]] as [Part, string][]).map(([id, label]) => (
+        {([["progress", "Progress"], ...(account ? [["assistant", "AI assistant"]] : []), ["tutor", "AI tutor"], ["settings", "Settings"]] as [Part, string][]).map(([id, label]) => (
           <button key={id} role="tab" aria-selected={part === id} class={part === id ? "on" : ""} onClick={() => setPart(id)} data-testid={`part-${id}`}>{label}</button>
         ))}
       </div>
@@ -160,11 +164,13 @@ export function Parent() {
         </>
       )}
 
+      {part === "assistant" && account && <ParentAssistant />}
+
       {part === "tutor" && (
         <section class="card" aria-labelledby="tut">
           <h2 id="tut">AI tutor</h2>
-          <p>An optional helper in practice. It guides and explains without just giving the answer. It's off until you turn it on.</p>
-          <label class="check"><input type="checkbox" id="tutor-on" checked={!!profile.tutor?.enabled} onChange={(e) => update((p) => ({ ...p, tutor: { enabled: (e.target as HTMLInputElement).checked, reveal: p.tutor?.reveal ?? "guide" } }))} /> Allow the tutor for {profile.name}</label>
+          <p>An optional helper in practice. It guides and explains without just giving the answer. It's off until you turn it on. It is never available in check-ups, practice papers or end-of-pathway tests.</p>
+          <label class="check"><input type="checkbox" id="tutor-on" checked={!!profile.tutor?.enabled} onChange={(e) => update((p) => ({ ...p, tutor: { enabled: (e.target as HTMLInputElement).checked, reveal: p.tutor?.reveal ?? "guide" } }))} /> Allow the AI tutor in practice for {profile.name}</label>
           <label class="inline">
             <span class="field-label">How much help</span>
             <select id="tutor-reveal" value={profile.tutor?.reveal ?? "guide"} onChange={(e) => update((p) => ({ ...p, tutor: { enabled: p.tutor?.enabled ?? false, reveal: (e.target as HTMLSelectElement).value as "guide" | "after-tries" } }))}>
@@ -195,6 +201,16 @@ export function Parent() {
 
       {part === "settings" && (
         <>
+          <section class="card" aria-labelledby="who-h">
+            <h2 id="who-h">Name or nickname</h2>
+            <label class="inline">
+              <span class="field-label">What should we call them?</span>
+              <input id="learner-name" value={nameDraft} maxLength={24} autoComplete="off" onInput={(e) => setNameDraft((e.target as HTMLInputElement).value)} data-testid="learner-name" />
+            </label>
+            <p class="small muted">A nickname is best. Please don't use a full name.</p>
+            <div class="actions"><button class="btn primary" disabled={!nameDraft.trim() || nameDraft.trim() === profile.name} onClick={() => { update((p) => ({ ...p, name: nameDraft.trim() })); setNameSaved(true); }} data-testid="save-name">Save</button>{nameSaved && nameDraft.trim() === profile.name && <span role="status" class="small">Saved.</span>}</div>
+          </section>
+
           <section class="card">
             <h2>School year</h2>
             <label class="inline">
@@ -205,6 +221,7 @@ export function Parent() {
             </label>
           </section>
 
+          <PinSettings />
           {account && <SubscriptionSection />}
           {account && <AccountSection />}
 
