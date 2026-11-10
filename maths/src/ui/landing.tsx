@@ -74,7 +74,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
 
       <section class="l-inside" aria-labelledby="what">
         <Torn color="#121522" seed={7} />
-        <div class="l-wrap">
+        <div class="l-wrap l-inside-grid">
           <h2 id="what">What’s <em>inside</em></h2>
           <ul class="l-cards">
             <li><button type="button" class="activity-card activity-skills" onClick={() => onStart("sign-up")}>
