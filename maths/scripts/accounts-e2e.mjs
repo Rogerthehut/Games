@@ -113,7 +113,7 @@ await d1.close();
 await p2.close();
 let third = await open(); let p3 = third.p; await signIn(p3, "maya"); await openParents(p3);
 await p3.getByTestId("sign-out").click(); await p3.waitForTimeout(1500);
-ok("signing out returns to the sign-in screen", /Create (a parent )?account/.test(await text(p3)));
+ok("signing out returns to the sign-in screen", /Create (an|a parent) account/.test(await text(p3)));
 const left = await p3.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("quarter.cache.")));
 ok("and leaves no family data on the device", left.length === 0, JSON.stringify(left));
 
@@ -133,7 +133,7 @@ await openParents(p4);
 await p4.getByTestId("delete-account").click(); await p4.getByTestId("delete-confirm").fill("nope");
 ok("delete stays disabled until DELETE is typed", await p4.getByTestId("delete-everything").isDisabled());
 await p4.getByTestId("delete-confirm").fill("delete"); await p4.getByTestId("delete-everything").click(); await p4.waitForTimeout(1500);
-ok("deleting returns to sign-in", /Create (a parent )?account/.test(await text(p4)));
+ok("deleting returns to sign-in", /Create (an|a parent) account/.test(await text(p4)));
 ok("and the server holds nothing for that family", (await api("ben", "/api/account")).learners.length === 0);
 
 // 10. creating an account needs the terms ticked first, and the tick is then recorded without a second screen

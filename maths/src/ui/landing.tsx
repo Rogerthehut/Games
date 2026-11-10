@@ -76,7 +76,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
           </nav>
           <div class="l-nav-actions">
             <button type="button" class="l-btn l-btn-line" onClick={() => onStart("sign-in")} data-testid="landing-sign-in">Sign in</button>
-            <button type="button" class="l-btn l-btn-dark l-hide-sm" onClick={() => onStart("sign-up")}>Create a parent account <Icon name="arrow" size={18} /></button>
+            <button type="button" class="l-btn l-btn-dark l-hide-sm" onClick={() => onStart("sign-up")}>Create an account <Icon name="arrow" size={18} /></button>
           </div>
         </div>
       </header>
@@ -89,10 +89,10 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
             <h1 id="hero">Maths practice that starts <em class="l-mark">where your child is</em></h1>
             <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. quarter finds the right starting point, explains mistakes clearly, and shows you what’s going well.</p>
             <div class="l-cta">
-              <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")} data-testid="landing-sign-up">Create a parent account <Icon name="arrow" size={20} /></button>
+              <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")} data-testid="landing-sign-up">Create an account <Icon name="arrow" size={20} /></button>
               <button type="button" class="l-btn l-btn-line l-btn-big" onClick={() => onStart("sign-in")}>Sign in</button>
             </div>
-            <p class="l-note">Set up by a parent or guardian. Children don’t need their own login, and a nickname’s all we need.</p>
+            <p class="l-note">Set up by a parent or guardian. Children don’t need their own login, and a nickname for the child is all we need.</p>
           </div>
           <div class="l-devices" aria-hidden="true">
             <div class="l-monitor">
@@ -199,7 +199,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
           <div class="l-banner">
             <Sparkle />
             <h2 id="start">Ready to try it?</h2>
-            <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")}>Create a parent account <Icon name="arrow" size={20} /></button>
+            <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")}>Create an account <Icon name="arrow" size={20} /></button>
           </div>
         </div>
       </section>
