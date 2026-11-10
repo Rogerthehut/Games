@@ -18,7 +18,8 @@ describe("pathway certificates", () => {
   it("does not unlock the final test when all topics are only assumed", () => {
     const profile = newProfile("Alex", 13, 1);
     expect(activePathwayStage(profile)).toBe("KS5");
-    expect(SKILLS.filter((skill) => skill.stage === "KS5").every((skill) => profile.skills[skill.id]?.assumed)).toBe(true);
+    // topics for earlier years are assumed; this year\u2019s own topics are not, but nothing has been secured either way
+    expect(SKILLS.filter((skill) => skill.stage === "KS5" && skill.year < 13).every((skill) => profile.skills[skill.id]?.assumed)).toBe(true);
     expect(canTakePathwayTest(profile, "KS5")).toBe(false);
   });
 
