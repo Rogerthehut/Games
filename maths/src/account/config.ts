@@ -6,3 +6,8 @@ export const CLERK_KEY = typeof env.VITE_CLERK_PUBLISHABLE_KEY === "string" ? en
 export const FAKE_AUTH = !env.PROD && env.VITE_FAKE_AUTH === "1";
 /** Without either, the app runs as before, keeping progress on the device only (local development, tests, a static preview). */
 export const accountsOn = !!CLERK_KEY || FAKE_AUTH;
+/**
+ * A production build with no Clerk key must not quietly fall back to keeping children's progress in the browser only.
+ * It shows a "not set up" page instead. Set VITE_ALLOW_LOCAL_ONLY=1 at build time for a deliberate local-only build (audits, static previews).
+ */
+export const notSetUp = !!env.PROD && !accountsOn && env.VITE_ALLOW_LOCAL_ONLY !== "1";

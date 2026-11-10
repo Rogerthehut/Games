@@ -7,7 +7,7 @@ an account the app does not start. Email, Google and Apple sign-in are provided 
 
 | Setting | Where | Meaning |
 | --- | --- | --- |
-| `VITE_CLERK_PUBLISHABLE_KEY` | build time | Turns accounts on in the app. Safe to ship. Without it the app runs local-only (development, tests). |
+| `VITE_CLERK_PUBLISHABLE_KEY` | build time | Turns accounts on in the app. Safe to ship. A production build without it shows a "not set up" page rather than running local-only. For a deliberate local-only build (audits, static previews) set `VITE_ALLOW_LOCAL_ONLY=1`. |
 | `CLERK_SECRET_KEY` | server secret | Lets the server check sign-in tokens. Never in the browser. |
 | `DATABASE_URL` | server secret | Postgres. Replit sets this when you add its database. Migrations run on start. |
 | `CLERK_AUTHORIZED_PARTIES` | optional | Origins whose tokens are accepted, for example `https://yourapp.replit.app`. |

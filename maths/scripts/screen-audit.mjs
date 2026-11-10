@@ -3,7 +3,7 @@
  * the layout problems that are easy to miss: sideways scrolling, content pushed off the screen, clipped text, tiny tap targets, tiny
  * text, and a main button that is hidden or covered.
  *
- *   npm run build && npx vite preview --port 4173 &
+ *   VITE_ALLOW_LOCAL_ONLY=1 npm run build && npx vite preview --port 4173 &
  *   npx tsx scripts/seed-profile.ts > /tmp/store.json         # a learner who already has a plan
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js node scripts/screen-audit.mjs --store /tmp/store.json --out /tmp/audit
  *

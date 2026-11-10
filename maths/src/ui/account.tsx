@@ -9,7 +9,8 @@ import { TERMS_VERSION } from "../legal/terms-version";
 import { AccountCtx, type AccountBridge, type AccountInfoCtx } from "./account-context";
 import { App } from "./app";
 import { Icon } from "./icons";
-import { Wordmark } from "./wordmark";
+import { CubeMark, Wordmark } from "./wordmark";
+import { LegalFooter } from "./legal";
 
 export { AccountCtx, useAccount } from "./account-context";
 export type { AccountBridge, AccountInfoCtx } from "./account-context";
@@ -30,6 +31,21 @@ const Legal = () => (
     <a href="./?info=privacy">Privacy notice</a> · <a href="./?info=terms">Terms of use</a> · <a href="./?info=cookies">Cookies</a>
   </p>
 );
+
+/** Shown by a live build that has no sign-in key, instead of silently running without accounts. */
+export function NotSetUp() {
+  return (
+    <main class="onboard">
+      <div class="onboard-in">
+        <div class="welcome-mark"><CubeMark /></div>
+        <h1>Quarter isn't set up yet</h1>
+        <p class="onboard-sub">Sign-in hasn't been configured for this site, so nothing can be saved safely. Please check back soon.</p>
+        <p class="small muted">Site owner: set VITE_CLERK_PUBLISHABLE_KEY, then rebuild.</p>
+      </div>
+      <LegalFooter />
+    </main>
+  );
+}
 
 export function AccountGate() {
   const [phase, setPhase] = useState<Phase>({ name: "loading" });
