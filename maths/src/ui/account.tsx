@@ -178,7 +178,18 @@ export function AccountGate() {
 function SignedOut({ auth }: { auth: AuthClient }) {
   const [kind, setKind] = useState<"sign-up" | "sign-in">("sign-up");
   const box = useRef<HTMLDivElement>(null);
-  useEffect(() => (box.current ? auth.mount(kind, box.current) : undefined), [kind]);
+  const [stuck, setStuck] = useState("");
+  useEffect(() => {
+    setStuck("");
+    const el = box.current;
+    if (!el) return;
+    let stop: (() => void) | undefined;
+    try { stop = auth.mount(kind, el); }
+    catch (e) { console.error("Sign-in form failed to open", e); setStuck("The sign-in form couldn't open."); }
+    // If Clerk's form never appears (blocked script, wrong allowed domain, an embedded preview), say so instead of showing an empty card.
+    const timer = setTimeout(() => { if (!el.childElementCount) setStuck("The sign-in form hasn't loaded."); }, 6000);
+    return () => { clearTimeout(timer); try { stop?.(); } catch { /* already removed */ } };
+  }, [kind]);
   return (
     <Shell wide>
       <h1>Welcome to <Wordmark /></h1>
@@ -188,6 +199,7 @@ function SignedOut({ auth }: { auth: AuthClient }) {
         <button type="button" role="tab" aria-selected={kind === "sign-in"} class={kind === "sign-in" ? "on" : ""} onClick={() => setKind("sign-in")} data-testid="tab-sign-in">Sign in</button>
       </div>
       <div class="clerk-mount" ref={box} data-testid="auth-box" />
+      {stuck && <p class="alert-note" role="alert" data-testid="auth-stuck">{stuck} Try opening this page in its own browser tab. If it still doesn't load, the site owner should check that this address is an allowed domain in the Clerk dashboard.</p>}
       <Legal />
     </Shell>
   );
