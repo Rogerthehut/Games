@@ -7,6 +7,7 @@ import { useApp } from "./context";
 import { useAccount } from "./account-context";
 import { AccountSection } from "./account-section";
 import { Icon } from "./icons";
+import { LegalFooter } from "./legal";
 import { STATUS_LABEL_PARENT } from "./labels";
 import { Maths } from "./maths";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
@@ -195,6 +196,11 @@ export function Parent() {
           </section>
 
           {account && <AccountSection />}
+
+          <section class="card" aria-labelledby="help-info">
+            <h2 id="help-info">Help and information</h2>
+            <LegalFooter />
+          </section>
 
           <section class="card">
             <h2>Remove {profile.name}</h2>

@@ -7,7 +7,7 @@ import { Avatar } from "./avatar";
 import { SearchDialog } from "./search";
 
 import { CubeMark, Wordmark } from "./wordmark";
-import { BrowserStorageNotice, LegalFooter } from "./legal";
+import { BrowserStorageNotice } from "./legal";
 
 function ProfileHi() {
   return <svg class="profile-hi" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
@@ -97,7 +97,6 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
       </header>
       <main class="content" id="main">
         {children}
-        <LegalFooter />
       </main>
       <SearchDialog dialog={searchDialog} />
       <BrowserStorageNotice />

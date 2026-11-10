@@ -1842,9 +1842,9 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
   color: var(--muted);
   font-size: .875rem;
 }
-.content, .legal-page { display: flex; flex-direction: column; min-height: 100dvh; }
-.content > .legal-footer, .legal-page > .legal-footer { margin-top: auto; }
-.content > :not(.legal-footer):nth-last-child(2), .legal-page > :not(.legal-footer):nth-last-child(2) { margin-bottom: 24px; }
+.legal-page { display: flex; flex-direction: column; min-height: 100dvh; }
+.legal-page > .legal-footer { margin-top: auto; }
+.legal-page > :not(.legal-footer):nth-last-child(2) { margin-bottom: 24px; }
 .footer-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px 32px; }
 .legal-footer h2 { margin: 0 0 2px; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .legal-footer ul { list-style: none; margin: 0; padding: 0; }
@@ -2457,3 +2457,5 @@ html:has(.quarter-search[open]),
 .l-foot a.legal-link, .l-foot .legal-footer a { color: #fff; }
 .l-foot .footer-company { color: #8c91ab; }
 .l-trust { position: relative; }
+/* Inside the Parents' area the information links sit in a card, not along the foot of the page */
+.card > .legal-footer { margin-top: 0; padding-top: 4px; border-top: 0; }
