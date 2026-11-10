@@ -2392,15 +2392,15 @@ html:has(.quarter-search[open]),
 .l-home { position: absolute; left: 50%; translate: -50% 0; bottom: 2px; height: 3px; border-radius: 99px; background: rgba(18,21,34,.4); z-index: 2; }
 .l-side { position: absolute; width: 3px; background: #2a2d3d; border-radius: 2px; }
 /* iPhone: Dynamic Island, rounder corners, action and volume buttons on the left, power on the right */
-.l-ios { border-radius: 17% / 7.8%; padding: 2.6%; }
-.l-ios .l-screen { border-radius: 14.5% / 6.7%; }
-.l-ios .l-cam { top: 2.1%; width: 30%; height: 3.3%; border-radius: 99px; }
+.l-ios { border-radius: 3.4cqw; padding: .6cqw; }
+.l-ios .l-screen { border-radius: 2.8cqw; }
+.l-ios .l-cam { top: 1.6%; width: 28%; height: 3%; border-radius: 99px; }
 .l-ios .l-home { width: 34%; }
 .l-ios .l-side-l { left: -3px; top: 16%; height: 14%; box-shadow: 0 2.6cqw 0 0 #2a2d3d; }
 .l-ios .l-side-r { right: -3px; top: 24%; height: 9%; }
 /* Android: a small punch-hole camera, tighter corners, power and volume on the right */
-.l-android { border-radius: 11% / 5.2%; padding: 2.2%; }
-.l-android .l-screen { border-radius: 9% / 4.2%; }
+.l-android { border-radius: 2.4cqw; padding: .55cqw; }
+.l-android .l-screen { border-radius: 1.85cqw; }
 .l-android .l-cam { top: 1.8%; width: 4.4%; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 0 0 1.5px #1b1e2b, inset 0 0 0 2px #121626; }
 .l-android .l-home { width: 24%; }
 .l-android .l-side-r { right: -3px; top: 20%; height: 8%; box-shadow: 0 3.4cqw 0 0 #2a2d3d; }
@@ -2408,12 +2408,12 @@ html:has(.quarter-search[open]),
 .l-phone-b { left: 24cqw; bottom: -2cqw; rotate: 3deg; z-index: 4; animation: l-float 8s ease-in-out -2s infinite; }
 /* desktop monitor at the back, tablet in front of its right edge */
 .l-monitor { left: 14cqw; top: 0; width: 74cqw; z-index: 1; }
-.l-mon-bezel { background: #14161f; padding: 1cqw 1cqw 1.8cqw; border-radius: 1.6cqw; box-shadow: 0 2.4cqw 4.6cqw -1.6cqw rgba(18,21,34,.5), 0 0 0 1.5px #2a2d3d inset, 0 0 0 1px #05060a; }
+.l-mon-bezel { background: #14161f; padding: .7cqw .7cqw 1.5cqw; border-radius: 1.6cqw; box-shadow: 0 2.4cqw 4.6cqw -1.6cqw rgba(18,21,34,.5), 0 0 0 1.5px #2a2d3d inset, 0 0 0 1px #05060a; }
 .l-screen-wide { aspect-ratio: 16 / 10; height: auto; padding-top: 0; background: #fbf8ef; border-radius: .5cqw; }
 .l-neck { position: absolute; left: 50%; translate: -50% 0; top: 100%; width: 8cqw; height: 4.6cqw; background: linear-gradient(90deg, #b9bcc8, #e5e7ee 40%, #b9bcc8); clip-path: polygon(12% 0, 88% 0, 100% 100%, 0 100%); }
 .l-base { position: absolute; left: 50%; translate: -50% 0; top: calc(100% + 4.4cqw); width: 22cqw; height: 1.1cqw; border-radius: 1cqw; background: linear-gradient(#e5e7ee, #a9acb9); box-shadow: 0 .8cqw 1.6cqw -.6cqw rgba(18,21,34,.5); }
-.l-tablet { right: 0; top: 30cqw; width: 42cqw; z-index: 3; rotate: 2deg; background: #14161f; padding: 1.2cqw; border-radius: 2.8cqw; box-shadow: 0 2.8cqw 5cqw -1.8cqw rgba(18,21,34,.55), 0 0 0 1.5px #2a2d3d inset, 0 0 0 1px #05060a; }
-.l-tablet .l-screen { border-radius: 1.8cqw; }
+.l-tablet { right: 0; top: 30cqw; width: 42cqw; z-index: 3; rotate: 2deg; background: #14161f; padding: .85cqw; border-radius: 2.4cqw; box-shadow: 0 2.8cqw 5cqw -1.8cqw rgba(18,21,34,.55), 0 0 0 1.5px #2a2d3d inset, 0 0 0 1px #05060a; }
+.l-tablet .l-screen { border-radius: 1.55cqw; }
 .l-tcam { position: absolute; left: 50%; translate: -50% 0; top: .5cqw; width: .7cqw; aspect-ratio: 1; border-radius: 50%; background: #05060a; box-shadow: 0 0 0 1px #1b1e2b; z-index: 2; }
 .l-screen-wide img { object-position: 50% 0; }
 @keyframes l-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
