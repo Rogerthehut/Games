@@ -47,7 +47,12 @@ const navTab = async (p, tab) => {
   if (await tabLoc.count()) await tabLoc.click(); else await p.getByRole("link", { name: new RegExp(`^${tab}$`, "i") }).first().click();
   await wait(p, 700);
 };
-const reasoningList = async (p) => { await navTab(p, "skills"); await click(p, "open-reasoning"); };
+// the 11+ reasoning card was removed from the map; reach the same list through the list view and the topic filter
+const reasoningList = async (p) => {
+  await navTab(p, "skills");
+  await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {});
+  for (const box of await p.getByRole("combobox").all()) { if (await box.selectOption({ label: "Reasoning (11+)" }).then(() => true, () => false)) break; }
+};
 const practiseSkill = async (p, id) => { await p.locator(`#skill-${id} button:has-text("Practise")`).click(); await wait(p, 600); };
 const openQuestion = async (p) => { await p.getByTestId("intro-skip").click().catch(() => {}); await wait(p, 500); };
 
@@ -63,7 +68,7 @@ const SCREENS = [
   { name: "me", go: async (p) => { await navTab(p, "me").catch(async () => { await p.getByRole("button", { name: /Maya/ }).first().click(); await wait(p, 600); }); } },
   { name: "practice-intro", go: async (p) => { await click(p, "start-practice"); } },
   { name: "practice-number", go: async (p) => { await click(p, "start-practice"); await openQuestion(p); } },
-  { name: "practice-fraction", go: async (p) => { await navTab(p, "skills"); await click(p, "open-reasoning").catch(() => {}); await p.getByRole("combobox").nth(1).selectOption("Number").catch(() => {}); await practiseSkill(p, "frac-add"); await openQuestion(p); } },
+  { name: "practice-fraction", go: async (p) => { await navTab(p, "skills"); await p.getByRole("combobox").nth(1).selectOption("Number").catch(() => {}); await practiseSkill(p, "frac-add"); await openQuestion(p); } },
   { name: "practice-choice-words", go: async (p) => { await reasoningList(p); await practiseSkill(p, "vr-odd-word"); await openQuestion(p); } },
   { name: "practice-choice-pictures", go: async (p) => { await reasoningList(p); await practiseSkill(p, "nvr-series"); await openQuestion(p); } },
   { name: "practice-grid", go: async (p) => { await reasoningList(p); await practiseSkill(p, "nvr-matrix"); await openQuestion(p); } },

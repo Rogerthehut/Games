@@ -66,16 +66,7 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
       <h1>Skills</h1>
     </div>
   );
-  // Only offered where 11+ practice is likely: Years 4 to 6, or when the plan has reasoning switched on. The Reasoning topic filter is always there.
-  const wants11Plus = !!profile.goal?.reasoning || (profile.year >= 4 && profile.year <= 6);
-  const reasoningCard = !wants11Plus ? null : (
-    <button type="button" class="reasoning-card" data-testid="open-reasoning" onClick={() => { setFilters({ topic: "Reasoning" }); changeView("list"); }}>
-      <span class="reasoning-card-title">11+ reasoning</span>
-      <span class="reasoning-card-text">Word puzzles, shape puzzles and problem solving, for 11+ practice.</span>
-      <Icon name="arrow" size={20} />
-    </button>
-  );
-  if (view === "journey") return <Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}{reasoningCard}</>} />;
+  if (view === "journey") return <Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}</>} />;
   return (
     <div class="map">
       {heading}
