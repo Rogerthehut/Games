@@ -14,7 +14,7 @@ import { applyTheme, getTheme, resolveSkin, skinForYear, type ThemeChoice } from
 const SKINS: { id: NonNullable<Profile["skin"]>; label: string }[] = [
   { id: "auto", label: "Auto" }, { id: "explorer", label: "Explorer" }, { id: "navigator", label: "Navigator" }, { id: "scholar", label: "Scholar" },
 ];
-const MODES: { id: ThemeChoice; label: string }[] = [{ id: "auto", label: "Auto" }, { id: "light", label: "Light" }, { id: "dark", label: "Dark" }];
+const MODES: { id: ThemeChoice; label: string }[] = [{ id: "light", label: "Light" }, { id: "dark", label: "Dark" }, { id: "auto", label: "Auto (follow my device)" }];
 const VOICES: { id: NarrationVoice; label: string }[] = [{ id: "female", label: "Female" }, { id: "male", label: "Male" }];
 const STYLE_DETAILS = {
   explorer: "Larger illustrations, softer shapes and warm accents.",

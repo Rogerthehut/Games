@@ -7,9 +7,14 @@
   <style>
     /* shown before the app loads: the page colour (no white flash) and the plain-text summary kept for crawlers, but out of sight */
     html { background: #f6f1e4; }
-    @media (prefers-color-scheme: dark) { html { background: #14161f; } }
+    html[data-theme="dark"] { background: #14161f; }
+    @media (prefers-color-scheme: dark) { html[data-boot-auto] { background: #14161f; } }
     .boot-summary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   </style>
+  <script>
+    /* Light is the default. Dark or Auto only if the person chose it in Settings. Runs before the first paint so there is no flash. */
+    try { var t = localStorage.getItem("mathpath.theme"), d = document.documentElement; if (t === "dark") d.setAttribute("data-theme", "dark"); else if (t === "auto") d.setAttribute("data-boot-auto", ""); else d.setAttribute("data-theme", "light"); } catch (e) { document.documentElement.setAttribute("data-theme", "light"); }
+  </script>
   <noscript><style>.boot-summary { position: static; width: auto; height: auto; clip: auto; white-space: normal; padding: 24px; font: 16px/1.5 system-ui, sans-serif; background: #fff; color: #121522; }</style></noscript>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg?v=quarter" type="image/svg+xml" sizes="any" />

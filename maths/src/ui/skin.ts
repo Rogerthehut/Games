@@ -13,14 +13,15 @@ export function resolveSkin(p?: Pick<Profile, "year" | "skin">): Skin {
 
 const THEME_KEY = "mathpath.theme";
 
+/** Light unless the person has chosen Dark or Auto (which follows the device). */
 export function getTheme(): ThemeChoice {
-  try { const v = localStorage.getItem(THEME_KEY); return v === "light" || v === "dark" ? v : "auto"; } catch { return "auto"; }
+  try { const v = localStorage.getItem(THEME_KEY); return v === "dark" || v === "auto" ? v : "light"; } catch { return "light"; }
 }
 
 export function applyTheme(t: ThemeChoice): void {
   const root = document.documentElement;
-  if (t === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
-  try { if (t === "auto") localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, t); } catch { /* not persisted */ }
+  if (t === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t); // no attribute means follow the device
+  try { localStorage.setItem(THEME_KEY, t); } catch { /* not persisted */ }
 }
 
 export const applySkin = (s: Skin) => { document.documentElement.dataset.skin = s; };
