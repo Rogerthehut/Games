@@ -1,7 +1,7 @@
 export const operator = "Wristed Ltd";
 export const company = { number: "12397793", office: "124 City Road, London, England, EC1V 2NX", registered: "England and Wales" } as const;
 export const companyLine = `${operator} is registered in ${company.registered}, company number ${company.number}. Registered office: ${company.office}.`;
-export const copyright = `© 2026 ${operator}. quarter is a trading name of ${operator}.`;
+export const copyright = `© 2026 ${operator}. quarter™ is a trading name of ${operator}.`;
 export const contactEmail = "hello@yourquarter.co.uk";
 export const designer = { credit: "Built with curiosity in London", name: "RR Studio", href: "https://roger-richman.com/" } as const;
 export const legalUpdated = {
@@ -50,7 +50,7 @@ export function privacySections(native: boolean): Section[] {
     ...(native ? [] : [{
       title: "Who looks after your information",
       paragraphs: [
-        `quarter is a trading name of ${operator}, which is responsible for the information described in this notice.  ${companyLine} For any question about your information, or to use any of your rights, email ${contactEmail}.`,
+        `quarter™ is a trading name of ${operator}, which is responsible for the information described in this notice.  ${companyLine} For any question about your information, or to use any of your rights, email ${contactEmail}.`,
         "quarter is made for parents and guardians to set up and for children to use under their supervision. Only a parent or guardian creates an account. Children never create their own.",
       ],
     }, {
@@ -143,7 +143,7 @@ export const termsSections: Section[] = [
   {
     title: "Accounts",
     paragraphs: [
-      `quarter is a trading name of ${operator}. By using it you agree to these terms with ${operator}.`,
+      `quarter™ is a trading name of ${operator}. By using it you agree to these terms with ${operator}.`,
       "An account must be created by a parent or guardian aged 18 or over. You are responsible for the learners you add, for keeping your sign-in secure, and for turning the tutor on or off. Please give accurate information and use a nickname for each learner.",
       `You can delete your account at any time from the Parents’ area. We may suspend an account that is used to harm others or the service. Email ${contactEmail} if you need help.`,
     ],
@@ -184,7 +184,7 @@ export const termsSections: Section[] = [
   {
     title: "Copyright and your work",
     paragraphs: [
-      `© 2026 ${operator}, trading as quarter. Learners and families may use quarter’s original materials for personal learning. Teachers and tutors may show the materials in lessons and share worksheets quarter makes available to download with learners they teach.`,
+      `© 2026 ${operator}, trading as quarter™. Learners and families may use quarter’s original materials for personal learning. Teachers and tutors may show the materials in lessons and share worksheets quarter makes available to download with learners they teach.`,
       "You can keep screenshots for your own learning or lesson preparation. Ask quarter for permission before publishing its materials or screenshots online, distributing them beyond your learners, or selling copies, unless the law or a separate licence allows it.",
       "Your own notes and answers remain yours. Third-party software, fonts and other materials are covered by their own licences.",
     ],
