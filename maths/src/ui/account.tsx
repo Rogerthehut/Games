@@ -218,12 +218,12 @@ function Consent({ onAgree, onSignOut }: { onAgree(): Promise<void>; onSignOut()
   return (
     <Shell wide>
       <h1>Before we start</h1>
-      <p class="onboard-sub">Here is what quarter keeps for your family.</p>
+      <p class="onboard-sub">Here is what quarter keeps for this account.</p>
       <ul class="account-points">
         <li><strong>We keep:</strong> each learner's nickname, school year, avatar and learning progress, so it follows them from device to device.</li>
         <li><strong>We don't keep:</strong> real names, birthdays, photos, or anything the AI tutor chats about. Tutor chats stay on the device for you to read there.</li>
         <li><strong>You're in charge:</strong> you can download everything we hold, or delete your account and every learner in it, any time from the grown-ups' area.</li>
-        <li><strong>Who helps:</strong> Clerk handles sign-in. Your family's data is stored in a database in Europe (EU). See the privacy notice for the details.</li>
+        <li><strong>Who helps:</strong> Clerk handles sign-in. Account data is stored in a database in Europe (EU). See the privacy notice for the details.</li>
       </ul>
       <label class="account-check">
         <input type="checkbox" checked={ok} onChange={() => setOk(!ok)} data-testid="consent-check" />

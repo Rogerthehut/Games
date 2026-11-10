@@ -43,7 +43,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
       </section>
 
       <section class="landing-section landing-trust" aria-labelledby="trust">
-        <h2 id="trust">Built with families in mind</h2>
+        <h2 id="trust">Built with privacy in mind</h2>
         <ul>
           <li>No adverts and no analytics cookies.</li>
           <li>We keep nicknames, school years and progress. Not real names, photos or birthdays.</li>

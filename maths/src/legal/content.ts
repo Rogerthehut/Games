@@ -65,7 +65,7 @@ export function privacySections(native: boolean): Section[] {
       paragraphs: [
         "Learner information is stored in a database run for quarter, protected so that each account can only reach its own learners. A copy is also kept in your browser so quarter works quickly. It is removed from the browser when you sign out.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
-        "The database that holds your family’s information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
+        "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
         "Clerk and the AI provider used by the optional tutor may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
       ],
     }, {
@@ -93,7 +93,7 @@ export function privacySections(native: boolean): Section[] {
     {
       title: "Your choices and rights",
       paragraphs: [
-        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your family, remove a learner, turn the tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
+        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, remove a learner, turn the tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
         "Where data protection law applies, you may have rights to ask for a copy, correct or delete information, restrict its use or move it to another service. You can also object to some uses of your information. In the UK you can complain to the Information Commissioner’s Office.",
       ],
     },
