@@ -22,6 +22,40 @@ const Sparkle = () => (
   <svg class="sparkle" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="currentColor" d="M50 0c4 28 22 46 50 50-28 4-46 22-50 50-4-28-22-46-50-50C28 46 46 28 50 0Z" /></svg>
 );
 
+/** Scroll to a section without touching the address, because the sign-in form reads the address hash. */
+const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+
+/** Faint hand-written sums scattered behind the hero, like chalk on a classroom board. Decorative only. */
+const SCRIBBLES: { t: string; x: number; y: number; r: number; s: number; pink?: boolean; hide?: boolean }[] = [
+  { t: "3 × 4 = 12", x: 3, y: 12, r: -7, s: 1.1 },
+  { t: "½ + ¼ = ¾", x: 58, y: 6, r: 4, s: 1.2, hide: true },
+  { t: "x² + 2x = 15", x: 1, y: 70, r: 5, s: 1.15, hide: true },
+  { t: "π", x: 90, y: 9, r: 12, s: 2.4 },
+  { t: "7 × 8 = 56", x: 77, y: 84, r: -5, s: 1.1 },
+  { t: "√81 = 9", x: 41, y: 90, r: 3, s: 1.05, hide: true },
+  { t: "a² + b² = c²", x: 66, y: 62, r: -4, s: 1, hide: true },
+  { t: "25% of 80 = 20", x: 14, y: 90, r: -3, s: 1, hide: true },
+  { t: "÷", x: 47, y: 15, r: 10, s: 2.2, pink: true },
+  { t: "y = mx + c", x: 82, y: 38, r: 6, s: 1.05, hide: true },
+  { t: "∑", x: 7, y: 46, r: -9, s: 2.3, pink: true, hide: true },
+  { t: "12 ÷ 3 = 4", x: 88, y: 66, r: 7, s: .95 },
+  { t: "∞", x: 33, y: 5, r: -6, s: 2.2, hide: true },
+  { t: "%", x: 94, y: 92, r: -10, s: 2.2, pink: true },
+  { t: "θ = 45°", x: 24, y: 7, r: 5, s: 1.05, hide: true },
+  { t: "2 + 3 = 5", x: 54, y: 78, r: -6, s: 1, hide: true },
+];
+function Scribbles() {
+  return (
+    <div class="l-scribbles" aria-hidden="true">
+      {SCRIBBLES.map((c, i) => (
+        <span key={i} class={`l-scribble${c.pink ? " pink" : ""}${c.hide ? " l-hide-sm" : ""}`} style={{ left: `${c.x}%`, top: `${c.y}%`, rotate: `${c.r}deg`, fontSize: `calc(var(--l-scrib) * ${c.s})` }}>{c.t}</span>
+      ))}
+      <svg class="l-squiggle" viewBox="0 0 220 24" style={{ left: "5%", top: "30%" }}><path d="M2 14c18-14 30 12 48 0s30-12 48 0 30 12 48 0 30-12 50 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" /></svg>
+      <svg class="l-squiggle" viewBox="0 0 120 60" style={{ left: "62%", top: "46%" }}><path d="M4 50C20 8 60 4 108 16m-16-14 18 14-20 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </div>
+  );
+}
+
 /** What visitors see before they sign in. Keep the claims to what the app really does. */
 export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): void }) {
   const ticker = [...STRANDS, ...STRANDS];
@@ -30,6 +64,13 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
       <header class="l-nav">
         <div class="l-wrap l-nav-in">
           <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
+          <nav class="l-nav-links" aria-label="On this page">
+            <button type="button" onClick={() => jump("how")}>How it works</button>
+            <button type="button" onClick={() => jump("what")}>What’s inside</button>
+            <button type="button" onClick={() => jump("trust")}>Privacy</button>
+            <a href={parentContent.hub.path}>Parent guides</a>
+            <a href={parentContent.faq.path}>FAQs</a>
+          </nav>
           <div class="l-nav-actions">
             <button type="button" class="l-btn l-btn-line" onClick={() => onStart("sign-in")} data-testid="landing-sign-in">Sign in</button>
             <button type="button" class="l-btn l-btn-dark l-hide-sm" onClick={() => onStart("sign-up")}>Create a parent account <Icon name="arrow" size={18} /></button>
@@ -38,16 +79,17 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
       </header>
 
       <section class="l-hero" aria-labelledby="hero">
+        <Scribbles />
         <div class="l-wrap l-hero-grid">
           <div class="l-hero-copy">
             <p class="l-kicker">Maths for Years 3 to 13</p>
             <h1 id="hero">Maths practice that starts <em class="l-mark">where your child is</em></h1>
-            <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. quarter finds the right starting point, explains mistakes clearly, and shows you what is going well.</p>
+            <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. quarter finds the right starting point, explains mistakes clearly, and shows you what’s going well.</p>
             <div class="l-cta">
               <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")} data-testid="landing-sign-up">Create a parent account <Icon name="arrow" size={20} /></button>
               <button type="button" class="l-btn l-btn-line l-btn-big" onClick={() => onStart("sign-in")}>Sign in</button>
             </div>
-            <p class="l-note">Set up by a parent or guardian. Children don't need their own login, and a nickname is all we need.</p>
+            <p class="l-note">Set up by a parent or guardian. Children don’t need their own login, and a nickname’s all we need.</p>
           </div>
           <div class="l-devices" aria-hidden="true">
             <div class="l-monitor">
@@ -78,9 +120,9 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         <div class="l-wrap l-how">
           <h2 id="how">How it <em>works</em></h2>
           <ol class="l-steps">
-            <li><span class="l-num" aria-hidden="true">01</span><div><h3>A short check-up</h3><p>A few questions find the starting point and any gaps, so practice is neither too easy nor too hard.</p></div></li>
+            <li><span class="l-num" aria-hidden="true">01</span><div><h3>A short check-up</h3><p>A few questions find the starting point and any gaps, so practice isn’t too easy or too hard.</p></div></li>
             <li><span class="l-num" aria-hidden="true">02</span><div><h3>Little and often</h3><p>Ten-minute sessions with worked explanations, hints and a skills map. No timers, apart from the clearly labelled timed paper.</p></div></li>
-            <li><span class="l-num" aria-hidden="true">03</span><div><h3>Progress you can see</h3><p>The grown-ups' area shows what is secure, what is tricky, and what to talk about together.</p></div></li>
+            <li><span class="l-num" aria-hidden="true">03</span><div><h3>Progress you can see</h3><p>The grown-ups’ area shows what’s secure, what’s tricky, and what to talk about together.</p></div></li>
           </ol>
         </div>
       </section>
@@ -114,7 +156,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
             <li><button type="button" class="activity-card activity-plan" onClick={() => onStart("sign-up")}>
               <span class="activity-label">04 / AI tutor</span>
               <span class="activity-title">An optional AI tutor</span>
-              <span class="activity-detail">Off until you turn it on. It guides and explains without just giving the answer, and you can read every conversation.</span>
+              <span class="activity-detail">It’s off until you turn it on. It guides and explains without just giving the answer, and you can read every conversation.</span>
               <ActivityArt kind="tutor" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
@@ -129,7 +171,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
           <div>
             <ul class="l-checks">
               <li><Icon name="check" size={20} />No adverts and no analytics cookies.</li>
-              <li><Icon name="check" size={20} />We keep nicknames, school years and progress. Not real names, photos or birthdays.</li>
+              <li><Icon name="check" size={20} />We only keep nicknames, school years and progress. We don’t keep real names, photos or birthdays.</li>
               <li><Icon name="check" size={20} />AI tutor chats stay on your device.</li>
               <li><Icon name="check" size={20} />Download everything we hold, or delete your account, whenever you like.</li>
             </ul>

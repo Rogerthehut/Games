@@ -202,7 +202,7 @@ export const licencesSections: Section[] = [
   },
   {
     title: "Fonts",
-    paragraphs: ["Figtree, Fraunces, Manrope and Nunito are bundled under the SIL Open Font License, version 1.1."],
+    paragraphs: ["Caveat, Figtree, Fraunces, Manrope and Nunito are bundled under the SIL Open Font License, version 1.1."],
   },
   {
     title: "Sound effects",
