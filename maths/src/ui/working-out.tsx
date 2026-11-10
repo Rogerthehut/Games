@@ -158,6 +158,7 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
             </button>
           ))}
         </div>
+        <div class="ten-frames">
         {[0, 10].map((offset) => (
           <div key={offset} class="ten-frame" role="group" aria-label={`Ten-frame ${offset / 10 + 1}`}>
             {cells.slice(offset, offset + 10).map((colour, cell) => {
@@ -186,6 +187,7 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
             })}
           </div>
         ))}
+        </div>
         <div class="working-tools">
           <button type="button" class="btn ghost" disabled={picked?.from === undefined} onClick={() => {
             setCells((previous) => previous.map((value, index) => index === picked?.from ? null : value));

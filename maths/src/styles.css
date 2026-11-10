@@ -2592,3 +2592,22 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .md-learner { margin-top: 12px; border-left-color: var(--pr-mint); background: #f1faf6; }
 .md-tech { margin-top: 14px; text-align: center; }
 @media (max-width: 520px) { .md-rows { grid-template-columns: 1fr; gap: 0; } .md-rows dd { margin-bottom: 8px; } }
+
+/* Beans and abacus use the whole width of the working panel and grow with it (the panel is a size container). */
+.working-out { container-type: inline-size; container-name: wo; }
+.ten-frames { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-block: 8px 12px; }
+@container wo (min-width: 560px) { .ten-frames { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
+.ten-frame { max-width: none; width: 100%; gap: clamp(5px, 1.2cqi, 10px); margin: 0; padding: clamp(6px, 1.4cqi, 12px); border: 2px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--line) 18%, var(--surface)); }
+.ten-cell { min-height: 0; aspect-ratio: 1 / .92; border-radius: 12px; }
+.ten-cell .bean { width: 56%; height: auto; aspect-ratio: 25 / 17; }
+.bean-pool { min-height: 56px; font-size: 1rem; gap: 10px; padding-inline: 16px; }
+.bean-pool .bean { width: 34px; height: 23px; }
+.abacus { --bead-h: clamp(11px, 2.7cqi, 22px); max-width: none; width: 100%; gap: clamp(6px, 1.6cqi, 16px); padding: clamp(10px, 2cqi, 20px) clamp(6px, 1.4cqi, 14px); box-sizing: border-box; }
+.abacus-column { gap: clamp(6px, 1.2cqi, 12px); font-size: clamp(.8rem, 2cqi, 1.1rem); }
+.abacus-rod { height: calc(9 * (var(--bead-h) + 3px) + 14px); background-size: clamp(4px, .9cqi, 8px) 100%; }
+.abacus-rod span { width: min(clamp(30px, 11cqi, 84px), 86%); height: var(--bead-h); }
+.abacus-column output { font-size: clamp(1.05rem, 2.8cqi, 1.6rem); }
+.abacus-buttons { gap: 8px; }
+.abacus-buttons .btn { min-width: 48px; min-height: 48px; font-size: 1.25rem; font-weight: 800; }
+.abacus-number { font-size: 1.1rem; }
+.abacus-number strong { font-size: 1.7rem; }
