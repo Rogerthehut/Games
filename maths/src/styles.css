@@ -1463,7 +1463,7 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 }
 .working-out {
   margin-block: 12px 18px;
-  padding: 0 clamp(10px, 3vw, 20px);
+  padding: 0 clamp(8px, 2vw, 12px);
   border: 1px solid var(--line);
   border-radius: var(--paper-panel-corner);
   background: var(--surface);
@@ -1472,6 +1472,9 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .working-out[hidden] { display: none; }
 .working-tools.help-tools { gap: 12px; }
 .working-tools.help-tools > .btn { flex: 1 1 max-content; min-height: 52px; }
+/* Count with beans and Count with abacus share the first row; Work it out has the row below */
+.working-tools.help-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.working-tools.help-tools > .tool-wide { grid-column: 1 / -1; }
 .practice-answer-label { margin: 0 0 8px; font-weight: 750; }
 .fb .spark { animation-duration: 420ms; }
 .equal-groups { max-width: 980px; margin-inline: auto; padding: clamp(12px, 3vw, 28px); container-type: inline-size; }
@@ -1647,8 +1650,8 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .question-desk .q-text { font-size: clamp(1.25rem, 2.6vw, 2rem); line-height: 1.32; }
 .qpage > .qbody > .equal-groups { max-width: 980px; }
 @media (width <= 1100px), (pointer: coarse) {
-  .working-tools.help-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .help-tools > .btn { flex-direction: column; line-height: 1.2; text-align: center; }
+  .working-tools.help-tools { gap: 8px; }
+  .help-tools > .btn:not(.tool-wide) { flex-direction: column; line-height: 1.2; text-align: center; }
   .help-tools > .btn > .icon { flex: none; }
   .lesson-group { gap: 4px; padding: 8px; }
   .lesson-groups { gap: 8px; }
@@ -1686,10 +1689,10 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .question-main .fb-zone:empty { display: none; }
 .scrap-paper.expanded { aspect-ratio: auto; height: clamp(230px, 52dvh, 440px); }
 @media (min-width: 780px) and (orientation: landscape), (min-width: 1100px) {
-  .qpage:has(.question-desk > .working-out:not([hidden])) { --question-width: 1120px; }
+  .qpage:has(.question-desk > .working-out:not([hidden])) { --question-width: 1320px; }
   .question-desk:has(> .working-out:not([hidden])) {
     display: grid;
-    grid-template-columns: minmax(0, calc(var(--question-share, 54%) - 16px)) minmax(0, 1fr);
+    grid-template-columns: minmax(0, calc(var(--question-share, 42%) - 16px)) minmax(0, 1fr);
     align-items: start;
     gap: 32px;
   }
@@ -1824,7 +1827,7 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
   transform: rotate(-22deg);
 }
 .bean.mint { --bean-colour: #489d82; transform: rotate(20deg); }
-.scrap-paper { display: block; width: 100%; aspect-ratio: 2; touch-action: none; user-select: none; color: var(--ink); background-color: var(--bg); border: 1px solid var(--line); border-radius: var(--paper-corner); }
+.scrap-paper { display: block; width: 100%; aspect-ratio: 1200 / 846; touch-action: none; user-select: none; color: var(--ink); background-color: var(--bg); border: 1px solid var(--line); border-radius: var(--paper-corner); }
 .scrap-paper.squared {
   background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 18px 18px;

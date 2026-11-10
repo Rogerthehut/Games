@@ -14,6 +14,9 @@ const DRAWING_SIZES: DrawingSize[] = ["Small", "Medium", "Large"];
 const PEN_WIDTHS: Record<DrawingSize, number> = { Small: 5, Medium: 12, Large: 24 };
 const ERASER_WIDTHS: Record<DrawingSize, number> = { Small: 18, Medium: 36, Large: 120 };
 
+/** The drawing sheet is 1200 units across and A5 landscape in shape (210 : 148), so strokes keep their size whatever the screen. */
+const PAPER_H = 846;
+
 export function WorkingOut({ suggestCounters = false }: { suggestCounters?: boolean }) {
   const [tool, setTool] = useState<"counters" | "paper" | "abacus">(suggestCounters ? "counters" : "paper");
   const [digits, setDigits] = useState(EMPTY_ABACUS);
@@ -88,7 +91,7 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
     const paper = event.currentTarget.getBoundingClientRect();
     return {
       x: Math.min(1200, Math.max(0, (event.clientX - paper.left) * 1200 / paper.width)),
-      y: Math.min(600, Math.max(0, (event.clientY - paper.top) * 600 / paper.height)),
+      y: Math.min(PAPER_H, Math.max(0, (event.clientY - paper.top) * PAPER_H / paper.height)),
     };
   };
 
@@ -122,8 +125,8 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
         }} />
       <div class="working-tools help-tools" role="group" aria-label="Pick a maths tool">
         <button type="button" class="btn" aria-pressed={tool === "counters"} onClick={() => setTool("counters")}><Icon name="counters" size={22} /> Count with beans</button>
-        <button type="button" class="btn" aria-pressed={tool === "paper"} onClick={() => setTool("paper")}><Icon name="pencil" size={22} /> Work it out</button>
         <button type="button" class="btn" aria-pressed={tool === "abacus"} onClick={() => setTool("abacus")}><Icon name="beads" size={22} /> Count with abacus</button>
+        <button type="button" class="btn tool-wide" aria-pressed={tool === "paper"} onClick={() => setTool("paper")}><Icon name="pencil" size={22} /> Work it out</button>
       </div>
 
       {tool === "abacus" ? <>
@@ -207,7 +210,7 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
             </button>
           ))}
         </div>
-        <canvas ref={canvas} class={`scrap-paper ${squared ? "squared" : ""} ${expanded ? "expanded" : ""}`} style={paperHeight === undefined ? undefined : { height: `${paperHeight}px` }} width={1200} height={600} role="img" aria-label={eraser ? "Drawing area, eraser on" : "Drawing area"}
+        <canvas ref={canvas} class={`scrap-paper ${squared ? "squared" : ""} ${expanded ? "expanded" : ""}`} style={paperHeight === undefined ? undefined : { height: `${paperHeight}px` }} width={1200} height={PAPER_H} role="img" aria-label={eraser ? "Drawing area, eraser on" : "Drawing area"}
           onPointerDown={(event) => {
             if (event.button !== 0 || drawing.current !== null) return;
             const focused = document.activeElement;
