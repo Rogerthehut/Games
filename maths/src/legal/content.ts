@@ -3,7 +3,7 @@ export const company = { number: "12397793", office: "124 City Road, London, Eng
 export const companyLine = `${operator} is registered in ${company.registered}, company number ${company.number}. Registered office: ${company.office}.`;
 export const copyright = `© 2026 ${operator}. quarter is a trading name of ${operator}.`;
 export const contactEmail = "hello@yourquarter.co.uk";
-export const designer = { name: "Roger Richman", href: "https://roger-richman.com/" } as const;
+export const designer = { credit: "Built with curiosity in London", name: "RR Studio", href: "https://roger-richman.com/" } as const;
 export const legalUpdated = {
   privacy: "10 November 2026",
   cookies: "10 November 2026",

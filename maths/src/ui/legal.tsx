@@ -28,7 +28,7 @@ export function LegalFooter() {
       <div class="footer-credit">
         <CubeMark />
         <small>{copyright}</small>
-        <small>Designed and built by <a class="legal-link" href={designer.href}>{designer.name}</a></small>
+        <small>{designer.credit} · <a class="legal-link" href={designer.href}>{designer.name}</a></small>
       </div>
       <p class="footer-company small">{companyLine}</p>
     </footer>
