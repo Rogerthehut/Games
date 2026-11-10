@@ -11,6 +11,7 @@ import { App } from "./app";
 import { Icon } from "./icons";
 import { CubeMark, Wordmark } from "./wordmark";
 import { LegalFooter } from "./legal";
+import { Landing } from "./landing";
 
 export { AccountCtx, useAccount } from "./account-context";
 export type { AccountBridge, AccountInfoCtx } from "./account-context";
@@ -176,13 +177,14 @@ export function AccountGate() {
 }
 
 function SignedOut({ auth }: { auth: AuthClient }) {
-  const [kind, setKind] = useState<"sign-up" | "sign-in">("sign-up");
+  // Visitors land on the welcome page first. A hash means Clerk is mid-flow (for example coming back from Google), so go straight to the form.
+  const [kind, setKind] = useState<"sign-up" | "sign-in" | null>(() => (location.hash.length > 1 ? "sign-in" : null));
   const box = useRef<HTMLDivElement>(null);
   const [stuck, setStuck] = useState("");
   useEffect(() => {
     setStuck("");
     const el = box.current;
-    if (!el) return;
+    if (!el || !kind) return;
     let stop: (() => void) | undefined;
     try { stop = auth.mount(kind, el); }
     catch (e) { console.error("Sign-in form failed to open", e); setStuck("The sign-in form couldn't open."); }
@@ -190,8 +192,10 @@ function SignedOut({ auth }: { auth: AuthClient }) {
     const timer = setTimeout(() => { if (!el.childElementCount) setStuck("The sign-in form hasn't loaded."); }, 6000);
     return () => { clearTimeout(timer); try { stop?.(); } catch { /* already removed */ } };
   }, [kind]);
+  if (!kind) return <Landing onStart={setKind} />;
   return (
     <Shell wide>
+      <button type="button" class="linkish account-back" onClick={() => setKind(null)}>← Back to welcome page</button>
       <h1>Welcome to <Wordmark /></h1>
       <p class="onboard-sub">Quarter is set up by a parent or guardian. Children don't need their own login: you add each learner after you sign in.</p>
       <div class="seg account-tabs" role="tablist" aria-label="Sign up or sign in">

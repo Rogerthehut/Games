@@ -13,4 +13,5 @@ tintScrollbars();
 
 const page = getInformationPage(location.search);
 if (page) applyTheme(getTheme());
+document.getElementById("app")!.textContent = ""; // drop the plain-HTML summary that search engines and no-script visitors see
 render(page === "sitemap" ? <SitemapScreen /> : page ? <LegalScreen page={page} /> : notSetUp ? <NotSetUp /> : accountsOn ? <AccountGate /> : <App />, document.getElementById("app")!);

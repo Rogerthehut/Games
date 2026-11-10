@@ -21,7 +21,10 @@ const open = async (store) => {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
   if (store) await ctx.addInitScript((s) => { try { if (!localStorage.getItem("mathpath.v1")) localStorage.setItem("mathpath.v1", s); } catch {} }, store);
   const p = await ctx.newPage(); p.setDefaultTimeout(9000); p.errs = []; p.on("pageerror", (e) => p.errs.push(e.message));
-  await p.goto(B); await p.waitForTimeout(900); return { ctx, p };
+  await p.goto(B); await p.waitForTimeout(900);
+  // signed-out visitors see the welcome page first; step through to the form
+  if (await p.getByTestId("landing-sign-up").count()) await p.getByTestId("landing-sign-up").click();
+  await p.waitForTimeout(300); return { ctx, p };
 };
 const text = async (p) => (await p.locator("body").innerText()).replace(/\s+/g, " ");
 const signIn = async (p, who) => { await p.getByTestId("fake-auth").locator("input").fill(who); await p.getByTestId("fake-auth-go").click(); await p.waitForTimeout(1200); await p.getByRole("button", { name: /^Continue/ }).click({ timeout: 1200 }).catch(() => {}); await p.waitForTimeout(400); };
@@ -103,7 +106,7 @@ await d1.close();
 await p2.close();
 let third = await open(); let p3 = third.p; await signIn(p3, "maya"); await openParents(p3);
 await p3.getByTestId("sign-out").click(); await p3.waitForTimeout(1500);
-ok("signing out returns to the sign-in screen", /Create an account/.test(await text(p3)));
+ok("signing out returns to the sign-in screen", /Create (a parent )?account/.test(await text(p3)));
 const left = await p3.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("quarter.cache.")));
 ok("and leaves no family data on the device", left.length === 0, JSON.stringify(left));
 
@@ -123,7 +126,7 @@ await openParents(p4);
 await p4.getByTestId("delete-account").click(); await p4.getByTestId("delete-confirm").fill("nope");
 ok("delete stays disabled until DELETE is typed", await p4.getByTestId("delete-everything").isDisabled());
 await p4.getByTestId("delete-confirm").fill("delete"); await p4.getByTestId("delete-everything").click(); await p4.waitForTimeout(1500);
-ok("deleting returns to sign-in", /Create an account/.test(await text(p4)));
+ok("deleting returns to sign-in", /Create (a parent )?account/.test(await text(p4)));
 ok("and the server holds nothing for that family", (await api("ben", "/api/account")).learners.length === 0);
 
 const errs = [p, p3, p4].flatMap((x) => x.errs); ok("no page errors", errs.length === 0, errs.slice(0, 2).join(" | "));
