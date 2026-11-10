@@ -89,7 +89,7 @@ export function BrowserStorageNotice() {
     <aside class="browser-storage-notice" aria-label="Cookies and browser storage">
       <div>
         <strong>Saving your progress</strong>
-        <p>quarter saves your progress and settings in this browser. quarter uses no advertising or analytics cookies. <a class="legal-link" href={legalHref("cookies")}>Cookies and browser storage</a></p>
+        <p>quarter saves progress to your account and keeps a copy in this browser. It uses only the cookies needed to sign in, and no advertising or analytics cookies. <a class="legal-link" href={legalHref("cookies")}>Cookies and browser storage</a></p>
       </div>
       <button class="btn small" type="button" onClick={() => {
         try { localStorage.setItem(NOTICE_KEY, "seen"); } catch { /* Dismiss for this view if storage is blocked. */ }

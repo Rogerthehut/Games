@@ -7,7 +7,7 @@
   "faq": {
     "path": "faqs.html",
     "title": "FAQs for parents",
-    "description": "Find out how quarter works, what it covers and how to save your child's maths progress.",
+    "description": "Find out how quarter works, what it covers and how your child's progress is saved.",
     "sections": [
       {
         "heading": "Who is quarter for?",
@@ -40,7 +40,7 @@
       },
       {
         "heading": "Where is my child's progress saved?",
-        "paragraphs": ["In this preview, progress is saved in the browser you use. To keep a copy, go to Me, then Parents’ area, then Settings. You can use that copy to load the learner's profile in another browser."],
+        "paragraphs": ["Progress is saved to your parent account, so it follows your child between phones, tablets and computers. Just sign in on any device. The account database is held in Europe (EU). To keep a copy yourself, or to delete everything, go to Me, then Parents’ area, then Settings."],
         "link": { "path": "?info=cookies", "label": "Read about cookies and browser storage" }
       }
     ]

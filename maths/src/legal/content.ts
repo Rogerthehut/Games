@@ -65,7 +65,8 @@ export function privacySections(native: boolean): Section[] {
       paragraphs: [
         "Learner information is stored in a database run for quarter, protected so that each account can only reach its own learners. A copy is also kept in your browser so quarter works quickly. It is removed from the browser when you sign out.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
-        "Our hosting provider delivers the website and keeps the database. We will list the provider and the country where data is held here before launch.",
+        "The database that holds your family’s information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
+        "Clerk and the AI provider used by the optional tutor may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
       ],
     }, {
       title: "If a grown-up turns on the online tutor",
