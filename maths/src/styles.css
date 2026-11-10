@@ -2426,7 +2426,14 @@ html:has(.quarter-search[open]),
 .l-cards .activity-detail { font-size: .95rem; }
 .l-cards .activity-art { width: min(100%, 150px); }
 .l-cards .activity-action { font-size: .92rem; }
-@media (max-width: 640px) { .l-cards .activity-card { min-height: 0; } }
+.l-cards .activity-card { aspect-ratio: 1; min-height: 0; }
+@media (max-width: 640px) {
+  .l-cards .activity-card { padding: 16px; gap: 6px; }
+  .l-cards .activity-title { font-size: 1.35rem; margin-top: 2px; }
+  .l-cards .activity-detail { font-size: .88rem; line-height: 1.35; }
+  .l-cards .activity-art { width: min(100%, 92px); }
+  .l-cards .activity-action { padding-top: 6px; font-size: .85rem; }
+}
 
 .l-trust { background: var(--l-cream); padding: clamp(48px, 8vw, 110px) 0 clamp(24px, 4vw, 48px); }
 .l-trust-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(24px, 6vw, 80px); align-items: start; }
