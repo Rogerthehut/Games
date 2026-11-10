@@ -2417,22 +2417,16 @@ html:has(.quarter-search[open]),
 .l-inside { position: relative; background: #f8e3d2; padding: clamp(40px, 7vw, 96px) 0 clamp(56px, 8vw, 104px); }
 .l-inside h2 { font-size: clamp(2.2rem, 6vw, 4.6rem); letter-spacing: -.045em; margin-bottom: clamp(24px, 4vw, 44px); }
 .l-inside h2 em { color: #d8557f; }
-.l-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-.l-card { position: relative; isolation: isolate; display: flex; flex-direction: column; padding: 22px 22px 24px; border-radius: 16px; border: 1.5px solid rgba(18,21,34,.28); overflow: hidden; min-height: 400px;
-  box-shadow: 0 5px 0 rgba(18,21,34,.2), 0 22px 30px -18px rgba(18,21,34,.55), inset 0 1.5px 0 rgba(255,255,255,.55);
-  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s; }
-/* glassy sheen across the top and a large see-through disc behind the picture, like the directory cards */
-.l-card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(155deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,0) 42%); }
-.l-card::after { content: ""; position: absolute; z-index: -1; right: -18%; bottom: -16%; width: 78%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.26); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35); }
-.l-card:hover { transform: translateY(-4px); box-shadow: 0 9px 0 rgba(18,21,34,.2), 0 30px 34px -18px rgba(18,21,34,.55), inset 0 1.5px 0 rgba(255,255,255,.55); }
-.l-card:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(18,21,34,.2), 0 10px 16px -10px rgba(18,21,34,.5), inset 0 1.5px 0 rgba(255,255,255,.55); }
-.l-card h3 { font-size: 1.7rem; margin: 16px 0 10px; }
-.l-card p { margin: 0; line-height: 1.45; max-width: 24em; }
-.l-chip { align-self: flex-start; padding: 6px 11px; border-radius: 8px; background: rgba(255,255,255,.7); border: 1px solid rgba(18,21,34,.14); font: 700 .72rem/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .1em; }
-.l-art { margin-top: auto; padding-top: 18px; align-self: flex-end; display: grid; place-items: center; width: 112px; height: 112px; color: var(--l-ink); }
-.l-art svg { stroke-width: 1.6; filter: drop-shadow(3px 5px 0 rgba(18,21,34,.18)); }
-.l-mint { background: var(--l-mint); } .l-blue { background: var(--l-blue); } .l-pink { background: #f8a1bd; } .l-amber { background: var(--l-amber); }
-@media (max-width: 640px) { .l-card { min-height: 0; } .l-art { width: 88px; height: 88px; } .l-art svg { width: 64px; height: 64px; } }
+.l-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.l-cards li { display: flex; }
+/* the same tiles as the app's Today screen */
+.l-cards .activity-card { width: 100%; aspect-ratio: auto; min-height: 420px; align-self: stretch; padding: 22px; gap: 10px; font-family: inherit; }
+.l-cards .activity-label { font-size: .68rem; }
+.l-cards .activity-title { font-size: clamp(1.5rem, 2.2vw, 1.9rem); }
+.l-cards .activity-detail { font-size: .95rem; }
+.l-cards .activity-art { width: min(100%, 150px); }
+.l-cards .activity-action { font-size: .92rem; }
+@media (max-width: 640px) { .l-cards .activity-card { min-height: 0; } }
 
 .l-trust { background: var(--l-cream); padding: clamp(48px, 8vw, 110px) 0 clamp(24px, 4vw, 48px); }
 .l-trust-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(24px, 6vw, 80px); align-items: start; }

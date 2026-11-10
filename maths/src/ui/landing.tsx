@@ -1,4 +1,5 @@
 import { STRANDS } from "../curriculum";
+import { ActivityArt } from "./home";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
 import { CubeMark, Wordmark } from "./wordmark";
@@ -76,10 +77,34 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         <div class="l-wrap">
           <h2 id="what">What’s <em>inside</em></h2>
           <ul class="l-cards">
-            <li class="l-card l-mint"><span class="l-chip">01</span><h3>The whole curriculum</h3><p>Primary and secondary maths, from place value in Year 3 to calculus in Year 13, each skill explained step by step.</p><div class="l-art"><Icon name="route" size={84} /></div></li>
-            <li class="l-card l-blue"><span class="l-chip">02</span><h3>11+ practice</h3><p>Maths and reasoning papers, including verbal and non-verbal reasoning, plus a guide to finding your local 11+ test.</p><div class="l-art"><Icon name="target" size={84} /></div></li>
-            <li class="l-card l-pink"><span class="l-chip">03</span><h3>Show your working</h3><p>Pen-and-paper style working tools, and answer hints that tell children exactly how to write their answer.</p><div class="l-art"><Icon name="pencil" size={84} /></div></li>
-            <li class="l-card l-amber"><span class="l-chip">04</span><h3>An optional AI tutor</h3><p>Off until you turn it on. It guides and explains without just giving the answer, and you can read every conversation.</p><div class="l-art"><Icon name="chat" size={84} /></div></li>
+            <li><button type="button" class="activity-card activity-skills" onClick={() => onStart("sign-up")}>
+              <span class="activity-label">01 / Curriculum</span>
+              <span class="activity-title">The whole curriculum</span>
+              <span class="activity-detail">Primary and secondary maths, from place value in Year 3 to calculus in Year 13, each skill explained step by step.</span>
+              <ActivityArt kind="skills" />
+              <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
+            </button></li>
+            <li><button type="button" class="activity-card activity-checkup" onClick={() => onStart("sign-up")}>
+              <span class="activity-label">02 / 11+</span>
+              <span class="activity-title">11+ practice</span>
+              <span class="activity-detail">Maths and reasoning papers, including verbal and non-verbal reasoning, plus a guide to finding your local 11+ test.</span>
+              <ActivityArt kind="checkup" />
+              <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
+            </button></li>
+            <li><button type="button" class="activity-card activity-practice" onClick={() => onStart("sign-up")}>
+              <span class="activity-label">03 / Working</span>
+              <span class="activity-title">Show your working</span>
+              <span class="activity-detail">Pen-and-paper style working tools, and answer hints that tell children exactly how to write their answer.</span>
+              <ActivityArt kind="practice" />
+              <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
+            </button></li>
+            <li><button type="button" class="activity-card activity-plan" onClick={() => onStart("sign-up")}>
+              <span class="activity-label">04 / Tutor</span>
+              <span class="activity-title">An optional AI tutor</span>
+              <span class="activity-detail">Off until you turn it on. It guides and explains without just giving the answer, and you can read every conversation.</span>
+              <ActivityArt kind="tutor" />
+              <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
+            </button></li>
           </ul>
         </div>
       </section>
