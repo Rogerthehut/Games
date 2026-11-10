@@ -74,7 +74,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
       <section class="l-inside" aria-labelledby="what">
         <Torn color="#121522" seed={7} />
         <div class="l-wrap">
-          <h2 id="what">What is <em>inside</em></h2>
+          <h2 id="what">What’s <em>inside</em></h2>
           <ul class="l-cards">
             <li class="l-card l-mint"><span class="l-chip">01</span><h3>The whole curriculum</h3><p>Primary and secondary maths, from place value in Year 3 to calculus in Year 13, each skill explained step by step.</p><div class="l-art"><Icon name="route" size={84} /></div></li>
             <li class="l-card l-blue"><span class="l-chip">02</span><h3>11+ practice</h3><p>Maths and reasoning papers, including verbal and non-verbal reasoning, plus a guide to finding your local 11+ test.</p><div class="l-art"><Icon name="target" size={84} /></div></li>
