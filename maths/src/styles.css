@@ -2472,3 +2472,4 @@ html:has(.quarter-search[open]),
   .l-inside-grid { grid-template-columns: 1fr; }
   .l-inside-grid h2 { position: static; margin-bottom: 8px; }
 }
+.agree-box { margin: 8px 0 12px; text-align: start; } .agree-box p { margin: 6px 0 0; }

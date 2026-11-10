@@ -47,9 +47,9 @@ export function TutorPanel({ ctx, onClose }: { ctx: TutorContext; onClose: () =>
   };
 
   return (
-    <section class="tutor" aria-label="Maths tutor">
+    <section class="tutor" aria-label="AI maths tutor">
       <div class="tutor-head">
-        <strong>Tutor</strong>
+        <strong>AI tutor</strong>
         <button class="linkish" onClick={onClose}>Close</button>
       </div>
       <div class="tutor-log" role="log" aria-live="polite">

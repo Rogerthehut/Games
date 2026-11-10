@@ -68,14 +68,14 @@ export function privacySections(native: boolean): Section[] {
         "Stripe provides payments and billing. It handles your card details, billing address and invoices, and may process them outside the UK. Payment and invoice records are kept for as long as the law requires, even after an account is deleted.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
         "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
-        "Clerk and the AI provider used by the optional tutor may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
+        "Clerk and the AI provider used by the optional AI tutor may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
       ],
     }, {
-      title: "If a grown-up turns on the online tutor",
+      title: "If a grown-up turns on the AI tutor",
       paragraphs: [
-        "The tutor is off by default and only appears when a grown-up turns it on in the Parents’ area. When a message is sent, the tutor service receives the message, recent chat, the school year and the maths question and answers tried. It uses a random browser ID and an IP address to limit how often it is used. It does not receive the learner’s nickname or account details.",
+        "The AI tutor is off by default and only appears when a grown-up turns it on in the Parents’ area. When a message is sent, the tutor service receives the message, recent chat, the school year and the maths question and answers tried. It uses a random browser ID and an IP address to limit how often it is used. It does not receive the learner’s nickname or account details.",
         "The service checks messages, then may pass the chat and maths question to an AI provider to write a reply. We ask providers not to keep or train on these messages. Keep names, addresses and other personal details out of messages. The tutor can make mistakes.",
-        "Tutor conversations are kept only in the browser on the device used, for a grown-up to read or clear. They are not saved to the account, and the tutor service is designed to record counts and safety flags, not message text. If a message suggests a child may be upset or unsafe, the tutor replies kindly, points to a trusted adult and Childline, and shows a note in the Parents’ area.",
+        "AI tutor conversations are kept only in the browser on the device used, for a grown-up to read or clear. They are not saved to the account, and the tutor service is designed to record counts and safety flags, not message text. If a message suggests a child may be upset or unsafe, the tutor replies kindly, points to a trusted adult and Childline, and shows a note in the Parents’ area.",
       ],
     }]),
     {
@@ -95,7 +95,7 @@ export function privacySections(native: boolean): Section[] {
     {
       title: "Your choices and rights",
       paragraphs: [
-        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, remove a learner, turn the tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
+        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, remove a learner, turn the AI tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
         "Where data protection law applies, you may have rights to ask for a copy, correct or delete information, restrict its use or move it to another service. You can also object to some uses of your information. In the UK you can complain to the Information Commissioner’s Office.",
       ],
     },
@@ -115,7 +115,7 @@ export const cookiesSections: Section[] = [
     title: "What quarter saves in your browser",
     paragraphs: [
       "A copy of your learners’ profiles and progress, so quarter loads quickly and works if the connection drops for a moment. It is cleared when you sign out. Your colour choice and the “Got it” choice on the storage message are also remembered.",
-      "If a grown-up turns on the optional tutor, conversations are kept in the browser on that device, and a random browser ID is saved and sent to the tutor service to limit how often it is used.",
+      "If a grown-up turns on the optional AI tutor, conversations are kept in the browser on that device, and a random browser ID is saved and sent to the tutor service to limit how often it is used.",
       "Text-to-speech uses your device’s own voices.",
       "When you pay, you are sent to Stripe’s secure payment page, which sets its own cookies on its own address to process the payment and prevent fraud. quarter does not receive your card details.",
     ],
@@ -155,7 +155,7 @@ export const termsSections: Section[] = [
   },
   {
     title: "Look after yourself and others",
-    paragraphs: ["Use quarter for learning. Keep other people’s information private and avoid sharing personal details in the online tutor. If the tutor is available, it can make mistakes. Ask a grown-up or teacher if an explanation seems wrong."],
+    paragraphs: ["Use quarter for learning. Keep other people’s information private and avoid sharing personal details in the AI tutor. If the AI tutor is available, it can make mistakes. Ask a grown-up or teacher if an explanation seems wrong."],
   },
   {
     title: "Saving your work",

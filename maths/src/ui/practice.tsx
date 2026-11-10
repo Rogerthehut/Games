@@ -328,13 +328,13 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
           left={<>
             {!showHint && <button class="btn ghost" onClick={() => { setShowHint(true); setHinted(true); }} data-testid="hint"><Icon name="bulb" size={20} /> Hint</button>}
             {(showHint || attempts > 0) && <button class="btn ghost" onClick={showMe} data-testid="show-me"><Icon name="eye" size={20} /> Show the steps</button>}
-            {tutorOn && !showTutor && <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open"><Icon name="chat" size={20} /> Ask</button>}
+            {tutorOn && !showTutor && <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> Ask</button>}
           </>}
         />
       ) : (
         <QBar
           help
-          left={tutorOn && !showTutor ? <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open"><Icon name="chat" size={20} /> Ask</button> : undefined}
+          left={tutorOn && !showTutor ? <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> Ask</button> : undefined}
           right={<button class="btn primary" onClick={next} data-testid="next">{idx + 1 >= total ? "Finish" : "Next"} <Icon name="arrow" size={20} /></button>}
         />
       )}

@@ -23,7 +23,7 @@ const open = async (store) => {
   const p = await ctx.newPage(); p.setDefaultTimeout(9000); p.errs = []; p.on("pageerror", (e) => p.errs.push(e.message));
   await p.goto(B); await p.waitForTimeout(900);
   // signed-out visitors see the welcome page first; step through to the form
-  if (await p.getByTestId("landing-sign-up").count()) await p.getByTestId("landing-sign-up").click();
+  if (await p.getByTestId("landing-sign-in").count()) await p.getByTestId("landing-sign-in").click();
   await p.waitForTimeout(300); return { ctx, p };
 };
 const text = async (p) => (await p.locator("body").innerText()).replace(/\s+/g, " ");
@@ -128,6 +128,19 @@ ok("delete stays disabled until DELETE is typed", await p4.getByTestId("delete-e
 await p4.getByTestId("delete-confirm").fill("delete"); await p4.getByTestId("delete-everything").click(); await p4.waitForTimeout(1500);
 ok("deleting returns to sign-in", /Create (a parent )?account/.test(await text(p4)));
 ok("and the server holds nothing for that family", (await api("ben", "/api/account")).learners.length === 0);
+
+// 10. creating an account needs the terms ticked first, and the tick is then recorded without a second screen
+{
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }); const q = await ctx.newPage(); q.setDefaultTimeout(9000); q.errs = []; q.on("pageerror", (e) => q.errs.push(e.message));
+  await q.goto(B); await q.waitForTimeout(900); await q.getByTestId("landing-sign-up").click(); await q.waitForTimeout(300);
+  ok("the sign-up form stays closed until the terms are ticked", (await q.getByTestId("fake-auth").count()) === 0 && (await q.getByTestId("agree-terms").count()) === 1);
+  await q.getByTestId("agree-terms").check(); await q.waitForTimeout(300);
+  ok("ticking opens the form", (await q.getByTestId("fake-auth").count()) === 1);
+  await signIn(q, "zoe");
+  ok("a new parent who ticked goes straight in, with no second consent screen", !/Before we start/.test(await text(q)) && (await q.locator("#name").count()) === 1);
+  ok("and the agreement is on the account", (await api("zoe", "/api/account")).consented === true);
+  p3.errs.push(...q.errs);
+}
 
 const errs = [p, p3, p4].flatMap((x) => x.errs); ok("no page errors", errs.length === 0, errs.slice(0, 2).join(" | "));
 console.log(`\n${results.filter((r) => r[0] === "PASS").length} passed, ${results.filter((r) => r[0] === "FAIL").length} failed`);

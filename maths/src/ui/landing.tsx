@@ -99,7 +99,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
             <li><button type="button" class="activity-card activity-plan" onClick={() => onStart("sign-up")}>
-              <span class="activity-label">04 / Tutor</span>
+              <span class="activity-label">04 / AI tutor</span>
               <span class="activity-title">An optional AI tutor</span>
               <span class="activity-detail">Off until you turn it on. It guides and explains without just giving the answer, and you can read every conversation.</span>
               <ActivityArt kind="tutor" />
@@ -117,7 +117,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
             <ul class="l-checks">
               <li><Icon name="check" size={20} />No adverts and no analytics cookies.</li>
               <li><Icon name="check" size={20} />We keep nicknames, school years and progress. Not real names, photos or birthdays.</li>
-              <li><Icon name="check" size={20} />Tutor chats stay on your device.</li>
+              <li><Icon name="check" size={20} />AI tutor chats stay on your device.</li>
               <li><Icon name="check" size={20} />Download everything we hold, or delete your account, whenever you like.</li>
             </ul>
             <p class="l-links"><a class="legal-link" href="./?info=privacy">Read the privacy notice</a> · <a class="legal-link" href={parentContent.hub.path}>Parent guides</a> · <a class="legal-link" href={parentContent.faq.path}>FAQs</a></p>

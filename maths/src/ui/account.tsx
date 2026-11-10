@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { AccountApi, AccountError, NO_BILLING, type BillingInfo, type Plan } from "../account/api";
 import { createAuth, type AuthClient } from "../account/auth";
+import { forgetAgreement, hasAgreed, rememberAgreement } from "../account/agree";
 import { clearCaches, clearLegacy, declineLegacy, legacyDeclined, loadActive, loadCache, loadLegacy, saveActive, saveCache } from "../account/cache";
 import { Sync, forServer, type RemoteLearner, type SyncStatus } from "../account/sync";
 import type { Profile } from "../engine/progress";
@@ -100,6 +101,11 @@ export function AccountGate() {
       setPhase({ name: "loading" });
       try {
         let info = await api.current!.getAccount();
+        if (!info.consented && hasAgreed(TERMS_VERSION)) {
+          // they ticked the box on the sign-up page: record it on the account instead of asking again
+          try { await api.current!.consent(TERMS_VERSION); info = await api.current!.getAccount(); } catch { /* fall through to the consent screen */ }
+        }
+        if (info.consented) forgetAgreement();
         if (!info.consented) { setPhase({ name: "consent" }); return; }
         billing.current = info.billing ?? NO_BILLING;
         const back = new URLSearchParams(location.search).get("checkout");
@@ -254,17 +260,19 @@ function SignedOut({ auth }: { auth: AuthClient }) {
   const [kind, setKind] = useState<"sign-up" | "sign-in" | null>(() => (location.hash.length > 1 ? "sign-in" : null));
   const box = useRef<HTMLDivElement>(null);
   const [stuck, setStuck] = useState("");
+  const [agreed, setAgreed] = useState(() => hasAgreed(TERMS_VERSION));
+  const formOpen = kind === "sign-in" || (kind === "sign-up" && agreed);
   useEffect(() => {
     setStuck("");
     const el = box.current;
-    if (!el || !kind) return;
+    if (!el || !kind || !formOpen) return;
     let stop: (() => void) | undefined;
     try { stop = auth.mount(kind, el); }
     catch (e) { console.error("Sign-in form failed to open", e); setStuck(`The sign-in form couldn't open (${e instanceof Error ? e.message.slice(0, 140) : "unknown error"}).`); }
     // If Clerk's form never appears (blocked script, wrong allowed domain, an embedded preview), say so instead of showing an empty card.
     const timer = setTimeout(() => { if (!el.childElementCount) setStuck("The sign-in form hasn't loaded."); }, 6000);
     return () => { clearTimeout(timer); try { stop?.(); } catch { /* already removed */ } };
-  }, [kind]);
+  }, [kind, formOpen]);
   if (!kind) return <Landing onStart={setKind} />;
   return (
     <Shell wide>
@@ -275,8 +283,21 @@ function SignedOut({ auth }: { auth: AuthClient }) {
         <button type="button" role="tab" aria-selected={kind === "sign-up"} class={kind === "sign-up" ? "on" : ""} onClick={() => setKind("sign-up")} data-testid="tab-sign-up">Create an account</button>
         <button type="button" role="tab" aria-selected={kind === "sign-in"} class={kind === "sign-in" ? "on" : ""} onClick={() => setKind("sign-in")} data-testid="tab-sign-in">Sign in</button>
       </div>
+      {kind === "sign-up" && (
+        <div class="agree-box">
+          <label class="account-check">
+            <input type="checkbox" checked={agreed} data-testid="agree-terms" onChange={(e) => {
+              const on = (e.target as HTMLInputElement).checked;
+              setAgreed(on);
+              if (on) rememberAgreement(TERMS_VERSION); else forgetAgreement();
+            }} />
+            <span>I agree to the <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a> and have read the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a>.</span>
+          </label>
+          {!agreed && <p class="small muted">Please tick the box to create your account.</p>}
+        </div>
+      )}
       <div class="clerk-mount" ref={box} data-testid="auth-box" />
-      {!stuck && <p class="small muted account-hint" data-testid="check-junk">After you continue, we email you a code or link to confirm your address. If it doesn't arrive within a minute or two, check your junk or spam folder.</p>}
+      {formOpen && !stuck && <p class="small muted account-hint" data-testid="check-junk">After you continue, we email you a code or link to confirm your address. If it doesn't arrive within a minute or two, check your junk or spam folder.</p>}
       {stuck && <p class="alert-note" role="alert" data-testid="auth-stuck">{stuck} Try opening this page in its own browser tab. If it still doesn't load, the site owner should check that this address is an allowed domain in the Clerk dashboard.</p>}
       <Legal />
     </Shell>

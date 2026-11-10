@@ -52,7 +52,7 @@ export function Parent() {
 
       {worries.length > 0 && (
         <section class="card alert" role="alert" aria-labelledby="wb">
-          <h2 id="wb">Something in the tutor chat needs your attention</h2>
+          <h2 id="wb">Something in the AI tutor chat needs your attention</h2>
           <p>{profile.name} wrote something that suggested they may be upset or unsafe. The tutor replied kindly, told them to speak to a trusted adult, and pointed to Childline (0800 1111, free). A gentle chat is worth having.</p>
           <ul class="finding-list">{worries.map((e) => <li key={e.at}><span class="small muted">{new Date(e.at).toLocaleString("en-GB")}</span><p>“{e.child}”</p></li>)}</ul>
           <button class="btn" onClick={() => update((p) => ({ ...p, tutorLog: (p.tutorLog ?? []).map((e) => (e.flag === "wellbeing" ? { ...e, seen: true } : e)) }))}>I've seen this</button>
@@ -60,7 +60,7 @@ export function Parent() {
       )}
 
       <div class="seg parts" role="tablist" aria-label="Sections">
-        {([["progress", "Progress"], ["tutor", "Tutor"], ["settings", "Settings"]] as [Part, string][]).map(([id, label]) => (
+        {([["progress", "Progress"], ["tutor", "AI tutor"], ["settings", "Settings"]] as [Part, string][]).map(([id, label]) => (
           <button key={id} role="tab" aria-selected={part === id} class={part === id ? "on" : ""} onClick={() => setPart(id)} data-testid={`part-${id}`}>{label}</button>
         ))}
       </div>
