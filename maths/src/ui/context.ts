@@ -18,6 +18,7 @@ export type Route =
   | { name: "pathway-test"; stage: Stage }
   | { name: "certificate"; stage: Stage }
   | { name: "report" }
+  | { name: "progress-report" }
   | { name: "onboard"; first?: boolean }
   | { name: "practice"; plan: Pick[]; resume?: boolean };
 

@@ -10,6 +10,7 @@ import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
 import { STATUS_LABEL_PARENT } from "./labels";
 import { Maths } from "./maths";
+import { downloadProgressCsv } from "./progress-report";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
 const when = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -67,6 +68,15 @@ export function Parent() {
 
       {part === "progress" && (
         <>
+          <section class="card" aria-labelledby="pr-card">
+            <h2 id="pr-card">Progress report</h2>
+            <p>A clear, printable summary of {profile.name}'s progress to share with a tutor or teacher: level, topics, practice and what to talk about.</p>
+            <div class="actions">
+              <button class="btn primary" onClick={() => go({ name: "progress-report" })} data-testid="open-progress-report">Open the report</button>
+              <button class="btn" onClick={() => downloadProgressCsv(profile)} data-testid="download-progress-csv">Spreadsheet (CSV)</button>
+            </div>
+          </section>
+
           <section class="card">
             <h2>Check-up</h2>
             {!last ? <p class="muted">No check-up yet. It finds the starting point and any gaps.</p> : (

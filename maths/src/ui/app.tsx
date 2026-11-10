@@ -15,6 +15,7 @@ import { Parent } from "./parent";
 import { Checkup } from "./checkup";
 import { Report } from "./report";
 import { Certificate } from "./certificate";
+import { ProgressReport } from "./progress-report";
 import { Mock } from "./mock";
 import { PlanView } from "./planview";
 import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
@@ -141,6 +142,8 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     return <Ctx.Provider value={ctx}><Mock key={route.stage} pathway={route.stage} /></Ctx.Provider>;
   if (route.name === "certificate")
     return <Ctx.Provider value={ctx}><Certificate stage={route.stage} /></Ctx.Provider>;
+  if (route.name === "progress-report")
+    return <Ctx.Provider value={ctx}>{parentUnlocked() ? <ProgressReport /> : <ParentGate onPass={() => setRoute({ name: "progress-report" })} onCancel={() => setRoute({ name: "me" })} />}</Ctx.Provider>;
   if (route.name === "checkup")
     return <Ctx.Provider value={ctx}><Checkup /></Ctx.Provider>;
   if (route.name === "practice")
