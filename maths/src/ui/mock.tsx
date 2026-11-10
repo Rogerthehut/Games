@@ -138,7 +138,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
             <div class="pip-slot"><Pip pose="think" size={110} /></div>
             <h1>{pathwayTestName(pathway)}</h1>
             <p class="splash-sub">{ready
-              ? `This test covers every topic in your Quarter pathway. You can save it and come back later. You need to answer at least ${pathwayPassMark(total)} of the ${total} questions correctly to earn your Quarter certificate.`
+              ? `This test covers every topic in your quarter pathway. You can save it and come back later. You need to answer at least ${pathwayPassMark(total)} of the ${total} questions correctly to earn your quarter certificate.`
               : "Practise every topic in this pathway to unlock the final test."}</p>
             {ready && <button class="btn primary big" onClick={start} data-testid="pathway-start">{saved ? `Continue from question ${idx + 1}` : "Start the test"} <Icon name="arrow" size={20} /></button>}
             <button class="linkish" onClick={() => leave({ name: "map", stage: pathway })}>Go back</button>
@@ -187,7 +187,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
           <p class="big-level">{score} / {taken.length}</p>
           {pathway ? (
             <p class="lede">{certificate
-              ? "You’ve completed this Quarter pathway. Take a look at your certificate."
+              ? "You’ve completed this quarter pathway. Take a look at your certificate."
               : `You need at least ${pathwayPassMark(total)} correct answers to earn your certificate. Look through the questions below, then try again when you’re ready.`}</p>
           ) : <>
             <p class="lede">{rec && rec.seconds >= rec.limitSeconds ? "Time’s up. Unanswered questions were left blank." : `Finished in ${clock(rec?.seconds ?? elapsed)} of ${clock(rec?.limitSeconds ?? format.seconds)}.`}{prev && <> Last paper: {prev.score} / {prev.total}.</>}</p>

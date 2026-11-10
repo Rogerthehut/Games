@@ -33,13 +33,13 @@ export function Certificate({ stage }: { stage: Stage }) {
           <article class="certificate-paper">
             <div class="certificate-brand"><CubeMark /><Wordmark /></div>
             <div class="certificate-avatar"><Avatar choice={profile.avatar} size={72} /><Icon name="star" size={32} /></div>
-            <p class="eyebrow">Quarter maths pathway</p>
+            <p class="eyebrow">quarter maths pathway</p>
             <h1>Certificate of achievement</h1>
             <p class="muted">Presented to</p>
             <p class="certificate-name">{profile.name}</p>
-            <p>For completing Quarter’s <strong>{STAGE_LABEL[stage]}</strong> pathway and passing its test.</p>
+            <p>For completing quarter’s <strong>{STAGE_LABEL[stage]}</strong> pathway and passing its test.</p>
             <p class="small muted">{new Date(award.at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} · {award.score} out of {award.total}</p>
-            <p class="small muted">A Quarter learning milestone.</p>
+            <p class="small muted">A quarter learning milestone.</p>
           </article>
           <div class="actions certificate-actions">
             <button class="btn primary" onClick={() => window.print()}>Print or save as PDF</button>

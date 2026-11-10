@@ -8,7 +8,7 @@ export function CubeMark() {
 
 export function Wordmark() {
   return (
-    <span class="wordmark" role="img" aria-label="Quarter">
+    <span class="wordmark" role="img" aria-label="quarter">
       <span aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false">
         <path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z" />
       </svg>ter</span>

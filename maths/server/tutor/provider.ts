@@ -83,7 +83,7 @@ export function openRouterConfig(env: NodeJS.ProcessEnv = process.env): OpenRout
     model: env.OPENROUTER_MODEL || "openrouter/free",
     baseUrl: (env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/$/, ""),
     referer: env.OPENROUTER_REFERER || "https://quarter.example",
-    title: "Quarter Maths tutor",
+    title: "quarter Maths tutor",
     maxTokens: 1500,
     timeoutMs: 60_000,
     dataCollection: (env.OPENROUTER_DATA_COLLECTION ?? "deny").trim().toLowerCase() === "allow" ? "allow" : "deny",

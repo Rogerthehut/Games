@@ -8,14 +8,14 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
   return (
     <main class="landing" id="main">
       <header class="landing-bar">
-        <a class="legal-home" href="./" aria-label="Quarter home"><CubeMark /><Wordmark /></a>
+        <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
         <button type="button" class="btn" onClick={() => onStart("sign-in")} data-testid="landing-sign-in">Sign in</button>
       </header>
 
       <section class="landing-hero" aria-labelledby="hero">
         <p class="landing-kicker">Maths for Years 3 to 13</p>
         <h1 id="hero">Maths practice that starts where your child is</h1>
-        <p class="landing-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. Quarter finds the right starting point, explains mistakes clearly, and shows you what is going well.</p>
+        <p class="landing-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. quarter finds the right starting point, explains mistakes clearly, and shows you what is going well.</p>
         <div class="landing-cta">
           <button type="button" class="btn primary big" onClick={() => onStart("sign-up")} data-testid="landing-sign-up">Create a parent account <Icon name="arrow" size={20} /></button>
           <button type="button" class="btn big" onClick={() => onStart("sign-in")}>Sign in</button>

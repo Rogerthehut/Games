@@ -78,7 +78,7 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${escapeHtml(page.title)} | Quarter</title>
+<title>${escapeHtml(page.title)} | quarter</title>
 <meta name="description" content="${escapeHtml(page.description)}">
 <link rel="canonical" href="https://yourquarter.co.uk/${page.path}">
 <link rel="icon" href="./icon.svg?v=quarter" type="image/svg+xml">
@@ -86,7 +86,7 @@ ${styles}
 </head>
 <body>
 <main class="page legal-page parent-resource">
-<a class="legal-home" href="./" aria-label="Back to Quarter"><img class="cube-mark" src="./icon.svg" alt=""><span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup class="wordmark-tm">™</sup></span></a>
+<a class="legal-home" href="./" aria-label="Back to quarter"><img class="cube-mark" src="./icon.svg" alt=""><span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup class="wordmark-tm">™</sup></span></a>
 ${page === hub ? "" : `<p>${link({ path: hub.path, label: "All parent guides" })}</p>`}
 <h1>${escapeHtml(page.title)}</h1>
 <p class="muted">${escapeHtml(page.description)}</p>
@@ -115,7 +115,7 @@ export function parentPages(): Plugin {
       const directory = resolve(options.dir ?? "dist");
       const index = readFileSync(resolve(directory, "index.html"), "utf8");
       const styles = index.match(/<link\b[^>]*\brel="stylesheet"[^>]*>/g)?.join("\n");
-      if (!styles) throw new Error("Quarter's built stylesheet is missing.");
+      if (!styles) throw new Error("quarter's built stylesheet is missing.");
       for (const page of pages) {
         writeFileSync(resolve(directory, page.path), documentHtml(page, styles));
       }

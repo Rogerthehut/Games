@@ -1,4 +1,4 @@
-Quarter web app
+quarter web app
 Third-party licence notices
 
 

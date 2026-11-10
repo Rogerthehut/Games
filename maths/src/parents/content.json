@@ -7,23 +7,23 @@
   "faq": {
     "path": "faqs.html",
     "title": "FAQs for parents",
-    "description": "Find out how Quarter works, what it covers and how to save your child's maths progress.",
+    "description": "Find out how quarter works, what it covers and how to save your child's maths progress.",
     "sections": [
       {
-        "heading": "Who is Quarter for?",
-        "paragraphs": ["Quarter is a maths practice app for school-age learners. The primary pathway starts at Year 3, and older learners can explore selected topics through secondary school and A-level."]
+        "heading": "Who is quarter for?",
+        "paragraphs": ["quarter is a maths practice app for school-age learners. The primary pathway starts at Year 3, and older learners can explore selected topics through secondary school and A-level."]
       },
       {
-        "heading": "Does Quarter follow the school curriculum?",
-        "paragraphs": ["Quarter covers selected topics from England's maths curriculum. In Skills, you can look up a topic by school year or by name. If a teacher has suggested something to practise, start with that skill."]
+        "heading": "Does quarter follow the school curriculum?",
+        "paragraphs": ["quarter covers selected topics from England's maths curriculum. In Skills, you can look up a topic by school year or by name. If a teacher has suggested something to practise, start with that skill."]
       },
       {
         "heading": "Where should my child start?",
-        "paragraphs": ["If they already know what they want to practise, open Skills and pick a topic. If they are unsure, try the check-up. Quarter uses the results to suggest what to work on next."]
+        "paragraphs": ["If they already know what they want to practise, open Skills and pick a topic. If they are unsure, try the check-up. quarter uses the results to suggest what to work on next."]
       },
       {
-        "heading": "Can Quarter help with the 11+?",
-        "paragraphs": ["Quarter offers original 11+ maths-style practice. Check the admissions guidance for your chosen school or area for the subjects, timings and format your child will face."],
+        "heading": "Can quarter help with the 11+?",
+        "paragraphs": ["quarter offers original 11+ maths-style practice. Check the admissions guidance for your chosen school or area for the subjects, timings and format your child will face."],
         "link": { "path": "11-plus-maths.html", "label": "Read the 11+ maths guide" }
       },
       {
@@ -54,7 +54,7 @@
       "sections": [
         {
           "heading": "Find out what your child will sit",
-          "paragraphs": ["Start with the admissions pages for your chosen school or local test. Check which subjects are tested, how answers are recorded and whether there are official familiarisation materials. Quarter focuses on maths practice."]
+          "paragraphs": ["Start with the admissions pages for your chosen school or local test. Check which subjects are tested, how answers are recorded and whether there are official familiarisation materials. quarter focuses on maths practice."]
         },
         {
           "heading": "Choose one topic to work on",
@@ -83,7 +83,7 @@
         },
         {
           "heading": "Use the school year as a starting point",
-          "paragraphs": ["If your child finds a topic difficult, try a simpler example and see where they get stuck. They might be able to work out a quarter of 12 with objects but need time to recognise the same idea when it is written as a fraction. In Quarter, use Skills to find a topic and the year it is first taught."]
+          "paragraphs": ["If your child finds a topic difficult, try a simpler example and see where they get stuck. They might be able to work out a quarter of 12 with objects but need time to recognise the same idea when it is written as a fraction. In quarter, use Skills to find a topic and the year it is first taught."]
         }
       ]
     },

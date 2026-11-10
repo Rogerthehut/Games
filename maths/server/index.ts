@@ -128,4 +128,4 @@ createServer(async (req, res) => {
     }
   }
   send(res, 404, { error: "Not found." });
-}).listen(PORT, () => console.log(WHICH === "openrouter" && !FAKE ? `Quarter tutor service on :${PORT} (OpenRouter, model ${openRouterConfig().model}, data collection ${openRouterConfig().dataCollection})` : `Quarter tutor service on :${PORT} (model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort})`));
+}).listen(PORT, () => console.log(WHICH === "openrouter" && !FAKE ? `quarter tutor service on :${PORT} (OpenRouter, model ${openRouterConfig().model}, data collection ${openRouterConfig().dataCollection})` : `quarter tutor service on :${PORT} (model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort})`));

@@ -26,7 +26,7 @@ export function SearchDialog({ dialog }: { dialog: { current: HTMLDialogElement 
       onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       <div class="search-panel" ref={panel}>
         <header>
-          <h2 id="quarter-search-title">Search Quarter</h2>
+          <h2 id="quarter-search-title">Search quarter</h2>
           <button type="button" class="btn small" aria-label="Close search" onClick={() => dialog.current?.close()}><Icon name="x" size={20} /></button>
         </header>
         <form role="search" onSubmit={(event) => { event.preventDefault(); if (results[0]) openResult(results[0]); }}>

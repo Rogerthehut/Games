@@ -35,7 +35,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
     return () => window.removeEventListener("keydown", shortcut);
   }, []);
   const searchButton = (mobile: boolean) => (
-    <button type="button" class={mobile ? "mobile-search btn small" : "nav-item"} aria-label="Search Quarter"
+    <button type="button" class={mobile ? "mobile-search btn small" : "nav-item"} aria-label="Search quarter"
       aria-haspopup="dialog" aria-keyshortcuts="Control+k Meta+k" onClick={openSearch}>
       <Icon name="search" size={22} />{!mobile && <span>Search</span>}
     </button>
@@ -60,7 +60,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
     }
   };
   const brand = () => (
-    <button type="button" class="brand" aria-label="Quarter, go to Today"
+    <button type="button" class="brand" aria-label="quarter, go to Today"
       onPointerEnter={(event) => { if (event.pointerType === "mouse") spinLogo(event.currentTarget); }}
       onClick={(event) => openToday(event.currentTarget)}>
       <CubeMark /><Wordmark />

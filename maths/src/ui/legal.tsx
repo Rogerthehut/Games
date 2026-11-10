@@ -37,9 +37,9 @@ export function LegalFooter() {
 export function SitemapScreen() {
   return (
     <main class="page legal-page">
-      <a class="legal-home" href="./" aria-label="Back to Quarter"><CubeMark /><Wordmark /></a>
+      <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
       <h1>Sitemap</h1>
-      <p class="muted">Find your way around Quarter.</p>
+      <p class="muted">Find your way around quarter.</p>
       <nav aria-label="Sitemap">
         <section aria-labelledby="sitemap-app">
           <h2 id="sitemap-app">Learning</h2>
@@ -88,7 +88,7 @@ export function BrowserStorageNotice() {
     <aside class="browser-storage-notice" aria-label="Cookies and browser storage">
       <div>
         <strong>Saving your progress</strong>
-        <p>Quarter saves your progress and settings in this browser. Quarter uses no advertising or analytics cookies. <a class="legal-link" href={legalHref("cookies")}>Cookies and browser storage</a></p>
+        <p>quarter saves your progress and settings in this browser. quarter uses no advertising or analytics cookies. <a class="legal-link" href={legalHref("cookies")}>Cookies and browser storage</a></p>
       </div>
       <button class="btn small" type="button" onClick={() => {
         try { localStorage.setItem(NOTICE_KEY, "seen"); } catch { /* Dismiss for this view if storage is blocked. */ }
@@ -104,10 +104,10 @@ export function LegalScreen({ page }: { page: LegalPage }) {
   }[page];
   return (
     <main class="page legal-page">
-      <a class="legal-home" href="./" aria-label="Back to Quarter"><CubeMark /><Wordmark /></a>
+      <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
       <h1>{legalTitles[page]}</h1>
       <p class="small muted">Updated {legalUpdated[page]}</p>
-      {page !== "licences" && <p class="legal-preview-note">Preview information. Quarter’s legal operator and privacy contact will be added before release.</p>}
+      {page !== "licences" && <p class="legal-preview-note">Preview information. quarter’s legal operator and privacy contact will be added before release.</p>}
       {sections.map(({ title, paragraphs }) => (
         <section key={title}>
           <h2>{title}</h2>

@@ -39,7 +39,7 @@ export function NotSetUp() {
     <main class="onboard">
       <div class="onboard-in">
         <div class="welcome-mark"><CubeMark /></div>
-        <h1>Quarter isn't set up yet</h1>
+        <h1>quarter isn't set up yet</h1>
         <p class="onboard-sub">Sign-in hasn't been configured for this site, so nothing can be saved safely. Please check back soon.</p>
         <p class="small muted">Site owner: set VITE_CLERK_PUBLISHABLE_KEY, then rebuild.</p>
       </div>
@@ -197,7 +197,7 @@ function SignedOut({ auth }: { auth: AuthClient }) {
     <Shell wide>
       <button type="button" class="linkish account-back" onClick={() => setKind(null)}>← Back to welcome page</button>
       <h1>Welcome to <Wordmark /></h1>
-      <p class="onboard-sub">Quarter is set up by a parent or guardian. Children don't need their own login: you add each learner after you sign in.</p>
+      <p class="onboard-sub">quarter is set up by a parent or guardian. Children don't need their own login: you add each learner after you sign in.</p>
       <div class="seg account-tabs" role="tablist" aria-label="Sign up or sign in">
         <button type="button" role="tab" aria-selected={kind === "sign-up"} class={kind === "sign-up" ? "on" : ""} onClick={() => setKind("sign-up")} data-testid="tab-sign-up">Create an account</button>
         <button type="button" role="tab" aria-selected={kind === "sign-in"} class={kind === "sign-in" ? "on" : ""} onClick={() => setKind("sign-in")} data-testid="tab-sign-in">Sign in</button>
@@ -218,7 +218,7 @@ function Consent({ onAgree, onSignOut }: { onAgree(): Promise<void>; onSignOut()
   return (
     <Shell wide>
       <h1>Before we start</h1>
-      <p class="onboard-sub">Here is what Quarter keeps for your family.</p>
+      <p class="onboard-sub">Here is what quarter keeps for your family.</p>
       <ul class="account-points">
         <li><strong>We keep:</strong> each learner's nickname, school year, avatar and learning progress, so it follows them from device to device.</li>
         <li><strong>We don't keep:</strong> real names, birthdays, photos, or anything the AI tutor chats about. Tutor chats stay on the device for you to read there.</li>

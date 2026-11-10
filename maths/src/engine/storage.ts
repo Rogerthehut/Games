@@ -43,9 +43,9 @@ export function exportProfile(p: Profile, now = new Date()): string {
 
 export function importProfile(text: string): Profile {
   let f: { app?: string; version?: number; checksum?: string; profile?: Profile };
-  try { f = JSON.parse(text); } catch { throw new Error("That text isn't a valid Quarter save."); }
-  if (f?.app !== "mathpath" || !f.profile) throw new Error("That isn't a Quarter save.");
-  if ((f.version ?? 0) > STORE_VERSION) throw new Error("This save is from a newer version of Quarter.");
+  try { f = JSON.parse(text); } catch { throw new Error("That text isn't a valid quarter save."); }
+  if (f?.app !== "mathpath" || !f.profile) throw new Error("That isn't a quarter save.");
+  if ((f.version ?? 0) > STORE_VERSION) throw new Error("This save is from a newer version of quarter.");
   if (f.checksum !== checksum(JSON.stringify(f.profile))) throw new Error("This save looks damaged or has been edited.");
   return { ...f.profile, baselines: f.profile.baselines ?? [] };
 }

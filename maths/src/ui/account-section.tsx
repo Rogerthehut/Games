@@ -29,7 +29,7 @@ export function AccountSection() {
       const link = document.createElement("a");
       link.href = url; link.download = "quarter-data.json"; link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setMsg("Downloaded. This is everything Quarter holds for your family.");
+      setMsg("Downloaded. This is everything quarter holds for your family.");
     } catch { setMsg("We couldn't get your data just now. Please try again."); }
     setBusy(false);
   };
