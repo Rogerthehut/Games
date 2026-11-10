@@ -3,6 +3,7 @@
 > quarter is a maths practice web app for children in Years 3 to 13 (ages 7 to 18), following the National Curriculum for England. Parents create the account; children use it under their supervision. It finds each learner's starting point, gives short practice sessions with worked explanations, includes original 11+ style maths and reasoning practice papers, and has a parents' area showing progress.
 
 Site: https://yourquarter.co.uk/
+Operator: quarter is a trading name of Wristed Ltd
 Contact: hello@yourquarter.co.uk
 
 ## Guides for parents
