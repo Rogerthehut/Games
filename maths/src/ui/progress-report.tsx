@@ -1,5 +1,5 @@
-import { useMemo } from "preact/hooks";
-import { buildProgressReport, reportCsv, reportFileName, STATUS_ORDER, STATUS_WORDS, type ProgressReportData } from "../engine/progress-report";
+import { useMemo, useState } from "preact/hooks";
+import { buildProgressReport, type Range, reportCsv, reportFileName, STATUS_ORDER, STATUS_WORDS, type ProgressReportData } from "../engine/progress-report";
 import type { Profile } from "../engine/progress";
 import { useApp } from "./context";
 import { Icon } from "./icons";
@@ -10,8 +10,8 @@ const fmt = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numer
 const short = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const pctText = (n: number | null) => (n === null ? "–" : `${n}%`);
 
-export function downloadProgressCsv(profile: Profile) {
-  const r = buildProgressReport(profile);
+export function downloadProgressCsv(profile: Profile, range?: Range | null) {
+  const r = buildProgressReport(profile, Date.now(), range);
   const url = URL.createObjectURL(new Blob(["﻿", reportCsv(r)], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a");
   a.href = url; a.download = reportFileName(r, "csv"); a.click();
@@ -27,18 +27,21 @@ function printReport(r: ProgressReportData) {
   print();
 }
 
-function Weeks({ weeks }: { weeks: ProgressReportData["weeks"] }) {
+function Weeks({ weeks, unit }: { weeks: ProgressReportData["weeks"]; unit: "day" | "week" }) {
   const max = Math.max(10, ...weeks.map((w) => w.minutes));
+  const n = weeks.length, step = 320 / n, w = Math.min(24, step * 0.6);
+  const every = Math.ceil(n / 9); // label about nine bars at most, so the dates never crowd
+  const label = (b: ProgressReportData["weeks"][number]) => short(b.start);
   return (
-    <svg class="pr-weeks" viewBox="0 0 320 130" role="img" aria-label={`Minutes practised each week for the last eight weeks: ${weeks.map((w) => w.minutes).join(", ")}`}>
+    <svg class="pr-weeks" viewBox="0 0 320 130" role="img" aria-label={`Minutes practised each ${unit}: ${weeks.map((b) => `${label(b)} ${b.minutes}`).join(", ")}`}>
       <line x1="0" y1="100" x2="320" y2="100" stroke="currentColor" stroke-opacity=".25" />
-      {weeks.map((w, i) => {
-        const h = Math.round((w.minutes / max) * 78);
+      {weeks.map((b, i) => {
+        const h = Math.round((b.minutes / max) * 78), cx = i * step + step / 2;
         return (
           <g key={i}>
-            <rect x={i * 40 + 8} y={100 - h} width="24" height={Math.max(h, w.minutes ? 2 : 0)} rx="4" fill="var(--pr-mint)" stroke="currentColor" stroke-opacity=".5" />
-            <text x={i * 40 + 20} y={94 - h} text-anchor="middle" font-size="10" fill="currentColor">{w.minutes || ""}</text>
-            <text x={i * 40 + 20} y="116" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">{short(w.start - 7 * 86_400_000 + 1)}</text>
+            <rect x={cx - w / 2} y={100 - h} width={w} height={Math.max(h, b.minutes ? 2 : 0)} rx="4" fill="var(--pr-mint)" stroke="currentColor" stroke-opacity=".5" />
+            {n <= 16 && <text x={cx} y={94 - h} text-anchor="middle" font-size="10" fill="currentColor">{b.minutes || ""}</text>}
+            {i % every === 0 && <text x={cx} y="116" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">{label(b)}</text>}
           </g>
         );
       })}
@@ -46,9 +49,57 @@ function Weeks({ weeks }: { weeks: ProgressReportData["weeks"] }) {
   );
 }
 
+const DAY_MS = 86_400_000;
+const iso = (t: number) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const startOfDay = (isoDay: string) => { const [y, m, d] = isoDay.split("-").map(Number); return new Date(y, m - 1, d).getTime(); };
+const endOfDay = (isoDay: string) => { const [y, m, d] = isoDay.split("-").map(Number); return new Date(y, m - 1, d, 23, 59, 59, 999).getTime(); };
+const mondayOf = (t: number) => { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getTime(); };
+const addDays = (t: number, n: number) => { const d = new Date(t); d.setDate(d.getDate() + n); return d.getTime(); };
+
+/** Choose which dates the report covers. Quick choices for the usual ones, and a calendar for anything else. */
+function PeriodPicker({ value, onChange, since }: { value: { from: string; to: string } | null; onChange: (v: { from: string; to: string } | null) => void; since: number }) {
+  const today = iso(Date.now());
+  const min = iso(since);
+  const preset = (from: number, to: number) => onChange({ from: iso(from), to: iso(to) });
+  const thisMon = mondayOf(Date.now());
+  const shift = (dir: -1 | 1) => {
+    if (!value) return;
+    const f = startOfDay(value.from), t = startOfDay(value.to), span = Math.round((t - f) / DAY_MS) + 1;
+    onChange({ from: iso(addDays(f, dir * span)), to: iso(addDays(t, dir * span)) });
+  };
+  const bad = value && value.from > value.to;
+  return (
+    <section class="pr-period" aria-label="Choose the dates for this report" data-testid="period-picker">
+      <div class="pr-period-quick" role="group" aria-label="Quick choices">
+        <button type="button" class={`chip-btn${!value ? " on" : ""}`} aria-pressed={!value} onClick={() => onChange(null)}>Last 4 weeks</button>
+        <button type="button" class="chip-btn" onClick={() => preset(thisMon, Date.now())}>This week</button>
+        <button type="button" class="chip-btn" onClick={() => preset(addDays(thisMon, -7), addDays(thisMon, -1))}>Last week</button>
+        <button type="button" class="chip-btn" onClick={() => { const d = new Date(); preset(new Date(d.getFullYear(), d.getMonth(), 1).getTime(), Date.now()); }}>This month</button>
+        <button type="button" class="chip-btn" onClick={() => onChange({ from: min, to: today })}>Since they started</button>
+      </div>
+      <div class="pr-period-dates">
+        <label>From <input type="date" value={value?.from ?? iso(Date.now() - 28 * DAY_MS)} min={min} max={today} data-testid="period-from"
+          onChange={(e) => { const v = (e.target as HTMLInputElement).value; if (v) onChange({ from: v, to: value?.to ?? today }); }} /></label>
+        <label>To <input type="date" value={value?.to ?? today} min={min} max={today} data-testid="period-to"
+          onChange={(e) => { const v = (e.target as HTMLInputElement).value; if (v) onChange({ from: value?.from ?? iso(Date.now() - 28 * DAY_MS), to: v }); }} /></label>
+        {value && !bad && (
+          <span class="pr-period-step">
+            <button type="button" class="btn" onClick={() => shift(-1)} aria-label="The same length of time, earlier" data-testid="period-earlier">‹ Earlier</button>
+            <button type="button" class="btn" onClick={() => shift(1)} disabled={value.to >= today} aria-label="The same length of time, later" data-testid="period-later">Later ›</button>
+          </span>
+        )}
+      </div>
+      {bad && <p class="pr-period-bad" role="alert">The “From” date needs to be on or before the “To” date.</p>}
+    </section>
+  );
+}
+
 export function ProgressReport() {
   const { profile, go } = useApp();
-  const r = useMemo(() => buildProgressReport(profile), [profile]);
+  const [chosen, setChosen] = useState<{ from: string; to: string } | null>(null);
+  const range = useMemo<Range | null>(() => (chosen && chosen.from <= chosen.to ? { from: startOfDay(chosen.from), to: endOfDay(chosen.to) } : null), [chosen]);
+  const r = useMemo(() => buildProgressReport(profile, Date.now(), range), [profile, range]);
+  const span = r.period.custom ? `${fmt(r.period.from)} to ${fmt(r.period.to)}` : "the last 4 weeks";
   const lvl = r.level;
 
   return (
@@ -56,11 +107,12 @@ export function ProgressReport() {
       <div class="pr-toolbar">
         <button type="button" class="btn" onClick={() => go({ name: "parent" })}><Icon name="back" size={18} /> Back</button>
         <div class="pr-toolbar-actions">
-          <button type="button" class="btn" onClick={() => downloadProgressCsv(profile)} data-testid="report-csv">Spreadsheet (CSV)</button>
+          <button type="button" class="btn" onClick={() => downloadProgressCsv(profile, range)} data-testid="report-csv">Spreadsheet (CSV)</button>
           <button type="button" class="btn primary" onClick={() => printReport(r)} data-testid="report-print">Save as PDF or print</button>
         </div>
       </div>
       <p class="pr-hint">To save a PDF, choose “Save as PDF” as the printer in the print window.</p>
+      <PeriodPicker value={chosen} onChange={setChosen} since={profile.createdAt} />
 
       <article class="pr-doc" data-testid="progress-report">
         <header class="pr-head">
@@ -68,21 +120,25 @@ export function ProgressReport() {
           <div class="pr-title">
             <p class="pr-kicker">Progress report</p>
             <h1>{r.name}</h1>
-            <p class="pr-sub">Year {r.year} · Prepared {fmt(r.generated)} · Practising since {fmt(r.since)}</p>
+            <p class="pr-sub">Year {r.year} · Prepared {fmt(r.generated)} · Practising since {fmt(r.since)}{r.period.custom ? ` · Showing ${span}` : ""}</p>
           </div>
         </header>
 
         <section class="pr-tiles" aria-label="At a glance">
           <div class="pr-tile pr-t1"><span>Working level</span><strong>{lvl ? lvl.label : "No check-up yet"}</strong><small>{lvl ? `${lvl.detail}. Check-up on ${fmt(lvl.at)}.` : "A check-up finds the starting point."}</small></div>
-          <div class="pr-tile pr-t2"><span>Last 4 weeks</span><strong>{r.last28.sessions} session{r.last28.sessions === 1 ? "" : "s"} · {r.last28.minutes} min</strong><small>{r.last28.answered} questions, {pctText(r.last28.accuracy)} right, on {r.last28.activeDays} different day{r.last28.activeDays === 1 ? "" : "s"}</small></div>
+          <div class="pr-tile pr-t2"><span>{r.period.custom ? "In this period" : "Last 4 weeks"}</span><strong>{r.period.sessions} session{r.period.sessions === 1 ? "" : "s"} · {r.period.minutes} min</strong><small>{r.period.answered} questions, {pctText(r.period.accuracy)} right, on {r.period.activeDays} different day{r.period.activeDays === 1 ? "" : "s"}</small></div>
           <div class="pr-tile pr-t3"><span>Topics secure</span><strong>{r.secure.done} of {r.secure.total}</strong><small>Right without help across several days</small></div>
           <div class="pr-tile pr-t4"><span>All time</span><strong>{r.allTime.sessions} sessions · {r.allTime.minutes} min</strong><small>{r.allTime.answered} questions, {pctText(r.allTime.accuracy)} right</small></div>
         </section>
 
         <section class="pr-sec">
-          <h2>Practice each week</h2>
-          <Weeks weeks={r.weeks} />
-          <p class="pr-cap">Minutes practised in each of the last eight weeks, ending {short(r.generated)}.</p>
+          <h2>{r.unit === "day" ? "Practice each day" : "Practice each week"}</h2>
+          <Weeks weeks={r.weeks} unit={r.unit} />
+          <p class="pr-cap">{r.period.custom ? `Minutes practised in each ${r.unit}, ${span}.` : `Minutes practised in each of the last eight weeks, ending ${short(r.generated)}.`}</p>
+          {r.practised.length > 0 && (<>
+            <h3>Topics practised {r.period.custom ? "in this period" : "in the last 4 weeks"}</h3>
+            <ul class="pr-list pr-practised">{r.practised.map((t) => <li key={t.skill}><strong>{t.skill}</strong> <span class="small muted">{t.sessions} session{t.sessions === 1 ? "" : "s"}</span></li>)}</ul>
+          </>)}
         </section>
 
         <section class="pr-sec">

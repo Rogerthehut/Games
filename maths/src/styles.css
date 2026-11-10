@@ -2539,7 +2539,7 @@ html:has(.quarter-search[open]),
 .pr-sec h3 { font-size: 1.05rem; margin: 14px 0 4px; }
 .pr-sec p { margin: 6px 0; }
 .pr-cap, .pr-none { color: var(--pr-muted); font-size: .88rem; }
-.pr-weeks { width: 100%; max-width: 560px; height: auto; color: var(--pr-ink); display: block; }
+.pr-weeks { width: 100%; max-width: 720px; height: auto; color: var(--pr-ink); display: block; }
 .pr-strands { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .pr-strands li { display: grid; grid-template-columns: minmax(110px, 190px) 1fr 100px; align-items: center; gap: 12px; }
 .pr-strand-name { font-weight: 700; }
@@ -2682,3 +2682,16 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .fb-star { font-size: 1.7rem; line-height: 1; padding: 4px 6px; border: 0; background: none; color: #18192b40; cursor: pointer; }
 .fb-star.on { color: #e8a800; }
 .fb-star:focus-visible { outline: 3px solid var(--accent); border-radius: 8px; }
+
+/* choosing the dates for the progress report (not printed) */
+.pr-period { display: grid; gap: 10px; margin: 0 0 16px; padding: 12px 14px; border: 1.5px solid var(--line, #18192b30); border-radius: 16px; background: var(--surface, #fff); }
+.pr-period-quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.pr-period-quick .chip-btn.on { background: var(--accent); color: var(--accent-ink); }
+.pr-period-dates { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.pr-period-dates label { display: grid; gap: 4px; font-weight: 700; font-size: .9rem; }
+.pr-period-dates input[type="date"] { font: inherit; padding: 8px 10px; border: 1.5px solid var(--line, #18192b55); border-radius: 10px; background: #fff; color: #18192b; min-height: 44px; }
+.pr-period-step { display: flex; gap: 8px; }
+.pr-period-bad { margin: 0; color: var(--bad); font-weight: 700; }
+.pr-practised { columns: 2; column-gap: 24px; }
+@media (max-width: 520px) { .pr-practised { columns: 1; } }
+@media print { .pr-period { display: none !important; } }
