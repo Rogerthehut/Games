@@ -16,6 +16,21 @@ export const legalTitles = {
 
 export type LegalPage = keyof typeof legalTitles;
 export const legalPages = Object.keys(legalTitles) as LegalPage[];
+export type FooterGroup = { heading: string; links: { label: string; href: string }[] };
+/** Footer link groups, shared by the app and the generated parent pages. */
+export function footerGroups(parents: { hub: { path: string; title: string }; faq: { path: string } }): FooterGroup[] {
+  return [
+    { heading: "For parents", links: [
+      { label: parents.hub.title, href: parents.hub.path },
+      { label: "FAQs", href: parents.faq.path },
+      { label: "Find your local 11+ test", href: "11-plus-maths.html#test-finder" },
+    ] },
+    { heading: "About Quarter", links: [
+      ...legalPages.map((key) => ({ label: legalTitles[key], href: `./?info=${key}` })),
+      { label: "Sitemap", href: "./?info=sitemap" },
+    ] },
+  ];
+}
 export const icoComplaints = "https://ico.org.uk/make-a-complaint/data-protection-complaints/";
 
 type Section = { title: string; paragraphs: string[] };

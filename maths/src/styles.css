@@ -1832,20 +1832,23 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .working-note { display: grid; gap: 5px; margin-top: 12px; font-weight: 700; }
 .working-note textarea { width: 100%; padding: 9px; font: inherit; font-weight: 500; color: var(--ink); background: var(--hint-soft); border: 1px solid var(--line); resize: vertical; }
 
-/* Keep the notice in its own row so it cannot cover page controls. */
+/* Footer: grouped under headings, pushed to the bottom when the page is short. */
 .legal-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px 20px;
-  margin-top: 24px;
-  padding-top: 12px;
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 20px;
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: .875rem;
 }
-.legal-footer nav { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.content, .legal-page { display: flex; flex-direction: column; min-height: 100dvh; }
+.content > .legal-footer, .legal-page > .legal-footer { margin-top: auto; }
+.content > :not(.legal-footer):nth-last-child(2), .legal-page > :not(.legal-footer):nth-last-child(2) { margin-bottom: 24px; }
+.footer-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px 32px; }
+.legal-footer h2 { margin: 0 0 2px; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.legal-footer ul { list-style: none; margin: 0; padding: 0; }
+.footer-credit .cube-mark { width: 22px; height: 22px; align-self: center; }
 a.legal-link {
   color: var(--ink);
   font-weight: 700;
@@ -1881,13 +1884,7 @@ a.legal-link {
   background: var(--surface);
   text-align: start;
 }
-.onboard:has(> .browser-storage-notice) {
-  height: 100dvh;
-  grid-template-rows: minmax(0, 1fr) auto;
-  row-gap: 12px;
-  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-}
-.onboard:has(> .browser-storage-notice) > .onboard-in { max-height: 100%; overflow-y: auto; }
+.onboard > .browser-storage-notice { margin-top: 12px; }
 .app > .browser-storage-notice {
   width: calc(100% - 36px);
   justify-self: center;
@@ -2217,7 +2214,7 @@ html:has(.quarter-search[open]),
 
 /* This heading receives focus on navigation so screen readers announce Today. */
 #activity-title[tabindex="-1"]:focus { outline: none; }
-.footer-credit { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.footer-credit { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding-bottom: 8px; }
 
 
 /* Phones: keep the bottom bar to one row so the answer and keypad stay in view. */
@@ -2342,3 +2339,8 @@ html:has(.quarter-search[open]),
 .sync-chip { margin: 4px 0 0; font-size: .9rem; color: var(--muted); }
 .sync-chip.saved { color: var(--good-ink, var(--ink)); }
 .sync-chip.offline, .sync-chip.error { color: var(--ink); font-weight: 700; }
+
+/* Sign-up: card centred in the free space, footer along the bottom of the screen. */
+.onboard { display: flex; flex-direction: column; align-items: center; }
+.onboard > .onboard-in { margin-block: auto; }
+.onboard > .legal-footer { width: 100%; max-width: 720px; margin-top: 24px; }

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Plugin } from "vite";
-import { copyright, designer, legalPages, legalTitles } from "../src/legal/content";
+import { copyright, designer, footerGroups } from "../src/legal/content";
 import content from "../src/parents/content.json";
 import admissions from "../src/parents/admissions.json";
 
@@ -72,12 +72,7 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
         ? `<details class="parent-faq"><summary>${escapeHtml(section.heading)}</summary><div>${sectionBody(section)}</div></details>`
         : `<section><h2>${escapeHtml(section.heading)}</h2>${sectionBody(section)}</section>${page.path === "11-plus-maths.html" && index === 0 ? `<p>${link({ path: "#test-finder", label: "Find your local 11+ test" })}</p>` : ""}`).join("")
       : "";
-  const footer = [
-    ...legalPages.map((key) => ({ path: `./?info=${key}`, label: legalTitles[key] })),
-    { path: "./?info=sitemap", label: "Sitemap" },
-    { path: hub.path, label: hub.title },
-    { path: faq.path, label: "FAQs" },
-  ];
+  const groups = footerGroups({ hub, faq });
   return `<!doctype html>
 <html lang="en-GB">
 <head>
@@ -97,7 +92,7 @@ ${page === hub ? "" : `<p>${link({ path: hub.path, label: "All parent guides" })
 <p class="muted">${escapeHtml(page.description)}</p>
 ${body}
 ${page.path === "11-plus-maths.html" ? testFinder() : ""}
-<footer class="legal-footer"><nav aria-label="Site information">${footer.map((item) => link(item)).join("")}</nav><div class="footer-credit"><small>${copyright}</small><small>Designed and built by ${link({path:designer.href,label:designer.name})}</small></div></footer>
+<footer class="legal-footer"><div class="footer-groups">${groups.map((group, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(group.heading)}</h2><ul>${group.links.map((item) => `<li>${link({ path: item.href, label: item.label })}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>Designed and built by ${link({path:designer.href,label:designer.name})}</small></div></footer>
 </main>
 </body>
 </html>

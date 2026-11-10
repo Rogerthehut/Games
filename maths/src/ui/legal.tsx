@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { cookiesSections, copyright, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
+import { cookiesSections, copyright, footerGroups, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
 import { Icon } from "./icons";
 import { primaryNav, tabHref } from "./navigation";
@@ -17,13 +17,19 @@ export function getInformationPage(search: string): LegalPage | "sitemap" | unde
 export function LegalFooter() {
   return (
     <footer class="legal-footer">
-      <nav aria-label="Site information">
-        {legalPages.map((page) => <a key={page} class="legal-link" href={legalHref(page)}>{legalTitles[page]}</a>)}
-        <a class="legal-link" href={sitemapHref}>Sitemap</a>
-        <a class="legal-link" href={parentContent.hub.path}>Parent guides</a>
-        <a class="legal-link" href={parentContent.faq.path}>FAQs</a>
-      </nav>
-      <div class="footer-credit"><small>{copyright}</small><small>Designed and built by <a class="legal-link" href={designer.href}>{designer.name}</a></small></div>
+      <div class="footer-groups">
+        {footerGroups(parentContent).map((group, i) => (
+          <nav key={group.heading} aria-labelledby={`footer-h${i}`}>
+            <h2 id={`footer-h${i}`}>{group.heading}</h2>
+            <ul>{group.links.map((link) => <li key={link.href}><a class="legal-link" href={link.href}>{link.label}</a></li>)}</ul>
+          </nav>
+        ))}
+      </div>
+      <div class="footer-credit">
+        <CubeMark />
+        <small>{copyright}</small>
+        <small>Designed and built by <a class="legal-link" href={designer.href}>{designer.name}</a></small>
+      </div>
     </footer>
   );
 }

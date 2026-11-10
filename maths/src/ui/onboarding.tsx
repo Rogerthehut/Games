@@ -61,8 +61,8 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
             <button class="btn primary big" onClick={finish} disabled={!year} data-testid="year-go">Let's go <Icon name="arrow" size={20} /></button>
           </>
         )}
-        <LegalFooter />
       </div>
+      <LegalFooter />
       <BrowserStorageNotice />
     </main>
   );
