@@ -37,7 +37,7 @@ const SCRIBBLES: { t: string; x: number; y: number; r: number; s: number; pink?:
   { t: "25% of 80 = 20", x: 14, y: 90, r: -3, s: 1, hide: true },
   { t: "÷", x: 47, y: 15, r: 10, s: 2.2, pink: true },
   { t: "y = mx + c", x: 82, y: 38, r: 6, s: 1.05, hide: true },
-  { t: "∑", x: 7, y: 46, r: -9, s: 2.3, pink: true, hide: true },
+  { t: "∑", x: 44, y: 66, r: -9, s: 2.3, pink: true, hide: true },
   { t: "12 ÷ 3 = 4", x: 88, y: 66, r: 7, s: .95 },
   { t: "∞", x: 33, y: 5, r: -6, s: 2.2, hide: true },
   { t: "%", x: 94, y: 92, r: -10, s: 2.2, pink: true },
