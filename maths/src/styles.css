@@ -2383,9 +2383,25 @@ html:has(.quarter-search[open]),
 .l-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
 .l-note { margin: 0; font-size: .95rem; opacity: .7; max-width: 38em; }
 .l-phones { position: relative; min-height: clamp(320px, 42vw, 560px); }
-.l-phone { position: absolute; width: clamp(150px, 19vw, 250px); aspect-ratio: 390 / 844; padding: 7px; box-sizing: border-box; border-radius: 34px; background: #14161f; box-shadow: 0 30px 60px -20px rgba(18,21,34,.5), 0 0 0 1.5px #2a2d3d inset; overflow: hidden; }
-.l-phone::before { content: ""; position: absolute; top: 12px; left: 50%; translate: -50% 0; width: 28%; height: 14px; border-radius: 99px; background: #14161f; z-index: 2; }
-.l-phone img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 28px; }
+.l-phone { position: absolute; width: clamp(150px, 19vw, 250px); aspect-ratio: 390 / 844; box-sizing: border-box; background: #14161f; padding: 7px; box-shadow: 0 30px 60px -20px rgba(18,21,34,.5), 0 0 0 1.5px #2a2d3d inset, 0 0 0 1px #05060a; }
+.l-screen { position: relative; width: 100%; height: 100%; overflow: hidden; background: #fbf8ef; padding-top: 5.4%; box-sizing: border-box; }
+.l-screen img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+.l-cam { position: absolute; left: 50%; translate: -50% 0; z-index: 2; background: #05060a; }
+.l-home { position: absolute; left: 50%; translate: -50% 0; bottom: 2px; height: 3px; border-radius: 99px; background: rgba(18,21,34,.4); z-index: 2; }
+.l-side { position: absolute; width: 3px; background: #2a2d3d; border-radius: 2px; }
+/* iPhone: Dynamic Island, rounder corners, action and volume buttons on the left, power on the right */
+.l-ios { border-radius: 17% / 7.8%; padding: 2.6%; }
+.l-ios .l-screen { border-radius: 14.5% / 6.7%; }
+.l-ios .l-cam { top: 2.1%; width: 30%; height: 3.3%; border-radius: 99px; }
+.l-ios .l-home { width: 34%; }
+.l-ios .l-side-l { left: -3px; top: 16%; height: 14%; box-shadow: 0 calc(8vw * .01 + 22px) 0 0 #2a2d3d; }
+.l-ios .l-side-r { right: -3px; top: 24%; height: 9%; }
+/* Android: a small punch-hole camera, tighter corners, power and volume on the right */
+.l-android { border-radius: 11% / 5.2%; padding: 2.2%; }
+.l-android .l-screen { border-radius: 9% / 4.2%; }
+.l-android .l-cam { top: 1.8%; width: 4.4%; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 0 0 1.5px #1b1e2b, inset 0 0 0 2px #121626; }
+.l-android .l-home { width: 24%; }
+.l-android .l-side-r { right: -3px; top: 20%; height: 8%; box-shadow: 0 calc(8vw * .01 + 30px) 0 0 #2a2d3d; }
 .l-phone-a { left: 4%; top: 6%; rotate: -5deg; animation: l-float 7s ease-in-out infinite; }
 .l-phone-b { right: 0; top: -2%; rotate: 5deg; animation: l-float 8s ease-in-out -2s infinite; }
 @keyframes l-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }

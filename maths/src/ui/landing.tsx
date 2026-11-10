@@ -50,8 +50,14 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
             <p class="l-note">Set up by a parent or guardian. Children don't need their own login, and a nickname is all we need.</p>
           </div>
           <div class="l-phones" aria-hidden="true">
-            <div class="l-phone l-phone-a"><img src="./landing/app-today.webp" alt="" width="390" height="844" fetchpriority="high" /></div>
-            <div class="l-phone l-phone-b"><img src="./landing/app-skills.webp" alt="" width="390" height="844" loading="lazy" /></div>
+            <div class="l-phone l-phone-a l-ios">
+              <span class="l-side l-side-l" /><span class="l-side l-side-r" />
+              <div class="l-screen"><img src="./landing/app-today.webp" alt="" width="390" height="844" fetchpriority="high" /><i class="l-cam" /><i class="l-home" /></div>
+            </div>
+            <div class="l-phone l-phone-b l-android">
+              <span class="l-side l-side-r" />
+              <div class="l-screen"><img src="./landing/app-skills.webp" alt="" width="390" height="844" loading="lazy" /><i class="l-cam" /><i class="l-home" /></div>
+            </div>
           </div>
         </div>
       </section>
