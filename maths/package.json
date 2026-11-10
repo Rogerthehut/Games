@@ -25,7 +25,8 @@
     "drizzle-orm": "^0.45.4",
     "katex": "^0.19.1",
     "pg": "^8.23.1",
-    "preact": "^10.24.0"
+    "preact": "^10.24.0",
+    "stripe": "^23.1.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.16",

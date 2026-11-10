@@ -5,7 +5,7 @@ import { yearLabel } from "../engine/diagnostic";
 import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
 import { useAccount } from "./account-context";
-import { AccountSection } from "./account-section";
+import { AccountSection, SubscriptionSection } from "./account-section";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
 import { STATUS_LABEL_PARENT } from "./labels";
@@ -195,6 +195,7 @@ export function Parent() {
             </label>
           </section>
 
+          {account && <SubscriptionSection />}
           {account && <AccountSection />}
 
           <section class="card" aria-labelledby="help-info">

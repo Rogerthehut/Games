@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { AccountApi, AccountError } from "../account/api";
+import { AccountApi, AccountError, NO_BILLING, type BillingInfo, type Plan } from "../account/api";
 import { createAuth, type AuthClient } from "../account/auth";
 import { clearCaches, clearLegacy, declineLegacy, legacyDeclined, loadActive, loadCache, loadLegacy, saveActive, saveCache } from "../account/cache";
 import { Sync, forServer, type RemoteLearner, type SyncStatus } from "../account/sync";
@@ -20,6 +20,7 @@ type Phase =
   | { name: "loading"; text?: string }
   | { name: "signed-out" }
   | { name: "consent" }
+  | { name: "paywall"; billing: BillingInfo }
   | { name: "migrate"; legacy: Store }
   | { name: "error"; message: string }
   | { name: "ready"; store: Store; bridge: AccountBridge };
@@ -59,6 +60,7 @@ export function AccountGate() {
   const userId = useRef("");
   const email = useRef<string | undefined>(undefined);
   const booting = useRef(false);
+  const billing = useRef<BillingInfo>(NO_BILLING);
 
   const enter = (learners: RemoteLearner[], offline = false, logs: Record<string, unknown> = {}) => {
     const a = api.current!;
@@ -97,8 +99,21 @@ export function AccountGate() {
       userId.current = user.id; email.current = user.email;
       setPhase({ name: "loading" });
       try {
-        const info = await api.current!.getAccount();
+        let info = await api.current!.getAccount();
         if (!info.consented) { setPhase({ name: "consent" }); return; }
+        billing.current = info.billing ?? NO_BILLING;
+        const back = new URLSearchParams(location.search).get("checkout");
+        if (back) history.replaceState(null, "", location.pathname + location.hash);
+        // coming back from paying: Stripe tells us a moment later, so wait for it briefly
+        if (back === "success" && billing.current.enabled && !billing.current.access) {
+          setPhase({ name: "loading", text: "Confirming your subscription…" });
+          for (let i = 0; i < 8 && !billing.current.access; i++) {
+            await new Promise((r) => setTimeout(r, 1500));
+            info = await api.current!.getAccount();
+            billing.current = info.billing ?? NO_BILLING;
+          }
+        }
+        if (billing.current.enabled && !billing.current.access) { setPhase({ name: "paywall", billing: billing.current }); return; }
         const legacy = loadLegacy();
         if (info.learners.length === 0 && legacy && !legacyDeclined()) { setPhase({ name: "migrate", legacy }); return; }
         enter(info.learners);
@@ -150,6 +165,8 @@ export function AccountGate() {
   const info: AccountInfoCtx = {
     email: email.current, status, notice, signOut,
     exportData: () => api.current!.exportData(),
+    billing: billing.current,
+    manageBilling: async () => { location.assign(await api.current!.portal()); },
     deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
   };
 
@@ -160,6 +177,8 @@ export function AccountGate() {
       </AccountCtx.Provider>
     );
   if (phase.name === "signed-out") return <SignedOut auth={auth.current!} />;
+  if (phase.name === "paywall")
+    return <Paywall billing={phase.billing} email={email.current} onChoose={(plan) => api.current!.checkout(plan)} onSignOut={signOut} onExport={() => api.current!.exportData()} />;
   if (phase.name === "consent")
     return <Consent onAgree={async () => { await api.current!.consent(TERMS_VERSION); booting.current = false; await boot(); }} onSignOut={signOut} />;
   if (phase.name === "migrate")
@@ -174,6 +193,60 @@ export function AccountGate() {
       </Shell>
     );
   return <Shell><p class="onboard-sub" role="status">{phase.text ?? "Loading…"}</p></Shell>;
+}
+
+const money = (p: { amount: number; currency: string }) => new Intl.NumberFormat("en-GB", { style: "currency", currency: p.currency.toUpperCase() }).format(p.amount / 100);
+
+/** Where a parent with no subscription lands. Payment itself happens on Stripe's page. */
+function Paywall({ billing, email, onChoose, onSignOut, onExport }: { billing: BillingInfo; email?: string; onChoose(plan: Plan): Promise<string>; onSignOut(): Promise<void>; onExport(): Promise<unknown> }) {
+  const [plan, setPlan] = useState<Plan>(billing.prices?.yearly ? "yearly" : "monthly");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const prices = billing.prices;
+  const chosen = prices?.[plan] ?? null;
+  const saving = prices?.monthly && prices?.yearly ? prices.monthly.amount * 12 - prices.yearly.amount : 0;
+  const trial = billing.trialAvailable && billing.trialDays > 0;
+  const per = (p: { interval: string }) => (p.interval === "year" ? "year" : "month");
+
+  const go = async () => {
+    setBusy(true); setErr("");
+    try { location.assign(await onChoose(plan)); }
+    catch (e) { setErr(e instanceof AccountError && e.code === "already-subscribed" ? "This account already has a subscription. Refresh the page." : "We couldn't open the payment page. Please try again."); setBusy(false); }
+  };
+  const download = async () => {
+    try {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(await onExport(), null, 2)], { type: "application/json" }));
+      const link = document.createElement("a"); link.href = url; link.download = "quarter-data.json"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch { setErr("We couldn't get your data just now. Please try again."); }
+  };
+
+  return (
+    <Shell wide>
+      <h1 data-testid="paywall-title">{trial ? `Start your ${billing.trialDays}\u2011day free trial` : "Subscribe to carry on"}</h1>
+      <p class="onboard-sub">One subscription covers every learner on the account.{email ? <> Signed in as {email}.</> : null}</p>
+      {prices && (prices.monthly || prices.yearly) ? (
+        <div class="plans" role="radiogroup" aria-label="Plan">
+          {(["yearly", "monthly"] as const).map((k) => prices[k] && (
+            <button key={k} type="button" role="radio" aria-checked={plan === k} class={`plan ${plan === k ? "on" : ""}`} onClick={() => setPlan(k)} data-testid={`plan-${k}`}>
+              <strong>{k === "yearly" ? "Yearly" : "Monthly"}</strong>
+              <span class="plan-price">{money(prices[k]!)}<small> / {per(prices[k]!)}</small></span>
+              {k === "yearly" && saving > 0 && <span class="plan-save">Save {money({ amount: saving, currency: prices[k]!.currency })} a year</span>}
+            </button>
+          ))}
+        </div>
+      ) : <p class="alert-note" role="alert">Prices aren't available just now. Please try again in a moment.</p>}
+      <button type="button" class="btn primary big" disabled={busy || !chosen} onClick={go} data-testid="start-checkout">{busy ? "Opening…" : trial ? `Start ${billing.trialDays}-day free trial` : "Continue to payment"}</button>
+      {chosen && (
+        <p class="small muted account-hint">
+          {trial ? `You won't be charged until the trial ends. Then ${money(chosen)} a ${per(chosen)}, renewing automatically until you cancel.` : `You'll be charged ${money(chosen)} now, then every ${per(chosen)} until you cancel.`}
+          {" "}Cancel any time in the Parents' area, under Subscription. Payment is handled by Stripe, so we never see your card details. See the <a href="./?info=terms">terms</a> and <a href="./?info=privacy">privacy notice</a>.
+        </p>
+      )}
+      {err && <p class="alert-note" role="alert">{err}</p>}
+      <p class="small account-hint"><button type="button" class="linkish" onClick={download}>Download my data</button> · <button type="button" class="linkish" onClick={() => void onSignOut()} data-testid="paywall-sign-out">Sign out</button></p>
+      <Legal />
+    </Shell>
+  );
 }
 
 function SignedOut({ auth }: { auth: AuthClient }) {

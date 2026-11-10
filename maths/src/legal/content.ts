@@ -59,11 +59,13 @@ export function privacySections(native: boolean): Section[] {
         "About the parent or guardian: the email address you sign up with, how you signed in (email, Google or Apple), and the date you agreed to our terms and privacy notice. If you use Apple’s Hide My Email, we only see the private address Apple gives us.",
         "About each learner you add: a nickname, school year, avatar, maths progress, results, certificates, practice papers, plans and settings. We use this to pick questions, show progress and suggest what to practise next. Please use a nickname instead of a full name.",
         "We do not ask for real names, birthdays, photos, home addresses or school names for learners. Nothing is used for advertising, and we do not sell information.",
+        "If you subscribe, Stripe takes the payment and holds your card details. We keep only your Stripe customer reference, your plan, its status and its dates. We never see or store your card number.",
       ],
     }, {
       title: "Where it is kept and who helps us",
       paragraphs: [
         "Learner information is stored in a database run for quarter, protected so that each account can only reach its own learners. A copy is also kept in your browser so quarter works quickly. It is removed from the browser when you sign out.",
+        "Stripe provides payments and billing. It handles your card details, billing address and invoices, and may process them outside the UK. Payment and invoice records are kept for as long as the law requires, even after an account is deleted.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
         "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
         "Clerk and the AI provider used by the optional tutor may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
@@ -115,6 +117,7 @@ export const cookiesSections: Section[] = [
       "A copy of your learners’ profiles and progress, so quarter loads quickly and works if the connection drops for a moment. It is cleared when you sign out. Your colour choice and the “Got it” choice on the storage message are also remembered.",
       "If a grown-up turns on the optional tutor, conversations are kept in the browser on that device, and a random browser ID is saved and sent to the tutor service to limit how often it is used.",
       "Text-to-speech uses your device’s own voices.",
+      "When you pay, you are sent to Stripe’s secure payment page, which sets its own cookies on its own address to process the payment and prevent fraud. quarter does not receive your card details.",
     ],
   },
   {
@@ -140,6 +143,14 @@ export const termsSections: Section[] = [
       `quarter is a trading name of ${operator}. By using it you agree to these terms with ${operator}.`,
       "An account must be created by a parent or guardian aged 18 or over. You are responsible for the learners you add, for keeping your sign-in secure, and for turning the tutor on or off. Please give accurate information and use a nickname for each learner.",
       `You can delete your account at any time from the Parents’ area. We may suspend an account that is used to harm others or the service. Email ${contactEmail} if you need help.`,
+    ],
+  },
+  {
+    title: "Subscriptions and payments",
+    paragraphs: [
+      "quarter is a paid subscription for the account, covering every learner on it. The price and plan are shown before you pay. A free trial, where offered, starts when you sign up for it with a payment method and turns into a paid subscription at the end unless you cancel before then. It then renews automatically each month or year until you cancel.",
+      "You can cancel at any time in the Parents’ area, under Subscription. You keep access until the end of the period you have paid for. If a payment fails, we may pause access until it is put right. Payments are handled by Stripe.",
+      "Nothing in this section affects your rights under consumer law, including any right to cancel within 14 days of buying. If you delete your account, your subscription is cancelled with it.",
     ],
   },
   {

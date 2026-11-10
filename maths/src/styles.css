@@ -2453,3 +2453,10 @@ html:has(.quarter-search[open]),
 .l-trust { position: relative; }
 /* Inside the Parents' area the information links sit in a card, not along the foot of the page */
 .card > .legal-footer { margin-top: 0; padding-top: 4px; border-top: 0; }
+/* Choosing a plan on the paywall */
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 8px 0 16px; }
+.plan { display: grid; gap: 4px; justify-items: start; text-align: start; padding: 14px 16px; border-radius: var(--r-md); background: var(--surface); border: 2px solid var(--line); color: var(--ink); font: inherit; cursor: pointer; min-height: 88px; }
+.plan.on { border-color: var(--ink); box-shadow: 0 3px 0 var(--line); }
+.plan-price { font-size: 1.5rem; font-weight: 800; }
+.plan-price small { font-size: .9rem; font-weight: 600; color: var(--muted); }
+.plan-save { font-size: .85rem; font-weight: 700; color: var(--ok, #1f7a5c); }

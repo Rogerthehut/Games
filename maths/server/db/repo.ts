@@ -1,6 +1,6 @@
 import { and, asc, eq, sql } from "drizzle-orm";
 import type { Db } from "./index";
-import { learnerProgress, learners, parents, type Parent } from "./schema";
+import { learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
 import { MAX_LEARNERS, cleanProfile } from "./profile-check";
 
 export interface StoredLearner { id: string; version: number; data: Record<string, unknown> }
@@ -92,10 +92,38 @@ export function makeRepo(db: Db) {
       await db.delete(parents).where(eq(parents.id, parentId));
     },
 
+    async getSubscription(parentId: string): Promise<Subscription | null> {
+      const [row] = await db.select().from(subscriptions).where(eq(subscriptions.parentId, parentId));
+      return row ?? null;
+    },
+
+    /** Remember which Stripe customer belongs to this parent (made before the first checkout). */
+    async setCustomer(parentId: string, customerId: string): Promise<Subscription> {
+      await db.insert(subscriptions).values({ parentId, stripeCustomerId: customerId }).onConflictDoNothing({ target: subscriptions.parentId });
+      return (await this.getSubscription(parentId))!;
+    },
+
+    /** Apply what Stripe says about a customer's subscription. Returns false if we do not know the customer. */
+    async applySubscription(customerId: string, s: { id: string | null; status: string; plan: string | null; trialEnd: Date | null; periodEnd: Date | null; cancelAtPeriodEnd: boolean }): Promise<boolean> {
+      const done = await db.update(subscriptions).set({
+        stripeSubscriptionId: s.id, status: s.status, plan: s.plan, trialEnd: s.trialEnd, currentPeriodEnd: s.periodEnd, cancelAtPeriodEnd: s.cancelAtPeriodEnd,
+        everSubscribed: sql`${subscriptions.everSubscribed} or ${s.id !== null}`, updatedAt: new Date(),
+      }).where(eq(subscriptions.stripeCustomerId, customerId)).returning({ id: subscriptions.parentId });
+      return done.length > 0;
+    },
+
+    /** True the first time an event id is seen, so a repeated webhook does nothing twice. */
+    async firstSight(eventId: string): Promise<boolean> {
+      const ins = await db.insert(stripeEvents).values({ id: eventId }).onConflictDoNothing({ target: stripeEvents.id }).returning({ id: stripeEvents.id });
+      return ins.length > 0;
+    },
+
     /** Everything held about a family, for them to download. */
     async exportParent(parentId: string) {
       const [parent] = await db.select().from(parents).where(eq(parents.id, parentId));
-      return { parent: parent ? { consentVersion: parent.consentVersion, consentedAt: parent.consentedAt, createdAt: parent.createdAt } : null, learners: await this.loadLearners(parentId) };
+      const sub = await this.getSubscription(parentId);
+      return { parent: parent ? { consentVersion: parent.consentVersion, consentedAt: parent.consentedAt, createdAt: parent.createdAt } : null,
+        subscription: sub ? { status: sub.status, plan: sub.plan, trialEnd: sub.trialEnd, currentPeriodEnd: sub.currentPeriodEnd, cancelAtPeriodEnd: sub.cancelAtPeriodEnd } : null, learners: await this.loadLearners(parentId) };
     },
   };
 }

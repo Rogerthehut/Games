@@ -4,7 +4,14 @@ import { forServer, type RemoteLearner, type SaveOutcome, type SyncApi } from ".
 export class AccountError extends Error {
   constructor(public status: number | undefined, public code: string, message: string, public body?: unknown) { super(message); }
 }
-export interface AccountInfo { termsVersion: string; consented: boolean; learners: RemoteLearner[] }
+export type Plan = "monthly" | "yearly";
+export interface PriceInfo { amount: number; currency: string; interval: string }
+export interface BillingInfo {
+  enabled: boolean; access: boolean; status: string; plan: Plan | null; trialEnd: string | null; periodEnd: string | null;
+  cancelAtPeriodEnd: boolean; trialDays: number; prices: Record<Plan, PriceInfo | null> | null; trialAvailable: boolean;
+}
+export const NO_BILLING: BillingInfo = { enabled: false, access: true, status: "off", plan: null, trialEnd: null, periodEnd: null, cancelAtPeriodEnd: false, trialDays: 0, prices: null, trialAvailable: false };
+export interface AccountInfo { termsVersion: string; consented: boolean; learners: RemoteLearner[]; billing?: BillingInfo }
 
 /** The browser's side of the account API. `token` returns the signed-in parent's session token. */
 export class AccountApi implements SyncApi {
@@ -39,6 +46,10 @@ export class AccountApi implements SyncApi {
   async deleteLearner(id: string) {
     try { await this.request("DELETE", `/api/learners/${encodeURIComponent(id)}`); } catch (e) { if ((e as AccountError).status !== 404) throw e; }
   }
+  /** Where to send the parent to pay. */
+  async checkout(plan: Plan): Promise<string> { return (await this.request<{ url: string }>("POST", "/api/billing/checkout", { plan })).data.url; }
+  /** Where to send the parent to change card, switch plan or cancel. */
+  async portal(): Promise<string> { return (await this.request<{ url: string }>("POST", "/api/billing/portal")).data.url; }
   async exportData(): Promise<unknown> { return (await this.request("GET", "/api/account/export")).data; }
   async deleteAccount() { await this.request("DELETE", "/api/account", { confirm: "delete my account" }); }
 }

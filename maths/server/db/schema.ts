@@ -1,4 +1,4 @@
-import { integer, jsonb, pgTable, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 /** The tables, mirrored from migrations/. The SQL files are the source of truth; this is for typed queries. */
 export const parents = pgTable("parents", {
@@ -25,4 +25,22 @@ export const learnerProgress = pgTable("learner_progress", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const subscriptions = pgTable("subscriptions", {
+  parentId: uuid("parent_id").primaryKey().references(() => parents.id, { onDelete: "cascade" }),
+  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  status: text("status").notNull().default("none"),
+  plan: text("plan"),
+  trialEnd: timestamp("trial_end", { withTimezone: true }),
+  currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+  everSubscribed: boolean("ever_subscribed").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export const stripeEvents = pgTable("stripe_events", {
+  id: text("id").primaryKey(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type Subscription = typeof subscriptions.$inferSelect;
 export type Parent = typeof parents.$inferSelect;

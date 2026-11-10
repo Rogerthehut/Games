@@ -2,9 +2,10 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MAX_BODY, WriteLimiter, handleAccountApi, isAccountRoute, type AccountDeps } from "./accounts";
+import { MAX_BODY, WriteLimiter, handleAccountApi, handleStripeWebhook, isAccountRoute, type AccountDeps } from "./accounts";
 import { ClerkAuth, FakeAuth } from "./auth";
 import { connect, connectMemory, migrate } from "./db";
+import { FakeGateway, StripeGateway, stripeConfig, type Gateway } from "./billing";
 import { makeRepo } from "./db/repo";
 import { handleTutor } from "./tutor/handler";
 import { DEFAULT_LIMITS, Limiter } from "./tutor/policy";
@@ -35,7 +36,15 @@ if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || 
   const applied = await migrate(db);
   if (applied.length) console.log(`Database migrations applied: ${applied.join(", ")}`);
   const parties = (process.env.CLERK_AUTHORIZED_PARTIES ?? "").split(",").map((x) => x.trim()).filter(Boolean);
-  accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter() };
+  // Payments: Stripe when STRIPE_SECRET_KEY is set. BILLING_FAKE=1 pretends, for development only. With neither, there is no paywall.
+  const stripeCfg = stripeConfig(process.env);
+  let billing: Gateway | undefined;
+  if (stripeCfg) {
+    billing = new StripeGateway(stripeCfg);
+    for (const [name, ok] of [["STRIPE_WEBHOOK_SECRET", stripeCfg.webhookSecret], ["STRIPE_PRICE_MONTHLY", stripeCfg.priceMonthly], ["STRIPE_PRICE_YEARLY", stripeCfg.priceYearly]] as const) if (!ok) console.warn(`${name} is not set: payments will not work properly until it is.`);
+  } else if (process.env.BILLING_FAKE === "1" && process.env.NODE_ENV !== "production") billing = new FakeGateway(Number(process.env.TRIAL_DAYS ?? 7));
+  if (!billing) console.warn("Payments are off: set STRIPE_SECRET_KEY (and the price ids) to turn on the paywall.");
+  accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter(), billing, appUrl: process.env.APP_URL };
 } else {
   console.warn("Accounts are off: set DATABASE_URL and CLERK_SECRET_KEY to turn them on.");
 }
@@ -90,6 +99,18 @@ createServer(async (req, res) => {
 
   if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY, provider: FAKE ? "fake" : WHICH, accounts: !!accounts });
 
+  if (url.pathname === "/api/stripe/webhook" && req.method === "POST") {
+    if (!accounts?.billing) return send(res, 404, { error: "billing-off" });
+    const chunks: Buffer[] = []; let size = 0;
+    try {
+      for await (const c of req as AsyncIterable<Buffer>) { size += c.length; if (size > 1_000_000) throw new Error("too large"); chunks.push(c); }
+    } catch { return send(res, 413, { error: "too-large" }); }
+    try {
+      const out = await handleStripeWebhook(Buffer.concat(chunks), String(req.headers["stripe-signature"] ?? "") || undefined, accounts);
+      return send(res, out.status, out.body);
+    } catch (e) { console.error("stripe webhook failed:", (e as Error).name); return send(res, 500, { error: "server-error" }); }
+  }
+
   if (isAccountRoute(url.pathname)) {
     if (!accounts) return send(res, 503, { error: "accounts-off", message: "Accounts are not set up on this server." });
     try {
@@ -98,7 +119,9 @@ createServer(async (req, res) => {
       if (req.method === "POST" || req.method === "PUT" || req.method === "DELETE") {
         try { body = await readBody(req, MAX_BODY); } catch { return send(res, 400, { error: "bad-request", message: "That request could not be read." }); }
       }
-      const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body }, accounts);
+      const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "");
+      const proto = TRUST_PROXY ? String(req.headers["x-forwarded-proto"] ?? "https").split(",")[0] : "http";
+      const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, origin: host ? `${proto}://${host}` : undefined }, accounts);
       res.writeHead(out.status, { "Content-Type": "application/json", "Cache-Control": "no-store", ...out.headers });
       return res.end(JSON.stringify(out.body));
     } catch (e) {

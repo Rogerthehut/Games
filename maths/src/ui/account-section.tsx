@@ -12,6 +12,33 @@ export function SyncChip() {
   return text ? <p class={`sync-chip ${a.status}`} role="status" data-testid="sync-chip">{text}</p> : null;
 }
 
+const day = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "");
+
+/** For the grown-ups' area: the subscription, with a button that opens Stripe's page to change plan, update the card or cancel. */
+export function SubscriptionSection() {
+  const a = useAccount();
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  if (!a || !a.billing.enabled) return null;
+  const b = a.billing;
+  const what = b.cancelAtPeriodEnd
+    ? `Cancelled. You keep full access until ${day(b.periodEnd ?? b.trialEnd)}.`
+    : b.status === "trialing" ? `Free trial until ${day(b.trialEnd)}, then it renews${b.plan ? ` ${b.plan}` : ""}. Cancel before then and you won't be charged.`
+    : b.status === "past_due" ? "Your last payment didn't go through. Please update your card to keep access."
+    : b.status === "active" ? `Active${b.plan ? `, ${b.plan}` : ""}. Renews on ${day(b.periodEnd)}.`
+    : "No active subscription.";
+  const open = async () => { setBusy(true); setErr(""); try { await a.manageBilling(); } catch { setErr("We couldn't open the billing page just now. Please try again."); setBusy(false); } };
+  return (
+    <section class="card" data-testid="subscription-section">
+      <h2>Subscription</h2>
+      <p data-testid="subscription-status">{what}</p>
+      <div class="actions"><button class="btn" disabled={busy} onClick={open} data-testid="manage-subscription">Manage subscription</button></div>
+      <p class="small muted">Change plan, update your card, download invoices or cancel, on Stripe's secure page.</p>
+      {err && <p class="alert-note" role="alert">{err}</p>}
+    </section>
+  );
+}
+
 /** For the grown-ups' area: who is signed in, and the parent's rights over their family's data. */
 export function AccountSection() {
   const a = useAccount();

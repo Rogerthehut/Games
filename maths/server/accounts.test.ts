@@ -29,7 +29,7 @@ describe("signing in", () => {
   it("creates the account the first time someone signs in, with no learners and no consent", async () => {
     const r = await call("fake_a", "GET", "/api/account");
     expect(r.status).toBe(200);
-    expect(r.body).toEqual({ termsVersion: TERMS_VERSION, consented: false, learners: [] });
+    expect(r.body).toMatchObject({ termsVersion: TERMS_VERSION, consented: false, learners: [], billing: { enabled: false, access: true } });
   });
   it("knows which paths belong to the account API", () => {
     for (const p of ["/api/account", "/api/account/consent", "/api/learners", "/api/learners/abc"]) expect(isAccountRoute(p), p).toBe(true);

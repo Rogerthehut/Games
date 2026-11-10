@@ -2,10 +2,11 @@ import { TERMS_VERSION } from "../src/legal/terms-version";
 import type { AuthProvider } from "./auth";
 import { MAX_PROFILE_BYTES } from "./db/profile-check";
 import type { Repo } from "./db/repo";
+import { applyEvent, hasAccess, summarise, type Gateway, type Plan } from "./billing";
 
-export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown }
+export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown; origin?: string }
 export interface ApiResponse { status: number; body: unknown; headers?: Record<string, string> }
-export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLimiter }
+export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLimiter; billing?: Gateway; appUrl?: string }
 
 /** A cap on how often one parent can write, so a stuck or hostile client cannot flood the database. */
 export class WriteLimiter {
@@ -23,7 +24,7 @@ export const MAX_BODY = MAX_PROFILE_BYTES + 20_000;
 const reply = (status: number, body: unknown, headers?: Record<string, string>): ApiResponse => ({ status, body, headers });
 const err = (status: number, code: string, message: string) => reply(status, { error: code, message });
 const LEARNER = /^\/api\/learners\/([^/]+)$/;
-export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path === "/api/learners" || LEARNER.test(path);
+export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/learners" || LEARNER.test(path);
 
 /**
  * Parents' accounts and their learners' saved progress. Signed-in parents only; every query is scoped to the parent.
@@ -41,7 +42,8 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   // the account itself
   if (req.path === "/api/account" && req.method === "GET") {
     const learners = consented ? await deps.repo.loadLearners(parent.id) : [];
-    return reply(200, { termsVersion: TERMS_VERSION, consented, learners }, { "Cache-Control": "no-store" });
+    const billing = await summarise(deps.billing, await deps.repo.getSubscription(parent.id));
+    return reply(200, { termsVersion: TERMS_VERSION, consented, learners, billing }, { "Cache-Control": "no-store" });
   }
   if (req.path === "/api/account/consent" && req.method === "POST") {
     if (body.version !== TERMS_VERSION) return err(400, "wrong-version", "That is not the current version of the privacy notice and terms.");
@@ -53,14 +55,50 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   }
   if (req.path === "/api/account" && req.method === "DELETE") {
     if (body.confirm !== "delete my account") return err(400, "not-confirmed", 'Send {"confirm":"delete my account"} to delete the account and everything saved under it.');
+    const sub = await deps.repo.getSubscription(parent.id);
+    if (sub && deps.billing) {
+      // cancel the subscription first: if that fails we keep the account, so nobody is billed for something they deleted
+      try { await deps.billing.deleteCustomer(sub.stripeCustomerId); } catch { return err(502, "billing-error", "We couldn't cancel your subscription just now, so nothing was deleted. Please try again."); }
+    }
     await deps.repo.deleteParent(parent.id);
     await deps.auth.deleteUser?.(who.userId).catch(() => undefined); // our data is gone either way; the sign-in identity is removed if we can
     return reply(200, { deleted: true });
   }
 
-  // learners: nothing is saved until the parent has agreed to the current terms
+  // subscriptions
+  if (req.path.startsWith("/api/billing/")) {
+    if (!deps.billing) return err(404, "billing-off", "Payments are not turned on.");
+    const appUrl = (deps.appUrl ?? req.origin ?? "").replace(/\/+$/, "");
+    if (!appUrl) return err(500, "no-app-url", "The site address is not set.");
+    if (req.path === "/api/billing/checkout" && req.method === "POST") {
+      if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+      const plan = body.plan as Plan;
+      if (plan !== "monthly" && plan !== "yearly") return err(400, "invalid", "Choose monthly or yearly.");
+      let sub = await deps.repo.getSubscription(parent.id);
+      if (hasAccess(sub) && sub?.status !== "past_due") return err(409, "already-subscribed", "This account already has a subscription. Use Manage subscription.");
+      try {
+        if (!sub) sub = await deps.repo.setCustomer(parent.id, await deps.billing.createCustomer(parent.id));
+        const trial = !sub.everSubscribed;
+        if (deps.billing.fake && deps.billing.completeFakeCheckout) await applyEvent(deps.repo, deps.billing.completeFakeCheckout(sub.stripeCustomerId, plan, trial));
+        return reply(200, { url: await deps.billing.checkoutUrl({ customerId: sub.stripeCustomerId, parentId: parent.id, plan, trial, appUrl }) });
+      } catch (e) {
+        return err(503, (e as Error).message === "not-configured" ? "not-configured" : "billing-error", "We couldn't start checkout just now. Please try again.");
+      }
+    }
+    if (req.path === "/api/billing/portal" && req.method === "POST") {
+      const sub = await deps.repo.getSubscription(parent.id);
+      if (!sub) return err(404, "no-subscription", "There is no subscription to manage yet.");
+      try { return reply(200, { url: await deps.billing.portalUrl(sub.stripeCustomerId, appUrl) }); }
+      catch { return err(503, "billing-error", "We couldn't open the billing page just now. Please try again."); }
+    }
+    return err(404, "not-found", "Not found.");
+  }
+
+  // learners: nothing is saved until the parent has agreed to the current terms and, where payments are on, has a subscription
+  const paid = !deps.billing || hasAccess(await deps.repo.getSubscription(parent.id));
   if (req.path === "/api/learners" && req.method === "POST") {
     if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+    if (!paid) return err(402, "subscription-required", "A subscription is needed to add learners.");
     const out = await deps.repo.createLearner(parent.id, body.profile);
     if (!out.ok) return err(out.reason === "limit" ? 409 : 400, out.reason, out.error);
     return reply(201, { id: out.id, version: out.version });
@@ -68,6 +106,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   const m = LEARNER.exec(req.path);
   if (m && req.method === "PUT") {
     if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+    if (!paid) return err(402, "subscription-required", "A subscription is needed to save progress.");
     const base = body.baseVersion;
     if (typeof base !== "number" || !Number.isInteger(base) || base < 1) return err(400, "invalid", "baseVersion must be the version you last loaded or saved.");
     const out = await deps.repo.saveProgress(parent.id, m[1], body.profile, base);
@@ -80,4 +119,15 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     return (await deps.repo.deleteLearner(parent.id, m[1])) ? reply(200, { deleted: true }) : err(404, "not-found", "No such learner.");
   }
   return err(404, "not-found", "No such route.");
+}
+
+/** Stripe's webhook. Only the signature proves it came from Stripe, so nothing is read from it before that is checked. */
+export async function handleStripeWebhook(raw: Buffer, signature: string | undefined, deps: Pick<AccountDeps, "repo" | "billing">): Promise<ApiResponse> {
+  if (!deps.billing) return err(404, "billing-off", "Payments are not turned on.");
+  let ev;
+  try { ev = deps.billing.parseWebhook(raw, signature); } catch { return err(400, "bad-signature", "Signature check failed."); }
+  if (!ev) return reply(200, { received: true });
+  const result = await applyEvent(deps.repo, ev);
+  // an unknown customer is not an error worth retrying: it is not one of ours
+  return reply(200, { received: true, result });
 }

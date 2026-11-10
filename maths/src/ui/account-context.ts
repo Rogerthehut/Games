@@ -2,6 +2,7 @@ import { createContext } from "preact";
 import { useContext } from "preact/hooks";
 import type { RemoteLearner, SyncStatus } from "../account/sync";
 import type { Store } from "../engine/storage";
+import type { BillingInfo } from "../account/api";
 
 /** What the app needs from the account while it runs. */
 export interface AccountBridge {
@@ -16,6 +17,8 @@ export interface AccountInfoCtx {
   signOut(): Promise<void>;
   exportData(): Promise<unknown>;
   deleteAccount(): Promise<void>;
+  billing: BillingInfo;
+  manageBilling(): Promise<void>;
 }
 export const AccountCtx = createContext<AccountInfoCtx | null>(null);
 /** The signed-in account, or null when the app is running without accounts. */
