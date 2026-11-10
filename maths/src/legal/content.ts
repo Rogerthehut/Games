@@ -154,6 +154,23 @@ export const termsSections: Section[] = [
     ],
   },
   {
+    title: "No guarantee of results",
+    paragraphs: [
+      "quarter is a practice and learning aid. We can’t promise any particular result, such as a better school grade, a place at a school, or a pass in the 11+ or any other exam. What a learner gains depends on many things, including how often they practise and the teaching they get elsewhere.",
+      "Levels, scores and reports, including the working level from a check-up and the progress report, are estimates to help you plan practice. They are not an official assessment and not a prediction of exam results.",
+      "Our 11+ style practice is original and independent of exam boards and test providers. It may not match any particular test, and school admission rules and tests change, so always check with the school or local authority.",
+      "Our topics follow England’s maths curriculum as we understand it, but we can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactEmail + ". The AI tutor can also make mistakes and is not a replacement for a teacher.",
+    ],
+  },
+  {
+    title: "Our responsibility to you",
+    paragraphs: [
+      "We will provide quarter with reasonable care and skill. We can’t promise it will always be available, uninterrupted or free of errors, and we may change, pause or remove features.",
+      "Children should use quarter under the supervision of a parent or guardian, who decides what is suitable for them, including screen time and online safety. Links to other websites are provided for convenience, and we are not responsible for what they contain.",
+      "Nothing in these terms limits our liability for death or personal injury caused by our negligence, for fraud, or for anything else the law does not allow us to limit. Subject to that, we are not responsible for losses that were not a foreseeable result of us breaking these terms, or for fees and costs paid to other people, such as tutors, schools or test providers. To the extent the law allows, our total liability to you is limited to what you have paid us for quarter in the 12 months before the problem.",
+    ],
+  },
+  {
     title: "Look after yourself and others",
     paragraphs: ["Use quarter for learning. Keep other people’s information private and avoid sharing personal details in the AI tutor. If the AI tutor is available, it can make mistakes. Ask a grown-up or teacher if an explanation seems wrong."],
   },
