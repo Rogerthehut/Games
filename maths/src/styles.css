@@ -2652,3 +2652,17 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .l-nav .wordmark { font-size: clamp(1.7rem, 2.5vw, 2.5rem); }
 .l-nav .legal-home { gap: clamp(8px, 1vw, 14px); }
 .l-nav-in { min-height: clamp(68px, 6vw, 92px); }
+
+/* ---- Smooth first load and screen changes ---- */
+.boot-splash { min-height: 100dvh; display: grid; place-items: center; background: var(--bg, #f6f1e4); }
+.boot-splash .cube-mark { width: 72px; height: 72px; animation: boot-breathe 1.8s ease-in-out infinite; }
+@keyframes boot-breathe { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.06); opacity: 1; } }
+/* every new screen eases in: a short fade and lift, so nothing pops */
+@keyframes screen-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes screen-fade { from { opacity: 0; } to { opacity: 1; } }
+#app > :where(main, div, section) { animation: screen-fade .32s cubic-bezier(.2, .8, .2, 1) both; }
+.content > :where(div, section, main, article) { animation: screen-in .34s cubic-bezier(.2, .8, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  #app > :where(main, div, section), .content > * { animation: none; }
+  .boot-splash .cube-mark { animation: none; }
+}

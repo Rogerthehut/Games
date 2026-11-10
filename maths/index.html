@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0f766e" />
+  <style>
+    /* shown before the app loads: the page colour (no white flash) and the plain-text summary kept for crawlers, but out of sight */
+    html { background: #f6f1e4; }
+    @media (prefers-color-scheme: dark) { html { background: #14161f; } }
+    .boot-summary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  </style>
+  <noscript><style>.boot-summary { position: static; width: auto; height: auto; clip: auto; white-space: normal; padding: 24px; font: 16px/1.5 system-ui, sans-serif; background: #fff; color: #121522; }</style></noscript>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg?v=quarter" type="image/svg+xml" sizes="any" />
   <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32" />
@@ -36,7 +43,7 @@
 </head>
 <body>
   <div id="app">
-    <main>
+    <main class="boot-summary">
       <h1>quarter: maths practice for Years 3 to 13</h1>
       <p>Short, friendly maths sessions that follow the National Curriculum for England, with 11+ practice, clear explanations and a parents' area. quarter needs JavaScript to run.</p>
       <p><a href="parents.html">Parent guides</a> · <a href="faqs.html">FAQs</a> · <a href="11-plus-maths.html">11+ maths</a> · <a href="./?info=privacy">Privacy notice</a></p>

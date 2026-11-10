@@ -1,5 +1,4 @@
-import { STRANDS } from "../curriculum";
-import { ActivityArt } from "./home";
+import { ActivityArt } from "./activity-art";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
 import { CubeMark, Wordmark } from "./wordmark";
@@ -21,6 +20,8 @@ function Torn({ color, seed = 1 }: { color: string; seed?: number }) {
 const Sparkle = () => (
   <svg class="sparkle" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path fill="currentColor" d="M50 0c4 28 22 46 50 50-28 4-46 22-50 50-4-28-22-46-50-50C28 46 46 28 50 0Z" /></svg>
 );
+
+const TOPIC_AREAS = ["Number", "Ratio", "Algebra", "Measures", "Geometry", "Statistics", "Calculus", "Reasoning"];
 
 /** A link to where independent reviews live (for example the Trustpilot page). Until one is set, the strip says reviews are on their way. */
 const REVIEW_URL = ((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_REVIEWS_URL ?? "").trim();
@@ -61,7 +62,7 @@ function Scribbles() {
 
 /** What visitors see before they sign in. Keep the claims to what the app really does. */
 export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): void }) {
-  const ticker = [...STRANDS, ...STRANDS];
+  const ticker = [...TOPIC_AREAS, ...TOPIC_AREAS];
   return (
     <main class="landing" id="main">
       <header class="l-nav">

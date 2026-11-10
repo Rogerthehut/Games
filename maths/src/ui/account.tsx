@@ -9,7 +9,8 @@ import type { Profile } from "../engine/progress";
 import type { Store } from "../engine/storage";
 import { TERMS_VERSION } from "../legal/terms-version";
 import { AccountCtx, type AccountBridge, type AccountInfoCtx } from "./account-context";
-import { App } from "./app";
+import { LazyApp, preloadApp } from "./app-lazy";
+import { Splash } from "./splash";
 import { Icon } from "./icons";
 import { CubeMark, Wordmark } from "./wordmark";
 import { LegalFooter } from "./legal";
@@ -53,7 +54,8 @@ export function NotSetUp() {
 }
 
 export function AccountGate() {
-  const [phase, setPhase] = useState<Phase>({ name: "loading" });
+  const [phase, setPhase] = useState<Phase>(() => (likelySignedIn() ? { name: "loading" } : { name: "signed-out" }));
+  const [authReady, setAuthReady] = useState<AuthClient | null>(null);
   const [status, setStatus] = useState<SyncStatus>("idle");
   const [notice, setNotice] = useState("");
   const auth = useRef<AuthClient | null>(null);
@@ -140,9 +142,13 @@ export function AccountGate() {
     let alive = true;
     (async () => {
       try {
+        if (likelySignedIn()) void preloadApp();
+        // a new visitor sees the welcome page first, so let it finish loading before fetching the (large) sign-in library
+        else await new Promise<void>((done) => ((window as { requestIdleCallback?: (cb: () => void, o: { timeout: number }) => void }).requestIdleCallback ?? ((cb: () => void, o: { timeout: number }) => setTimeout(cb, o.timeout / 2)))(() => done(), { timeout: 2500 }));
         const a = await createAuth();
         if (!alive) return;
         auth.current = a;
+        setAuthReady(a);
         api.current = new AccountApi(() => a.getToken());
         off = a.subscribe(() => {
           const now = a.user();
@@ -183,10 +189,10 @@ export function AccountGate() {
   if (phase.name === "ready")
     return (
       <AccountCtx.Provider value={info}>
-        <App key={userId.current} initialStore={phase.store} bridge={phase.bridge} />
+        <LazyApp key={userId.current} initialStore={phase.store} bridge={phase.bridge} />
       </AccountCtx.Provider>
     );
-  if (phase.name === "signed-out") return <SignedOut auth={auth.current!} />;
+  if (phase.name === "signed-out") return <SignedOut auth={authReady} />;
   if (phase.name === "paywall")
     return <Paywall billing={phase.billing} email={email.current} onChoose={(plan) => api.current!.checkout(plan)} onSignOut={signOut} onExport={() => api.current!.exportData()} />;
   if (phase.name === "consent")
@@ -202,7 +208,7 @@ export function AccountGate() {
         <button class="linkish" onClick={signOut}>Sign out</button>
       </Shell>
     );
-  return <Shell><p class="onboard-sub" role="status">{phase.text ?? "Loading…"}</p></Shell>;
+  return <Splash label={phase.text ?? "Loading"} />;
 }
 
 const money = (p: { amount: number; currency: string }) => new Intl.NumberFormat("en-GB", { style: "currency", currency: p.currency.toUpperCase() }).format(p.amount / 100);
@@ -254,7 +260,18 @@ function Paywall({ billing, email, onChoose, onSignOut, onExport }: { billing: B
   );
 }
 
-function SignedOut({ auth }: { auth: AuthClient }) {
+/**
+ * Clerk keeps a small "client_uat" cookie that is 0 (or missing) when nobody is signed in. Reading it lets the welcome page appear straight away
+ * for a new visitor, instead of waiting for the sign-in library to load just to find out nobody is signed in.
+ */
+function likelySignedIn(): boolean {
+  try {
+    const found = [...document.cookie.matchAll(/(?:^|;\s*)__client_uat(?:_[A-Za-z0-9]+)?=(\d+)/g)];
+    return found.some((m) => m[1] !== "0");
+  } catch { return true; }
+}
+
+function SignedOut({ auth }: { auth: AuthClient | null }) {
   // Visitors land on the welcome page first. A hash means Clerk is mid-flow (for example coming back from Google), so go straight to the form.
   const [kind, setKind] = useState<"sign-up" | "sign-in" | null>(() => (location.hash.length > 1 ? "sign-in" : null));
   const box = useRef<HTMLDivElement>(null);
@@ -264,14 +281,14 @@ function SignedOut({ auth }: { auth: AuthClient }) {
   useEffect(() => {
     setStuck("");
     const el = box.current;
-    if (!el || !kind || !formOpen) return;
+    if (!el || !kind || !formOpen || !auth) return;
     let stop: (() => void) | undefined;
     try { stop = auth.mount(kind, el); }
     catch (e) { console.error("Sign-in form failed to open", e); setStuck(`The sign-in form couldn't open (${e instanceof Error ? e.message.slice(0, 140) : "unknown error"}).`); }
     // If Clerk's form never appears (blocked script, wrong allowed domain, an embedded preview), say so instead of showing an empty card.
     const timer = setTimeout(() => { if (!el.childElementCount) setStuck("The sign-in form hasn't loaded."); }, 6000);
     return () => { clearTimeout(timer); try { stop?.(); } catch { /* already removed */ } };
-  }, [kind, formOpen]);
+  }, [kind, formOpen, auth]);
   if (!kind) return <Landing onStart={setKind} />;
   return (
     <Shell wide>
@@ -296,6 +313,7 @@ function SignedOut({ auth }: { auth: AuthClient }) {
         </div>
       )}
       <div class="clerk-mount" ref={box} data-testid="auth-box" />
+      {formOpen && !auth && <p class="small muted account-hint" role="status">Getting the sign-in form ready…</p>}
       {formOpen && !stuck && <p class="small muted account-hint" data-testid="check-junk">After you continue, we email you a code or link to confirm your address. If it doesn't arrive within a minute or two, check your junk or spam folder.</p>}
       {stuck && <p class="alert-note" role="alert" data-testid="auth-stuck">{stuck} Try opening this page in its own browser tab. If it still doesn't load, the site owner should check that this address is an allowed domain in the Clerk dashboard.</p>}
       <Legal />
