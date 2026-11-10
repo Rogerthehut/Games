@@ -187,7 +187,7 @@ function SignedOut({ auth }: { auth: AuthClient }) {
     if (!el || !kind) return;
     let stop: (() => void) | undefined;
     try { stop = auth.mount(kind, el); }
-    catch (e) { console.error("Sign-in form failed to open", e); setStuck("The sign-in form couldn't open."); }
+    catch (e) { console.error("Sign-in form failed to open", e); setStuck(`The sign-in form couldn't open (${e instanceof Error ? e.message.slice(0, 140) : "unknown error"}).`); }
     // If Clerk's form never appears (blocked script, wrong allowed domain, an embedded preview), say so instead of showing an empty card.
     const timer = setTimeout(() => { if (!el.childElementCount) setStuck("The sign-in form hasn't loaded."); }, 6000);
     return () => { clearTimeout(timer); try { stop?.(); } catch { /* already removed */ } };

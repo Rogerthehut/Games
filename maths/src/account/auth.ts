@@ -16,10 +16,12 @@ export async function createAuth(): Promise<AuthClient> {
 }
 
 async function clerkAuth(key: string): Promise<AuthClient> {
-  // Loaded only when accounts are on, so the local-only build stays small. The sign-in forms themselves come from Clerk.
-  const { Clerk } = await import("@clerk/clerk-js");
+  // Loaded only when accounts are on, so the local-only build stays small.
+  // clerk-js no longer carries the sign-in screens, so they come from @clerk/ui and are passed in. Without it every mount fails.
+  const [{ Clerk }, { ui }] = await Promise.all([import("@clerk/clerk-js"), import("@clerk/ui")]);
   const clerk = new Clerk(key);
   await clerk.load({
+    ui,
     appearance: {
       variables: { colorPrimary: "#2f3a73", colorText: "#1e2140", fontFamily: "Figtree, system-ui, sans-serif", borderRadius: "14px", fontSize: "16px" },
       // our own tabs switch between sign in and sign up, so hide Clerk's link between them
