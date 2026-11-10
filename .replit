@@ -23,7 +23,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd maths && ([ -d node_modules ] || npm ci --no-audit --no-fund) && npm run build && npm run server"
+args = "(pkill -f '[t]sx server/index.ts' || true); cd maths && ([ -d node_modules ] || npm ci --no-audit --no-fund) && npm run build && npm run server"
 waitForPort = 5000
 
 [nix]
