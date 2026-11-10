@@ -2371,3 +2371,4 @@ html:has(.quarter-search[open]),
 .account-back { display: block; margin: 0 0 8px; min-height: 44px; }
 .landing-cta .btn, .landing-final .btn { width: auto; }
 @media (max-width: 520px) { .landing-cta .btn { width: 100%; } }
+.footer-company { margin: 0; padding-bottom: 8px; color: var(--muted); }

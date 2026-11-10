@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { contactEmail, cookiesSections, copyright, footerGroups, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
+import { companyLine, contactEmail, cookiesSections, copyright, footerGroups, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
 import { Icon } from "./icons";
 import { primaryNav, tabHref } from "./navigation";
@@ -30,6 +30,7 @@ export function LegalFooter() {
         <small>{copyright}</small>
         <small>Designed and built by <a class="legal-link" href={designer.href}>{designer.name}</a></small>
       </div>
+      <p class="footer-company small">{companyLine}</p>
     </footer>
   );
 }

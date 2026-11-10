@@ -1,4 +1,6 @@
 export const operator = "Wristed Ltd";
+export const company = { number: "12397793", office: "124 City Road, London, England, EC1V 2NX", registered: "England and Wales" } as const;
+export const companyLine = `${operator} is registered in ${company.registered}, company number ${company.number}. Registered office: ${company.office}.`;
 export const copyright = `© 2026 ${operator}. quarter is a trading name of ${operator}.`;
 export const contactEmail = "hello@yourquarter.co.uk";
 export const designer = { name: "Roger Richman", href: "https://roger-richman.com/" } as const;
@@ -48,7 +50,7 @@ export function privacySections(native: boolean): Section[] {
     ...(native ? [] : [{
       title: "Who looks after your information",
       paragraphs: [
-        `quarter is a trading name of ${operator}, which is responsible for the information described in this notice. For any question about your information, or to use any of your rights, email ${contactEmail}.`,
+        `quarter is a trading name of ${operator}, which is responsible for the information described in this notice.  ${companyLine} For any question about your information, or to use any of your rights, email ${contactEmail}.`,
         "quarter is made for parents and guardians to set up and for children to use under their supervision. Only a parent or guardian creates an account. Children never create their own.",
       ],
     }, {
