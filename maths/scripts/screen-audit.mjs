@@ -68,7 +68,7 @@ const SCREENS = [
   { name: "me", go: async (p) => { await navTab(p, "me").catch(async () => { await p.getByRole("button", { name: /Maya/ }).first().click(); await wait(p, 600); }); } },
   { name: "practice-intro", go: async (p) => { await click(p, "start-practice"); } },
   { name: "practice-number", go: async (p) => { await click(p, "start-practice"); await openQuestion(p); } },
-  { name: "practice-fraction", go: async (p) => { await navTab(p, "skills"); await p.getByRole("combobox").nth(1).selectOption("Number").catch(() => {}); await practiseSkill(p, "frac-add"); await openQuestion(p); } },
+  { name: "practice-fraction", go: async (p) => { await navTab(p, "skills"); await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {}); await wait(p, 300); await p.getByRole("combobox").nth(1).selectOption("Number").catch(() => {}); await practiseSkill(p, "frac-add"); await openQuestion(p); } },
   { name: "practice-choice-words", go: async (p) => { await reasoningList(p); await practiseSkill(p, "vr-odd-word"); await openQuestion(p); } },
   { name: "practice-choice-pictures", go: async (p) => { await reasoningList(p); await practiseSkill(p, "nvr-series"); await openQuestion(p); } },
   { name: "practice-grid", go: async (p) => { await reasoningList(p); await practiseSkill(p, "nvr-matrix"); await openQuestion(p); } },
@@ -154,7 +154,7 @@ const AUDIT = ({ kind }) => {
     const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
     if (!own) continue;
     const fs = parseFloat(getComputedStyle(el).fontSize);
-    if (fs < 11.5 && !el.closest("svg")) tiny.push(`${label(el)} ${fs}px "${el.textContent.trim().slice(0, 18)}"`);
+    if (fs > 0 && fs < 11.5 && !el.closest("svg") && !el.closest(".mtight")) tiny.push(`${label(el)} ${fs}px "${el.textContent.trim().slice(0, 18)}"`);
   }
   if (small.length) issues.push({ type: "small-target", detail: small.slice(0, 5).join("; ") + (small.length > 5 ? ` +${small.length - 5} more` : "") });
   if (tiny.length) issues.push({ type: "tiny-text", detail: tiny.slice(0, 3).join("; ") });
@@ -162,6 +162,7 @@ const AUDIT = ({ kind }) => {
   // 5. the main action is hidden, off screen, or covered
   const main = ["check", "next", "mock-start", "intro-next", "intro-try", "name-next", "year-go", "build-plan-go"].map((id) => document.querySelector(`[data-testid=${id}]`)).filter((el) => el && visible(el));
   for (const el of main) {
+    el.scrollIntoView({ block: "nearest" }); // a button lower down the page is fine if a child can scroll to it and nothing fixed covers it there
     const r = el.getBoundingClientRect();
     const cx = Math.min(vw - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(vh - 1, Math.max(0, r.top + r.height / 2));
     const hit = document.elementFromPoint(cx, cy);

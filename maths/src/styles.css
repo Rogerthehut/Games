@@ -2821,3 +2821,19 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
   .tour-bottom .tour-next { min-height: 50px; }
 }
 @media (orientation: portrait) and (max-height: 640px) { .tour-card { width: min(54vw, 26dvh); } .tour-auto { font-size: .85rem; } }
+
+/* touch and small screens: every button, summary and text link is at least 44px tall, so a finger can hit it */
+@media (pointer: coarse), (max-width: 1100px) {
+  :root .btn, :root .btn.small, :root .chip-btn { min-height: 44px; }
+  summary.small, details > summary { min-height: 44px; display: flex; align-items: center; }
+  .linkish.tiny { min-height: 44px; padding: 0 8px; }
+  a.legal-link { display: inline-flex; align-items: center; min-height: 44px; }
+}
+/* short portrait phones (an iPhone SE, for example): tighter question area and keys, so the whole number pad fits */
+@media (orientation: portrait) and (max-height: 700px) {
+  .tt-play .tt-q { min-height: 0; padding: 10px 8px 4px; }
+  .tt-play .tt-prompt { font-size: clamp(2.2rem, 11vw, 3.2rem); }
+  .tt-play .tt-answer { font-size: clamp(2rem, 10vw, 2.8rem); }
+  .tt-play .pad-key { min-height: 46px; }
+  .tt-play { gap: 8px; }
+}
