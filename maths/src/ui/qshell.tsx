@@ -105,12 +105,15 @@ function scrollerOf(el: HTMLElement | null): HTMLElement | null {
 export function MoreBelow() {
   const anchor = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState(false);
+  const [away, setAway] = useState(false); // scrolled down already: the hint has done its job, so it fades out
   useEffect(() => {
     const update = () => {
       const sc = scrollerOf(anchor.current?.parentElement ?? null);
       const doc = document.scrollingElement ?? document.documentElement;
       const remaining = sc ? sc.scrollHeight - sc.clientHeight - sc.scrollTop : doc.scrollHeight - innerHeight - doc.scrollTop;
-      setMore(remaining > 60);
+      const top = sc ? sc.scrollTop : doc.scrollTop;
+      setMore(remaining > 60 || (top > 0 && remaining > 0));
+      setAway(top > 60);
     };
     const watch = new ResizeObserver(update);
     watch.observe(document.body);
@@ -128,7 +131,7 @@ export function MoreBelow() {
   };
   return (
     <div class="more-below" ref={anchor}>
-      {more && <button type="button" class="more-cue" onClick={down} data-testid="more-below">Scroll for more <Icon name="chevron" size={18} /></button>}
+      {more && <button type="button" class={`more-cue${away ? " off" : ""}`} onClick={down} data-testid="more-below" tabIndex={away ? -1 : 0} aria-hidden={away ? "true" : undefined}>Scroll for more <Icon name="chevron" size={18} /></button>}
     </div>
   );
 }

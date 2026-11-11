@@ -2841,11 +2841,12 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 /* "Scroll for more": sticks to the bottom of what you can see while the page carries on below */
 .more-below { position: sticky; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); height: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; }
 @media (min-width: 900px) { .more-below { bottom: 22px; } }
-.more-cue { position: absolute; bottom: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; min-height: 44px; padding-inline: 16px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); font: inherit; font-size: .92rem; font-weight: 750; box-shadow: 0 6px 18px #18192b26; cursor: pointer; animation: more-in 260ms var(--ease-out) both; }
+.more-cue { position: absolute; bottom: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; min-height: 44px; padding-inline: 16px; opacity: .92; transition: opacity 320ms ease, transform 320ms var(--ease-out); border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); font: inherit; font-size: .92rem; font-weight: 750; box-shadow: 0 6px 18px #18192b26; cursor: pointer; animation: more-in 260ms var(--ease-out) backwards; }
+.more-cue.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
 .more-cue svg { transform: rotate(90deg); animation: more-nudge 1.6s ease-in-out 600ms 3; }
 .tt-screen .more-below { bottom: 18px; }
 .pr-page .more-below { bottom: 18px; }
 @keyframes more-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @keyframes more-nudge { 0%, 100% { transform: rotate(90deg) translateX(0); } 50% { transform: rotate(90deg) translateX(4px); } }
-@media (prefers-reduced-motion: reduce) { .more-cue, .more-cue svg { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .more-cue, .more-cue svg { animation: none; transition: opacity 1ms; } }
 @media print { .more-below { display: none !important; } }
