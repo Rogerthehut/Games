@@ -13,6 +13,25 @@ import { Clubhouse, TerrainMap, WORLDS } from "./world-scene";
 
 const GLYPH: Record<string, string> = { Number: "+", Ratio: ":", Algebra: "x", Measures: "cm", Geometry: "△", Statistics: "%", Calculus: "∫" };
 const STATUS_TEXT = STATUS_LABEL;
+const GLYPH_MEANING: [string, string, string][] = [
+  ["+", "Number", "counting, adding, multiplying, fractions"], [":", "Ratio", "ratio and proportion"], ["x", "Algebra", "letters for numbers, equations"],
+  ["cm", "Measures", "length, time, money, area, volume"], ["△", "Geometry", "shapes and angles"], ["%", "Statistics", "charts, averages, probability"], ["∫", "Calculus", "rates of change and areas under curves"],
+];
+
+/** What the symbols on the stops mean. */
+function MapKey({ strands }: { strands: Set<string> }) {
+  return (
+    <section class="journey-key" aria-label="What the symbols mean">
+      <h2>What the symbols mean</h2>
+      <ul>
+        {GLYPH_MEANING.filter(([, strand]) => strands.has(strand)).map(([sym, strand, text]) => (
+          <li key={strand}><span class="key-glyph" aria-hidden="true">{sym}</span><span><strong>{strand}</strong><small>{text}</small></span></li>
+        ))}
+        <li><span class="key-glyph key-tick" aria-hidden="true">✓</span><span><strong>Secure</strong><small>you know this one well</small></span></li>
+      </ul>
+    </section>
+  );
+}
 const STEP = 118, TOP = 245, W = 360;
 const YEAR_GAP = 58, STAGE_GAP = 156;
 
@@ -115,6 +134,7 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
     </div>
   );
 
+  const strandsHere = new Set(skills.map((x) => x.strand));
   return (
     <div class={`journey-wrap ${wide ? "journey-wide" : ""}`}>
       {heading}
@@ -181,8 +201,9 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
                 </button>
               ))}
             </nav>
+            <MapKey strands={strandsHere} />
           </aside>
-        ) : skillSheet}
+        ) : <>{skillSheet}<details class="journey-key-fold"><summary>What the symbols mean</summary><MapKey strands={strandsHere} /></details></>}
       </div>
     </div>
   );

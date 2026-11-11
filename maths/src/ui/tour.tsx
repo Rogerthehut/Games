@@ -19,13 +19,23 @@ const TablesArt = () => (
 );
 const IconArt = ({ name }: { name: "bulb" | "lock" | "star" }) => <span class="tour-icon" aria-hidden="true"><Icon name={name} size={84} /></span>;
 
-const pagesFor = (name: string): Page[] => [
+/** The little buttons under each question, drawn the way they look there, so a child knows them when they see them. */
+const HelpersArt = ({ ask }: { ask: boolean }) => (
+  <span class="tour-pills" aria-hidden="true">
+    <span class="tour-pill"><span class="pill"><Icon name="bulb" size={20} /> Hint</span><small>a clue</small></span>
+    <span class="tour-pill"><span class="pill"><Icon name="pencil" size={20} /> Working-out tools</span><small>paper to work on</small></span>
+    {ask && <span class="tour-pill"><span class="pill"><Icon name="chat" size={20} /> Ask</span><small>chat to your tutor</small></span>}
+  </span>
+);
+
+const pagesFor = (name: string, ask: boolean): Page[] => [
   { id: "hello", colour: "#f0be65", title: `Hello, ${name}!`, text: "Let's have a quick look around. It only takes a minute.", art: <span class="tour-icon tour-cube" aria-hidden="true"><CubeMark /></span> },
   { id: "practice", colour: "#f6a0bc", title: "Practice", text: "Tap here to do a few questions. A little every day helps you grow.", art: <ActivityArt kind="practice" /> },
   { id: "skills", colour: "#c1c5ee", title: "Skills", text: "Pick any maths topic you would like to try.", art: <ActivityArt kind="skills" /> },
   { id: "checkup", colour: "#f0be65", title: "Find your level", text: "Answer some questions, and we will find the best place to start.", art: <ActivityArt kind="checkup" /> },
   { id: "tables", colour: "#84d8ba", title: "Times tables", text: "Learn your tables. Each square turns green when you know it.", art: <TablesArt /> },
-  { id: "oops", colour: "#f6a0bc", title: "Oops is okay", text: "Stuck? Tap Hint. A mistake just means you are learning.", art: <IconArt name="bulb" /> },
+  { id: "oops", colour: "#f6a0bc", title: "Oops is okay", text: "A mistake just means you are learning. Have a go first!", art: <IconArt name="bulb" /> },
+  { id: "helpers", colour: "#f0be65", title: "Little helpers", text: "Stuck? Look at the bottom of the screen. These little buttons are there to help.", art: <HelpersArt ask={ask} /> },
   { id: "grownups", colour: "#c1c5ee", title: "For grown-ups", text: "Grown-ups have a special place with progress and settings. It has a lock for them.", art: <IconArt name="lock" /> },
   { id: "go", colour: "#84d8ba", title: "Ready?", text: "Let's start. You can see this again in Me.", art: <IconArt name="star" /> },
 ];
@@ -36,7 +46,7 @@ const pagesFor = (name: string): Page[] => [
  */
 export function Tour({ name, onDone }: { name: string; onDone: () => void }) {
   const { profile } = useApp();
-  const pages = pagesFor(name);
+  const pages = pagesFor(name, !!profile.tutor?.enabled);
   const [i, setI] = useState(0);
   const [dir, setDir] = useState<"forward" | "back">("forward");
   const [reading, setReading] = useState(false);
