@@ -6,6 +6,8 @@ import { checkPin, hasPin, pinProblem, setPin } from "./pin";
 let unlockedUntil = 0;
 /** Unlocked for ten minutes after the sum and PIN. Held in memory only. */
 export const parentUnlocked = () => Date.now() < unlockedUntil;
+/** Locks the grown-ups' area again, for example when a child moves on from it. */
+export const lockParents = () => { unlockedUntil = 0; };
 const unlock = () => { unlockedUntil = Date.now() + 10 * 60_000; };
 const digitsOnly = (t: string) => t.replace(/[^\d]/g, "");
 

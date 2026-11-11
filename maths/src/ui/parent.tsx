@@ -1,6 +1,6 @@
 import { useRef, useState } from "preact/hooks";
 import { ALL_SKILLS, SKILLS, STAGE_LABEL } from "../curriculum";
-import { DAY, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
+import { DAY, TUTOR_LOG_DAYS, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
 import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
@@ -203,6 +203,7 @@ export function Parent() {
             </ul>
           )}
           {log.length > 0 && <div class="actions"><button class="btn" onClick={() => update((p) => ({ ...p, tutorLog: [] }))}>Clear the log</button></div>}
+          {log.length > 0 && <p class="small muted">Chats are kept on this device for {TUTOR_LOG_DAYS} days, then removed.</p>}
         </section>
       )}
 

@@ -28,7 +28,7 @@ import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
 import { Shell } from "./shell";
 import { primaryNav, tabHref, tabRoute, type Tab } from "./navigation";
 import { Me } from "./me";
-import { ParentGate, parentUnlocked } from "./gate";
+import { ParentGate, lockParents, parentUnlocked } from "./gate";
 import type { AccountBridge } from "./account-context";
 import type { RemoteLearner } from "../account/sync";
 
@@ -85,6 +85,9 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     }
     showRoute(next);
   };
+
+  // the grown-ups' area locks again as soon as someone moves on from it, so the next person on the device needs the PIN
+  useEffect(() => { if (!["parent", "progress-report", "my-data", "booklet", "concept"].includes(route.name)) lockParents(); }, [route.name]);
 
   useEffect(() => {
     if (showWelcome) return;

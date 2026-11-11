@@ -125,4 +125,5 @@ Run against a built preview (`VITE_ALLOW_LOCAL_ONLY=1 npm run build && npx vite 
 
 - `npm run e2e:pathway`: the assessment journey in a real browser. A learner who hasn't secured every topic can't start the pathway test; one who has can, saves and resumes it, fails and retries, misses the pass mark by one, then earns exactly one certificate at the pass mark, which survives a reload and moves the pathway on. Also checked on a phone.
 - `npm run e2e:taps`: a quick double tap on Check, Show the steps or Next counts once.
+- `npm run e2e:grownup`: the Parents' area, adding or changing a learner and the search all ask for the sum and PIN, and the area locks again on leaving. The review behind it is `docs/GROWN_UP_CONTROLS_REVIEW.md`.
 - Accounts: see the notes at the top of `scripts/accounts-e2e.mjs`.

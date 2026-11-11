@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import { pruneTutorLog } from "../engine/progress";
 import { askTutor, tutorAvailable } from "../tutor/client";
 import type { TutorContext, TutorTurn } from "../tutor/types";
 import { useApp } from "./context";
@@ -38,7 +39,7 @@ export function TutorPanel({ ctx, onClose }: { ctx: TutorContext; onClose: () =>
       const res = await askTutor({ context: ctx, history, message: m, revealPolicy: reveal });
       setTurns((t) => [...t, { role: "tutor", text: res.reply }]);
       if (res.remainingToday !== undefined) setLeft(res.remainingToday);
-      update((p) => ({ ...p, tutorLog: [...(p.tutorLog ?? []), { at: Date.now(), skillId: ctx.skillId, question: ctx.question, child: m, tutor: res.reply, flag: res.flag }].slice(-300) }));
+      update((p) => ({ ...p, tutorLog: pruneTutorLog([...(p.tutorLog ?? []), { at: Date.now(), skillId: ctx.skillId, question: ctx.question, child: m, tutor: res.reply, flag: res.flag }]) }));
     } catch {
       setError("The tutor can't be reached right now. The Hint button still works, or ask a grown-up.");
     } finally {

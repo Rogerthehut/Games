@@ -66,3 +66,13 @@ describe("saving", () => {
     expect(() => importProfile("nope")).toThrow();
   });
 });
+
+import { TUTOR_LOG_DAYS, pruneTutorLog, type TutorLogEntry } from "./progress";
+describe("tutor chats kept on the device", () => {
+  const entry = (daysAgo: number, extra: Partial<TutorLogEntry> = {}): TutorLogEntry => ({ at: 1_000_000_000_000 - daysAgo * 86_400_000, skillId: "x", question: "q", child: "hi", tutor: "hello", ...extra });
+  it("are removed after 30 days, except a worrying message nobody has seen yet", () => {
+    const now = 1_000_000_000_000;
+    const kept = pruneTutorLog([entry(2), entry(TUTOR_LOG_DAYS + 5), entry(TUTOR_LOG_DAYS + 5, { flag: "wellbeing" }), entry(TUTOR_LOG_DAYS + 5, { flag: "wellbeing", seen: true })], now);
+    expect(kept.map((e) => [Math.round((now - e.at) / 86_400_000), e.flag ?? null, !!e.seen])).toEqual([[2, null, false], [35, "wellbeing", false]]);
+  });
+});

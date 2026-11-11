@@ -47,7 +47,7 @@ export function Me() {
     setBrowseRole(null);
     return stopPracticeNarration;
   }, [profile.id]);
-  const [gate, setGate] = useState(false);
+  const [gate, setGate] = useState<false | "parent" | "add">(false);
   const [theme, setTheme] = useState<ThemeChoice>(getTheme());
   const last = profile.baselines[profile.baselines.length - 1];
   const secure = SKILLS.filter((s) => statusOf(profile.skills[s.id]) === "secure").length;
@@ -101,7 +101,7 @@ export function Me() {
               </button>
             </li>
           ))}
-          <li><button class="row add" onClick={() => go({ name: "onboard" })}><Icon name="plus" /><span>Add someone, or change year</span></button></li>
+          <li><button class="row add" onClick={() => (parentUnlocked() ? go({ name: "onboard" }) : setGate("add"))} data-testid="add-learner"><Icon name="plus" /><span>Add someone, or change year</span></button></li>
         </ul>
       </section>
 
@@ -163,10 +163,10 @@ export function Me() {
 
       <ul class="rows">
         <li><button class="row" onClick={() => go({ name: "tour" })} data-testid="replay-tour"><Icon name="star" /><span>Show me around<small>A quick tour of quarter</small></span><Icon name="chevron" size={18} /></button></li>
-        <li><button class="row" onClick={() => (parentUnlocked() ? go({ name: "parent" }) : setGate(true))} data-testid="open-parents"><Icon name="lock" /><span>Parents' area</span><Icon name="chevron" size={18} /></button></li>
+        <li><button class="row" onClick={() => (parentUnlocked() ? go({ name: "parent" }) : setGate("parent"))} data-testid="open-parents"><Icon name="lock" /><span>Parents' area</span><Icon name="chevron" size={18} /></button></li>
       </ul>
 
-      {gate && <ParentGate onCancel={() => setGate(false)} onPass={() => { setGate(false); go({ name: "parent" }); }} />}
+      {gate && <ParentGate onCancel={() => setGate(false)} onPass={() => { const to = gate === "add" ? { name: "onboard" as const } : { name: "parent" as const }; setGate(false); go(to); }} />}
     </div>
   );
 }
