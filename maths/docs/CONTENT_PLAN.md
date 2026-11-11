@@ -54,3 +54,18 @@ simple interest, VAT and wages (Year 8) and budgets (Year 9). Compound interest 
 - Common mistakes are recorded where there is a real, frequent one (for example, adding the powers when raising a power to a power).
 - A teacher or subject specialist reviews each batch before it is called finished, using the real specification for GCSE and A-level.
 - The marketing claim should be reviewed again when each stage has a fuller set of topics.
+
+## The STEM lab (first batch built)
+
+Its own area on Today, with a mint sticky note under the times tables one (side panel on wide screens, top of Today on narrow ones). It is separate from the maths plan, the skills map and the 11+ papers, and uses the same practice engine, so progress, hints, read-aloud and the AI tutor all work.
+
+29 topics in four themes, written so each idea is simplified for the age but never wrong:
+
+| Stage | Computing | Data science | AI and machine learning | Quantum ideas |
+|---|---|---|---|---|
+| KS2 (Years 3 to 6) | instructions, loops, inputs and outputs, sorting, debugging | data detective | learning from examples | |
+| KS3 (Years 7 to 9) | binary, hexadecimal, tracing code, logic, data types | outliers | bias, nearest neighbour, a tiny neuron, accuracy | |
+| KS4 (Years 10 and 11) | binary search, how work grows, storage, Caesar ciphers | | spam and probability | quantum ideas |
+| KS5 (Years 12 and 13) | information and bits | | gradient descent, a network layer | qubits, qubit states, quantum gates |
+
+Still to do: study-library pages for the STEM ideas, drawn figures (flowcharts, decision trees, qubit pictures), a "build it" activity per theme, a STEM section in the progress report, and a teacher or computer-science specialist review. Planned to be bundled with the subscription; nothing is gated while quarter is a free public beta.

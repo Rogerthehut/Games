@@ -8,6 +8,7 @@ export type Route =
   | { name: "map"; stage?: Stage; skill?: string; view?: "journey" | "list"; filters?: { stage?: Stage; topic?: Strand } }
   | { name: "equal-groups" }
   | { name: "tables" }
+  | { name: "stem" }
   | { name: "tour" }
   | { name: "concept"; id: string }
   | { name: "time-lesson" }

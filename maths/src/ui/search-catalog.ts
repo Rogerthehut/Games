@@ -71,10 +71,11 @@ const lessons = [
 const curriculum = [
   ...STAGE_ORDER.map((stage) =>
     entry(WORLDS[stage], `World · ${STAGE_LABEL[stage]}`, `${stage} ${STAGE_LABEL[stage]} journey map path`, { name: "map", stage, view: "journey" })),
+  entry("STEM lab", "Area", "stem computing coding programming data science ai artificial intelligence machine learning quantum binary algorithms", { name: "stem" }),
   ...ALL_SKILLS.map((skill) => entry(
     skill.name, `Skill · ${STAGE_LABEL[skill.stage]} · Year ${skill.year}`,
     `${skill.blurb} ${skill.strand} ${skill.stage} ${STAGE_LABEL[skill.stage]} year ${skill.year} y${skill.year} ${WORLDS[skill.stage]}`,
-    { name: "map", skill: skill.id },
+    skill.strand === "STEM" ? { name: "stem" } : { name: "map", skill: skill.id },
   )),
 ];
 

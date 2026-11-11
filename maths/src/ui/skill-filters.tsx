@@ -8,7 +8,7 @@ export type SkillFilters = { stage?: Stage; topic?: Strand };
 export const topicLabel = (topic: Strand) => topic === "Ratio" ? "Ratio and proportion" : topic === "Reasoning" ? "Reasoning (11+)" : topic;
 
 export function filterSkills({ stage, topic }: SkillFilters) {
-  return ALL_SKILLS.filter((skill) => (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
+  return ALL_SKILLS.filter((skill) => skill.strand !== "STEM" && (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
 }
 
 export function SkillFilterControls({ filters, onChange, count, children }: {

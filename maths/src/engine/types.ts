@@ -1,6 +1,6 @@
 import type { Poly } from "./poly";
 
-export type Strand = "Number" | "Ratio" | "Algebra" | "Geometry" | "Measures" | "Statistics" | "Calculus" | "Reasoning";
+export type Strand = "Number" | "Ratio" | "Algebra" | "Geometry" | "Measures" | "Statistics" | "Calculus" | "Reasoning" | "STEM";
 export type Stage = "KS2" | "KS3" | "KS4" | "KS5";
 
 /** One drawn shape in a non-verbal reasoning puzzle. Drawn on a 100 x 100 square. */

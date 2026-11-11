@@ -1,5 +1,5 @@
 import { MoreBelow } from "./qshell";
-import { TablesNote, useWide } from "./tables-note";
+import { StemNote, TablesNote, useWide } from "./tables-note";
 import type { ComponentChildren } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 import { useApp } from "./context";
@@ -86,6 +86,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
         {nav("rail-nav")}
         {searchButton(false)}
         {wide && <TablesNote variant="rail" />}
+        {wide && <StemNote variant="rail" />}
         <button class="rail-me" aria-current={tab === "me" ? "page" : undefined} onClick={() => go({ name: "me" })} aria-label={`${profile.name}, open Me`}>
           <Avatar choice={profile.avatar} size={36} />
           <span><ProfileHi /><strong>{profile.name}</strong><small>Year {profile.year}</small></span>

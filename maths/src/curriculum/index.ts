@@ -14,6 +14,7 @@ import { ks3Skills } from "./ks3";
 import { ks4Skills } from "./ks4";
 import { ks5Skills } from "./ks5";
 import { secondPassSkills } from "./second-pass";
+import { stemSkills } from "./stem";
 import { reasoningSkills } from "./reasoning";
 
 /** A "common mistake" that happens to equal the right answer is not a mistake: drop it. */
@@ -75,7 +76,9 @@ const prepared = (s: Skill): Skill => ({ ...s, generate: (r, l) => withAnswerFor
 export const SKILLS: Skill[] = raw.map(prepared);
 /** Verbal reasoning, non-verbal reasoning and problem solving, for the 11+. Practised from the Skills page, not part of the maths pathway. */
 export const REASONING_SKILLS: Skill[] = reasoningSkills.map(prepared);
-export const ALL_SKILLS: Skill[] = [...SKILLS, ...REASONING_SKILLS];
+/** The STEM lab: its own area, kept out of the maths plan, map and 11+ papers. */
+export const STEM_SKILLS: Skill[] = stemSkills.map(prepared);
+export const ALL_SKILLS: Skill[] = [...SKILLS, ...REASONING_SKILLS, ...STEM_SKILLS];
 export const SKILL_BY_ID: Record<string, Skill> = Object.fromEntries(ALL_SKILLS.map((s) => [s.id, s]));
 export const STRANDS: Strand[] = ["Number", "Ratio", "Algebra", "Measures", "Geometry", "Statistics", "Calculus", "Reasoning"];
 export const STAGE_LABEL = { KS2: "Key Stage 2", KS3: "Key Stage 3", KS4: "GCSE", KS5: "A-level" } as const;

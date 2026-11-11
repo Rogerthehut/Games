@@ -1,6 +1,6 @@
 import { asFraction } from "./answer";
 import { describe, expect, it } from "vitest";
-import { SKILLS, SKILL_BY_ID } from "../curriculum";
+import { SKILLS, STEM_SKILLS, SKILL_BY_ID } from "../curriculum";
 import { withBarChartHelp } from "../curriculum/expansion";
 import { check } from "./check";
 import { mulberry32 } from "./rng";
@@ -111,7 +111,7 @@ describe("checking", () => {
   });
 });
 
-describe.each(SKILLS)("skill $id", (skill) => {
+describe.each([...SKILLS, ...STEM_SKILLS])("skill $id", (skill) => {
   for (const level of [1, 2, 3]) {
     it(`level ${level}: 150 questions are well formed and self-consistent`, () => {
       for (let seed = 1; seed <= 150; seed++) {

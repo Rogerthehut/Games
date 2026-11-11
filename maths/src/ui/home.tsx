@@ -7,7 +7,7 @@ import { STAGE_ORDER } from "../engine/activity";
 import { pathwayTestName } from "../engine/pathway";
 import { useApp } from "./context";
 import { Icon } from "./icons";
-import { TablesNote, useWide } from "./tables-note";
+import { StemNote, TablesNote, useWide } from "./tables-note";
 
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
@@ -41,7 +41,7 @@ export function Home() {
 
   return (
     <div class="today">
-      {!wide && <TablesNote variant="inline" />}
+      {!wide && <div class="today-notes"><TablesNote variant="inline" /><StemNote variant="inline" /></div>}
       <section class="activity-section" aria-labelledby="activity-title">
         <div class="activity-heading">
           <svg class="activity-trail" viewBox="0 0 260 96" fill="none" aria-hidden="true" focusable="false">

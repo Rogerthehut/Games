@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { STEM_SKILLS } from "../curriculum";
 import { summarise } from "../engine/tables";
 import { useApp } from "./context";
 
@@ -51,6 +52,41 @@ export function TablesNote({ variant }: { variant: "rail" | "inline" }) {
       <span class="tn-title">Times tables</span>
       <span class="tn-line">{started ? `${s.counts.quick} of ${s.total} learned` : "Let's learn them!"}</span>
       <span class="tn-go">{started ? "Keep going" : "Tap me"}<span class="tn-arrow" aria-hidden="true"> →</span></span>
+    </button>
+  );
+}
+
+/** A little drawing of an atom around two binary digits, so it is clear at a glance that this note is for the STEM lab. */
+function StemDoodle() {
+  return (
+    <svg class="sn-doodle" viewBox="0 0 70 70" aria-hidden="true" focusable="false" fill="none" stroke="#1d1b2e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <g class="sn-orbit"><ellipse cx="35" cy="35" rx="30" ry="11" /><ellipse cx="35" cy="35" rx="30" ry="11" transform="rotate(60 35 35)" /><ellipse cx="35" cy="35" rx="30" ry="11" transform="rotate(120 35 35)" /><circle cx="64" cy="35" r="3.4" fill="#c2410c" stroke="none" /></g>
+      <g class="sn-bits"><circle cx="35" cy="35" r="10" fill="#fff3a3" /><text x="30" y="40" font-size="12" font-weight="800" stroke="none" fill="#1d1b2e" font-family="monospace">0</text><text x="35" y="40" font-size="12" font-weight="800" stroke="none" fill="#1d1b2e" font-family="monospace">1</text></g>
+    </svg>
+  );
+}
+
+/** A second sticky note, for the STEM lab: computing, data, AI and quantum ideas. */
+export function StemNote({ variant }: { variant: "rail" | "inline" }) {
+  const { profile, go } = useApp();
+  const done = useMemo(() => STEM_SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0).length, [profile]);
+  const [peeling, setPeeling] = useState(false);
+  const timer = useRef<number>();
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const open = () => {
+    if (peeling) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return go({ name: "stem" });
+    setPeeling(true);
+    timer.current = window.setTimeout(() => go({ name: "stem" }), 260);
+  };
+  return (
+    <button type="button" class={`tables-note stem-note tables-note-${variant}${variant === "inline" ? " stem-note-inline" : ""}${peeling ? " peeling" : ""}`} onClick={open} data-testid="open-stem"
+      aria-label={done ? `STEM lab. You have tried ${done} topics. Tap to explore more.` : "STEM lab. Code, data, AI and quantum ideas. Tap to explore."}>
+      <span class="tn-tape" aria-hidden="true" />
+      <StemDoodle />
+      <span class="tn-title">STEM lab</span>
+      <span class="tn-line">{done ? `${done} tried so far` : "Code, data, AI!"}</span>
+      <span class="tn-go">{done ? "Keep exploring" : "Explore"}<span class="tn-arrow" aria-hidden="true"> →</span></span>
     </button>
   );
 }
