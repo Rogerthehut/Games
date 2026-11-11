@@ -2850,3 +2850,27 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 @keyframes more-nudge { 0%, 100% { transform: rotate(90deg) translateX(0); } 50% { transform: rotate(90deg) translateX(4px); } }
 @media (prefers-reduced-motion: reduce) { .more-cue, .more-cue svg { animation: none; transition: opacity 1ms; } }
 @media print { .more-below { display: none !important; } }
+
+/* question screens: a roomier page, and bottom actions as separate floating pills instead of a full-width bar */
+.qpage { position: relative; }
+.qpage > .qbody { padding-top: clamp(8px, 1.4vw, 14px); padding-bottom: 104px; }
+.qpage .q-topic { margin: 2px 0 8px; }
+.qpage > .qbar {
+  position: absolute; inset: auto 0 0 0; z-index: 9; overflow: visible; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 0 var(--question-gutter, 16px) calc(14px + env(safe-area-inset-bottom, 0px));
+  background: transparent; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.qpage .qbar-in { width: 100%; pointer-events: none; }
+.qpage .qbar-left, .qpage .qbar-right { pointer-events: auto; }
+.qpage .qbar-left { align-items: center; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 6px 18px #18192b1f; }
+.qpage .qbar-left:empty { display: none; }
+.qpage .qbar-right .btn { box-shadow: 0 6px 18px #18192b26; }
+.qpage .qbar-more { pointer-events: auto; margin: 0; min-height: 40px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 6px 18px #18192b1f; opacity: .92; transition: opacity 320ms ease, transform 320ms var(--ease-out); animation: more-in 260ms var(--ease-out) backwards; }
+.qpage .qbar-more.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .qpage .qbar-more { animation: none; transition: opacity 1ms; } }
+@media (max-width: 600px) {
+  .qpage .qbar-left { padding: 2px 4px; min-width: 0; }
+  .qpage .qbar-right { flex: 0 0 auto; }
+  .qpage .qbar .btn.primary { padding-inline: .95rem; }
+}

@@ -26,6 +26,7 @@ export function QBar({ left, right, help = false }: { left?: ComponentChildren; 
   const scrollBody = useRef<HTMLElement | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [moreBelow, setMoreBelow] = useState(false);
+  const [moreAway, setMoreAway] = useState(false); // scrolled already: the cue fades out
 
   useEffect(() => {
     const body = bar.current?.parentElement?.querySelector<HTMLElement>(":scope > .qbody");
@@ -37,6 +38,7 @@ export function QBar({ left, right, help = false }: { left?: ComponentChildren; 
       const style = getComputedStyle(body);
       const remaining = body.scrollHeight - body.clientHeight - body.scrollTop - parseFloat(style.paddingBottom);
       setMoreBelow(style.overflowY === "auto" && remaining > 4);
+      setMoreAway(body.scrollTop > 60);
     };
     const resize = new ResizeObserver(update);
     resize.observe(body);
@@ -74,7 +76,7 @@ export function QBar({ left, right, help = false }: { left?: ComponentChildren; 
 
   return (
     <div class="qbar" ref={bar}>
-      {moreBelow && <button type="button" class="qbar-more" onClick={scrollDown}>Scroll for more <Icon name="chevron" size={18} /></button>}
+      {moreBelow && <button type="button" class={`qbar-more${moreAway ? " off" : ""}`} onClick={scrollDown} tabIndex={moreAway ? -1 : 0} aria-hidden={moreAway ? "true" : undefined}>Scroll for more <Icon name="chevron" size={18} /></button>}
       <div class="qbar-in">
         <div class="qbar-left">
           {left}
