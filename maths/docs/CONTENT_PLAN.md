@@ -8,8 +8,8 @@ common mistakes cannot disagree. `src/engine/engine.test.ts` checks 150 question
 
 | Stage | Years | Topics now |
 |---|---|---|
-| Key Stage 2 | 3 to 6 | 59 (was 32; batches 2 and 3 added 27 for Years 3 to 6) |
-| Key Stage 3 | 7 to 9 | 14 (was 8) |
+| Key Stage 2 | 3 to 6 | 66 (was 32; batches 2, 3 and the money set added 34) |
+| Key Stage 3 | 7 to 9 | 18 (was 8; batch 1 and the money set) |
 | GCSE | 10 and 11 | 13 (was 8), including Year 11 for the first time |
 | A-level | 12 and 13 | 8 (was 4), including Year 13 for the first time |
 
@@ -26,6 +26,10 @@ numbers, 3-D shapes, metric and imperial units, multiplying fractions, dividing 
 scale factors and maps, missing-number equations, two unknowns, parallelogram area, coordinates in four quadrants, parts of a circle and pie chart angles.
 Still to do for Years 5 and 6: roman numerals to 1,000 in context, long multiplication and division checks, nets, reflection and translation,
 line graphs, timetables, and mean as a choice of average.
+
+The money set added 11 topics across the years: coins and notes (Year 3), pounds and pence with decimals, adding and subtracting money
+(Year 4), shopping bills, multiplying and dividing money (Year 5), best value, changing currency (Year 6), profit and loss (Year 7),
+simple interest, VAT and wages (Year 8) and budgets (Year 9). Compound interest was already in GCSE.
 
 ## Order of work
 
