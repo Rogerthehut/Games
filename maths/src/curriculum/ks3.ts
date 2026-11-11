@@ -1,5 +1,5 @@
 import { int, pick, round } from "../engine/rng";
-import { houseFig, lShapeFig, lineGraph } from "./figures";
+import { houseFig, lShapeFig, lineGraph, pointGridFig } from "./figures";
 import { toLatex as polyLatex, type Poly } from "../engine/poly";
 import type { Skill } from "../engine/types";
 import { choiceSkill, exprSkill, fracSkill } from "./build";
@@ -153,12 +153,12 @@ export const ks3Skills: Skill[] = [
     talkAbout: "How can you check a reflection is the right distance from the mirror line?",
   }, (r, l) => {
     const x = int(r, -6, 6), y = int(r, -6, 6);
-    if (l === 1) { const dx = int(r, -5, 5), dy = int(r, -5, 5); return { prompt: `The point (${x}, ${y}) is translated by the vector $\\begin{pmatrix} ${dx} \\\\ ${dy} \\end{pmatrix}$. What is the new y-coordinate?`, value: y + dy, hint: "The bottom number moves the point up or down.", solution: [`${y} + (${dy}) = ${y + dy}.`] }; }
-    if (l === 2) { const k = int(r, 1, 5); return { prompt: `The point (${x}, ${y}) is reflected in the line $x = ${k}$. What is the new x-coordinate?`, value: 2 * k - x, hint: "The point and its image are the same distance from the line.", solution: [`The point is ${x} − ${k} = ${x - k} from the line (a negative number means it is to the left).`, `The image is the same distance on the other side: ${k} − (${x - k}) = ${2 * k - x}.`] }; }
+    if (l === 1) { const dx = int(r, -5, 5), dy = int(r, -5, 5); return { figure: pointGridFig(x, y, 8, -8), prompt: `The point (${x}, ${y}) is translated by the vector $\\begin{pmatrix} ${dx} \\\\ ${dy} \\end{pmatrix}$. What is the new y-coordinate?`, value: y + dy, hint: "The bottom number moves the point up or down.", solution: [`${y} + (${dy}) = ${y + dy}.`] }; }
+    if (l === 2) { const k = int(r, 1, 5); return { figure: pointGridFig(x, y, 8, -8, { axis: "x", value: k }), prompt: `The point (${x}, ${y}) is reflected in the line $x = ${k}$. What is the new x-coordinate?`, value: 2 * k - x, hint: "The point and its image are the same distance from the line.", solution: [`The point is ${x} − ${k} = ${x - k} from the line (a negative number means it is to the left).`, `The image is the same distance on the other side: ${k} − (${x - k}) = ${2 * k - x}.`] }; }
     const k = int(r, 2, 4);
     return r() < 0.5
-      ? { prompt: `The point (${x}, ${y}) is rotated 90° anticlockwise about the origin. What is the new x-coordinate? (Hint: (x, y) becomes (−y, x).)`, value: -y, hint: "A 90° anticlockwise rotation takes (x, y) to (−y, x).", solution: [`(${x}, ${y}) becomes (${-y}, ${x}).`, `The new x-coordinate is ${-y}.`] }
-      : { prompt: `The point (${x}, ${y}) is enlarged by scale factor ${k} with the origin as the centre. What is the new y-coordinate?`, value: k * y, hint: "Multiply both coordinates by the scale factor.", solution: [`${k} × (${y}) = ${k * y}.`] };
+      ? { figure: pointGridFig(x, y, 8, -8), prompt: `The point (${x}, ${y}) is rotated 90° anticlockwise about the origin. What is the new x-coordinate? (Hint: (x, y) becomes (−y, x).)`, value: -y, hint: "A 90° anticlockwise rotation takes (x, y) to (−y, x).", solution: [`(${x}, ${y}) becomes (${-y}, ${x}).`, `The new x-coordinate is ${-y}.`] }
+      : { figure: pointGridFig(x, y, 8, -8), prompt: `The point (${x}, ${y}) is enlarged by scale factor ${k} with the origin as the centre. What is the new y-coordinate?`, value: k * y, hint: "Multiply both coordinates by the scale factor.", solution: [`${k} × (${y}) = ${k * y}.`] };
   }),
   num({
     id: "frequency-mean", name: "Averages from tables", stage: "KS3", year: 8, strand: "Statistics", prereqs: ["averages"],

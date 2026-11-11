@@ -1,5 +1,5 @@
 import { int, type Rng } from "../engine/rng";
-import { cuboidFig, lineGraph } from "./figures";
+import { cuboidFig, graph, lineGraph, pointGridFig, sample } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 import { frac } from "./helpers";
 
@@ -220,7 +220,8 @@ export const expansionSkills: Skill[] = [
     blurb: "Connect a zero derivative with a horizontal tangent.", parentNote: "Solve the derivative equation, then check what the gradient does either side.", talkAbout: "Why does a zero derivative alone not establish a minimum?",
   }, (r, l) => {
     const a = int(r, 1, 3+l), x = int(r, 2, 8), c = int(r, 1, 12);
-    return { prompt: `Find the x-coordinate of the stationary point of $y = ${a}x^2 - ${2*a*x}x + ${c}$.`,
+    const xs = x, curve = [{ pts: sample((t) => a * t * t - 2 * a * xs * t + c, -1, 2 * xs + 1) }];
+    return { figure: graph(curve, [-1, 2 * xs + 1, 1], `The graph of y = ${a}x² − ${2 * a * xs}x + ${c}, a U-shaped curve.`), prompt: `Find the x-coordinate of the stationary point of $y = ${a}x^2 - ${2*a*x}x + ${c}$.`,
       value: x, hint: "Differentiate and set the derivative equal to zero.",
       solution: [`The gradient is $${2*a}x - ${2*a*x}$.`, `A stationary point has zero gradient. Solve $${2*a}x = ${2*a*x}$.`] };
   }),
@@ -240,6 +241,7 @@ export const expansionSkills: Skill[] = [
     const x = int(r, 4, 8), y = int(r, 1, 8), step = int(r, 1, 3);
     const left = l > 1;
     return {
+      figure: pointGridFig(x, y, 12),
       prompt: `A point starts at (${x}, ${y}) and moves ${step} ${step === 1 ? "square" : "squares"} ${left ? "left" : "right"}. What is its new horizontal coordinate?`,
       value: x + (left ? -step : step), hint: "The horizontal coordinate is the first number.",
       solution: [`Start at ${x} on the horizontal axis.`, `${left ? "Subtract" : "Add"} ${step}. The vertical coordinate stays at ${y}.`],

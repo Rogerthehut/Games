@@ -33,8 +33,8 @@ export const ks5Skills: Skill[] = [
     const k = pick(r, [2, 3, 4, 6]), m = int(r, 1, 3);
     if (l === 1) return { prompt: `Convert $\\frac{${m}\\pi}{${k}}$ radians into degrees.`, value: (180 * m) / k, unit: "°", hint: "π radians is 180°.", solution: [`$\\pi = 180°$, so $\\frac{${m}\\pi}{${k}} = \\frac{${m} \\times 180}{${k}}$.`, `$= ${(180 * m) / k}°$.`] };
     const rad = pick(r, [6, 12]), kk = pick(r, [2, 3, 6]);
-    if (l === 2) return { prompt: `A sector has radius ${rad} cm and angle $\\frac{\\pi}{${kk}}$ radians. The arc length is $a\\pi$ cm. What is $a$?`, value: rad / kk, hint: "Arc length = r × θ.", solution: [`$${rad} \\times \\frac{\\pi}{${kk}} = ${rad / kk}\\pi$.`] };
-    return { prompt: `A sector has radius ${rad} cm and angle $\\frac{\\pi}{${kk}}$ radians. The area is $b\\pi$ cm². What is $b$?`, value: (rad * rad) / (2 * kk), hint: "Area = ½ r² θ.", solution: [`$\\frac{1}{2} \\times ${rad}^{2} \\times \\frac{\\pi}{${kk}} = ${(rad * rad) / (2 * kk)}\\pi$.`] };
+    if (l === 2) return { figure: { type: "circle-diagram", mode: "sector", angle: 180 / kk, angleLabel: `π/${kk}`, label: `${rad} cm`, alt: `A sector of a circle with radius ${rad} cm and an angle of pi over ${kk} radians.` }, prompt: `A sector has radius ${rad} cm and angle $\\frac{\\pi}{${kk}}$ radians. The arc length is $a\\pi$ cm. What is $a$?`, value: rad / kk, hint: "Arc length = r × θ.", solution: [`$${rad} \\times \\frac{\\pi}{${kk}} = ${rad / kk}\\pi$.`] };
+    return { figure: { type: "circle-diagram", mode: "sector", angle: 180 / kk, angleLabel: `π/${kk}`, label: `${rad} cm`, alt: `A sector of a circle with radius ${rad} cm and an angle of pi over ${kk} radians.` }, prompt: `A sector has radius ${rad} cm and angle $\\frac{\\pi}{${kk}}$ radians. The area is $b\\pi$ cm². What is $b$?`, value: (rad * rad) / (2 * kk), hint: "Area = ½ r² θ.", solution: [`$\\frac{1}{2} \\times ${rad}^{2} \\times \\frac{\\pi}{${kk}} = ${(rad * rad) / (2 * kk)}\\pi$.`] };
   }),
   num({
     id: "trig-equations", name: "Solving trigonometric equations", stage: "KS5", year: 12, strand: "Geometry", prereqs: ["exact-trig"],

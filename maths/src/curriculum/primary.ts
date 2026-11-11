@@ -1,5 +1,5 @@
 import type { Question, Skill } from "../engine/types";
-import { pointAnglesFig, quadAnglesFig, straightLineAnglesFig, triangleAnglesFig } from "./figures";
+import { lShapeFig, pointAnglesFig, quadAnglesFig, rectFig, straightLineAnglesFig, triangleAnglesFig, triangleBaseHeightFig } from "./figures";
 import { gcd, int, lcm, nonZero, pick, round } from "../engine/rng";
 import { dedupeWrong, frac, shuffle } from "./helpers";
 
@@ -304,7 +304,7 @@ function perimeterArea(r: R, level: number): Question {
   if (level === 1) {
     const a = int(r, 3, 15), b = int(r, 3, 15), area = r() < 0.5;
     const ans = area ? a * b : 2 * (a + b);
-    return { skill: "perimeter-area", level, prompt: `A rectangle is $${a}$ cm long and $${b}$ cm wide. What is its ${area ? "area in cm²" : "perimeter in cm"}?`, answer: { kind: "number", value: ans },
+    return { figure: rectFig(a, b), skill: "perimeter-area", level, prompt: `A rectangle is $${a}$ cm long and $${b}$ cm wide. What is its ${area ? "area in cm²" : "perimeter in cm"}?`, answer: { kind: "number", value: ans },
       hint: area ? "Area is length × width." : "Perimeter is the distance all the way around: add all four sides.",
       solution: area ? [`$${a} \\times ${b} = ${ans}$ cm².`] : [`Two lengths and two widths: $${a} + ${b} + ${a} + ${b} = ${ans}$ cm.`], shown: `$${ans}$`,
       wrong: dedupeWrong([{ tag: "area-perimeter", number: area ? 2 * (a + b) : a * b, message: area ? "That's the perimeter. Area is the space inside: length × width." : "That's the area. Perimeter is the distance around the edge." }], ans) };
@@ -312,17 +312,17 @@ function perimeterArea(r: R, level: number): Question {
   if (level === 2) {
     const s = int(r, 4, 16), p = 2 * (s + int(r, 3, 12));
     const other = p / 2 - s;
-    return { skill: "perimeter-area", level, prompt: `A rectangle has a perimeter of $${p}$ cm. One side is $${s}$ cm. How long is the other side?`, answer: { kind: "number", value: other },
+    return { figure: rectFig(s, other, `${s} cm`, "?"), skill: "perimeter-area", level, prompt: `A rectangle has a perimeter of $${p}$ cm. One side is $${s}$ cm. How long is the other side?`, answer: { kind: "number", value: other },
       hint: "Half the perimeter is one length plus one width.", solution: [`Half of $${p}$ is $${p / 2}$, which is one length plus one width.`, `$${p / 2} - ${s} = ${other}$ cm.`], shown: `$${other}$ cm` };
   }
   if (r() < 0.5) {
     const base = 2 * int(r, 3, 10), h = int(r, 3, 12);
-    return { skill: "perimeter-area", level, prompt: `A triangle has a base of $${base}$ cm and a height of $${h}$ cm. What is its area in cm²?`, answer: { kind: "number", value: (base * h) / 2 },
+    return { figure: triangleBaseHeightFig(base, h), skill: "perimeter-area", level, prompt: `A triangle has a base of $${base}$ cm and a height of $${h}$ cm. What is its area in cm²?`, answer: { kind: "number", value: (base * h) / 2 },
       hint: "A triangle is half of a rectangle with the same base and height.", solution: [`Rectangle: $${base} \\times ${h} = ${base * h}$.`, `Half of that: $${(base * h) / 2}$ cm².`], shown: `$${(base * h) / 2}$` };
   }
   const w = int(r, 3, 9), l = int(r, w + 1, 15), cut = int(r, 1, w - 1);
   const ans = l * w - cut * cut;
-  return { skill: "perimeter-area", level, prompt: `A rectangle is $${l}$ cm by $${w}$ cm. A square of side $${cut}$ cm is cut from one corner. What area is left, in cm²?`, answer: { kind: "number", value: ans },
+  return { figure: lShapeFig(l, w, cut, cut), skill: "perimeter-area", level, prompt: `A rectangle is $${l}$ cm by $${w}$ cm. A square of side $${cut}$ cm is cut from one corner. What area is left, in cm²?`, answer: { kind: "number", value: ans },
     hint: "Find the area of the whole rectangle, then take away the area of the square that was cut out.", solution: [`Rectangle: $${l} \\times ${w} = ${l * w}$.`, `Square: $${cut} \\times ${cut} = ${cut * cut}$.`, `$${l * w} - ${cut * cut} = ${ans}$ cm².`], shown: `$${ans}$` };
 }
 

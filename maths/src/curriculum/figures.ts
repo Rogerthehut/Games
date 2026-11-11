@@ -86,3 +86,35 @@ export function quadAnglesFig(labels: [string, string, string, string]): Figure 
 export const straightLineAnglesFig = (a: number): Figure => ({ type: "angle-rays", total: 180, parts: [{ deg: a, label: `${a}°` }, { deg: 180 - a, label: "x" }], alt: `Two angles on a straight line: one is ${a} degrees and the other is marked x.` });
 export const pointAnglesFig = (a: number, b: number, c: number): Figure => ({ type: "angle-rays", total: 360, parts: [{ deg: a, label: `${a}°` }, { deg: b, label: `${b}°` }, { deg: c, label: `${c}°` }, { deg: 360 - a - b - c, label: "x" }], alt: `Four angles around a point: ${a}, ${b}, ${c} degrees, and one marked x.` });
 export const cuboidFig = (a: number, b: number, c: number): Figure => ({ type: "solid", kind: "cuboid", a: cm(a), b: cm(b), c: cm(c), alt: `A cuboid ${cm(a)} long, ${cm(b)} wide and ${cm(c)} high.` });
+
+/** A regular shape with no labels, for questions that ask about its angles or its symmetry. */
+export function regularShapeFig(n: number): Figure {
+  const pts: Pt[] = Array.from({ length: n }, (_, i) => { const a = Math.PI / 2 + (2 * Math.PI * i) / n + (n % 2 === 0 ? Math.PI / n : 0); return [Math.cos(a), Math.sin(a)] as Pt; });
+  return { type: "polygon", pts, labels: [], alt: `A regular shape with ${n} equal sides.` };
+}
+
+/** A plain drawing of a named 2-D shape (no labels, no lines of symmetry marked). Returns nothing for shapes that are not drawn. */
+export function shapeByName(name: string): Figure | undefined {
+  const poly = (pts: Pt[], alt: string): Figure => ({ type: "polygon", pts, labels: [], alt });
+  switch (name) {
+    case "square": return poly([[0, 0], [2, 0], [2, 2], [0, 2]], "A square.");
+    case "rectangle": return poly([[0, 0], [3, 0], [3, 1.8], [0, 1.8]], "A rectangle.");
+    case "right-angled triangle": return poly([[0, 0], [3, 0], [0, 2]], "A right-angled triangle.");
+    case "equilateral triangle": return poly([[0, 0], [2, 0], [1, 1.73]], "An equilateral triangle.");
+    case "isosceles triangle": return poly([[0, 0], [2, 0], [1, 2.4]], "An isosceles triangle.");
+    case "kite": return poly([[1, 0], [2, 1.2], [1, 3], [0, 1.2]], "A kite.");
+    case "regular pentagon": return regularShapeFig(5);
+    case "regular hexagon": return regularShapeFig(6);
+    default: return undefined;
+  }
+}
+
+export function solidByName(name: string): Figure | undefined {
+  if (name === "cube" || name === "cuboid") return { type: "solid", kind: "cuboid", alt: `A ${name}.` };
+  if (name === "triangular prism") return { type: "solid", kind: "tri-prism", alt: "A triangular prism." };
+  if (name === "square-based pyramid") return { type: "solid", kind: "pyramid", alt: "A square-based pyramid." };
+  if (name === "triangular-based pyramid") return { type: "solid", kind: "tetrahedron", alt: "A triangular-based pyramid." };
+  return undefined;
+}
+
+export const pointGridFig = (x: number, y: number, max = 10, min = 0, mirror?: { axis: "x" | "y"; value: number }): Figure => ({ type: "coord-grid", min, max, points: [{ x, y, label: "P" }], mirror, alt: `A coordinate grid with point P at (${x}, ${y})${mirror ? ` and a dashed mirror line ${mirror.axis} = ${mirror.value}` : ""}.` });

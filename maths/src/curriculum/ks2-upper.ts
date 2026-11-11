@@ -1,5 +1,5 @@
 import { int, pick, round } from "../engine/rng";
-import { circleFig, parallelogramFig, similarPairFig } from "./figures";
+import { circleFig, parallelogramFig, similarPairFig, solidByName } from "./figures";
 import type { Skill } from "../engine/types";
 import { num } from "./ks2";
 
@@ -77,7 +77,7 @@ export const ks2UpperSkills: Skill[] = [
     ];
     const pool = l === 1 ? shapes.slice(0, 2) : l === 2 ? shapes.slice(2, 5) : shapes.slice(3);
     const [name, f, e, v] = pick(r, pool), which = pick(r, [["faces", f], ["edges", e], ["vertices", v]] as [string, number][]);
-    return { prompt: `How many ${which[0]} does a ${name} have?`, value: which[1], hint: which[0] === "vertices" ? "A vertex is a corner." : which[0] === "edges" ? "An edge is where two faces meet." : "A face is a flat side.", solution: [`A ${name} has ${f} faces, ${e} edges and ${v} vertices.`, `So the number of ${which[0]} is ${which[1]}.`] };
+    return { figure: solidByName(name), prompt: `How many ${which[0]} does a ${name} have?`, value: which[1], hint: which[0] === "vertices" ? "A vertex is a corner." : which[0] === "edges" ? "An edge is where two faces meet." : "A face is a flat side.", solution: [`A ${name} has ${f} faces, ${e} edges and ${v} vertices.`, `So the number of ${which[0]} is ${which[1]}.`] };
   }),
   num({
     id: "imperial-metric", name: "Metric and imperial units", stage: "KS2", year: 5, strand: "Measures", prereqs: ["measures-convert"],

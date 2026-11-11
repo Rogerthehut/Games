@@ -35,15 +35,16 @@ export type Figure =
   | { type: "coord-grid"; max: number; min?: number; points: { x: number; y: number; label: string }[]; poly?: [number, number][]; mirror?: { axis: "x" | "y"; value: number }; alt: string }
   | { type: "function-graph"; xMin: number; xMax: number; yMin: number; yMax: number; xStep: number; yStep: number; curves: { pts: [number, number][]; label?: string; dashed?: boolean }[]; marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][]; alt: string }
   | { type: "polygon"; pts: [number, number][]; more?: [number, number][][]; labels: { x: number; y: number; text: string; anchor?: "start" | "middle" | "end" }[]; dashed?: [number, number, number, number][]; rights?: [number, number, number, number, number, number][]; alt: string }
-  | { type: "circle-diagram"; mode: "radius" | "diameter" | "sector"; label: string; angle?: number; alt: string }
+  | { type: "circle-diagram"; mode: "radius" | "diameter" | "sector"; label: string; angle?: number; angleLabel?: string; alt: string }
   | { type: "pie"; slices: { label: string; value: number }[]; alt: string }
   | { type: "parallel-lines"; t: number; marks: { pos: "UTL" | "UTR" | "UBL" | "UBR" | "LTL" | "LTR" | "LBL" | "LBR"; text: string }[]; alt: string }
   | { type: "net"; solid: "cube" | "cuboid" | "triangular prism" | "square-based pyramid" | "triangular-based pyramid"; alt: string }
   | { type: "square-grid"; rows: number; cols: number; cut?: { rows: number; cols: number }; alt: string }
-  | { type: "solid"; kind: "cuboid" | "cylinder" | "cone" | "sphere" | "hemisphere" | "tri-prism"; a?: string; b?: string; c?: string; alt: string }
+  | { type: "solid"; kind: "cuboid" | "cylinder" | "cone" | "sphere" | "hemisphere" | "tri-prism" | "pyramid" | "tetrahedron"; a?: string; b?: string; c?: string; alt: string }
   | { type: "circle-theorem"; kind: "centre" | "cyclic" | "semicircle"; angles: { at: string; text: string }[]; alt: string }
   | { type: "boxplot"; min: number; lq: number; med: number; uq: number; max: number; labelled: ("lq" | "uq" | "min" | "max" | "med")[]; alt: string }
   | { type: "angle-rays"; total: 180 | 360; parts: { deg: number; label: string }[]; alt: string }
+  | { type: "histogram"; bars: { lo: number; hi: number; h: number; note?: string }[]; yMax: number; yLabel: string; alt: string }
   | { type: "bearing"; angle: number; from: string; to: string; alt: string }
   | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 

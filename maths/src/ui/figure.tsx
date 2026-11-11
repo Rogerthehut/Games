@@ -46,6 +46,7 @@ export function FigureView({ fig }: { fig: Figure }) {
   if (fig.type === "function-graph") return <FunctionGraphFigure {...fig} />;
   if (fig.type === "bearing") return <BearingFigure {...fig} />;
   if (fig.type === "polygon") return <PolygonFigure {...fig} />;
+  if (fig.type === "histogram") return <HistogramFigure {...fig} />;
   if (fig.type === "square-grid") return <SquareGridFigure {...fig} />;
   if (fig.type === "solid") return <SolidFigure {...fig} />;
   if (fig.type === "circle-theorem") return <CircleTheoremFigure {...fig} />;
@@ -212,7 +213,7 @@ function PolygonFigure({ pts, more, labels, dashed, rights, alt }: Of<"polygon">
   );
 }
 
-function CircleFigure({ mode, label, angle, alt }: Of<"circle-diagram">) {
+function CircleFigure({ mode, label, angle, angleLabel, alt }: Of<"circle-diagram">) {
   const cx = 150, cy = 100, R = 74;
   const pt = (deg: number, len: number): [number, number] => [r2(cx + len * Math.cos((deg * Math.PI) / 180)), r2(cy - len * Math.sin((deg * Math.PI) / 180))];
   const a = angle ?? 90, end = pt(a, R);
@@ -221,7 +222,7 @@ function CircleFigure({ mode, label, angle, alt }: Of<"circle-diagram">) {
       <circle cx={cx} cy={cy} r={R} class="fig-shape" />
       {mode === "radius" && <><line x1={cx} y1={cy} x2={pt(35, R)[0]} y2={pt(35, R)[1]} stroke="#c2410c" stroke-width="3" /><circle cx={cx} cy={cy} r="4" fill="currentColor" /><text x={r2((cx + pt(35, R)[0]) / 2 + 4)} y={r2((cy + pt(35, R)[1]) / 2 - 8)} class="fig-label" font-size="14">{label}</text></>}
       {mode === "diameter" && <><line x1={pt(180, R)[0]} y1={cy} x2={pt(0, R)[0]} y2={cy} stroke="#c2410c" stroke-width="3" /><circle cx={cx} cy={cy} r="4" fill="currentColor" /><text x={cx} y={cy + 24} text-anchor="middle" class="fig-label" font-size="14">{label}</text></>}
-      {mode === "sector" && <><path d={`M ${cx} ${cy} L ${pt(0, R)[0]} ${cy} A ${R} ${R} 0 ${a > 180 ? 1 : 0} 0 ${end[0]} ${end[1]} Z`} fill="var(--accent)" fill-opacity=".25" stroke="currentColor" stroke-width="2" /><text x={r2(cx + 30)} y={r2(cy - 8)} class="fig-label" font-size="13">{angle}°</text><text x={r2(cx + R / 2)} y={cy + 20} text-anchor="middle" class="fig-label" font-size="13">{label}</text></>}
+      {mode === "sector" && <><path d={`M ${cx} ${cy} L ${pt(0, R)[0]} ${cy} A ${R} ${R} 0 ${a > 180 ? 1 : 0} 0 ${end[0]} ${end[1]} Z`} fill="var(--accent)" fill-opacity=".25" stroke="currentColor" stroke-width="2" /><text x={r2(cx + 30)} y={r2(cy - 8)} class="fig-label" font-size="13">{angleLabel ?? `${angle}°`}</text><text x={r2(cx + R / 2)} y={cy + 20} text-anchor="middle" class="fig-label" font-size="13">{label}</text></>}
     </svg>
   );
 }
@@ -306,6 +307,10 @@ function SolidFigure({ kind, a, b, c, alt }: Of<"solid">) {
   else if (kind === "cone") body = <>
     <path d="M 150 25 L 90 140 A 60 18 0 0 0 210 140 Z" fill={fill} {...edge} /><line x1="150" y1="25" x2="150" y2="140" stroke="#c2410c" stroke-width="2.5" stroke-dasharray="6 4" /><line x1="150" y1="140" x2="210" y2="140" stroke="#c2410c" stroke-width="3" />
     {lab(180, 134, a)}{lab(158, 90, b, "start")}</>;
+  else if (kind === "pyramid") body = <>
+    <polygon points="70,130 190,130 230,100 110,100" fill="#e0e3f7" {...edge} stroke-dasharray="5 4" /><polygon points="70,130 190,130 150,25" fill={fill} {...edge} /><polygon points="190,130 230,100 150,25" fill="#a9afe0" {...edge} /></>;
+  else if (kind === "tetrahedron") body = <>
+    <polygon points="60,140 210,140 150,30" fill={fill} {...edge} /><polygon points="210,140 250,100 150,30" fill="#a9afe0" {...edge} /><line x1="60" y1="140" x2="250" y2="100" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4" /></>;
   else body = <>
     {kind === "sphere" ? <circle cx="150" cy="90" r="64" fill={fill} {...edge} /> : <path d="M 86 90 A 64 64 0 0 1 214 90 Z" fill={fill} {...edge} />}
     <ellipse cx="150" cy="90" rx="64" ry="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" /><line x1="150" y1="90" x2="214" y2="90" stroke="#c2410c" stroke-width="3" /><circle cx="150" cy="90" r="3.5" fill="currentColor" />{lab(184, 112, a)}</>;
@@ -358,6 +363,19 @@ function AngleRaysFigure({ total, parts, alt }: Of<"angle-rays">) {
       {rays.slice(0, total === 360 ? -1 : undefined).map((d, i) => <line key={i} x1={cx} y1={cy} x2={pt(d, R)[0]} y2={pt(d, R)[1]} stroke="currentColor" stroke-width="2.5" />)}
       {parts.map((p, i) => { const a0 = acc, a1 = acc + p.deg, mid = (a0 + a1) / 2; acc = a1; const s = pt(a0, 26), e = pt(a1, 26), t = pt(mid, 44 + (p.deg < 40 ? 8 : 0)); return <g key={i}><path d={`M ${s[0]} ${s[1]} A 26 26 0 ${p.deg > 180 ? 1 : 0} 0 ${e[0]} ${e[1]}`} fill="none" stroke="#c2410c" stroke-width="2.5" /><text x={t[0]} y={t[1] + 5} text-anchor="middle" class="fig-label" font-size="13">{p.label}</text></g>; })}
       <circle cx={cx} cy={cy} r="3.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+function HistogramFigure({ bars, yMax, yLabel, alt }: Of<"histogram">) {
+  const L = 44, R = 284, T = 34, B = 150, lo = Math.min(...bars.map((b) => b.lo)), hi = Math.max(...bars.map((b) => b.hi)), X = (v: number) => r2(L + ((v - lo) / (hi - lo)) * (R - L)), Y = (v: number) => r2(B - (v / yMax) * (B - T));
+  const step = yMax <= 6 ? 1 : yMax <= 12 ? 2 : 5;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 190" role="img" aria-label={alt}>
+      {Array.from({ length: Math.floor(yMax / step) + 1 }, (_, i) => i * step).map((v) => <g key={v}><line x1={L} x2={R} y1={Y(v)} y2={Y(v)} stroke="currentColor" opacity={v === 0 ? .8 : .15} /><text x={L - 6} y={Y(v) + 4} text-anchor="end" class="fig-label" font-size="11">{v}</text></g>)}
+      {bars.map((b, i) => <g key={i}><rect x={X(b.lo)} y={Y(b.h)} width={X(b.hi) - X(b.lo)} height={B - Y(b.h)} fill="#c1c5ee" fill-opacity=".75" stroke="currentColor" stroke-width="2" />{b.note && <text x={r2((X(b.lo) + X(b.hi)) / 2)} y={Y(b.h) - 6} text-anchor="middle" class="fig-label" font-size="12">{b.note}</text>}</g>)}
+      {[...new Set(bars.flatMap((b) => [b.lo, b.hi]))].map((v) => <text key={v} x={X(v)} y={B + 16} text-anchor="middle" class="fig-label" font-size="11">{v}</text>)}
+      <text x="8" y="12" class="fig-label" font-size="11" opacity=".75">{yLabel}</text>
     </svg>
   );
 }

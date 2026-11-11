@@ -1,4 +1,5 @@
 import type { Question, Skill } from "../engine/types";
+import { regularShapeFig } from "./figures";
 import { int, pick, round } from "../engine/rng";
 import { dedupeWrong } from "./helpers";
 
@@ -57,7 +58,7 @@ function polygonAngles(r: () => number, level: number): Question {
     const n = pick(r, [5, 6, 7, 8, 9, 10, 12]);
     const sum = (n - 2) * 180;
     return {
-      skill: "angles-polygon", level,
+      skill: "angles-polygon", level, figure: regularShapeFig(n),
       prompt: `What is the sum of the interior angles of a ${POLYGONS[n]} (a ${n}-sided polygon)? Answer in degrees.`,
       answer: { kind: "number", value: sum },
       hint: "Split the polygon into triangles from one corner. Each triangle has angles adding to 180°.",
@@ -70,7 +71,7 @@ function polygonAngles(r: () => number, level: number): Question {
     const n = pick(r, [5, 6, 8, 9, 10, 12]);
     const each = ((n - 2) * 180) / n;
     return {
-      skill: "angles-polygon", level,
+      skill: "angles-polygon", level, figure: regularShapeFig(n),
       prompt: `What is the size of each interior angle of a regular ${POLYGONS[n]}? Answer in degrees.`,
       answer: { kind: "number", value: each },
       hint: "First find the sum of the interior angles, then share it equally between the angles.",

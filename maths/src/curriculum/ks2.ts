@@ -1,5 +1,5 @@
 import { int, pick, round, type Rng } from "../engine/rng";
-import { lShapeFig, lShapeOutsideFig, rectFig, regularPolygonFig, triangleSidesFig } from "./figures";
+import { lShapeFig, lShapeOutsideFig, rectFig, regularPolygonFig, shapeByName, triangleSidesFig } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 
 /**
@@ -94,7 +94,7 @@ export const ks2Skills: Skill[] = [
     if (l === 1) {
       const shapes: [string, number][] = [["square", 4], ["rectangle", 4], ["right-angled triangle", 1], ["rectangle with one corner cut off at a slant", 3]];
       const [name, n] = pick(r, shapes.slice(0, 3));
-      return { prompt: `How many right angles does a ${name} have?`, value: n, hint: "A right angle is a square corner.", solution: [`Look for the square corners: a ${name} has ${n}.`] };
+      return { figure: shapeByName(name), prompt: `How many right angles does a ${name} have?`, value: n, hint: "A right angle is a square corner.", solution: [`Look for the square corners: a ${name} has ${n}.`] };
     }
     if (l === 2) { const q = int(r, 1, 4), words = ["a quarter turn", "a half turn", "a three-quarter turn", "a full turn"]; return { prompt: `How many right angles are there in ${words[q - 1]}?`, value: q, hint: "One quarter turn is one right angle.", solution: [`${cap(words[q - 1])} is ${q} quarter turn${q > 1 ? "s" : ""}, which is ${q} right angle${q > 1 ? "s" : ""}.`] }; }
     const a = int(r, 1, 3), b = int(r, 1, 3);
@@ -198,7 +198,7 @@ export const ks2Skills: Skill[] = [
       [["capital letter H", 2], ["capital letter A", 1], ["capital letter T", 1], ["capital letter M", 1], ["capital letter X", 2]],
     ];
     const [name, n] = pick(r, sets[l - 1]);
-    return { prompt: `How many lines of symmetry does a ${name} have?`, value: n, hint: "Imagine folding it in half so that both halves match.", solution: [`A ${name} has ${n} line${n > 1 ? "s" : ""} of symmetry.`] };
+    return { figure: shapeByName(name), prompt: `How many lines of symmetry does a ${name} have?`, value: n, hint: "Imagine folding it in half so that both halves match.", solution: [`A ${name} has ${n} line${n > 1 ? "s" : ""} of symmetry.`] };
   }),
   num({
     id: "read-tables", name: "Reading tables and lists", stage: "KS2", year: 4, strand: "Statistics", prereqs: ["add-sub"],
