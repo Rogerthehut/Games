@@ -7,6 +7,7 @@ import { STAGE_ORDER } from "../engine/activity";
 import { pathwayTestName } from "../engine/pathway";
 import { useApp } from "./context";
 import { Icon } from "./icons";
+import { TablesNote, useWide } from "./tables-note";
 
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
@@ -16,6 +17,7 @@ const topicRest = (names: string[]) => (names.length > 1 ? `plus ${names.slice(1
 
 export function Home() {
   const { profile, go } = useApp();
+  const wide = useWide();
   const now = Date.now();
   // The grown-up's focus topics and this week's plan topics both steer today's session.
   const steer = useMemo(() => ({ ...profile, focus: [...new Set([...profile.focus, ...planFocus(profile, now)])] }), [profile]);
@@ -39,6 +41,7 @@ export function Home() {
 
   return (
     <div class="today">
+      {!wide && <TablesNote variant="inline" />}
       <section class="activity-section" aria-labelledby="activity-title">
         <div class="activity-heading">
           <svg class="activity-trail" viewBox="0 0 260 96" fill="none" aria-hidden="true" focusable="false">
@@ -103,10 +106,6 @@ export function Home() {
           </div>
         </section>
       ) : null}
-
-      <ul class="rows tables-row">
-        <li><button class="row" onClick={() => go({ name: "tables" })} data-testid="start-tables"><Icon name="grid" /><span>Times tables<small>Learn, practise and memorise your facts</small></span><Icon name="chevron" /></button></li>
-      </ul>
 
       {week?.kind === "mock" && (
         <ul class="rows">
