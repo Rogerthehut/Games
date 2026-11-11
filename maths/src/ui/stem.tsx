@@ -7,6 +7,7 @@ import { useApp } from "./context";
 import { Icon } from "./icons";
 import { STATUS_LABEL } from "./labels";
 import { MoreBelow } from "./qshell";
+import { LABS, Lab, type LabId } from "./stem-labs";
 
 type Theme = "computing" | "data" | "ai" | "quantum";
 const THEMES: { id: Theme; label: string; blurb: string }[] = [
@@ -33,9 +34,11 @@ export function Stem() {
   const { profile, go, leave } = useApp();
   const mine = stageOfYear(profile.year);
   const [theme, setTheme] = useState<Theme | "all">("all");
+  const [lab, setLab] = useState<LabId | null>(null);
   const shown = useMemo(() => STEM_SKILLS.filter((s) => theme === "all" || themeOf(s) === theme), [theme]);
   const order = [mine, ...STAGES.filter((s) => s !== mine)];
   const tried = STEM_SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0).length;
+  if (lab) return <main class="tt-screen stem-screen"><div class="tt-wrap"><Lab id={lab} onBack={() => setLab(null)} /></div></main>;
   return (
     <main class="tt-screen stem-screen">
       <div class="tt-wrap">
@@ -45,6 +48,15 @@ export function Stem() {
         <h1>STEM lab</h1>
         <p class="tt-lead">Computing, data, AI and a little quantum physics. Try anything: these topics are separate from your maths plan, so there's no pressure. <strong>{tried}</strong> of {STEM_SKILLS.length} tried so far.</p>
 
+        <section class="stem-labs" aria-labelledby="stem-labs-title">
+          <h2 id="stem-labs-title">Build it</h2>
+          <p class="small muted">Hands-on labs: nothing to answer, just play and see what happens.</p>
+          <ul class="stem-lab-list">
+            {LABS.map((l) => <li key={l.id}><button type="button" class="stem-lab-card" onClick={() => setLab(l.id)} data-testid={`open-lab-${l.id}`}><strong>{l.title}</strong><span class="small muted">{l.blurb}</span><span class="stem-theme">{l.theme}</span></button></li>)}
+          </ul>
+        </section>
+
+        <h2>Practise a topic</h2>
         <div class="stem-themes" role="group" aria-label="Choose a theme">
           <button type="button" class={`chip-btn${theme === "all" ? " on" : ""}`} aria-pressed={theme === "all"} onClick={() => setTheme("all")}>Everything</button>
           {THEMES.map((t) => <button key={t.id} type="button" class={`chip-btn${theme === t.id ? " on" : ""}`} aria-pressed={theme === t.id} onClick={() => setTheme(t.id)}>{t.label}</button>)}

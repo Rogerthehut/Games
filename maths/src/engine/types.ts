@@ -45,6 +45,12 @@ export type Figure =
   | { type: "boxplot"; min: number; lq: number; med: number; uq: number; max: number; labelled: ("lq" | "uq" | "min" | "max" | "med")[]; alt: string }
   | { type: "angle-rays"; total: 180 | 360; parts: { deg: number; label: string }[]; alt: string }
   | { type: "histogram"; bars: { lo: number; hi: number; h: number; note?: string }[]; yMax: number; yLabel: string; alt: string }
+  | { type: "code"; lines: string[]; alt: string }
+  | { type: "bits"; bits: string; alt: string }
+  | { type: "list-boxes"; items: (number | string)[]; alt: string }
+  | { type: "number-line"; min: number; max: number; points: { v: number; tone: "red" | "blue" | "new"; label?: string }[]; alt: string }
+  | { type: "neuron"; inputs: number[]; weights: number[]; bias?: number; alt: string }
+  | { type: "bars"; items: { label: string; value: number }[]; yLabel: string; alt: string }
   | { type: "bearing"; angle: number; from: string; to: string; alt: string }
   | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 

@@ -53,6 +53,7 @@ const reasoningList = async (p) => {
   await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {});
   for (const box of await p.getByRole("combobox").all()) { if (await box.selectOption({ label: "Reasoning (11+)" }).then(() => true, () => false)) break; }
 };
+const skillList = async (p) => { await navTab(p, "skills"); await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {}); await wait(p, 300); };
 const practiseSkill = async (p, id) => { await p.locator(`#skill-${id} button:has-text("Practise")`).click(); await wait(p, 600); };
 const openQuestion = async (p) => { await p.getByTestId("intro-skip").click().catch(() => {}); await wait(p, 500); };
 
@@ -107,6 +108,18 @@ const SCREENS = [
     }
     await wait(p, 500);
   } },
+  { name: "stem-hub", go: async (p) => { await click(p, "open-stem"); await wait(p, 400); } },
+  { name: "stem-lab-binary", go: async (p) => { await click(p, "open-stem"); await click(p, "open-lab-binary"); await click(p, "binary-challenge"); await p.getByRole("button", { name: /Lamp worth 8,/ }).click(); } },
+  { name: "stem-lab-robot", go: async (p) => { await click(p, "open-stem"); await click(p, "open-lab-robot"); for (const d of ["right", "right", "up"]) await p.getByRole("button", { name: `Add ${d}` }).click(); await wait(p, 200); } },
+  { name: "stem-lab-learn", go: async (p) => { await click(p, "open-stem"); await click(p, "open-lab-learn"); await click(p, "learn-test"); await p.locator(".learn-grid").click({ position: { x: 150, y: 150 } }); await wait(p, 200); } },
+  { name: "stem-lab-qubit", go: async (p) => { await click(p, "open-stem"); await click(p, "open-lab-qubit"); await click(p, "qubit-h"); await p.getByRole("button", { name: "Measure 100 copies" }).click(); await wait(p, 200); } },
+  { name: "stem-practice-intro", go: async (p) => { await click(p, "open-stem"); await p.locator("[data-testid^=stem-practise-]").first().click(); await wait(p, 500); } },
+  { name: "stem-practice-question", go: async (p) => { await click(p, "open-stem"); await p.getByRole("button", { name: "Computing" }).click(); await p.locator("[data-testid=stem-practise-stem-trace]").click(); await openQuestion(p); } },
+  { name: "practice-figure-shape", go: async (p) => { await skillList(p); await practiseSkill(p, "perimeter-simple"); await openQuestion(p); } },
+  { name: "practice-figure-graph", go: async (p) => { await skillList(p); await practiseSkill(p, "quadratic-graphs"); await openQuestion(p); } },
+  { name: "practice-tutor-open", tutor: true, go: async (p) => { await skillList(p); await practiseSkill(p, "perimeter-simple"); await openQuestion(p); await click(p, "tutor-open"); await wait(p, 300); } },
+  { name: "study-guide-stem", fresh: true, path: "/learn/binary-numbers.html", go: async (p) => { await wait(p, 300); } },
+  { name: "study-guide-trig", fresh: true, path: "/learn/trigonometry-basics.html", go: async (p) => { await wait(p, 300); } },
 ].filter((s) => !only.length || only.includes(s.name));
 
 /** Runs in the page. Returns the problems it can see right now. */
@@ -201,7 +214,9 @@ for (const [sizeName, width, height, kind] of SIZES) {
   for (const screen of SCREENS) {
     const context = await browser.newContext(ctxOptions);
     if (store && !screen.fresh) await context.addInitScript((s) => { try { if (!localStorage.getItem("mathpath.v1")) localStorage.setItem("mathpath.v1", s); } catch {} }, store);
+    if (screen.tutor) await context.addInitScript(() => { try { const o = JSON.parse(localStorage.getItem("mathpath.v1") || "{}"); const fix = (v) => { if (v && typeof v === "object") { if ("year" in v && "name" in v) v.tutor = { enabled: true }; Object.values(v).forEach(fix); } }; fix(o); localStorage.setItem("mathpath.v1", JSON.stringify(o)); } catch {} });
     const page = await context.newPage();
+    if (screen.tutor) { await page.route("**/api/health", (r) => r.fulfill({ json: { ok: true, tutor: true } })); await page.route("**/api/tutor", (r) => r.fulfill({ json: { reply: "Good question! What do you already know about it?" } })); }
     page.setDefaultTimeout(6000);
     const errors = [];
     page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));

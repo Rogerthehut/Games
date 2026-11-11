@@ -46,6 +46,12 @@ export function FigureView({ fig }: { fig: Figure }) {
   if (fig.type === "function-graph") return <FunctionGraphFigure {...fig} />;
   if (fig.type === "bearing") return <BearingFigure {...fig} />;
   if (fig.type === "polygon") return <PolygonFigure {...fig} />;
+  if (fig.type === "code") return <CodeFigure {...fig} />;
+  if (fig.type === "bits") return <BitsFigure {...fig} />;
+  if (fig.type === "list-boxes") return <ListBoxesFigure {...fig} />;
+  if (fig.type === "number-line") return <NumberLineFigure {...fig} />;
+  if (fig.type === "neuron") return <NeuronFigure {...fig} />;
+  if (fig.type === "bars") return <BarsFigure {...fig} />;
   if (fig.type === "histogram") return <HistogramFigure {...fig} />;
   if (fig.type === "square-grid") return <SquareGridFigure {...fig} />;
   if (fig.type === "solid") return <SolidFigure {...fig} />;
@@ -376,6 +382,66 @@ function HistogramFigure({ bars, yMax, yLabel, alt }: Of<"histogram">) {
       {bars.map((b, i) => <g key={i}><rect x={X(b.lo)} y={Y(b.h)} width={X(b.hi) - X(b.lo)} height={B - Y(b.h)} fill="#c1c5ee" fill-opacity=".75" stroke="currentColor" stroke-width="2" />{b.note && <text x={r2((X(b.lo) + X(b.hi)) / 2)} y={Y(b.h) - 6} text-anchor="middle" class="fig-label" font-size="12">{b.note}</text>}</g>)}
       {[...new Set(bars.flatMap((b) => [b.lo, b.hi]))].map((v) => <text key={v} x={X(v)} y={B + 16} text-anchor="middle" class="fig-label" font-size="11">{v}</text>)}
       <text x="8" y="12" class="fig-label" font-size="11" opacity=".75">{yLabel}</text>
+    </svg>
+  );
+}
+
+function CodeFigure({ lines, alt }: Of<"code">) {
+  return (
+    <figure class="code-figure" role="img" aria-label={alt}>
+      <ol aria-hidden="true">{lines.map((l, i) => <li key={i}><code>{l}</code></li>)}</ol>
+    </figure>
+  );
+}
+
+function BitsFigure({ bits, alt }: Of<"bits">) {
+  const n = bits.length, w = Math.min(40, 280 / n), x0 = (300 - n * w) / 2;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 100" role="img" aria-label={alt}>
+      {bits.split("").map((b, i) => <g key={i}><text x={x0 + i * w + w / 2} y="18" text-anchor="middle" class="fig-label" font-size="12" opacity=".7">{2 ** (n - 1 - i)}</text><rect x={x0 + i * w + 2} y="26" width={w - 4} height="46" rx="7" fill={b === "1" ? "#84d8ba" : "var(--surface)"} stroke="currentColor" stroke-width="2" /><text x={x0 + i * w + w / 2} y="58" text-anchor="middle" class="fig-label" font-size="22">{b}</text></g>)}
+    </svg>
+  );
+}
+
+function ListBoxesFigure({ items, alt }: Of<"list-boxes">) {
+  const n = items.length, w = Math.min(44, 290 / n), x0 = (300 - n * w) / 2;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 80" role="img" aria-label={alt}>
+      {items.map((v, i) => <g key={i}><rect x={x0 + i * w + 2} y="18" width={w - 4} height="44" rx="8" fill="#c1c5ee" fill-opacity=".6" stroke="currentColor" stroke-width="2" /><text x={x0 + i * w + w / 2} y="47" text-anchor="middle" class="fig-label" font-size="18">{v}</text></g>)}
+    </svg>
+  );
+}
+
+function NumberLineFigure({ min, max, points, alt }: Of<"number-line">) {
+  const L = 20, R = 280, X = (v: number) => r2(L + ((v - min) / (max - min)) * (R - L)), tone = { red: "#f6a0bc", blue: "#c1c5ee", new: "#fff" };
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 110" role="img" aria-label={alt}>
+      <line x1={L} y1="62" x2={R} y2="62" stroke="currentColor" stroke-width="2.5" />
+      {Array.from({ length: max - min + 1 }, (_, i) => min + i).map((v) => <g key={v}><line x1={X(v)} y1="56" x2={X(v)} y2="68" stroke="currentColor" stroke-width="1.5" /><text x={X(v)} y="88" text-anchor="middle" class="fig-label" font-size="10">{v}</text></g>)}
+      {points.map((p, i) => <g key={i}><circle cx={X(p.v)} cy="62" r="9" fill={tone[p.tone]} stroke="currentColor" stroke-width="2.5" />{p.tone === "new" && <text x={X(p.v)} y="66" text-anchor="middle" class="fig-label" font-size="12">?</text>}{p.label && <text x={X(p.v)} y="40" text-anchor="middle" class="fig-label" font-size="12">{p.label}</text>}</g>)}
+    </svg>
+  );
+}
+
+function NeuronFigure({ inputs, weights, bias, alt }: Of<"neuron">) {
+  const n = inputs.length, ys = inputs.map((_, i) => 30 + (i * 100) / Math.max(1, n - 1) + (n === 1 ? 35 : 0));
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 160" role="img" aria-label={alt}>
+      {inputs.map((v, i) => <g key={i}><circle cx="34" cy={ys[i]} r="18" fill="#84d8ba" stroke="currentColor" stroke-width="2" /><text x="34" y={ys[i] + 5} text-anchor="middle" class="fig-label" font-size="15">{v}</text><line x1="52" y1={ys[i]} x2="160" y2="80" stroke="currentColor" stroke-width="2" /><text x="104" y={(ys[i] + 80) / 2 + (ys[i] < 80 ? -6 : 14)} text-anchor="middle" class="fig-label" font-size="12" fill="#c2410c">× {weights[i]}</text></g>)}
+      <circle cx="182" cy="80" r="26" fill="#f0be65" stroke="currentColor" stroke-width="2" /><text x="182" y="85" text-anchor="middle" class="fig-label" font-size="13">add</text>
+      {bias !== undefined && <text x="182" y="130" text-anchor="middle" class="fig-label" font-size="12" fill="#c2410c">bias {bias}</text>}
+      <line x1="208" y1="80" x2="248" y2="80" stroke="currentColor" stroke-width="2" /><rect x="248" y="62" width="40" height="36" rx="9" fill="#f6a0bc" stroke="currentColor" stroke-width="2" /><text x="268" y="86" text-anchor="middle" class="fig-label" font-size="18">?</text>
+    </svg>
+  );
+}
+
+function BarsFigure({ items, yLabel, alt }: Of<"bars">) {
+  const L = 40, R = 290, T = 26, B = 150, max = Math.max(...items.map((i) => i.value)), top = Math.ceil(max / 5) * 5 || 5, w = (R - L) / items.length, Y = (v: number) => r2(B - (v / top) * (B - T));
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 190" role="img" aria-label={alt}>
+      {[0, top / 2, top].map((v) => <g key={v}><line x1={L} x2={R} y1={Y(v)} y2={Y(v)} stroke="currentColor" opacity={v === 0 ? .8 : .15} /><text x={L - 6} y={Y(v) + 4} text-anchor="end" class="fig-label" font-size="11">{v}</text></g>)}
+      {items.map((it, i) => <g key={i}><rect x={L + i * w + w * 0.18} y={Y(it.value)} width={w * 0.64} height={B - Y(it.value)} rx="4" fill="#c1c5ee" fill-opacity=".8" stroke="currentColor" stroke-width="2" /><text x={L + i * w + w / 2} y={B + 16} text-anchor="middle" class="fig-label" font-size="11">{it.label}</text></g>)}
+      <text x="8" y="14" class="fig-label" font-size="11" opacity=".75">{yLabel}</text>
     </svg>
   );
 }

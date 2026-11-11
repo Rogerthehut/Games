@@ -77,11 +77,12 @@ export function buildProgressReport(p: Profile, now = Date.now(), range?: Range 
   });
   const touched = skills.filter((s) => s.seen > 0);
 
-  const strands: StrandRow[] = STRANDS.map((strand) => {
+  const ORDER: Strand[] = [...STRANDS, "STEM"];
+  const strands: StrandRow[] = ORDER.map((strand) => {
     const counts: Record<Status, number> = { secure: 0, growing: 0, learning: 0, assumed: 0, new: 0 };
     for (const s of skills) if (s.strand === strand) counts[s.status]++;
     return { strand, counts, total: Object.values(counts).reduce((a, b) => a + b, 0) };
-  }).filter((r) => r.strand !== "Reasoning" || r.counts.secure + r.counts.growing + r.counts.learning > 0);
+  }).filter((r) => (r.strand !== "Reasoning" && r.strand !== "STEM") || r.counts.secure + r.counts.growing + r.counts.learning > 0);
 
   const last: BaselineRecord | undefined = p.baselines[p.baselines.length - 1];
   const name = (id: string) => SKILL_BY_ID[id]?.name ?? id;
@@ -101,13 +102,13 @@ export function buildProgressReport(p: Profile, now = Date.now(), range?: Range 
     level: last ? { label: yearLabel(last.theta), detail: BAND_TEXT[last.readiness]?.label ?? "", at: last.at, checkups: p.baselines.length } : null,
     period: { custom, from, to, sessions: recent.length, minutes: Math.round(recent.reduce((s, x) => s + x.minutes, 0)), answered, correct, accuracy: pct(correct, answered), activeDays: new Set(recent.map((s) => dayKey(s.at))).size },
     allTime: { sessions: p.sessions.length, minutes: Math.round(p.sessions.reduce((s, x) => s + x.minutes, 0)), answered: allAnswered, accuracy: pct(allCorrect, allAnswered) },
-    secure: { done: skills.filter((s) => s.status === "secure").length, total: skills.length },
+    secure: { done: skills.filter((s) => s.status === "secure" && s.strand !== "STEM").length, total: skills.filter((s) => s.strand !== "STEM").length },
     unit, weeks, strands,
     practised: Object.entries(inPeriod).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([id, n]) => ({ skill: name(id), sessions: n })),
     checkups: p.baselines.filter((b) => !custom || (b.at >= from && b.at <= to)).map((b) => ({ at: b.at, level: yearLabel(b.theta), questions: b.questions, correct: b.correct, minutes: b.minutes })).reverse(),
     gaps: (last?.gaps ?? []).map(name), strengths: (last?.strengths ?? []).map(name),
     papers: (p.mocks ?? []).filter((m) => !custom || (m.at >= from && m.at <= to)).map(mock).reverse(),
-    skills: touched.sort((a, b) => STRANDS.indexOf(a.strand) - STRANDS.indexOf(b.strand) || a.year - b.year || a.name.localeCompare(b.name)),
+    skills: touched.sort((a, b) => ORDER.indexOf(a.strand) - ORDER.indexOf(b.strand) || a.year - b.year || a.name.localeCompare(b.name)),
     attention,
     mistakes: Object.values(p.mistakes).sort((a, b) => b.count - a.count).slice(0, 5).map((m) => ({ skill: name(m.skill), count: m.count, message: m.message })),
     focus: p.focus.map(name),
