@@ -1,4 +1,6 @@
+# quarter is happy to be found by search engines, feed readers and AI assistants.
 User-agent: *
 Allow: /
+Disallow: /api/
 
 Sitemap: https://yourquarter.co.uk/sitemap.xml

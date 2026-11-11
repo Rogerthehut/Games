@@ -76,7 +76,7 @@ describe("turning a concept into a page", () => {
   });
 });
 
-import { readFileSync } from "node:fs";
+import { sitemapXml } from "../../scripts/site-pages";
 import { conceptPages } from "../../scripts/concept-pages";
 
 describe("the public study pages", () => {
@@ -92,7 +92,7 @@ describe("the public study pages", () => {
     }
   });
   it("are all in the sitemap, so search engines can find them", () => {
-    const sitemap = readFileSync("public/sitemap.xml", "utf8");
+    const sitemap = sitemapXml();
     for (const p of pages) expect(sitemap, p.path).toContain(`https://yourquarter.co.uk/${p.path}`);
   });
 });

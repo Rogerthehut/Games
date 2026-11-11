@@ -1,10 +1,20 @@
 # quarter
 
-> quarter is a maths practice web app for children in Years 3 to 13 (ages 7 to 18), following the National Curriculum for England. Parents create the account; children use it under their supervision. It finds each learner's starting point, gives short practice sessions with worked explanations, includes original 11+ style maths and reasoning practice papers, and has a parents' area showing progress.
+> quarter is a maths and STEM practice web app for children in Years 3 to 13 (ages 7 to 18), following the National Curriculum for England, with a STEM lab covering computing, data science, AI and quantum ideas. Parents create the account; children use it under their supervision. It finds each learner's starting point, gives short practice sessions with worked explanations, includes original 11+ style maths and reasoning practice papers, and has a parents' area showing progress.
 
 Site: https://yourquarter.co.uk/
 Operator: quarter™ is a trading name of Wristed Ltd (England and Wales, company number 12397793)
 Contact: hello@yourquarter.co.uk
+
+## What quarter covers
+- [What quarter covers](https://yourquarter.co.uk/curriculum/index.html): every maths topic, year by year, and the STEM lab
+- [The STEM lab](https://yourquarter.co.uk/curriculum/stem.html): computing, data science, AI and machine learning, and quantum ideas
+- [Study guides](https://yourquarter.co.uk/learn/index.html): short illustrated explanations of the ideas behind the topics
+- [Full site guide for assistants](https://yourquarter.co.uk/llms-full.txt): every topic with a one-line description
+
+## Blog and reading
+- [The quarter blog](https://yourquarter.co.uk/blog/index.html): practical articles for parents (RSS: https://yourquarter.co.uk/blog/rss.xml)
+- [Reading list](https://yourquarter.co.uk/reading/index.html): recent articles from education organisations
 
 ## Guides for parents
 - [Parent guides](https://yourquarter.co.uk/parents.html): practical guides to supporting maths at home

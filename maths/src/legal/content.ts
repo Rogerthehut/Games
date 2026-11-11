@@ -29,6 +29,9 @@ export function footerGroups(parents: { hub: { path: string; title: string }; fa
       { label: "FAQs", href: parents.faq.path },
       { label: "Find your local 11+ test", href: "11-plus-maths.html#test-finder" },
       { label: "Study guides", href: "learn/index.html" },
+      { label: "What quarter covers", href: "curriculum/index.html" },
+      { label: "Blog", href: "blog/index.html" },
+      { label: "Reading list", href: "reading/index.html" },
     ] },
     { heading: "About quarter", links: [
       ...legalPages.map((key) => ({ label: legalTitles[key], href: `./?info=${key}` })),

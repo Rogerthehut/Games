@@ -102,8 +102,11 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#0f766e">
 <link rel="icon" href="./icon.svg?v=quarter" type="image/svg+xml">
+<link rel="icon" href="./favicon.ico" sizes="48x48">
 <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="quarter blog" href="https://yourquarter.co.uk/blog/rss.xml">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="quarter">
 <meta property="og:locale" content="en_GB">
@@ -111,7 +114,7 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
 <meta property="og:description" content="${escapeHtml(page.description)}">
 <meta property="og:url" content="https://yourquarter.co.uk/${page.path}">
 <meta property="og:image" content="https://yourquarter.co.uk/og-image.png">
-<meta property="og:image:alt" content="quarter: maths practice for Years 3 to 13">
+<meta property="og:image:alt" content="quarter: maths and STEM practice for Years 3 to 13">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(page.title)} | quarter">
 <meta name="twitter:description" content="${escapeHtml(page.description)}">

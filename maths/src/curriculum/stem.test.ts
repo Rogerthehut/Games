@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SKILL_BY_ID, SKILLS, STEM_SKILLS } from ".";
-import { THEME_OF } from "../ui/stem";
+import { THEME_OF } from "./stem-themes";
 
 describe("the STEM lab", () => {
   it("is its own area: none of it is in the maths skills", () => {

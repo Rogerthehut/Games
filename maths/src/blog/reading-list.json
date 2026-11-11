@@ -1,0 +1,21 @@
+{
+  "updated": "2026-11-11",
+  "items": [
+    {
+      "sourceId": "dfe",
+      "source": "Department for Education",
+      "title": "Guidance: Choosing a phonics teaching programme",
+      "url": "https://www.gov.uk/government/publications/choosing-a-phonics-teaching-programme",
+      "date": "2026-11-11",
+      "summary": "Sets out what the government is doing to help schools choose a phonics teaching programme."
+    },
+    {
+      "sourceId": "dfe",
+      "source": "Department for Education",
+      "title": "Accredited official statistics: Primary school performance data in England: 2027",
+      "url": "https://www.gov.uk/government/statistics/announcements/primary-school-performance-data-in-england-2027",
+      "date": "2026-11-11",
+      "summary": "Information on the achievements of pupils in each state-funded primary school in England."
+    }
+  ]
+}

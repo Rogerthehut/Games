@@ -2,29 +2,14 @@ import { useMemo, useState } from "preact/hooks";
 import { STAGE_LABEL, STEM_SKILLS } from "../curriculum";
 import { conceptsForSkill } from "../concepts";
 import { statusOf } from "../engine/progress";
-import type { Skill, Stage } from "../engine/types";
+import type { Stage } from "../engine/types";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 import { STATUS_LABEL } from "./labels";
 import { MoreBelow } from "./qshell";
 import { LABS, Lab, type LabId } from "./stem-labs";
 
-type Theme = "computing" | "data" | "ai" | "quantum";
-const THEMES: { id: Theme; label: string; blurb: string }[] = [
-  { id: "computing", label: "Computing", blurb: "Instructions, loops, binary and how computers think." },
-  { id: "data", label: "Data science", blurb: "Collecting, checking and making sense of data." },
-  { id: "ai", label: "AI and machine learning", blurb: "How machines learn from examples." },
-  { id: "quantum", label: "Quantum ideas", blurb: "The strange, true rules of the very small." },
-];
-export const THEME_OF: Record<string, Theme> = {
-  "stem-instructions": "computing", "stem-loops": "computing", "stem-input-output": "computing", "stem-sorting": "computing", "stem-debugging": "computing",
-  "stem-binary": "computing", "stem-hex": "computing", "stem-trace": "computing", "stem-logic": "computing", "stem-data-types": "computing",
-  "stem-binary-search": "computing", "stem-growth": "computing", "stem-storage": "computing", "stem-caesar": "computing", "stem-information": "computing",
-  "stem-data-detective": "data", "stem-outliers": "data",
-  "stem-ai-features": "ai", "stem-bias": "ai", "stem-nearest": "ai", "stem-neuron": "ai", "stem-accuracy": "ai", "stem-gradient-descent": "ai", "stem-spam": "ai", "stem-network-layer": "ai",
-  "stem-quantum-ideas": "quantum", "stem-qubit": "quantum", "stem-qubit-states": "quantum", "stem-quantum-gates": "quantum",
-};
-const themeOf = (s: Skill): Theme => THEME_OF[s.id] ?? "computing";
+import { THEMES, themeOf, type Theme } from "../curriculum/stem-themes";
 const STAGES: Stage[] = ["KS2", "KS3", "KS4", "KS5"];
 const yearsOf = (stage: Stage) => (stage === "KS2" ? "Years 3 to 6" : stage === "KS3" ? "Years 7 to 9" : stage === "KS4" ? "Years 10 and 11" : "Years 12 and 13");
 const stageOfYear = (y: number): Stage => (y <= 6 ? "KS2" : y <= 9 ? "KS3" : y <= 11 ? "KS4" : "KS5");

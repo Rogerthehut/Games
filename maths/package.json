@@ -11,6 +11,8 @@
     "test": "vitest run",
     "server": "tsx server/index.ts",
     "booklet": "tsx scripts/build-booklet.ts",
+    "reading-list": "tsx scripts/fetch-reading-list.ts",
+    "icons": "node scripts/make-icons.mjs",
     "server:fake": "TUTOR_FAKE=1 tsx server/index.ts",
     "eval:tutor": "tsx server/eval/tutor-eval.ts"
   },
