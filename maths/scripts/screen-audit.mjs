@@ -136,7 +136,7 @@ const AUDIT = ({ kind }) => {
   for (const el of document.querySelectorAll("button, a, label, h1, h2, h3, p, span, li, summary, small, strong")) {
     if (!visible(el)) continue;
     const s = getComputedStyle(el);
-    if (s.display === "inline" || el.classList.contains("sr")) continue; // visually hidden text is meant to be clipped
+    if (s.display === "inline" || el.classList.contains("sr") || el.classList.contains("activity-card")) continue; // visually hidden text, and tiles whose decorative circle runs off the edge on purpose // visually hidden text is meant to be clipped
     if (/(hidden|clip)/.test(s.overflowX) && el.scrollWidth > el.clientWidth + 2 && s.textOverflow !== "ellipsis" && el.textContent.trim()) clipped.push(`${label(el)} "${el.textContent.trim().slice(0, 24)}"`);
   }
   if (clipped.length) issues.push({ type: "clipped-text", detail: clipped.slice(0, 4).join("; ") });
@@ -206,6 +206,7 @@ for (const [sizeName, width, height, kind] of SIZES) {
     try {
       await page.goto(base + (screen.path ?? "/"));
       await wait(page, 700);
+      await page.getByRole("button", { name: /^Continue/ }).click({ timeout: 1500 }).catch(() => {}); // the "Hello" screen a returning learner sees first
       await page.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
       await screen.go(page);
       await wait(page, 300);

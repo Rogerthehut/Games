@@ -186,7 +186,7 @@ textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8r
   color: var(--accent);
   font-size: .83rem; line-height: 1.25; font-variant-numeric: tabular-nums;
 }
-.streak-label { display: block; color: var(--muted); font: 700 .63rem/1.35 ui-monospace, monospace; letter-spacing: .05em; text-transform: uppercase; }
+.streak-label { display: block; color: var(--muted); font: 700 .72rem/1.35 ui-monospace, monospace; letter-spacing: .05em; text-transform: uppercase; }
 .streak strong { font-weight: 750; }
 .eyebrow { margin: 0; text-transform: uppercase; letter-spacing: .09em; font-size: .75rem; font-weight: 850; opacity: .85; }
 
@@ -680,9 +680,14 @@ h1, h2, h3, .q-topic {
 .activity-skills { --card-colour: #c1c5ee; }
 .activity-checkup { --card-colour: #f0be65; }
 .activity-plan { --card-colour: #84d8ba; }
-.activity-label { padding: 5px 8px; border: 1px solid #18192b30; border-radius: 999px; background: #fff8; font-size: .62rem; }
+.activity-label { padding: 5px 8px; border: 1px solid #18192b30; border-radius: 999px; background: #fff8; font-size: .72rem; }
 .activity-title { margin-top: 5px; font: 720 clamp(1.15rem, 2.3vw, 2.3rem)/1.02 var(--workbook-heading); letter-spacing: -.035em; overflow-wrap: anywhere; }
 .activity-detail { font-size: .83rem; line-height: 1.4; }
+/* a long topic name or description never squeezes the drawing out of the tile */
+.activity-grid .activity-title, .activity-grid .activity-detail { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.activity-grid .activity-title { -webkit-line-clamp: 2; line-clamp: 2; }
+.activity-grid .activity-detail { -webkit-line-clamp: 2; line-clamp: 2; }
+.activity-grid .activity-art { flex-shrink: 0; min-height: 56px; }
 .activity-card::before {
   content: "";
   position: absolute;
@@ -1671,7 +1676,7 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
   .activity-detail.activity-detail-compact { display: block; }
   .activity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :root:not([data-skin="scholar"]) .activity-card { padding: 9px; gap: 4px; }
-  :root:not([data-skin="scholar"]) .activity-label { font-size: .55rem; padding: 2px 5px; }
+  :root:not([data-skin="scholar"]) .activity-label { font-size: .72rem; padding: 2px 6px; }
   :root:not([data-skin="scholar"]) .activity-title { font-size: .98rem; }
   .activity-detail { font-size: .72rem; line-height: 1.2; }
   :root:not([data-skin="scholar"]) .activity-art { width: min(100%, 47px); }
@@ -2451,7 +2456,7 @@ html:has(.quarter-search[open]),
 .l-cards li { display: flex; }
 /* the same tiles as the app's Today screen */
 .l-cards .activity-card { width: 100%; aspect-ratio: auto; min-height: 420px; align-self: stretch; padding: 22px; gap: 10px; font-family: inherit; }
-.l-cards .activity-label { font-size: .68rem; }
+.l-cards .activity-label { font-size: .72rem; }
 .l-cards .activity-title { font-size: clamp(1.5rem, 2.2vw, 1.9rem); }
 .l-cards .activity-detail { font-size: .95rem; }
 .l-cards .activity-art { width: min(100%, 150px); }
