@@ -2938,3 +2938,15 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 @keyframes note-nudge { 0%, 100% { transform: rotate(-2.5deg); } 25% { transform: rotate(-.5deg) translateY(-3px); } 55% { transform: rotate(-3.5deg); } 80% { transform: rotate(-1.5deg); } }
 @keyframes sq-pop { 0% { transform: scale(1); } 45% { transform: scale(1.18) rotate(-4deg); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .tables-note, .tables-note::after, .tn-cross, .tn-arrow, .tables-note.peeling { animation: none !important; transition: none !important; } .tables-note:hover .tn-sq { animation: none; } }
+
+/* the AI tutor: its own pill, and a panel that floats above the bar over the question, then closes back down */
+.qpage > .qbar { position: relative; overflow: visible; }
+.qbar-float { position: absolute; inset: auto var(--question-gutter, 16px) calc(100% + 6px); display: flex; justify-content: center; pointer-events: none; z-index: 20; }
+.qbar-float .tutor { pointer-events: auto; display: flex; flex-direction: column; width: min(100%, var(--question-width, 680px)); max-height: min(66dvh, 560px); margin: 0; background: var(--surface); box-shadow: 0 20px 56px #18192b44, 0 2px 6px #18192b22; transform-origin: 50% 100%; animation: tutor-rise 260ms var(--ease-out, ease-out) both; }
+.qbar-float .tutor-log { overflow-y: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; }
+.qbar-float .tutor-head, .qbar-float .tutor-form { flex: none; }
+.qbar-float .tutor > .small { flex: none; }
+@keyframes tutor-rise { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .qbar-float .tutor { animation: none; } }
+@media (max-height: 520px) { .qbar-float .tutor { max-height: 78dvh; } }
+@media (max-width: 600px) { .qpage .qbar-in:has(.qbar-ask) { flex-wrap: wrap; justify-content: flex-start; } }

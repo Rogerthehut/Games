@@ -21,7 +21,7 @@ export function QTop({ onClose, closeLabel, closeText, index, total, right }: { 
 }
 
 /** Sticky actions at the bottom, where a thumb is. */
-export function QBar({ left, right, help = false }: { left?: ComponentChildren; right?: ComponentChildren; help?: boolean }) {
+export function QBar({ left, right, ask, float, help = false }: { left?: ComponentChildren; right?: ComponentChildren; /** its own pill, next to the others */ ask?: ComponentChildren; /** a panel that floats above the bar, over the page behind it */ float?: ComponentChildren; help?: boolean }) {
   const bar = useRef<HTMLDivElement>(null);
   const scrollBody = useRef<HTMLElement | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -76,12 +76,14 @@ export function QBar({ left, right, help = false }: { left?: ComponentChildren; 
 
   return (
     <div class="qbar" ref={bar}>
+      {float && <div class="qbar-float">{float}</div>}
       {moreBelow && <button type="button" class={`qbar-more${moreAway ? " off" : ""}`} onClick={scrollDown} tabIndex={moreAway ? -1 : 0} aria-hidden={moreAway ? "true" : undefined}>Scroll for more <Icon name="chevron" size={18} /></button>}
       <div class="qbar-in">
         <div class="qbar-left">
           {left}
           {help && <button type="button" class="btn ghost" aria-controls="question-tools" aria-expanded={helpOpen} onClick={toggleHelp}><Icon name="pencil" size={20} /> <span class="lbl-long">{helpOpen ? "Hide tools" : "Working-out tools"}</span><span class="lbl-short">{helpOpen ? "Hide" : "Tools"}</span></button>}
         </div>
+        {ask && <div class="qbar-left qbar-ask">{ask}</div>}
         <div class="qbar-right">
           {right}
         </div>

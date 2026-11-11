@@ -217,6 +217,9 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     setSoundOn(!soundOn);
   };
 
+  const askPill = tutorOn && !showTutor ? <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> Ask</button> : undefined;
+  const tutorPanel = tutorOn && showTutor && phase !== "intro" ? <TutorPanel key={idx} ctx={tutorContext(q, skill.name, profile.year, phase, values, attempts, hinted)} onClose={() => setShowTutor(false)} /> : undefined;
+
   return (
     <div class="qpage practice-page" data-phase={phase}>
       <QTop onClose={stop} closeLabel="Save and leave practice" closeText="Save and leave" index={idx} total={total}
@@ -301,9 +304,6 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
               )}
             </div>
 
-            {tutorOn && showTutor && (
-              <TutorPanel key={idx} ctx={tutorContext(q, skill.name, profile.year, phase, values, attempts, hinted)} onClose={() => setShowTutor(false)} />
-            )}
             </div>
             <WorkingOut suggestCounters={profile.year <= 6 && skill.strand === "Number"} />
           </div>
@@ -323,18 +323,16 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
         />
       ) : phase === "ask" ? (
         <QBar
-          help
+          help ask={askPill} float={tutorPanel}
           right={<button class="btn primary" onClick={submit} disabled={!canCheck} data-testid="check">Check my answer</button>}
           left={<>
             {!showHint && <button class="btn ghost" onClick={() => { setShowHint(true); setHinted(true); }} data-testid="hint"><Icon name="bulb" size={20} /> Hint</button>}
             {(showHint || attempts > 0) && <button class="btn ghost" onClick={showMe} data-testid="show-me"><Icon name="eye" size={20} /> Show the steps</button>}
-            {tutorOn && !showTutor && <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> Ask</button>}
           </>}
         />
       ) : (
         <QBar
-          help
-          left={tutorOn && !showTutor ? <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> Ask</button> : undefined}
+          help ask={askPill} float={tutorPanel}
           right={<button class="btn primary" onClick={next} data-testid="next">{idx + 1 >= total ? "Finish" : "Next"} <Icon name="arrow" size={20} /></button>}
         />
       )}
