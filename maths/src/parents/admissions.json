@@ -88,7 +88,17 @@
         "label": "Bromley grammar school test information",
         "path": "https://bromleyeducationmatters.uk/Article/182532"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Set by each school",
+      "status": "reported",
+      "note": "St Olave’s runs its own Selective Eligibility Test, and Newstead Wood sets its own selection test. The council’s secondary guide lists the dates. Check each school.",
+      "source": {
+        "label": "Bromley Council: secondary education guide",
+        "path": "https://www.bromley.gov.uk/downloads/file/3972/secondary-education-in-bromley-2027-2028"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "buckinghamshire",
@@ -178,7 +188,22 @@
         "label": "The Latymer School Year 7 admissions",
         "path": "https://www.latymer.co.uk/page/?pid=84&title=Year+7+admissions"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Quest Assessments (from September 2027 testing, for 2028 entry)",
+      "status": "reported",
+      "note": "The Latymer School says its 11+ assessments will be provided by Quest Assessments from September 2027. The papers are Mathematics, English comprehension and English writing.",
+      "parts": [
+        "Mathematics",
+        "English comprehension",
+        "English writing"
+      ],
+      "source": {
+        "label": "The Latymer School: Year 7 admissions",
+        "path": "https://www.latymer.co.uk/page/?pid=84&title=Year+7+admissions"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "essex",
@@ -201,7 +226,21 @@
         "label": "Southend-on-Sea City Council secondary admissions",
         "path": "https://www.southend.gov.uk/school-admissions/secondary-school-admissions"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Consortium of Selective Schools in Essex (CSSE)",
+      "status": "reported",
+      "note": "The CSSE 11+ is set by the consortium of Essex selective schools, not the council. It covers English and Maths, and from September 2024 the English paper has no Applied Reasoning questions. Check each school, as not every Essex grammar school is a member.",
+      "parts": [
+        "English",
+        "Maths"
+      ],
+      "source": {
+        "label": "Consortium of Selective Schools in Essex",
+        "path": "https://csse.org.uk/?view=schools"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "gloucestershire",
@@ -281,7 +320,17 @@
         "label": "The Tiffin Girls’ School Year 7 admissions",
         "path": "https://www.tiffingirls.org/admissions/year-7/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Quest (for Tiffin School)",
+      "status": "reported",
+      "note": "Tiffin School says it works with Quest to set its Year 7 entrance tests. The Tiffin Girls’ page checked does not name a provider.",
+      "source": {
+        "label": "Tiffin School: Year 7 admissions",
+        "path": "https://www.tiffinschool.co.uk/admissions/year-7-admissions/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "kirklees",
@@ -331,8 +380,12 @@
     "test": {
       "provider": "GL Assessment",
       "status": "reported",
-      "note": "The council points to the Lincolnshire Consortium test but does not name its provider. GL Assessment comes from tutoring sites only.",
-      "checked": "2026-11-09"
+      "note": "King Edward VI Grammar School’s FAQ says the tests are prepared annually for the Lincolnshire consortium by GL Assessment. The council page does not name a provider.",
+      "source": {
+        "label": "King Edward VI Grammar School: 11+ FAQs",
+        "path": "https://www.kevigs.org/admissions/faqs/"
+      },
+      "checked": "2026-11-11"
     }
   },
   {
@@ -418,7 +471,17 @@
         "label": "Department of Education post-primary transfer guidance",
         "path": "https://www.education-ni.gov.uk/publications/circular-202619-procedure-transfer-primary-post-primary-education"
       }
-    ]
+    ],
+    "test": {
+      "provider": "SEAG Entrance Assessment",
+      "status": "reported",
+      "note": "The SEAG website lists two Entrance Assessment papers on Saturdays 14 and 21 November 2026 at an assessment centre. Check SEAG for your child’s entry year.",
+      "source": {
+        "label": "SEAG: key dates and milestones",
+        "path": "https://seagni.co.uk/guidance-for-parents/key-dates-milestones"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "plymouth",
@@ -436,7 +499,21 @@
         "label": "Plymouth High School for Girls 11+ information",
         "path": "https://www.phsg.org/page/?pid=425"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Quest Assessment (for Plymouth High School for Girls)",
+      "status": "reported",
+      "note": "Plymouth High School for Girls lists Quest Assessment sittings for English comprehension and Maths for September 2026 testing. Other Plymouth grammar schools were not checked.",
+      "parts": [
+        "English comprehension",
+        "Maths"
+      ],
+      "source": {
+        "label": "Plymouth High School for Girls: 11+ information",
+        "path": "https://www.phsg.org/page/?pid=425"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "reading",
@@ -482,7 +559,13 @@
         "label": "Slough Consortium familiarisation via Herschel Grammar School",
         "path": "https://www.herschel.slough.sch.uk/admissions/free-11-familiarisation/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment for September 2026; later sittings disputed",
+      "status": "disputed",
+      "note": "A Slough consortium briefing names GL Assessment for the September 2026 test. Some sources say a different provider, Quest, takes over for later sittings. Confirm with the schools.",
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "stoke-on-trent",
@@ -496,7 +579,21 @@
         "label": "St Joseph’s College admissions",
         "path": "https://www.stjosephstrentvale.com/admissions/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Multiple-choice test for St Joseph’s College (GL Assessment materials suggested)",
+      "status": "reported",
+      "note": "St Joseph’s College tests verbal and non-verbal reasoning only, and points families to GL Assessment’s familiarisation materials. The school does not say who sets the test.",
+      "parts": [
+        "Verbal reasoning",
+        "Non-verbal reasoning"
+      ],
+      "source": {
+        "label": "St Joseph’s College: admissions",
+        "path": "https://www.stjosephstrentvale.com/admissions/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "sutton",
@@ -510,7 +607,17 @@
         "label": "Sutton Council school selection tests",
         "path": "https://www.sutton.gov.uk/schools-and-learning/school-admissions/apply-start-secondary-school/secondary-school-tests-assessments-and-supplementary-forms"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Not confirmed",
+      "status": "disputed",
+      "note": "Sutton’s grammar schools use a Selective Eligibility Test (SET). Sources disagree on who sets it, and the official pages checked do not name a provider. Ask the school.",
+      "source": {
+        "label": "Sutton Grammar School: Selective Eligibility Test",
+        "path": "https://www.suttongrammar.sutton.sch.uk/admissions/selective-eligibility-test-examination/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "torbay",
@@ -528,7 +635,21 @@
         "label": "Churston Ferrers Grammar School admissions",
         "path": "https://www.churstongrammar.com/admissions-process"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment (for Churston Ferrers Grammar School)",
+      "status": "reported",
+      "note": "Churston Ferrers Grammar School says its 11+ test is administered by GL Assessment and covers English and Maths. Torquay Boys’ and Girls’ grammar schools were not confirmed.",
+      "parts": [
+        "English",
+        "Maths"
+      ],
+      "source": {
+        "label": "Churston Ferrers Grammar School: admissions process",
+        "path": "https://www.churstongrammar.com/admissions-process"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "trafford",
@@ -548,10 +669,14 @@
       }
     ],
     "test": {
-      "provider": "GL Assessment, with a change expected",
-      "status": "disputed",
-      "note": "Most sources say GL Assessment for the September 2026 sitting and Future Stories Community Enterprise (FSCE) later, but one says FSCE already. Loreto and St Ambrose use a separate test.",
-      "checked": "2026-11-09"
+      "provider": "Future Stories Community Enterprise (FSCE) from 2028 entry",
+      "status": "reported",
+      "note": "Urmston Grammar says the Trafford Grammar School Consortium has appointed FSCE as admissions test provider for entry to Year 7 from 2028 onwards. Earlier sittings were reported to use GL Assessment. Loreto and St Ambrose use a separate test.",
+      "source": {
+        "label": "Urmston Grammar School: admissions update",
+        "path": "https://www.urmstongrammar.org.uk/page/?pid=297"
+      },
+      "checked": "2026-11-11"
     }
   },
   {
@@ -570,7 +695,23 @@
         "label": "West Midlands Grammar Schools official test preparation",
         "path": "https://westmidlandsgrammarschools.co.uk/preparing-for-the-test"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment (West Midlands Grammar Schools test)",
+      "status": "reported",
+      "note": "Lawrence Sheriff School says GL Assessment is the provider for 2026 entry, covering Maths, English, Verbal and Non-Verbal Reasoning. Later years may differ, so check the school.",
+      "parts": [
+        "Maths",
+        "English",
+        "Verbal reasoning",
+        "Non-verbal reasoning"
+      ],
+      "source": {
+        "label": "Lawrence Sheriff School: 11+ information for parents",
+        "path": "https://lawrencesheriffschool.net/admissions/11-information-for-parents"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "west-midlands",
@@ -627,7 +768,22 @@
         "label": "Bishop Wordsworth’s School Year 7 admissions FAQs",
         "path": "https://www.bishopwordsworths.org.uk/admissions/year-7-admissions/frequently-asked-questions"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment (for South Wilts Grammar School)",
+      "status": "reported",
+      "note": "South Wilts Grammar School says it uses GL Assessment as its 11+ test provider, with three papers in one sitting. Bishop Wordsworth’s was not confirmed.",
+      "parts": [
+        "Mathematics",
+        "English",
+        "Verbal reasoning"
+      ],
+      "source": {
+        "label": "South Wilts Grammar School: the 11+ process",
+        "path": "https://www.swgs.wilts.sch.uk/the-11-plus-process/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "wirral",
