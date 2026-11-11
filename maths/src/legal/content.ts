@@ -48,8 +48,8 @@ export function privacySections(native: boolean): Section[] {
     {
       title: "The short version",
       paragraphs: native
-        ? ["quarter is for practising maths. This app preview works through questions on your device. It does not ask you to create a learner account or upload your practice answers."]
-        : ["quarter is for practising maths. Your browser keeps your learner profile, maths progress and choices so you can pick up where you left off. You can use a nickname. An optional online tutor works differently and is explained below."],
+        ? ["quarter is for practising maths and STEM topics. This app preview works through questions on your device. It does not ask you to create a learner account or upload your practice answers."]
+        : ["quarter is for practising maths and STEM topics. Your browser keeps your learner profile, progress and choices so you can pick up where you left off. You can use a nickname. An optional online tutor works differently and is explained below."],
     },
     ...(native ? [] : [{
       title: "Who looks after your information",
@@ -61,7 +61,7 @@ export function privacySections(native: boolean): Section[] {
       title: "What we keep",
       paragraphs: [
         "About the parent or guardian: the email address you sign up with, how you signed in (email, Google or Apple), and the date you agreed to our terms and privacy notice. If you use Apple’s Hide My Email, we only see the private address Apple gives us.",
-        "About each learner you add: a nickname, school year, avatar, maths progress, results, certificates, practice papers, plans and settings. We use this to pick questions, show progress and suggest what to practise next. Please use a nickname instead of a full name.",
+        "About each learner you add: a nickname, school year, avatar, maths and STEM progress, results, certificates, practice papers, plans and settings. We use this to pick questions, show progress and suggest what to practise next. Please use a nickname instead of a full name.",
         "We do not ask for real names, birthdays, photos, home addresses or school names for learners. Nothing is used for advertising, and we do not sell information.",
         "quarter is in public beta and free to use for now. The same privacy protections apply during the beta as will apply afterwards.",
         "Feedback: if you send us feedback from the Parents’ area, we keep your message, the topic you chose, an optional star rating, whether you said we may reply, and your screen size, linked to your account. We don’t store your email address with it. If you say we may reply, we look it up from your sign-in account when we answer. It is used only to improve quarter and to reply to you, and it is deleted with your account. Please don’t put personal details about a child in it.",
@@ -143,7 +143,7 @@ export const termsSections: Section[] = [
   {
     title: "What quarter is for",
     paragraphs: [
-      "quarter is a maths practice tool for learners and their grown-ups. It covers selected topics from England’s maths curriculum. quarter’s original 11+ maths-style questions are for practice. They are independent of exam providers.",
+      "quarter is a maths and STEM practice tool for learners and their grown-ups. It covers selected topics from England’s maths curriculum, and computing, data science, AI and quantum topics in the STEM lab. quarter’s original 11+ maths-style questions are for practice. They are independent of exam providers.",
       "If you’re a child, ask a grown-up to read these terms with you.",
     ],
   },
@@ -176,7 +176,7 @@ export const termsSections: Section[] = [
       "quarter is a practice and learning aid. We can’t promise any particular result, such as a better school grade, a place at a school, or a pass in the 11+ or any other exam. What a learner gains depends on many things, including how often they practise and the teaching they get elsewhere.",
       "Levels, scores and reports, including the working level from a check-up and the progress report, are estimates to help you plan practice. They are not an official assessment and not a prediction of exam results.",
       "Our 11+ style practice is original and independent of exam boards and test providers. It may not match any particular test, and school admission rules and tests change, so always check with the school or local authority.",
-      "Our topics follow England’s maths curriculum as we understand it, but we can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactEmail + ". The AI tutor and the AI assistant can also make mistakes and are not a replacement for a teacher.",
+      "Our maths topics follow England’s maths curriculum as we understand it, and our STEM topics are our own selection, pitched for each age. We can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactEmail + ". The AI tutor and the AI assistant can also make mistakes and are not a replacement for a teacher.",
     ],
   },
   {

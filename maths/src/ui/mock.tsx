@@ -114,8 +114,10 @@ export function Mock({ pathway }: { pathway?: Stage }) {
     setPhase("done");
   };
 
+  const recorded = useRef(-1);
   const record = (inputs: string[], correct: boolean, tag?: string, message?: string) => {
-    if (!q || finished.current) return;
+    if (!q || finished.current || recorded.current === idx) return; // a double tap must not record the same question twice
+    recorded.current = idx;
     if (!pathway && Date.now() >= startedAt.current + format.seconds * 1000) { endOnTime(); return; }
     const all = [...taken, { q, inputs, correct, tag, message }];
     setTaken(all);

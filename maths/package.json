@@ -13,6 +13,7 @@
     "booklet": "tsx scripts/build-booklet.ts",
     "ops": "tsx scripts/ops.ts",
     "e2e:pathway": "tsx scripts/pathway-e2e.ts",
+    "e2e:taps": "tsx scripts/tap-e2e.ts",
     "ops:stats": "tsx scripts/ops.ts stats",
     "ops:feedback": "tsx scripts/ops.ts feedback",
     "ops:audit": "tsx scripts/ops.ts audit",

@@ -62,6 +62,16 @@ export function SitemapScreen() {
             ))}
           </ul>
         </section>
+        <section aria-labelledby="sitemap-learn">
+          <h2 id="sitemap-learn">Explore</h2>
+          <ul class="rows sitemap-links">
+            {[["curriculum/index.html", "What quarter covers"], ["curriculum/stem.html", "The STEM lab"], ["learn/index.html", "Study guides"], ["blog/index.html", "Blog"], ["reading/index.html", "Reading list"]].map(([path, title]) => (
+              <li key={path}>
+                <a class="row" href={path}><span>{title}</span><Icon name="chevron" size={18} /></a>
+              </li>
+            ))}
+          </ul>
+        </section>
         <section aria-labelledby="sitemap-info">
           <h2 id="sitemap-info">Site information</h2>
           <ul class="rows sitemap-links">

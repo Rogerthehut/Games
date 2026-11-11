@@ -140,8 +140,12 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     });
   };
 
+  // a quick double tap must count once: a second tap with the same answer in the same moment is ignored
+  const lastTap = useRef({ key: "", at: 0 });
+  const advanced = useRef(-1);
+  const tapped = (key: string) => { const now = Date.now(), dup = lastTap.current.key === key && now - lastTap.current.at < 600; lastTap.current = { key, at: now }; return dup; };
   const submit = () => {
-    if (!q || phase !== "ask") return;
+    if (!q || phase !== "ask" || tapped(`check:${idx}:${JSON.stringify(values)}`)) return;
     const res = check(q, values);
     if (soundOn && res.outcome !== "correct") playPracticeSound("tap");
     setLastChecked(JSON.stringify(values));
@@ -161,12 +165,15 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
   };
 
   const showMe = () => {
+    if (phase !== "ask" || tapped(`show:${idx}`)) return;
     tally.current.giveUps++;
     settle("wrong");
     setResult(null); setPhase("reveal"); setStepsShown(99);
   };
 
   const next = () => {
+    if (advanced.current === idx) return; // already moving on from this question
+    advanced.current = idx;
     if (idx + 1 >= total) {
       if (!tally.current.logged) { tally.current.points += 10; update((p) => addPoints(p, 10)); } // finishing bonus
       logSession(); setPhase("done"); setIdx(total);

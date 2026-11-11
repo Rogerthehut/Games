@@ -130,6 +130,8 @@ export interface Profile {
   tables?: TablesState;
   /** The welcome tour has been shown (or skipped). */
   toured?: boolean;
+  /** Milestones the learner has already been shown as new. */
+  milestonesSeen?: string[];
 }
 
 export function newProfile(name: string, year: number, now = Date.now()): Profile {

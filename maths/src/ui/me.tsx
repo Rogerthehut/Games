@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import { MyProgress } from "./progress-shelf";
 import { AVATAR_ROLES, GLASSES, clayAvatar, type AvatarRole } from "../engine/avatar";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { currentStreak, statusOf, type Profile } from "../engine/progress";
@@ -68,6 +69,8 @@ export function Me() {
         <div><dt>Points</dt><dd>{profile.points}</dd></div>
         <div><dt>Topics secure</dt><dd>{secure}<small>/{SKILLS.length}</small></dd></div>
       </dl>
+
+      <MyProgress />
 
       <ul class="rows">
         <li><button class="row" onClick={() => go(last ? { name: "report" } : { name: "checkup" })}><Icon name="target" /><span>{last ? "Your check-up" : "Take the check-up"}</span><Icon name="chevron" size={18} /></button></li>

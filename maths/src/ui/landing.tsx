@@ -86,9 +86,9 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         <Scribbles />
         <div class="l-wrap l-hero-grid">
           <div class="l-hero-copy">
-            <p class="l-kicker">Maths for Years 3 to 13 <span class="l-beta">Public beta</span></p>
+            <p class="l-kicker">Maths and STEM for Years 3 to 13 <span class="l-beta">Public beta</span></p>
             <h1 id="hero">Maths practice that starts <em class="l-mark">where your child is</em></h1>
-            <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level. quarter finds the right starting point, explains mistakes clearly, and shows you what’s going well.</p>
+            <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level, with a STEM lab for computing, data and AI. quarter finds the right starting point, explains mistakes clearly, and shows you what’s going well.</p>
             <div class="l-cta">
               <button type="button" class="l-btn l-btn-dark l-btn-big" onClick={() => onStart("sign-up")} data-testid="landing-sign-up">Create an account <Icon name="arrow" size={20} /></button>
               <button type="button" class="l-btn l-btn-line l-btn-big" onClick={() => onStart("sign-in")}>Sign in</button>
@@ -150,7 +150,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
             <li><button type="button" class="activity-card activity-skills" onClick={() => onStart("sign-up")}>
               <span class="activity-label">01 / Curriculum</span>
               <span class="activity-title">The whole curriculum</span>
-              <span class="activity-detail">Primary and secondary maths, from place value in Year 3 to calculus in Year 13, each skill explained step by step.</span>
+              <span class="activity-detail">Maths from place value in Year 3 to calculus in Year 13, each skill explained step by step, plus a STEM lab of computing, data science, AI and quantum ideas.</span>
               <ActivityArt kind="skills" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
