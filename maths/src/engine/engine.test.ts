@@ -126,8 +126,8 @@ describe.each(SKILLS)("skill $id", (skill) => {
         expect(q.solution.length, ctx).toBeGreaterThan(0);
         // wording: you add TO and subtract FROM
         for (const t of q.solution) expect(t, `${ctx} wording`).not.toMatch(/Add [^.]*from|Subtract [^.]*to both/);
-        // primary-school answers are sensible quantities (counts, money, lengths), never negative, apart from negative numbers
-        if (skill.year <= 6 && skill.id !== "negative-numbers" && q.answer.kind === "number") expect(q.answer.value, `${ctx} negative answer`).toBeGreaterThanOrEqual(0);
+        // primary-school answers are sensible quantities (counts, money, lengths), never negative, apart from the topics about counting below zero
+        if (skill.year <= 6 && !["negative-numbers", "count-through-zero"].includes(skill.id) && q.answer.kind === "number") expect(q.answer.value, `${ctx} negative answer`).toBeGreaterThanOrEqual(0);
         // grammar: ordinals (22nd, not 22th)
         expect(q.prompt, `${ctx} ordinal`).not.toMatch(/(?<!1)[123]th\b/);
         // its own answer is accepted

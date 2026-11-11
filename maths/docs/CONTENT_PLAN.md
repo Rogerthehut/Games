@@ -8,7 +8,7 @@ common mistakes cannot disagree. `src/engine/engine.test.ts` checks 150 question
 
 | Stage | Years | Topics now |
 |---|---|---|
-| Key Stage 2 | 3 to 6 | 32 |
+| Key Stage 2 | 3 to 6 | 45 (was 32; batch 2 added 13 for Years 3 and 4) |
 | Key Stage 3 | 7 to 9 | 14 (was 8) |
 | GCSE | 10 and 11 | 13 (was 8), including Year 11 for the first time |
 | A-level | 12 and 13 | 8 (was 4), including Year 13 for the first time |
@@ -16,6 +16,12 @@ common mistakes cannot disagree. `src/engine/engine.test.ts` checks 150 question
 Batch 1 added 18 topics: negative-number calculation, area of triangles and trapeziums, percentage change, angles in parallel lines,
 speed/distance/time, circumference, laws of indices, volume of prisms, compound interest, upper and lower bounds, composite functions,
 probability of two events, similar shapes, arithmetic series, logarithm laws, the chain rule, sum to infinity, binomial coefficients.
+
+Batch 2 (Key Stage 2, Years 3 and 4) added 13 topics: counting in steps, same-denominator fractions, adding and taking away lengths and
+amounts, perimeter of shapes, right angles and turns, pictograms, Roman numerals, counting through zero, dividing by 10 and 100,
+converting units of time, area by counting squares, perimeter of compound shapes, lines of symmetry and reading tables.
+Still to do for Years 3 and 4: analogue and Roman numeral clocks, scales, 3-D shapes, plotting and drawing on grids, time graphs.
+Then Years 5 and 6, per the table in `docs/ROADMAP.md`.
 
 ## Order of work
 
