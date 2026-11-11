@@ -3,6 +3,9 @@
     "id": "barnet",
     "area": "Barnet",
     "keywords": "Henrietta Barnett Queen Elizabeth QE Boys St Michael Catholic",
+    "councils": [
+      "Barnet"
+    ],
     "links": [
       {
         "label": "Barnet Council admission arrangements",
@@ -18,6 +21,9 @@
     "id": "bexley",
     "area": "Bexley",
     "keywords": "Bexley Selection Test Beths Chislehurst Sidcup Townley",
+    "councils": [
+      "Bexley"
+    ],
     "links": [
       {
         "label": "Bexley Council selection test guidance",
@@ -27,12 +33,30 @@
         "label": "Official familiarisation materials",
         "path": "https://www.questassessments.com/parent-guidance-consortium/bexley-selection-test"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Quest Assessments",
+      "status": "confirmed",
+      "note": "Bexley Council says Quest Assessments is the Bexley Selection Test provider. A single test is used for all four Bexley grammar schools.",
+      "parts": [
+        "Verbal ability and English comprehension",
+        "Numerical reasoning",
+        "Non-verbal reasoning"
+      ],
+      "source": {
+        "label": "Bexley Council: About the Bexley Selection Test",
+        "path": "https://www.bexley.gov.uk/services/schools-and-education/selection-tests/about-test"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "bcp",
     "area": "Bournemouth, Christchurch and Poole",
     "keywords": "BCP Dorset Parkstone Bournemouth Girls Poole Grammar",
+    "councils": [
+      "Bournemouth, Christchurch and Poole"
+    ],
     "links": [
       {
         "label": "Bournemouth School admissions and 11+",
@@ -52,6 +76,9 @@
     "id": "bromley",
     "area": "Bromley",
     "keywords": "Orpington Newstead Wood St Olave Saint Olaves SET",
+    "councils": [
+      "Bromley"
+    ],
     "links": [
       {
         "label": "Bromley Council secondary admissions",
@@ -67,6 +94,9 @@
     "id": "buckinghamshire",
     "area": "Buckinghamshire",
     "keywords": "Bucks Secondary Transfer Test Aylesbury High Wycombe Amersham Chesham Beaconsfield Marlow",
+    "councils": [
+      "Buckinghamshire"
+    ],
     "links": [
       {
         "label": "Buckinghamshire Council Secondary Transfer Test",
@@ -76,18 +106,26 @@
     "test": {
       "provider": "GL Assessment",
       "status": "confirmed",
-      "note": "The council's guide names GL Assessment for the Secondary Transfer Test.",
+      "note": "Buckinghamshire Council says the Secondary Transfer Test is produced by GL Assessment. Children sit two papers of about 60 minutes.",
+      "parts": [
+        "Verbal",
+        "Non-verbal",
+        "Mathematical skills"
+      ],
       "source": {
-        "label": "Buckinghamshire Council: guide to grammar schools and the Secondary Transfer Test",
-        "path": "https://www.buckinghamshire.gov.uk/schools-libraries-and-parks/school-admissions-and-appeals/guides-and-policies/guide-to-grammar-schools-and-the-secondary-school-transfer-test-11-plus/"
+        "label": "Buckinghamshire Council: The Secondary Transfer Test",
+        "path": "https://www.buckinghamshire.gov.uk/schools-libraries-and-parks/school-admissions-and-appeals/grammar-schools-and-transfer-testing-11/the-secondary-transfer-test/"
       },
-      "checked": "2026-11-09"
+      "checked": "2026-11-11"
     }
   },
   {
     "id": "calderdale",
     "area": "Calderdale",
     "keywords": "Halifax Crossley Heath North Halifax West Yorkshire",
+    "councils": [
+      "Calderdale"
+    ],
     "links": [
       {
         "label": "Calderdale Council guidance for North Halifax Grammar School",
@@ -103,17 +141,38 @@
     "id": "devon",
     "area": "Devon",
     "keywords": "Colyton East Devon Seaton",
+    "councils": [
+      "Devon"
+    ],
     "links": [
       {
         "label": "Colyton Grammar School familiarisation from the test provider",
         "path": "https://questassessments.com/parent-guidance-consortium/colyton-11-plus"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Quest Assessments (for Colyton Grammar School)",
+      "status": "reported",
+      "note": "Quest Assessments and Colyton Grammar School publish the familiarisation information. The test covers English, mathematics and writing. Confirm with the school.",
+      "parts": [
+        "English",
+        "Mathematics",
+        "Writing"
+      ],
+      "source": {
+        "label": "Quest Assessments: Colyton Grammar School 11+",
+        "path": "https://questassessments.com/parent-guidance-consortium/colyton-11-plus"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "enfield",
     "area": "Enfield",
     "keywords": "Latymer Edmonton North London",
+    "councils": [
+      "Enfield"
+    ],
     "links": [
       {
         "label": "The Latymer School Year 7 admissions",
@@ -125,6 +184,10 @@
     "id": "essex",
     "area": "Essex and Southend-on-Sea",
     "keywords": "CSSE Chelmsford County High CCHS Colchester Westcliff Southend King Edward VI KEGS",
+    "councils": [
+      "Essex",
+      "Southend-on-Sea"
+    ],
     "links": [
       {
         "label": "Essex County Council grammar school places",
@@ -144,6 +207,9 @@
     "id": "gloucestershire",
     "area": "Gloucestershire",
     "keywords": "Gloucester Cheltenham Stroud Pate Ribston Denmark Road Crypt Marling Sir Thomas Rich",
+    "councils": [
+      "Gloucestershire"
+    ],
     "links": [
       {
         "label": "Gloucestershire County Council grammar school testing",
@@ -153,18 +219,21 @@
     "test": {
       "provider": "Varies by school",
       "status": "confirmed",
-      "note": "The grammar schools announced Future Stories Community Enterprise (FSCE) as provider for the 2028 intake, and some schools, such as The Crypt and Marling, set their own tests. The council page is about 18 months old, so confirm with each school.",
+      "note": "The county council does not run the test. The grammar schools register children and run it themselves, and for 2028 entry they have named Future Stories Community Enterprise (FSCE) as provider. Confirm with each school.",
       "source": {
         "label": "Gloucestershire County Council: grammar schools",
-        "path": "https://www.gloucestershire.gov.uk/education-and-learning/school-admissions/grammar-schools/"
+        "path": "https://www.gloucestershire.gov.uk/schooladmissions/grammar-schools/"
       },
-      "checked": "2026-11-09"
+      "checked": "2026-11-11"
     }
   },
   {
     "id": "hertfordshire",
     "area": "Hertfordshire",
     "keywords": "South West Herts Watford Parmiter Rickmansworth Croxley Queens",
+    "councils": [
+      "Hertfordshire"
+    ],
     "links": [
       {
         "label": "Hertfordshire County Council guidance on ability tests",
@@ -180,6 +249,9 @@
     "id": "kent",
     "area": "Kent",
     "keywords": "Kent Test Sevenoaks Dartford Tonbridge Tunbridge Wells Maidstone Canterbury Ashford Folkestone Dover Thanet Gravesend",
+    "councils": [
+      "Kent"
+    ],
     "links": [
       {
         "label": "Kent County Council test preparation and familiarisation",
@@ -197,6 +269,9 @@
     "id": "kingston",
     "area": "Kingston upon Thames",
     "keywords": "Tiffin Tiffin Girls Kingston Surrey",
+    "councils": [
+      "Kingston upon Thames"
+    ],
     "links": [
       {
         "label": "Tiffin School Year 7 admissions",
@@ -212,6 +287,9 @@
     "id": "kirklees",
     "area": "Kirklees",
     "keywords": "Heckmondwike West Yorkshire Huddersfield",
+    "councils": [
+      "Kirklees"
+    ],
     "links": [
       {
         "label": "Heckmondwike Grammar School admissions",
@@ -223,6 +301,9 @@
     "id": "lancashire",
     "area": "Lancashire",
     "keywords": "Lancaster Royal Grammar LRGS Lancaster Girls Clitheroe Royal Bacup Rawtenstall",
+    "councils": [
+      "Lancashire"
+    ],
     "links": [
       {
         "label": "Lancashire County Council school admissions and selection",
@@ -234,6 +315,9 @@
     "id": "lincolnshire",
     "area": "Lincolnshire",
     "keywords": "Lincolnshire Consortium Bourne Louth Grantham Spalding Sleaford Boston Skegness",
+    "councils": [
+      "Lincolnshire"
+    ],
     "links": [
       {
         "label": "Bourne Grammar School 11+ registration",
@@ -255,6 +339,9 @@
     "id": "liverpool",
     "area": "Liverpool",
     "keywords": "Blue Coat Merseyside",
+    "councils": [
+      "Liverpool"
+    ],
     "links": [
       {
         "label": "The Blue Coat School Year 7 admissions",
@@ -266,6 +353,9 @@
     "id": "medway",
     "area": "Medway",
     "keywords": "Medway Test Rochester Chatham Gillingham Rainham Holcombe Fort Pitt",
+    "councils": [
+      "Medway"
+    ],
     "links": [
       {
         "label": "Medway Council test guidance",
@@ -275,29 +365,50 @@
     "test": {
       "provider": "GL Assessment",
       "status": "confirmed",
-      "note": "Medway Council says its test provider is GL Assessment. The Medway Test is written for Medway.",
+      "note": "Medway Council says the Medway Test is written for Medway and its test provider is GL Assessment. It has three papers.",
+      "parts": [
+        "English",
+        "Mathematics",
+        "Reasoning (verbal and non-verbal)"
+      ],
       "source": {
-        "label": "Medway Council: about the Medway Test",
-        "path": "https://www.medway.gov.uk/info/200137/schools_and_learning/1049/medway_test_11"
+        "label": "Medway Council: About the Medway Test",
+        "path": "https://www.medway.gov.uk/medwaytest"
       },
-      "checked": "2026-11-09"
+      "checked": "2026-11-11"
     }
   },
   {
     "id": "north-yorkshire",
     "area": "North Yorkshire",
     "keywords": "Ripon Skipton Ermysted Skipton Girls",
+    "councils": [
+      "North Yorkshire"
+    ],
     "links": [
       {
         "label": "North Yorkshire Council selective school admissions",
         "path": "https://www.northyorks.gov.uk/education-and-learning/school-admissions/selective-schools"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Set separately by each school",
+      "status": "confirmed",
+      "note": "The council only organises the entrance test for Ripon Grammar School. For Ermysted’s Grammar School and Skipton Girls’ High School, contact the school directly.",
+      "source": {
+        "label": "North Yorkshire Council: selective schools",
+        "path": "https://www.northyorks.gov.uk/education-and-learning/school-admissions/selective-schools"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "northern-ireland",
     "area": "Northern Ireland",
     "keywords": "SEAG transfer test Belfast post primary entrance assessment",
+    "councils": [
+      "Northern Ireland"
+    ],
     "links": [
       {
         "label": "SEAG guidance and key dates",
@@ -313,6 +424,9 @@
     "id": "plymouth",
     "area": "Plymouth",
     "keywords": "Plymouth High Devonport DHSG boys girls",
+    "councils": [
+      "Plymouth"
+    ],
     "links": [
       {
         "label": "Plymouth City Council secondary admissions",
@@ -328,6 +442,9 @@
     "id": "reading",
     "area": "Reading",
     "keywords": "Berkshire Reading School Kendrick",
+    "councils": [
+      "Reading"
+    ],
     "links": [
       {
         "label": "Reading School admissions",
@@ -343,6 +460,9 @@
     "id": "redbridge",
     "area": "Redbridge",
     "keywords": "Woodford County Ilford",
+    "councils": [
+      "Redbridge"
+    ],
     "links": [
       {
         "label": "Redbridge 11+ registration and guidance",
@@ -354,6 +474,9 @@
     "id": "slough",
     "area": "Slough",
     "keywords": "Slough Consortium Herschel Langley Upton Court St Bernard Berkshire",
+    "councils": [
+      "Slough"
+    ],
     "links": [
       {
         "label": "Slough Consortium familiarisation via Herschel Grammar School",
@@ -365,6 +488,9 @@
     "id": "stoke-on-trent",
     "area": "Stoke-on-Trent",
     "keywords": "St Joseph Josephs College Staffordshire Trent Vale",
+    "councils": [
+      "Stoke-on-Trent"
+    ],
     "links": [
       {
         "label": "St Joseph’s College admissions",
@@ -376,6 +502,9 @@
     "id": "sutton",
     "area": "Sutton",
     "keywords": "Selective Eligibility Test SET Wilson Wallington Nonsuch Sutton Grammar Greenshaw",
+    "councils": [
+      "Sutton"
+    ],
     "links": [
       {
         "label": "Sutton Council school selection tests",
@@ -387,6 +516,9 @@
     "id": "torbay",
     "area": "Torbay",
     "keywords": "Torquay Boys Torquay Girls Churston Ferrers Brixham Paignton",
+    "councils": [
+      "Torbay"
+    ],
     "links": [
       {
         "label": "Torbay Council directory for Torquay Boys’ Grammar School",
@@ -402,6 +534,9 @@
     "id": "trafford",
     "area": "Trafford",
     "keywords": "Greater Manchester Altrincham Sale Stretford Urmston Loreto St Ambrose",
+    "councils": [
+      "Trafford"
+    ],
     "links": [
       {
         "label": "Stretford Grammar School admissions and consortium guidance",
@@ -423,6 +558,9 @@
     "id": "warwickshire",
     "area": "Warwickshire",
     "keywords": "West Midlands Entrance Test Stratford Alcester Rugby Lawrence Sheriff Ashlawn",
+    "councils": [
+      "Warwickshire"
+    ],
     "links": [
       {
         "label": "Warwickshire County Council grammar schools and 11+",
@@ -438,6 +576,13 @@
     "id": "west-midlands",
     "area": "West Midlands and Shropshire",
     "keywords": "Birmingham Walsall Wolverhampton Telford and Wrekin Newport Shropshire Queen Mary Adams Wolverhampton Girls King Edward Bishop Vesey Sutton Coldfield",
+    "councils": [
+      "Birmingham",
+      "Walsall",
+      "Wolverhampton",
+      "Telford and Wrekin",
+      "Shropshire"
+    ],
     "links": [
       {
         "label": "West Midlands Grammar Schools official test preparation",
@@ -455,6 +600,10 @@
     "id": "westmorland",
     "area": "Westmorland and Furness",
     "keywords": "Cumbria Penrith Queen Elizabeth QEGS",
+    "councils": [
+      "Westmorland and Furness",
+      "Cumbria"
+    ],
     "links": [
       {
         "label": "Queen Elizabeth Grammar School, Penrith admissions",
@@ -466,6 +615,9 @@
     "id": "wiltshire",
     "area": "Wiltshire",
     "keywords": "Salisbury South Wilts Bishop Wordsworth",
+    "councils": [
+      "Wiltshire"
+    ],
     "links": [
       {
         "label": "South Wilts Grammar School 11+ guidance",
@@ -481,6 +633,9 @@
     "id": "wirral",
     "area": "Wirral",
     "keywords": "West Kirby Calday Grange Wirral Girls Wirral Boys St Anselm Upton Hall",
+    "councils": [
+      "Wirral"
+    ],
     "links": [
       {
         "label": "Wirral grammar schools 11+ admissions",

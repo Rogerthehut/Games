@@ -24,3 +24,13 @@ describe("11+ test finder data", () => {
     }
   });
 });
+
+describe("11+ finder areas for postcode search", () => {
+  it("lists the council names each area covers", () => {
+    for (const a of admissions) {
+      const c = (a as { councils?: string[] }).councils;
+      expect(Array.isArray(c) && c.length > 0, a.id).toBe(true);
+      for (const name of c ?? []) expect(name.trim().length, a.id).toBeGreaterThan(2);
+    }
+  });
+});

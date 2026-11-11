@@ -68,6 +68,7 @@ export function privacySections(native: boolean): Section[] {
       paragraphs: [
         "Learner information is stored in a database run for quarter, protected so that each account can only reach its own learners. A copy is also kept in your browser so quarter works quickly. It is removed from the browser when you sign out.",
         "Stripe provides payments and billing. It handles your card details, billing address and invoices, and may process them outside the UK. Payment and invoice records are kept for as long as the law requires, even after an account is deleted.",
+        "11+ finder: if you type a postcode into the 11+ test finder on our guides, only its first half (for example BR1) is sent to our server, which asks the free postcodes.io service which council areas it covers. The rest of the postcode is never sent. We don’t store or log it, and the answer is kept for a day so the same lookup isn’t repeated.",
         "Cloudflare provides a quick check (Turnstile) that you are a person, before the AI tutor or assistant can be used. It looks at your browser and connection to tell people from automated scripts. quarter does not use it to track you.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
         "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",

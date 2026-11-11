@@ -24,7 +24,7 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 Up to 8 learners per account. Database held in **Europe (EU)**.
 
 ## Who else handles it
-Clerk (sign-in), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
+Clerk (sign-in), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), postcodes.io (council area for the first half of a postcode typed into the 11+ finder; the full postcode is never sent, nothing is stored), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
 **[CONFIRM]** data processing terms accepted with each, and the transfer safeguard for any processing outside the UK and EU.
 
 ## Lawful basis

@@ -6,6 +6,7 @@ import { MAX_BODY, WriteLimiter, handleAccountApi, handleStripeWebhook, isAccoun
 import { ClerkAuth, FakeAuth } from "./auth";
 import { connect, connectMemory, migrate } from "./db";
 import { AssistantLimiter } from "./assistant/policy";
+import { makeOutcodeLookup, outwardCode } from "./postcode";
 import { issuePass, passIsValid, turnstileConfig, verifyToken } from "./turnstile";
 import { FakeGateway, StripeGateway, stripeConfig, type Gateway } from "./billing";
 import { makeRepo } from "./db/repo";
@@ -104,6 +105,9 @@ function readBody(req: IncomingMessage, max = 16_384): Promise<unknown> {
   });
 }
 
+const postcodeHits = new Map<string, number[]>();
+const outcodeLookup = makeOutcodeLookup();
+
 createServer(async (req, res) => {
   cors(req, res);
   const url = new URL(req.url ?? "/", "http://x");
@@ -122,6 +126,20 @@ createServer(async (req, res) => {
     const token = typeof (body as { token?: unknown })?.token === "string" ? (body as { token: string }).token : "";
     if (!(await verifyToken(turnstile.secret, token, ip))) return send(res, 403, { error: "check-failed" });
     return send(res, 200, issuePass(turnstile));
+  }
+
+  // 11+ finder: which council areas does the start of a postcode (such as BR1) cover? Only that outward code is ever sent here.
+  if (url.pathname === "/api/outcode" && req.method === "GET") {
+    const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
+    const recent = (postcodeHits.get(ip) ?? []).filter((t) => Date.now() - t < 3_600_000);
+    if (recent.length >= 60) return send(res, 429, { error: "slow-down" });
+    postcodeHits.set(ip, [...recent, Date.now()]);
+    const code = outwardCode(url.searchParams.get("code") ?? "");
+    if (!code) return send(res, 400, { error: "not-a-postcode" });
+    const found = await outcodeLookup(code);
+    if (!found) return send(res, 503, { error: "lookup-unavailable" });
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "public, max-age=86400" });
+    return res.end(JSON.stringify(found));
   }
 
   if (url.pathname === "/api/stripe/webhook" && req.method === "POST") {

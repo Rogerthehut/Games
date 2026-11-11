@@ -38,7 +38,7 @@ function checkedOn(iso: string) {
 function testNote(test: (typeof admissions)[number]["test"]) {
   if (!test) return `<p class="test-provider unchecked"><strong>Test provider:</strong> not checked yet. Ask the school or council.</p>`;
   return `<p class="test-provider ${test.status}"><strong>Test provider:</strong> ${escapeHtml(test.provider)}</p>
-<p class="small muted">${TEST_STATUS[test.status as keyof typeof TEST_STATUS]}. Checked ${checkedOn(test.checked)}. ${escapeHtml(test.note)}${test.source ? ` ${link(test.source)}` : ""}</p>`;
+<p class="small muted">${TEST_STATUS[test.status as keyof typeof TEST_STATUS]}. Checked ${checkedOn(test.checked)}. ${escapeHtml(test.note)}${test.source ? ` ${link(test.source)}` : ""}</p>${"parts" in test && test.parts?.length ? `\n<p class="small muted"><strong>Covers:</strong> ${test.parts.map(escapeHtml).join(", ")}.</p>` : ""}`;
 }
 
 function testFinder() {
@@ -47,12 +47,13 @@ function testFinder() {
 <p>Search by area, school or test name. The directory covers state selective admissions and includes Northern Ireland’s transfer test. Open the official admissions page for your child’s entry year and look for any familiarisation materials it recommends.</p>
 <p class="small muted">Test providers change, and councils and schools can run different tests. We show who sets each test only where we have checked, and say how sure we are. Always confirm with the school before choosing what to practise.</p>
 <div class="test-finder-search" hidden>
-<label for="test-finder-query">Search 11+ guidance</label>
-<input id="test-finder-query" type="search" placeholder="For example, Bromley or Tiffin" autocomplete="off">
-<p class="small muted" role="status"></p>
+<label for="test-finder-query">Search by postcode, area or school</label>
+<input id="test-finder-query" type="search" placeholder="For example, BR1 3AB, Bromley or Tiffin" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search">
+<p class="small muted" role="status" aria-live="polite"></p>
+<p class="small muted test-finder-privacy">If you type a postcode, only its first half (such as BR1) is used to find your council area. The rest is never sent or kept.</p>
 </div>
-<ul class="rows sitemap-links">${admissions.map(({ id, area, keywords, links, test }) => `
-<li id="${id}" data-test-area="${escapeHtml(area + " " + keywords)}">
+<ul class="rows sitemap-links">${admissions.map(({ id, area, keywords, links, test, councils }) => `
+<li id="${id}" data-test-area="${escapeHtml(area + " " + keywords)}" data-councils="${escapeHtml(councils.join("|"))}">
 <article class="test-finder-entry">
 <h3>${escapeHtml(area)}</h3>
 ${testNote(test)}
