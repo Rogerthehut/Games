@@ -1,4 +1,5 @@
 import { int, type Rng } from "../engine/rng";
+import { lineGraph } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 import { frac } from "./helpers";
 
@@ -137,7 +138,7 @@ export const expansionSkills: Skill[] = [
     const divisions = [4, 6, 8][l-1] ?? 4, units = int(r, 3, 11), sectors = int(r, 1, divisions-1);
     const total = divisions * units;
     const angle = 360 / divisions * sectors;
-    return { prompt: `A pie chart shows ${total} votes. The slice for football has an angle of ${angle}°. How many votes did football get?`,
+    return { figure: { type: "pie", slices: [{ label: `football ${angle}°`, value: sectors * units }, { label: "others", value: total - sectors * units }], alt: `A pie chart of ${total} votes. The football slice has an angle of ${angle} degrees.` }, prompt: `A pie chart shows ${total} votes. The slice for football has an angle of ${angle}°. How many votes did football get?`,
       value: sectors * units, hint: angle === 180
         ? "A full circle is 360°. What share of the circle is a 180° slice?"
         : `Picture the circle cut into equal slices of ${360 / divisions}° each. How many of those fit in the football slice?`,
@@ -182,7 +183,7 @@ export const expansionSkills: Skill[] = [
     blurb: "Find how much y changes for each unit of x.", parentNote: "Compare vertical change with horizontal change.", talkAbout: "What does a gradient of zero tell you?",
   }, (r, l) => {
     const x = int(r, 1, 5), y = int(r, 2, 8), dx = int(r, 2, 5), gradient = int(r, 1, 2+l);
-    return { prompt: `A straight line passes through $(${x}, ${y})$ and $(${x+dx}, ${y+dx*gradient})$. Find its gradient.`,
+    return { figure: lineGraph(gradient, y - gradient * x, 0, x + dx + 1, [{ x, y, label: `(${x}, ${y})` }, { x: x + dx, y: y + dx * gradient, label: `(${x + dx}, ${y + dx * gradient})` }]), prompt: `A straight line passes through $(${x}, ${y})$ and $(${x+dx}, ${y+dx*gradient})$. Find its gradient.`,
       value: gradient, hint: "Divide the change in y by the change in x.", solution: [`The change in y is ${dx*gradient}.`, `The change in x is ${dx}. Divide the two changes.`] };
   }),
   numericSkill({

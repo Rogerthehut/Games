@@ -1,4 +1,5 @@
 import { int, pick, round } from "../engine/rng";
+import { circleFig, parallelogramFig } from "./figures";
 import type { Skill } from "../engine/types";
 import { num } from "./ks2";
 
@@ -188,9 +189,9 @@ export const ks2UpperSkills: Skill[] = [
     talkAbout: "Why do we use the straight-up height, not the slanted side?",
   }, (r, l) => {
     const b = int(r, 4, 14), h = int(r, 3, 10), slant = h + int(r, 1, 4);
-    if (l === 1) return { prompt: `A parallelogram has a base of ${b} cm and a perpendicular height of ${h} cm. What is its area in cm²?`, value: b * h, unit: "cm²", hint: "Multiply the base by the perpendicular height.", solution: [`${b} × ${h} = ${b * h}.`] };
-    if (l === 2) return { prompt: `A parallelogram has a base of ${b} cm, a slanted side of ${slant} cm and a perpendicular height of ${h} cm. What is its area in cm²?`, value: b * h, unit: "cm²", hint: "Use the perpendicular height, not the slanted side.", solution: [`The slanted side is not needed.`, `${b} × ${h} = ${b * h}.`] };
-    return { prompt: `A parallelogram has an area of ${b * h} cm² and a base of ${b} cm. What is its perpendicular height in cm?`, value: h, unit: "cm", hint: "Divide the area by the base.", solution: [`${b * h} ÷ ${b} = ${h}.`] };
+    if (l === 1) return { figure: parallelogramFig(b, h), prompt: `A parallelogram has a base of ${b} cm and a perpendicular height of ${h} cm. What is its area in cm²?`, value: b * h, unit: "cm²", hint: "Multiply the base by the perpendicular height.", solution: [`${b} × ${h} = ${b * h}.`] };
+    if (l === 2) return { figure: parallelogramFig(b, h, slant), prompt: `A parallelogram has a base of ${b} cm, a slanted side of ${slant} cm and a perpendicular height of ${h} cm. What is its area in cm²?`, value: b * h, unit: "cm²", hint: "Use the perpendicular height, not the slanted side.", solution: [`The slanted side is not needed.`, `${b} × ${h} = ${b * h}.`] };
+    return { figure: parallelogramFig(b, h, undefined, "?"), prompt: `A parallelogram has an area of ${b * h} cm² and a base of ${b} cm. What is its perpendicular height in cm?`, value: h, unit: "cm", hint: "Divide the area by the base.", solution: [`${b * h} ÷ ${b} = ${h}.`] };
   }),
   num({
     id: "coordinates-four-quadrants", name: "Coordinates in all four quadrants", stage: "KS2", year: 6, strand: "Geometry", prereqs: ["coordinates", "negative-numbers"],
@@ -211,8 +212,8 @@ export const ks2UpperSkills: Skill[] = [
     parentNote: "Radius × 2 = diameter. Draw a circle with a compass: the gap you set is the radius.",
     talkAbout: "How are the radius and the diameter linked?",
   }, (r, l) => {
-    if (l === 1) { const rad = int(r, 3, 12); return { prompt: `A circle has a diameter of ${rad * 2} cm. What is its radius in cm?`, value: rad, unit: "cm", hint: "The radius is half the diameter.", solution: [`${rad * 2} ÷ 2 = ${rad}.`] }; }
-    if (l === 2) { const rad = int(r, 3, 12) + 0.5; return { prompt: `A circle has a radius of ${rad} cm. What is its diameter in cm?`, value: rad * 2, unit: "cm", hint: "The diameter is twice the radius.", solution: [`${rad} × 2 = ${rad * 2}.`] }; }
+    if (l === 1) { const rad = int(r, 3, 12); return { figure: circleFig("diameter", `${rad * 2} cm`), prompt: `A circle has a diameter of ${rad * 2} cm. What is its radius in cm?`, value: rad, unit: "cm", hint: "The radius is half the diameter.", solution: [`${rad * 2} ÷ 2 = ${rad}.`] }; }
+    if (l === 2) { const rad = int(r, 3, 12) + 0.5; return { figure: circleFig("radius", `${rad} cm`), prompt: `A circle has a radius of ${rad} cm. What is its diameter in cm?`, value: rad * 2, unit: "cm", hint: "The diameter is twice the radius.", solution: [`${rad} × 2 = ${rad * 2}.`] }; }
     const n = int(r, 3, 5), rad = int(r, 3, 8); return { prompt: `${n} identical circles are placed in a straight line, touching each other. Each has a radius of ${rad} cm. How long is the whole row in cm?`, value: n * rad * 2, unit: "cm", hint: "Each circle takes up one diameter of the row.", solution: [`The diameter of each circle is ${rad} × 2 = ${rad * 2} cm.`, `${n} × ${rad * 2} = ${n * rad * 2}.`] };
   }),
   num({
@@ -223,9 +224,9 @@ export const ks2UpperSkills: Skill[] = [
     talkAbout: "What angle does a single person get, and how did you find it?",
   }, (r, l) => {
     const total = pick(r, [20, 24, 30, 36, 40, 45, 60, 72, 90]), each = 360 / total;
-    if (l === 1) { const n = int(r, 3, Math.min(15, total - 5)); return { prompt: `${total} children voted for their favourite sport. ${n} voted for football. In a pie chart, what angle is the football slice? Type the number only.`, value: n * each, unit: "°", hint: "Divide 360 by the total to find the angle for one child.", solution: [`360 ÷ ${total} = ${each}° for each child.`, `${n} × ${each} = ${n * each}°.`] }; }
-    if (l === 2) { const n = int(r, 3, Math.min(15, total - 5)); return { prompt: `A pie chart shows the favourite pets of ${total} children. The cat slice has an angle of ${n * each}°. How many children chose cats?`, value: n, hint: `Each child is ${each}° of the pie chart.`, solution: [`360 ÷ ${total} = ${each}° for each child.`, `${n * each} ÷ ${each} = ${n}.`] }; }
+    if (l === 1) { const n = int(r, 3, Math.min(15, total - 5)); return { figure: { type: "pie", slices: [{ label: "football ?", value: n }, { label: "others", value: total - n }], alt: `A pie chart of ${total} children. The football slice is ${n} children and the rest chose other sports.` }, prompt: `${total} children voted for their favourite sport. ${n} voted for football. In a pie chart, what angle is the football slice? Type the number only.`, value: n * each, unit: "°", hint: "Divide 360 by the total to find the angle for one child.", solution: [`360 ÷ ${total} = ${each}° for each child.`, `${n} × ${each} = ${n * each}°.`] }; }
+    if (l === 2) { const n = int(r, 3, Math.min(15, total - 5)); return { figure: { type: "pie", slices: [{ label: `cats ${n * each}°`, value: n }, { label: "others", value: total - n }], alt: `A pie chart of ${total} children. The cat slice has an angle of ${n * each} degrees.` }, prompt: `A pie chart shows the favourite pets of ${total} children. The cat slice has an angle of ${n * each}°. How many children chose cats?`, value: n, hint: `Each child is ${each}° of the pie chart.`, solution: [`360 ÷ ${total} = ${each}° for each child.`, `${n * each} ÷ ${each} = ${n}.`] }; }
     const a = int(r, 3, Math.floor(total / 4)), b = int(r, 3, Math.floor(total / 3)), rest = total - a - b;
-    return { prompt: `${total} children chose a fruit: ${a} chose apples and ${b} chose bananas. The rest chose grapes. What angle is the grapes slice? Type the number only.`, value: rest * each, unit: "°", hint: "First find how many chose grapes.", solution: [`${total} − ${a} − ${b} = ${rest} children chose grapes.`, `360 ÷ ${total} = ${each}° each.`, `${rest} × ${each} = ${rest * each}°.`] };
+    return { figure: { type: "pie", slices: [{ label: "apples", value: a }, { label: "bananas", value: b }, { label: "grapes ?", value: rest }], alt: `A pie chart of ${total} children: ${a} chose apples, ${b} bananas and the rest grapes.` }, prompt: `${total} children chose a fruit: ${a} chose apples and ${b} chose bananas. The rest chose grapes. What angle is the grapes slice? Type the number only.`, value: rest * each, unit: "°", hint: "First find how many chose grapes.", solution: [`${total} − ${a} − ${b} = ${rest} children chose grapes.`, `360 ÷ ${total} = ${each}° each.`, `${rest} × ${each} = ${rest * each}°.`] };
   }),
 ];

@@ -1,6 +1,7 @@
 import { int, pick, round } from "../engine/rng";
 import type { Skill } from "../engine/types";
 import { choiceSkill } from "./build";
+import { graph, sample } from "./figures";
 import { num } from "./ks2";
 
 /**
@@ -11,13 +12,6 @@ import { num } from "./ks2";
 const t2 = (n: number) => String(n).padStart(2, "0");
 const clock = (h: number, m: number) => `${h}:${t2(m)}`;
 
-
-const nice = (lo: number, hi: number) => { const span = hi - lo, step = span <= 8 ? 1 : span <= 16 ? 2 : span <= 40 ? 5 : span <= 80 ? 10 : 20; return { lo: Math.floor(lo / step) * step, hi: Math.ceil(hi / step) * step, step }; };
-const sample = (f: (x: number) => number, a: number, b: number, n = 80): [number, number][] => Array.from({ length: n + 1 }, (_, i) => { const x = a + ((b - a) * i) / n; return [x, f(x)] as [number, number]; });
-const graph = (curves: { pts: [number, number][]; label?: string; dashed?: boolean }[], xr: [number, number, number], alt: string, extra: { marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][] } = {}) => {
-  const ys = curves.flatMap((c) => c.pts.map((p) => p[1])).concat((extra.marks ?? []).map((m) => m.y), (extra.strips ?? []).map((q) => q[1]), 0), y = nice(Math.min(...ys) - 0.5, Math.max(...ys) + 0.5);
-  return { type: "function-graph" as const, xMin: xr[0], xMax: xr[1], xStep: xr[2], yMin: y.lo, yMax: y.hi, yStep: y.step, curves, alt, ...extra };
-};
 
 export const secondPassSkills: Skill[] = [
   // ---------------------------------------------------------------- earlier years
@@ -89,8 +83,10 @@ export const secondPassSkills: Skill[] = [
   }, (r, l) => {
     const solids: [string, number, number, number][] = [["cube", 6, 12, 8], ["cuboid", 6, 12, 8], ["triangular prism", 5, 9, 6], ["square-based pyramid", 5, 8, 5], ["triangular-based pyramid", 4, 6, 4], ["pentagonal prism", 7, 15, 10], ["hexagonal prism", 8, 18, 12]];
     const [name, f, e, v] = pick(r, l === 1 ? solids.slice(0, 4) : solids), a = /^[aeiou]/.test(name) ? "an" : "a";
-    if (l === 1) return { prompt: `How many faces does ${a} ${name} have? (That is how many shapes there are in its net.)`, value: f, hint: "Picture each flat side of the solid.", solution: [`${a[0].toUpperCase() + a.slice(1)} ${name} has ${f} faces.`] };
-    if (l === 2) return { prompt: `How many edges does ${a} ${name} have?`, value: e, hint: "An edge is where two faces meet.", solution: [`${a[0].toUpperCase() + a.slice(1)} ${name} has ${e} edges.`] };
+    const NETTED = ["cube", "cuboid", "triangular prism", "square-based pyramid", "triangular-based pyramid"] as const;
+    const figure = (NETTED as readonly string[]).includes(name) ? { type: "net" as const, solid: name as (typeof NETTED)[number], alt: `A flat net that folds up into ${a} ${name}.` } : undefined;
+    if (l === 1) return { figure, prompt: `How many faces does ${a} ${name} have? (That is how many shapes there are in its net.)`, value: f, hint: "Picture each flat side of the solid.", solution: [`${a[0].toUpperCase() + a.slice(1)} ${name} has ${f} faces.`] };
+    if (l === 2) return { figure, prompt: `How many edges does ${a} ${name} have?`, value: e, hint: "An edge is where two faces meet.", solution: [`${a[0].toUpperCase() + a.slice(1)} ${name} has ${e} edges.`] };
     return { prompt: `A solid has ${f} faces and ${v} vertices (corners). Use faces + vertices − edges = 2 to find how many edges it has.`, value: e, hint: "Rearrange the rule: edges = faces + vertices − 2.", solution: [`${f} + ${v} = ${f + v}.`, `${f + v} − 2 = ${e}.`] };
   }),
   num({

@@ -1,4 +1,5 @@
 import { int, pick, round } from "../engine/rng";
+import { houseFig, lShapeFig, lineGraph } from "./figures";
 import { toLatex as polyLatex, type Poly } from "../engine/poly";
 import type { Skill } from "../engine/types";
 import { choiceSkill, exprSkill, fracSkill } from "./build";
@@ -85,8 +86,8 @@ export const ks3Skills: Skill[] = [
     talkAbout: "Is there more than one way to split this shape?",
   }, (r, l) => {
     const w = int(r, 6, 14), h = int(r, 4, 9);
-    if (l === 1) { const b = int(r, 2, 5), c = int(r, 2, 4); return { prompt: `An L-shape is a ${w} cm by ${h} cm rectangle with a ${b} cm by ${c} cm rectangle cut from one corner. What is its area in cm²?`, value: w * h - b * c, unit: "cm²", hint: "Take the cut-out away from the big rectangle.", solution: [`${w} × ${h} = ${w * h}.`, `${b} × ${c} = ${b * c}.`, `${w * h} − ${b * c} = ${w * h - b * c}.`] }; }
-    if (l === 2) { const th = 2 * int(r, 2, 4); return { prompt: `A house shape is a ${w} cm by ${h} cm rectangle with a triangle of base ${w} cm and height ${th} cm on top. What is the total area in cm²?`, value: w * h + (w * th) / 2, unit: "cm²", hint: "Add the area of the rectangle and the area of the triangle.", solution: [`Rectangle: ${w} × ${h} = ${w * h}.`, `Triangle: ½ × ${w} × ${th} = ${(w * th) / 2}.`, `${w * h} + ${(w * th) / 2} = ${w * h + (w * th) / 2}.`] }; }
+    if (l === 1) { const b = int(r, 2, 5), c = int(r, 2, Math.min(4, h - 1)); return { figure: lShapeFig(w, h, b, c), prompt: `An L-shape is a ${w} cm by ${h} cm rectangle with a ${b} cm by ${c} cm rectangle cut from one corner. What is its area in cm²?`, value: w * h - b * c, unit: "cm²", hint: "Take the cut-out away from the big rectangle.", solution: [`${w} × ${h} = ${w * h}.`, `${b} × ${c} = ${b * c}.`, `${w * h} − ${b * c} = ${w * h - b * c}.`] }; }
+    if (l === 2) { const th = 2 * int(r, 2, 4); return { figure: houseFig(w, h, th), prompt: `A house shape is a ${w} cm by ${h} cm rectangle with a triangle of base ${w} cm and height ${th} cm on top. What is the total area in cm²?`, value: w * h + (w * th) / 2, unit: "cm²", hint: "Add the area of the rectangle and the area of the triangle.", solution: [`Rectangle: ${w} × ${h} = ${w * h}.`, `Triangle: ½ × ${w} × ${th} = ${(w * th) / 2}.`, `${w * h} + ${(w * th) / 2} = ${w * h + (w * th) / 2}.`] }; }
     const t = int(r, 3, 6), a = int(r, 6, 12), b = a + int(r, 2, 6);
     return { prompt: `A trapezium has parallel sides of ${a} cm and ${b} cm, and a height of ${t * 2} cm. A ${t} cm by ${t} cm square is cut out of it. What is the area left in cm²?`, value: ((a + b) * t * 2) / 2 - t * t, unit: "cm²", hint: "Work out the trapezium, then take the square away.", solution: [`Trapezium: ½ × (${a} + ${b}) × ${t * 2} = ${((a + b) * t * 2) / 2}.`, `Square: ${t} × ${t} = ${t * t}.`, `${((a + b) * t * 2) / 2} − ${t * t} = ${((a + b) * t * 2) / 2 - t * t}.`] };
   }),
@@ -199,8 +200,8 @@ export const ks3Skills: Skill[] = [
   }, (r, l) => {
     const m = int(r, 2, 6) * (r() < 0.4 ? -1 : 1), c = int(r, -6, 8), x = int(r, 2, 6);
     const eq = `y = ${m === 1 ? "" : m === -1 ? "-" : m}x ${c < 0 ? "-" : "+"} ${Math.abs(c)}`;
-    if (l === 1) return { prompt: `A line has the equation $${eq}$. What is the value of $y$ when $x = ${x}$?`, value: m * x + c, hint: "Put the value of x into the equation.", solution: [`$y = ${m} \\times ${x} ${c < 0 ? "-" : "+"} ${Math.abs(c)} = ${m * x + c}$.`] };
-    if (l === 2) { const x1 = int(r, 1, 3), x2 = x1 + int(r, 1, 3); return { prompt: `A straight line goes through (${x1}, ${m * x1 + c}) and (${x2}, ${m * x2 + c}). The equation is $y = mx + c$. What is $c$?`, value: c, hint: "First find the gradient m, then put one point into the equation.", solution: [`m = (${m * x2 + c} − ${m * x1 + c}) ÷ (${x2} − ${x1}) = ${m}.`, `${m * x1 + c} = ${m} × ${x1} + c, so c = ${c}.`] }; }
+    if (l === 1) return { figure: lineGraph(m, c, 0, x + 1), prompt: `A line has the equation $${eq}$. What is the value of $y$ when $x = ${x}$?`, value: m * x + c, hint: "Put the value of x into the equation.", solution: [`$y = ${m} \\times ${x} ${c < 0 ? "-" : "+"} ${Math.abs(c)} = ${m * x + c}$.`] };
+    if (l === 2) { const x1 = int(r, 1, 3), x2 = x1 + int(r, 1, 3); return { figure: lineGraph(m, c, 0, x2 + 1, [{ x: x1, y: m * x1 + c, label: `(${x1}, ${m * x1 + c})` }, { x: x2, y: m * x2 + c, label: `(${x2}, ${m * x2 + c})` }]), prompt: `A straight line goes through (${x1}, ${m * x1 + c}) and (${x2}, ${m * x2 + c}). The equation is $y = mx + c$. What is $c$?`, value: c, hint: "First find the gradient m, then put one point into the equation.", solution: [`m = (${m * x2 + c} − ${m * x1 + c}) ÷ (${x2} − ${x1}) = ${m}.`, `${m * x1 + c} = ${m} × ${x1} + c, so c = ${c}.`] }; }
     const k = int(r, 1, 4), c2 = int(r, -8, -1);
     return { prompt: `A line is parallel to $${eq}$ and crosses the y-axis at $(0, ${c2})$. What is the value of $y$ on this line when $x = ${k}$?`, value: m * k + c2, hint: "Parallel lines have the same gradient.", solution: [`The gradient is ${m}, so the line is $y = ${m}x ${c2 < 0 ? "-" : "+"} ${Math.abs(c2)}$.`, `When x = ${k}: ${m} × ${k} + (${c2}) = ${m * k + c2}.`] };
   }),

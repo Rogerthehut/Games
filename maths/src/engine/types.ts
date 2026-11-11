@@ -34,6 +34,11 @@ export type Figure =
   | { type: "scatter"; points: [number, number][]; xLabel: string; yLabel: string; alt: string }
   | { type: "coord-grid"; max: number; points: { x: number; y: number; label: string }[]; mirror?: { axis: "x" | "y"; value: number }; alt: string }
   | { type: "function-graph"; xMin: number; xMax: number; yMin: number; yMax: number; xStep: number; yStep: number; curves: { pts: [number, number][]; label?: string; dashed?: boolean }[]; marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][]; alt: string }
+  | { type: "polygon"; pts: [number, number][]; labels: { x: number; y: number; text: string; anchor?: "start" | "middle" | "end" }[]; dashed?: [number, number, number, number][]; rights?: [number, number, number, number, number, number][]; alt: string }
+  | { type: "circle-diagram"; mode: "radius" | "diameter" | "sector"; label: string; angle?: number; alt: string }
+  | { type: "pie"; slices: { label: string; value: number }[]; alt: string }
+  | { type: "parallel-lines"; t: number; marks: { pos: "UTL" | "UTR" | "UBL" | "UBR" | "LTL" | "LTR" | "LBL" | "LBR"; text: string }[]; alt: string }
+  | { type: "net"; solid: "cube" | "cuboid" | "triangular prism" | "square-based pyramid" | "triangular-based pyramid"; alt: string }
   | { type: "bearing"; angle: number; from: string; to: string; alt: string }
   | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 

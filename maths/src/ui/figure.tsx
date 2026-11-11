@@ -45,6 +45,11 @@ export function FigureView({ fig }: { fig: Figure }) {
   if (fig.type === "venn") return <VennFigure {...fig} />;
   if (fig.type === "function-graph") return <FunctionGraphFigure {...fig} />;
   if (fig.type === "bearing") return <BearingFigure {...fig} />;
+  if (fig.type === "polygon") return <PolygonFigure {...fig} />;
+  if (fig.type === "circle-diagram") return <CircleFigure {...fig} />;
+  if (fig.type === "pie") return <PieFigure {...fig} />;
+  if (fig.type === "parallel-lines") return <ParallelFigure {...fig} />;
+  if (fig.type === "net") return <NetFigure {...fig} />;
   // The right angle is at the bottom right and the marked angle is at the bottom left.
   const A = [34, 150], B = [206, 150], C = [206, 34];
   const label = (s: string, x: number, y: number, anchor = "middle") =>
@@ -162,7 +167,7 @@ function FunctionGraphFigure({ xMin, xMax, yMin, yMax, xStep, yStep, curves, mar
       {strips && strips.map(([x, y], i) => <circle key={`s${i}`} cx={px(x)} cy={py(y)} r="3.5" fill="var(--accent)" />)}
       {curves.map((c, i) => <polyline key={i} points={c.pts.map(([x, y]) => `${r2(px(x))},${r2(py(y))}`).join(" ")} fill="none" stroke={c.dashed ? "#c2410c" : "var(--accent)"} stroke-width="3" stroke-linejoin="round" stroke-dasharray={c.dashed ? "8 5" : undefined} />)}
       {curves.map((c, i) => c.label ? <text key={`l${i}`} x={Math.min(px(c.pts[c.pts.length - 1][0]) , R - 4)} y={Math.max(T + 10, Math.min(B - 4, py(c.pts[c.pts.length - 1][1]) - 6))} text-anchor="end" class="fig-label" font-size="13" fill={c.dashed ? "#c2410c" : "var(--accent)"}>{c.label}</text> : null)}
-      {marks?.map((m, i) => <g key={`m${i}`}><circle cx={px(m.x)} cy={py(m.y)} r="5" fill="#c2410c" stroke="var(--surface)" stroke-width="1.5" />{m.label && <text x={px(m.x) + 8} y={py(m.y) - 7} class="fig-label" font-size="12">{m.label}</text>}</g>)}
+      {marks?.map((m, i) => <g key={`m${i}`}><circle cx={px(m.x)} cy={py(m.y)} r="5" fill="#c2410c" stroke="var(--surface)" stroke-width="1.5" />{m.label && <text x={px(m.x) + (px(m.x) > 190 ? -8 : 8)} y={py(m.y) - 7} text-anchor={px(m.x) > 190 ? "end" : "start"} class="fig-label" font-size="12">{m.label}</text>}</g>)}
     </svg>
   );
 }
@@ -177,6 +182,93 @@ function BearingFigure({ angle, from, to, alt }: Of<"bearing">) {
       <line x1={cx} y1={cy} x2={tx} y2={ty} stroke="var(--accent)" stroke-width="3" />
       <circle cx={cx} cy={cy} r="5.5" fill="currentColor" /><circle cx={tx} cy={ty} r="5.5" fill="var(--accent)" />
       <text x={cx - 10} y={cy + 20} text-anchor="end" class="fig-label" font-size="15">{from}</text><text x={tx + (tx >= cx ? 9 : -9)} y={ty + (ty < cy ? -8 : 18)} text-anchor={tx >= cx ? "start" : "end"} class="fig-label" font-size="15">{to}</text>
+    </svg>
+  );
+}
+
+const NET_FILL = ["#c1c5ee", "#f6a0bc", "#84d8ba", "#f0be65"];
+
+function PolygonFigure({ pts, labels, dashed, rights, alt }: Of<"polygon">) {
+  const xs = [...pts.map((p) => p[0]), ...labels.map((l) => l.x)], ys = [...pts.map((p) => p[1]), ...labels.map((l) => l.y)];
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), W = 300, H = 200, pad = 38;
+  const k = Math.min((W - 2 * pad) / Math.max(x1 - x0, 0.01), (H - 2 * pad) / Math.max(y1 - y0, 0.01));
+  const ox = (W - k * (x1 - x0)) / 2 - k * x0, oy = (H + k * (y1 - y0)) / 2 + k * y0;
+  const X = (x: number) => r2(ox + k * x), Y = (y: number) => r2(oy - k * y), sq = Math.max(x1 - x0, y1 - y0) * 0.07;
+  return (
+    <svg class="figure figure-wide" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
+      <polygon points={pts.map((p) => `${X(p[0])},${Y(p[1])}`).join(" ")} class="fig-shape" />
+      {dashed?.map((d, i) => <line key={i} x1={X(d[0])} y1={Y(d[1])} x2={X(d[2])} y2={Y(d[3])} stroke="#c2410c" stroke-width="2.2" stroke-dasharray="6 4" />)}
+      {rights?.map(([cx, cy, ux, uy, vx, vy], i) => <polyline key={i} points={`${X(cx + ux * sq)},${Y(cy + uy * sq)} ${X(cx + (ux + vx) * sq)},${Y(cy + (uy + vy) * sq)} ${X(cx + vx * sq)},${Y(cy + vy * sq)}`} fill="none" stroke="currentColor" stroke-width="1.6" />)}
+      {labels.map((l, i) => <text key={i} x={X(l.x)} y={Y(l.y) + 5} text-anchor={l.anchor ?? "middle"} class="fig-label" font-size="14">{l.text}</text>)}
+    </svg>
+  );
+}
+
+function CircleFigure({ mode, label, angle, alt }: Of<"circle-diagram">) {
+  const cx = 150, cy = 100, R = 74;
+  const pt = (deg: number, len: number): [number, number] => [r2(cx + len * Math.cos((deg * Math.PI) / 180)), r2(cy - len * Math.sin((deg * Math.PI) / 180))];
+  const a = angle ?? 90, end = pt(a, R);
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 200" role="img" aria-label={alt}>
+      <circle cx={cx} cy={cy} r={R} class="fig-shape" />
+      {mode === "radius" && <><line x1={cx} y1={cy} x2={pt(35, R)[0]} y2={pt(35, R)[1]} stroke="#c2410c" stroke-width="3" /><circle cx={cx} cy={cy} r="4" fill="currentColor" /><text x={r2((cx + pt(35, R)[0]) / 2 + 4)} y={r2((cy + pt(35, R)[1]) / 2 - 8)} class="fig-label" font-size="14">{label}</text></>}
+      {mode === "diameter" && <><line x1={pt(180, R)[0]} y1={cy} x2={pt(0, R)[0]} y2={cy} stroke="#c2410c" stroke-width="3" /><circle cx={cx} cy={cy} r="4" fill="currentColor" /><text x={cx} y={cy + 24} text-anchor="middle" class="fig-label" font-size="14">{label}</text></>}
+      {mode === "sector" && <><path d={`M ${cx} ${cy} L ${pt(0, R)[0]} ${cy} A ${R} ${R} 0 ${a > 180 ? 1 : 0} 0 ${end[0]} ${end[1]} Z`} fill="var(--accent)" fill-opacity=".25" stroke="currentColor" stroke-width="2" /><text x={r2(cx + 30)} y={r2(cy - 8)} class="fig-label" font-size="13">{angle}°</text><text x={r2(cx + R / 2)} y={cy + 20} text-anchor="middle" class="fig-label" font-size="13">{label}</text></>}
+    </svg>
+  );
+}
+
+function PieFigure({ slices, alt }: Of<"pie">) {
+  const cx = 150, cy = 105, R = 62, total = slices.reduce((t, s) => t + s.value, 0), tones = ["#f6a0bc", "#c1c5ee", "#84d8ba", "#f0be65", "#e8d5a0"];
+  let start = -90;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 210" role="img" aria-label={alt}>
+      {slices.map((s, i) => {
+        const sweep = (s.value / total) * 360, a0 = (start * Math.PI) / 180, a1 = ((start + sweep) * Math.PI) / 180, mid = ((start + sweep / 2) * Math.PI) / 180;
+        start += sweep;
+        const x0 = cx + R * Math.cos(a0), y0 = cy + R * Math.sin(a0), x1 = cx + R * Math.cos(a1), y1 = cy + R * Math.sin(a1), c = Math.cos(mid);
+        return <g key={i}>
+          {slices.length === 1 ? <circle cx={cx} cy={cy} r={R} fill={tones[i]} stroke="currentColor" stroke-width="2" /> : <path d={`M ${cx} ${cy} L ${r2(x0)} ${r2(y0)} A ${R} ${R} 0 ${sweep > 180 ? 1 : 0} 1 ${r2(x1)} ${r2(y1)} Z`} fill={tones[i % tones.length]} stroke="currentColor" stroke-width="2" />}
+          <text x={r2(cx + (R + 10) * c)} y={r2(cy + (R + 10) * Math.sin(mid) + 5)} text-anchor={c > 0.3 ? "start" : c < -0.3 ? "end" : "middle"} class="fig-label" font-size="13">{s.label}</text>
+        </g>;
+      })}
+    </svg>
+  );
+}
+
+function ParallelFigure({ t: given, marks, alt }: Of<"parallel-lines">) {
+  const t = Math.max(40, Math.min(75, given)), W = 300, H = 200, y1 = 60, y2 = 140, rad = (t * Math.PI) / 180, dx = (y2 - y1) / Math.tan(rad), cxU = 150 + dx / 2, cxL = 150 - dx / 2; // the transversal runs up to the right
+  const sectors: Record<string, [number, number]> = { TR: [0, t], TL: [t, 180], BL: [180, 180 + t], BR: [180 + t, 360] };
+  return (
+    <svg class="figure figure-wide" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
+      <line x1="14" y1={y1} x2="286" y2={y1} stroke="currentColor" stroke-width="2.5" /><line x1="14" y1={y2} x2="286" y2={y2} stroke="currentColor" stroke-width="2.5" />
+      <polygon points="262,54 274,60 262,66" fill="currentColor" /><polygon points="262,134 274,140 262,146" fill="currentColor" />
+      <line x1={r2(cxL - 40 / Math.tan(rad))} y1={y2 + 40} x2={r2(cxU + 40 / Math.tan(rad))} y2={y1 - 40} stroke="var(--accent)" stroke-width="2.5" />
+      {marks.map((m, i) => {
+        const upper = m.pos[0] === "U", key = m.pos.slice(1), [a, b] = sectors[key], cx = upper ? cxU : cxL, cy = upper ? y1 : y2, mid = (((a + b) / 2) * Math.PI) / 180;
+        const p0 = [cx + 22 * Math.cos((a * Math.PI) / 180), cy - 22 * Math.sin((a * Math.PI) / 180)], p1 = [cx + 22 * Math.cos((b * Math.PI) / 180), cy - 22 * Math.sin((b * Math.PI) / 180)];
+        return <g key={i}><path d={`M ${r2(p0[0])} ${r2(p0[1])} A 22 22 0 0 0 ${r2(p1[0])} ${r2(p1[1])}`} fill="none" stroke="#c2410c" stroke-width="2.5" /><text x={r2(cx + 42 * Math.cos(mid))} y={r2(cy - 42 * Math.sin(mid) + 5)} text-anchor="middle" class="fig-label" font-size="14">{m.text}</text></g>;
+      })}
+    </svg>
+  );
+}
+
+type NetPiece = [number, number][];
+const rectP = (x: number, y: number, w: number, h: number): NetPiece => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+const NETS: Record<Of<"net">["solid"], NetPiece[]> = {
+  cube: [[1, 0], [0, 1], [1, 1], [2, 1], [3, 1], [1, 2]].map(([x, y]) => rectP(x, y, 1, 1)),
+  cuboid: [rectP(0, 2, 2, 1.5), rectP(2, 2, 3, 1.5), rectP(5, 2, 2, 1.5), rectP(7, 2, 3, 1.5), rectP(2, 3.5, 3, 2), rectP(2, 0, 3, 2)],
+  "triangular prism": [rectP(0, 1.7, 2, 3), rectP(2, 1.7, 2, 3), rectP(4, 1.7, 2, 3), [[2, 1.7], [4, 1.7], [3, 0]], [[2, 4.7], [4, 4.7], [3, 6.4]]],
+  "square-based pyramid": [rectP(2, 2, 2, 2), [[2, 4], [4, 4], [3, 6]], [[2, 2], [4, 2], [3, 0]], [[2, 2], [2, 4], [0, 3]], [[4, 2], [4, 4], [6, 3]]],
+  "triangular-based pyramid": [[[0, 0], [2, 0], [1, 1.73]], [[2, 0], [4, 0], [3, 1.73]], [[1, 1.73], [3, 1.73], [2, 3.46]], [[2, 0], [3, 1.73], [1, 1.73]]],
+};
+
+function NetFigure({ solid, alt }: Of<"net">) {
+  const pieces = NETS[solid], all = pieces.flat(), x0 = Math.min(...all.map((p) => p[0])), x1 = Math.max(...all.map((p) => p[0])), y0 = Math.min(...all.map((p) => p[1])), y1 = Math.max(...all.map((p) => p[1]));
+  const W = 300, H = 200, pad = 18, k = Math.min((W - 2 * pad) / (x1 - x0), (H - 2 * pad) / (y1 - y0)), ox = (W - k * (x1 - x0)) / 2 - k * x0, oy = (H - k * (y1 - y0)) / 2 - k * y0;
+  return (
+    <svg class="figure figure-wide" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
+      {pieces.map((pc, i) => <polygon key={i} points={pc.map(([x, y]) => `${r2(ox + k * x)},${r2(oy + k * y)}`).join(" ")} fill={NET_FILL[i % NET_FILL.length]} fill-opacity=".7" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />)}
     </svg>
   );
 }

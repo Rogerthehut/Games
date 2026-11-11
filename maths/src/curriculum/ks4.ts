@@ -1,4 +1,5 @@
 import { int, pick, round } from "../engine/rng";
+import { graph, sample } from "./figures";
 import type { Skill } from "../engine/types";
 import { exprSkill, fracSkill } from "./build";
 import { toLatex } from "../engine/poly";
@@ -248,9 +249,10 @@ export const ks4Skills: Skill[] = [
     talkAbout: "Where is the turning point, compared with the two roots?",
   }, (r, l) => {
     const p = int(r, 1, 6), q = int(r, 1, 6) * (r() < 0.5 ? 1 : -1), b = -(p + q), c = p * q, eq = `x^{2} ${b < 0 ? "-" : "+"} ${Math.abs(b)}x ${c < 0 ? "-" : "+"} ${Math.abs(c)}`;
-    if (l === 1) return { prompt: `The curve $y = ${eq}$ crosses the y-axis. What is the y-coordinate where it crosses?`, value: c, hint: "Put x = 0 into the equation.", solution: [`When x = 0, y = ${c}.`] };
-    if (l === 2) return { prompt: `The curve $y = ${eq}$ crosses the x-axis at ${p} and ${q}. What is the x-coordinate of its turning point?`, value: (p + q) / 2, hint: "The turning point is halfway between the roots.", solution: [`(${p} + (${q})) ÷ 2 = ${(p + q) / 2}.`] };
-    const xt = (p + q) / 2; return { prompt: `The curve $y = ${eq}$ has its turning point at $x = ${xt}$. What is the y-coordinate of the turning point?`, value: xt * xt + b * xt + c, hint: "Put the x-coordinate into the equation.", solution: [`$y = (${xt})^{2} ${b < 0 ? "-" : "+"} ${Math.abs(b)}(${xt}) ${c < 0 ? "-" : "+"} ${Math.abs(c)}$.`, `$y = ${xt * xt + b * xt + c}$.`] };
+    const lo = Math.min(p, q, 0) - 1, hi = Math.max(p, q, 0) + 1, curve = [{ pts: sample((x) => x * x + b * x + c, lo, hi) }], alt = `The graph of y = ${eq.replace(/[{}]/g, "")}, a U-shaped curve.`;
+    if (l === 1) return { figure: graph(curve, [lo, hi, 1], alt), prompt: `The curve $y = ${eq}$ crosses the y-axis. What is the y-coordinate where it crosses?`, value: c, hint: "Put x = 0 into the equation.", solution: [`When x = 0, y = ${c}.`] };
+    if (l === 2) return { figure: graph(curve, [lo, hi, 1], alt + ` It crosses the x-axis at ${p} and ${q}.`, { marks: [{ x: p, y: 0, label: `${p}` }, { x: q, y: 0, label: `${q}` }] }), prompt: `The curve $y = ${eq}$ crosses the x-axis at ${p} and ${q}. What is the x-coordinate of its turning point?`, value: (p + q) / 2, hint: "The turning point is halfway between the roots.", solution: [`(${p} + (${q})) ÷ 2 = ${(p + q) / 2}.`] };
+    const xt = (p + q) / 2; return { figure: graph(curve, [lo, hi, 1], alt), prompt: `The curve $y = ${eq}$ has its turning point at $x = ${xt}$. What is the y-coordinate of the turning point?`, value: xt * xt + b * xt + c, hint: "Put the x-coordinate into the equation.", solution: [`$y = (${xt})^{2} ${b < 0 ? "-" : "+"} ${Math.abs(b)}(${xt}) ${c < 0 ? "-" : "+"} ${Math.abs(c)}$.`, `$y = ${xt * xt + b * xt + c}$.`] };
   }),
   fracSkill({
     id: "recurring-decimals", name: "Recurring decimals as fractions", stage: "KS4", year: 11, strand: "Number", prereqs: ["fdp-convert", "solve-linear"],

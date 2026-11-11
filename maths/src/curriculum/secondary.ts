@@ -1,5 +1,6 @@
 import { int, pick, round, type Rng } from "../engine/rng";
-import type { Question, Skill } from "../engine/types";
+import { circleFig, parallelogramFig, trapeziumFig, triangleBaseHeightFig } from "./figures";
+import type { Figure, Question, Skill } from "../engine/types";
 import { frac } from "./helpers";
 
 /**
@@ -8,7 +9,7 @@ import { frac } from "./helpers";
  */
 type Task = {
   prompt: string; value: number; hint: string; solution: string[]; unit?: string; shown?: string;
-  wrong?: { tag: string; message: string; number: number }[];
+  wrong?: { tag: string; message: string; number: number }[]; figure?: Figure;
 };
 
 function num(info: Omit<Skill, "generate">, task: (r: Rng, level: number) => Task): Skill {
@@ -19,7 +20,7 @@ function num(info: Omit<Skill, "generate">, task: (r: Rng, level: number) => Tas
       return {
         skill: info.id, level, prompt: t.prompt, answer: { kind: "number", value: t.value, unit: t.unit },
         hint: t.hint, solution: t.solution, shown: t.shown ?? `${t.value}${t.unit ? ` ${t.unit}` : ""}`,
-        wrong: t.wrong,
+        wrong: t.wrong, figure: t.figure,
       };
     },
   };
@@ -67,18 +68,18 @@ export const secondarySkills: Skill[] = [
   }, (r, l) => {
     if (l === 1) {
       const b = int(r, 2, 12) * 2, h = int(r, 3, 12);
-      return { prompt: `A triangle has a base of ${b} cm and a perpendicular height of ${h} cm. Work out its area.`, value: (b * h) / 2, unit: "cm²", hint: "Area of a triangle = base × height ÷ 2.",
+      return { figure: triangleBaseHeightFig(b, h), prompt: `A triangle has a base of ${b} cm and a perpendicular height of ${h} cm. Work out its area.`, value: (b * h) / 2, unit: "cm²", hint: "Area of a triangle = base × height ÷ 2.",
         solution: [`Multiply the base by the height: ${b} × ${h} = ${b * h}.`, `Halve it: ${b * h} ÷ 2 = ${(b * h) / 2} cm².`] };
     }
     if (l === 2) {
       const b = int(r, 3, 12), h = int(r, 3, 10);
-      return { prompt: `A parallelogram has a base of ${b} cm and a perpendicular height of ${h} cm. Work out its area.`, value: b * h, unit: "cm²", hint: "Area of a parallelogram = base × perpendicular height.",
+      return { figure: parallelogramFig(b, h), prompt: `A parallelogram has a base of ${b} cm and a perpendicular height of ${h} cm. Work out its area.`, value: b * h, unit: "cm²", hint: "Area of a parallelogram = base × perpendicular height.",
         solution: [`${b} × ${h} = ${b * h} cm².`] };
     }
     const top = int(r, 3, 10), bottom = top + int(r, 1, 4) * 2, h = int(r, 3, 9); // the two parallel sides add to an even number
     const sum = top + bottom;
     const value = (sum * h) / 2;
-    return { prompt: `A trapezium has parallel sides of ${top} cm and ${bottom} cm, and a perpendicular height of ${h} cm. Work out its area.`, value, unit: "cm²",
+    return { figure: trapeziumFig(top, bottom, h), prompt: `A trapezium has parallel sides of ${top} cm and ${bottom} cm, and a perpendicular height of ${h} cm. Work out its area.`, value, unit: "cm²",
       hint: "Area of a trapezium = (sum of the parallel sides) ÷ 2 × height.", solution: [`Add the parallel sides: ${top} + ${bottom} = ${sum}.`, `Halve it and multiply by the height: ${sum} ÷ 2 × ${h} = ${value} cm².`] };
   }),
   num({
@@ -110,14 +111,14 @@ export const secondarySkills: Skill[] = [
     const a = int(r, 2, 16) * 5 + (r() < 0.5 ? 0 : 3);
     if (l === 1) {
       const kind = pick(r, ["corresponding", "alternate"] as const);
-      return { prompt: `Two parallel lines are crossed by a straight line. One angle is ${a}°. What is the size of the ${kind} angle, in degrees?`, value: a,
+      return { figure: { type: "parallel-lines", t: a, marks: [{ pos: "UBL", text: `${a}°` }, { pos: kind === "corresponding" ? "LBL" : "LTR", text: "?" }], alt: `Two parallel lines crossed by a straight line. One angle is ${a} degrees, and the ${kind} angle is marked with a question mark.` }, prompt: `Two parallel lines are crossed by a straight line. One angle is ${a}°. What is the size of the ${kind} angle, in degrees?`, value: a,
         hint: `${kind === "corresponding" ? "Corresponding angles (an F shape)" : "Alternate angles (a Z shape)"} are equal.`, solution: [`${kind[0].toUpperCase()}${kind.slice(1)} angles are equal, so the angle is ${a}°.`] };
     }
     if (l === 2) {
-      return { prompt: `Two parallel lines are crossed by a straight line. One angle is ${a}°. What is the size of the co-interior angle, in degrees?`, value: 180 - a,
+      return { figure: { type: "parallel-lines", t: a, marks: [{ pos: "UBL", text: `${a}°` }, { pos: "LTL", text: "?" }], alt: `Two parallel lines crossed by a straight line. One angle is ${a} degrees, and the co-interior angle is marked with a question mark.` }, prompt: `Two parallel lines are crossed by a straight line. One angle is ${a}°. What is the size of the co-interior angle, in degrees?`, value: 180 - a,
         hint: "Co-interior angles (a C shape) add up to 180°.", solution: [`Co-interior angles add to 180°.`, `180 − ${a} = ${180 - a}°.`], wrong: [{ tag: "equal-not-180", number: a, message: "Co-interior angles are not equal. They add up to 180°." }] };
     }
-    return { prompt: `Two parallel lines are crossed by a straight line. Angle $x$ is ${a}°. Angle $y$ is the alternate angle to $x$, and angle $z$ is co-interior to $y$. Work out $z$, in degrees.`, value: 180 - a,
+    return { figure: { type: "parallel-lines", t: a, marks: [{ pos: "UBL", text: `x = ${a}°` }, { pos: "LTR", text: "y" }, { pos: "UBR", text: "z" }], alt: `Two parallel lines crossed by a straight line. Angle x is ${a} degrees. Angle y is the alternate angle to x, and angle z is co-interior to y.` }, prompt: `Two parallel lines are crossed by a straight line. Angle $x$ is ${a}°. Angle $y$ is the alternate angle to $x$, and angle $z$ is co-interior to $y$. Work out $z$, in degrees.`, value: 180 - a,
       hint: "Find y first (alternate angles are equal), then use co-interior angles add to 180°.", solution: [`$y$ is alternate to $x$, so $y = ${a}°$.`, `$z$ is co-interior to $y$, so $z = 180 - ${a} = ${180 - a}°$.`] };
   }),
   num({
@@ -142,11 +143,11 @@ export const secondarySkills: Skill[] = [
     const rad = int(r, 2, 12);
     if (l === 1) {
       const d = rad * 2, v = round(3.14 * d, 2);
-      return { prompt: `A circle has a diameter of ${d} cm. Use $\\pi = 3.14$. Work out its circumference to 2 decimal places.`, value: v, unit: "cm", hint: "Circumference = π × diameter.", solution: [`$3.14 \\times ${d} = ${v}$ cm.`] };
+      return { figure: circleFig("diameter", `${d} cm`), prompt: `A circle has a diameter of ${d} cm. Use $\\pi = 3.14$. Work out its circumference to 2 decimal places.`, value: v, unit: "cm", hint: "Circumference = π × diameter.", solution: [`$3.14 \\times ${d} = ${v}$ cm.`] };
     }
     if (l === 2) {
       const v = round(2 * 3.14 * rad, 2);
-      return { prompt: `A circle has a radius of ${rad} cm. Use $\\pi = 3.14$. Work out its circumference to 2 decimal places.`, value: v, unit: "cm", hint: "Circumference = 2 × π × radius.",
+      return { figure: circleFig("radius", `${rad} cm`), prompt: `A circle has a radius of ${rad} cm. Use $\\pi = 3.14$. Work out its circumference to 2 decimal places.`, value: v, unit: "cm", hint: "Circumference = 2 × π × radius.",
         solution: [`The diameter is $2 \\times ${rad} = ${rad * 2}$ cm.`, `$3.14 \\times ${rad * 2} = ${v}$ cm.`],
         wrong: [{ tag: "used-radius-as-diameter", number: round(3.14 * rad, 2), message: "Circumference uses the diameter. Double the radius first." }] };
     }

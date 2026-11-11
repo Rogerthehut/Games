@@ -1,4 +1,5 @@
 import { int, pick, round, type Rng } from "../engine/rng";
+import { lShapeFig, lShapeOutsideFig, rectFig, regularPolygonFig, triangleSidesFig } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 
 /**
@@ -78,10 +79,10 @@ export const ks2Skills: Skill[] = [
     parentNote: "Walk round the edge of a shape with a finger and add up each side. Mark where you started so no side is counted twice.",
     talkAbout: "How can you be sure you have counted every side?",
   }, (r, l) => {
-    if (l === 1) { const w = int(r, 4, 12), h = int(r, 2, 9); return { prompt: `A rectangle is ${w} cm long and ${h} cm wide. What is its perimeter in cm?`, value: 2 * (w + h), unit: "cm", hint: "A rectangle has two long sides and two short sides.", solution: [`${w} + ${h} + ${w} + ${h} = ${2 * (w + h)}.`] }; }
-    if (l === 2) { const a = int(r, 3, 9), b = int(r, 4, 10), c = int(r, 5, 11); return { prompt: `A triangle has sides of ${a} cm, ${b} cm and ${c} cm. What is its perimeter in cm?`, value: a + b + c, unit: "cm", hint: "Add all three sides.", solution: [`${a} + ${b} + ${c} = ${a + b + c}.`] }; }
+    if (l === 1) { const w = int(r, 4, 12), h = int(r, 2, 9); return { figure: rectFig(w, h), prompt: `A rectangle is ${w} cm long and ${h} cm wide. What is its perimeter in cm?`, value: 2 * (w + h), unit: "cm", hint: "A rectangle has two long sides and two short sides.", solution: [`${w} + ${h} + ${w} + ${h} = ${2 * (w + h)}.`] }; }
+    if (l === 2) { const a = int(r, 3, 9), b = int(r, 4, 10), c = int(r, Math.max(5, Math.abs(a - b) + 1), Math.min(11, a + b - 1)); return { figure: triangleSidesFig(a, b, c), prompt: `A triangle has sides of ${a} cm, ${b} cm and ${c} cm. What is its perimeter in cm?`, value: a + b + c, unit: "cm", hint: "Add all three sides.", solution: [`${a} + ${b} + ${c} = ${a + b + c}.`] }; }
     const n = pick(r, [5, 6, 8]), s = int(r, 3, 9), name = { 5: "pentagon", 6: "hexagon", 8: "octagon" }[n as 5 | 6 | 8];
-    return { prompt: `A regular ${name} has ${n} sides, each ${s} cm long. What is its perimeter in cm?`, value: n * s, unit: "cm", hint: "All the sides of a regular shape are the same length.", solution: [`${n} sides of ${s} cm: ${n} × ${s} = ${n * s}.`] };
+    return { figure: regularPolygonFig(n, s), prompt: `A regular ${name} has ${n} sides, each ${s} cm long. What is its perimeter in cm?`, value: n * s, unit: "cm", hint: "All the sides of a regular shape are the same length.", solution: [`${n} sides of ${s} cm: ${n} × ${s} = ${n * s}.`] };
   }),
   num({
     id: "right-angles", name: "Right angles and turns", stage: "KS2", year: 3, strand: "Geometry", prereqs: [],
@@ -180,9 +181,9 @@ export const ks2Skills: Skill[] = [
     talkAbout: "Which sides are not labelled, and how could you work out their length?",
   }, (r, l) => {
     const w = int(r, 6, 12), h = int(r, 5, 10), cw = int(r, 2, w - 3), ch = int(r, 2, h - 3);
-    if (l <= 2) return { prompt: `An L-shape is made by cutting a ${cw} cm by ${ch} cm corner from a ${w} cm by ${h} cm rectangle. What is the perimeter of the L-shape in cm?`, value: 2 * (w + h), unit: "cm", hint: "The cut-out corner does not change the perimeter. Add up all the outside sides.", solution: [`The outside of the L-shape has the same length as the whole rectangle.`, `${w} + ${h} + ${w} + ${h} = ${2 * (w + h)}.`] };
+    if (l <= 2) return { figure: lShapeFig(w, h, cw, ch), prompt: `An L-shape is made by cutting a ${cw} cm by ${ch} cm corner from a ${w} cm by ${h} cm rectangle. What is the perimeter of the L-shape in cm?`, value: 2 * (w + h), unit: "cm", hint: "The cut-out corner does not change the perimeter. Add up all the outside sides.", solution: [`The outside of the L-shape has the same length as the whole rectangle.`, `${w} + ${h} + ${w} + ${h} = ${2 * (w + h)}.`] };
     const a = int(r, 4, 8), b = int(r, 4, 8), c = int(r, 2, 3), d = int(r, 2, 3);
-    return { prompt: `An L-shape fits inside a rectangle ${a + c} cm wide and ${b + d} cm tall. What is the perimeter of the L-shape in cm?`, value: 2 * (a + c + b + d), unit: "cm", hint: "The perimeter is the same as the rectangle that goes round the shape.", solution: [`Width ${a + c} cm and height ${b + d} cm.`, `2 × (${a + c} + ${b + d}) = ${2 * (a + c + b + d)}.`] };
+    return { figure: lShapeOutsideFig(a + c, b + d, a, b), prompt: `An L-shape fits inside a rectangle ${a + c} cm wide and ${b + d} cm tall. What is the perimeter of the L-shape in cm?`, value: 2 * (a + c + b + d), unit: "cm", hint: "The perimeter is the same as the rectangle that goes round the shape.", solution: [`Width ${a + c} cm and height ${b + d} cm.`, `2 × (${a + c} + ${b + d}) = ${2 * (a + c + b + d)}.`] };
   }),
   num({
     id: "symmetry-lines", name: "Lines of symmetry", stage: "KS2", year: 4, strand: "Geometry", prereqs: [],
