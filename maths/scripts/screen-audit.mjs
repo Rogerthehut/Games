@@ -89,6 +89,22 @@ const SCREENS = [
   { name: "checkup-question", go: async (p) => { await navTab(p, "plan"); await click(p, "start-checkup").catch(() => {}); await click(p, "checkup-start").catch(() => {}); await wait(p, 500); } },
   { name: "parent-guide-test-finder", fresh: true, path: "/11-plus-maths.html", go: async (p) => { await p.locator("#test-finder").scrollIntoViewIfNeeded(); await wait(p, 300); } },
   { name: "parent-guide-test-finder-search", fresh: true, path: "/11-plus-maths.html", go: async (p) => { await p.locator("#test-finder").scrollIntoViewIfNeeded(); await p.fill("#test-finder-query", "kent"); await wait(p, 300); } },
+  { name: "tables-hub", go: async (p) => { await click(p, "start-tables"); } },
+  { name: "tables-learn", go: async (p) => { await click(p, "start-tables"); await click(p, "tables-learn"); await p.getByRole("button", { name: "Cover the answers" }).click(); await wait(p, 300); } },
+  { name: "tables-round", go: async (p) => { await click(p, "start-tables"); await click(p, "tables-practise"); await wait(p, 400); } },
+  { name: "tables-round-wrong", go: async (p) => { await click(p, "start-tables"); await click(p, "tables-practise"); await p.keyboard.press("0"); await p.keyboard.press("0"); await p.keyboard.press("0"); await wait(p, 400); } },
+  { name: "tables-check", go: async (p) => { await click(p, "start-tables"); await click(p, "tables-check"); await wait(p, 400); } },
+  { name: "tables-summary", go: async (p) => {
+    await click(p, "start-tables"); await click(p, "tables-practise");
+    for (let i = 0; i < 12; i++) {
+      const t = await p.getByTestId("tables-question").innerText().catch(() => "");
+      const m = t.match(/(\d+)\s*([×÷])\s*(\d+)?/); if (!m) break;
+      const n = m[2] === "×" ? +m[1] * +m[3] : +m[1] / +(t.match(/÷\s*(\d+)/)?.[1] ?? 1) ;
+      const ans = m[2] === "×" ? n : +m[1] / +t.match(/÷\s*(\d+)/)[1];
+      await p.keyboard.type(String(ans)); await wait(p, 600);
+    }
+    await wait(p, 500);
+  } },
 ].filter((s) => !only.length || only.includes(s.name));
 
 /** Runs in the page. Returns the problems it can see right now. */
@@ -120,7 +136,7 @@ const AUDIT = ({ kind }) => {
   for (const el of document.querySelectorAll("button, a, label, h1, h2, h3, p, span, li, summary, small, strong")) {
     if (!visible(el)) continue;
     const s = getComputedStyle(el);
-    if (s.display === "inline") continue;
+    if (s.display === "inline" || el.classList.contains("sr")) continue; // visually hidden text is meant to be clipped
     if (/(hidden|clip)/.test(s.overflowX) && el.scrollWidth > el.clientWidth + 2 && s.textOverflow !== "ellipsis" && el.textContent.trim()) clipped.push(`${label(el)} "${el.textContent.trim().slice(0, 24)}"`);
   }
   if (clipped.length) issues.push({ type: "clipped-text", detail: clipped.slice(0, 4).join("; ") });
@@ -161,6 +177,15 @@ const AUDIT = ({ kind }) => {
   if (body && bar && top) {
     const room = bar.getBoundingClientRect().top - top.getBoundingClientRect().bottom;
     if (room < 140) issues.push({ type: "no-room", detail: `only ${Math.round(room)}px between the top bar and the bottom bar (window ${vw}x${vh})` });
+  }
+
+  // 7. the times tables keypad should be on screen without scrolling, or a child cannot answer
+  const pad = document.querySelector(".tt-play .keypad");
+  if (pad && visible(pad)) {
+    scrollTo(0, 0); // judge it as the child first sees it, not after the page has scrolled to a tapped key
+    const r = pad.getBoundingClientRect(), q = document.querySelector(".tt-prompt")?.getBoundingClientRect();
+    if (r.bottom > vh + 1) issues.push({ type: "keypad-off-screen", detail: `keypad ends at ${Math.round(r.bottom)}px in a ${vh}px tall window` });
+    if (q && q.bottom > vh) issues.push({ type: "question-off-screen", detail: `the question ends at ${Math.round(q.bottom)}px in a ${vh}px tall window` });
   }
   return issues;
 };

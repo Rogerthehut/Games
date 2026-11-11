@@ -8,6 +8,7 @@ import {
 import { Keypad, applyKey } from "./answer-input";
 import { useApp } from "./context";
 import { Icon } from "./icons";
+import { playPracticeSound, readPracticeQuestion, stopPracticeNarration } from "./practice-audio";
 
 type View = { name: "hub" } | { name: "learn"; table: number } | { name: "round"; only?: number } | { name: "check" };
 interface Result { q: TableQ; ok: boolean; ms: number; typed: string }
@@ -150,6 +151,8 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
   const [phase, setPhase] = useState<"ask" | "right" | "wrong">("ask");
   const [results, setResults] = useState<Result[]>([]);
   const [left, setLeft] = useState(CHECK_SECONDS);
+  const [soundOn, setSoundOn] = useState(false);
+  const soundRef = useRef(soundOn); soundRef.current = soundOn;
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const logged = useRef(false);
@@ -163,6 +166,7 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
     const ms = Date.now() - shownAt.current;
     setResults((r) => [...r, { q, ok, ms, typed: text }]);
     update((p) => recordFact(p, q.a, q.b, ok, ms));
+    if (soundRef.current) playPracticeSound(ok ? "success" : "tap");
     if (timed) { setTimeout(next, 150); setPhase(ok ? "right" : "wrong"); return; }
     if (ok) { setPhase("right"); setTimeout(next, 450); } else { setPhase("wrong"); setTyped(""); }
   };
@@ -210,7 +214,8 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
     });
   };
   useEffect(() => { if (done) finish(); }, [done]);
-  const leaveEarly = () => { finish(); onBack(); };
+  const leaveEarly = () => { stopPracticeNarration(); finish(); onBack(); };
+  useEffect(() => () => stopPracticeNarration(), [i]);
 
   if (done) return <Summary timed={timed} results={results} onAgain={onAgain} onBack={onBack} />;
 
@@ -220,7 +225,10 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
     <div class="tt-wrap tt-play">
       <div class="tt-top">
         <button type="button" class="btn ghost" onClick={leaveEarly} data-testid="tables-stop"><Icon name="x" size={18} /> Stop</button>
-        <span class="tt-count" aria-live="polite">{i + 1} of {qs.length}</span>
+        <span class="tt-top-right">
+          <button type="button" class="icon-btn" aria-pressed={soundOn} aria-label={soundOn ? "Sounds on. Tap to turn off" : "Sounds off. Tap to turn on"} onClick={() => setSoundOn(!soundOn)} data-testid="tables-sound"><Icon name={soundOn ? "speaker" : "mute"} size={22} /></button>
+          <span class="tt-count" aria-live="polite">{i + 1} of {qs.length}</span>
+        </span>
       </div>
       <div class="progress" role="progressbar" aria-valuenow={i} aria-valuemin={0} aria-valuemax={qs.length} aria-label="Progress"><i style={{ width: `${(100 * i) / qs.length}%` }} /></div>
       {timed && <div class="tt-clock" aria-hidden="true"><i style={{ width: `${(100 * left) / CHECK_SECONDS}%` }} /></div>}
@@ -232,6 +240,12 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
         {phase === "wrong" && timed && <p class="tt-msg bad" role="status">Not quite</p>}
         {phase === "right" && timed && <p class="tt-msg good" role="status">✓</p>}
       </div>
+      {!timed && phase === "ask" && (
+        <button type="button" class="btn ghost audio-control tt-read" data-testid="tables-read"
+          onClick={() => readPracticeQuestion(q.op === "×" ? `What is ${q.a} times ${q.b}?` : `What is ${q.a * q.b} divided by ${q.a}?`, profile.narrationVoice ?? "female", () => {})}>
+          <Icon name="speaker" size={21} />Read aloud
+        </button>
+      )}
       <Keypad mode="digits" onKey={press} />
       {!isTouch() && <p class="small muted tt-hint">You can also type the answer on your keyboard.</p>}
     </div>
