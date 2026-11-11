@@ -75,6 +75,10 @@ The table groups statutory outcomes by year and strand. Existing generators some
 
 Source [DfE mathematics programmes of study](https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study).
 
+## Weekly refresher (requested)
+
+A parent or child can start a "refresher" after a few days of use: a quick-fire revision test drawn from the topics practised in the last week (or since the last refresher), before moving on to new topics. Needs: a "Refresher" entry on Today and in the Parents' area; a mixed set from the topics actually practised, weighted to the ones that were wobbly; a short timed or untimed run; a result that feeds back into progress and the plan (wobbly topics come back sooner). Builds on the existing mock/pathway runner and the plan's revision weeks.
+
 ## Teaching and writing standards
 
 - **Key Stage 2.** Show the idea using familiar objects or pictures where they help. Link the picture to the symbols. Model one example, guide a second, then remove the prompts for an independent problem. Return to the idea later in a different context.
