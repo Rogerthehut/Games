@@ -229,7 +229,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
         </div>
         <div class="actions">
           {pathway && certificate && <button class="btn primary" onClick={() => go({ name: "certificate", stage: pathway })}>See your certificate</button>}
-          <button class={certificate ? "btn" : "btn primary"} onClick={() => leave(pathway ? { name: "map", stage: pathway } : { name: "home" })}>{pathway ? "Back to skills" : "Done"}</button>
+          <button class={certificate ? "btn" : "btn primary"} onClick={() => (pathway ? go({ name: "map", stage: pathway }) : leave({ name: "home" }))}>{pathway ? "Back to skills" : "Done"}</button>
         </div>
       </main>
     );
