@@ -114,7 +114,7 @@ const SCREENS = [
   { name: "stem-lab-learn", go: async (p) => { await click(p, "open-stem"); await click(p, "open-lab-learn"); await click(p, "learn-test"); await p.locator(".learn-grid").click({ position: { x: 150, y: 150 } }); await wait(p, 200); } },
   { name: "stem-lab-qubit", go: async (p) => { await click(p, "open-stem"); await click(p, "open-lab-qubit"); await click(p, "qubit-h"); await p.getByRole("button", { name: "Measure 100 copies" }).click(); await wait(p, 200); } },
   { name: "stem-practice-intro", go: async (p) => { await click(p, "open-stem"); await p.locator("[data-testid^=stem-practise-]").first().click(); await wait(p, 500); } },
-  { name: "stem-practice-question", go: async (p) => { await click(p, "open-stem"); await p.getByRole("button", { name: "Computing" }).click(); await p.locator("[data-testid=stem-practise-stem-trace]").click(); await openQuestion(p); } },
+  { name: "stem-practice-question", go: async (p) => { await click(p, "open-stem"); await p.getByRole("button", { name: "Computing", exact: true }).click(); await p.locator("[data-testid=stem-practise-stem-trace]").click(); await openQuestion(p); } },
   { name: "practice-figure-shape", go: async (p) => { await skillList(p); await practiseSkill(p, "perimeter-simple"); await openQuestion(p); } },
   { name: "practice-figure-graph", go: async (p) => { await skillList(p); await practiseSkill(p, "quadratic-graphs"); await openQuestion(p); } },
   { name: "practice-tutor-open", tutor: true, go: async (p) => { await skillList(p); await practiseSkill(p, "perimeter-simple"); await openQuestion(p); await click(p, "tutor-open"); await wait(p, 300); } },
