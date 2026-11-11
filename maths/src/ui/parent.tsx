@@ -6,6 +6,7 @@ import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
 import { useAccount } from "./account-context";
 import { AccountSection, SubscriptionSection } from "./account-section";
+import { BookletSection } from "./booklet";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
 import { STATUS_LABEL_PARENT } from "./labels";
@@ -228,6 +229,7 @@ export function Parent() {
           </section>
 
           <PinSettings />
+          <BookletSection />
           {account && <SubscriptionSection />}
           {account && <AccountSection />}
 

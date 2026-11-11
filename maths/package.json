@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.server.json",
     "test": "vitest run",
     "server": "tsx server/index.ts",
+    "booklet": "tsx scripts/build-booklet.ts",
     "server:fake": "TUTOR_FAKE=1 tsx server/index.ts",
     "eval:tutor": "tsx server/eval/tutor-eval.ts"
   },

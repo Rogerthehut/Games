@@ -6,7 +6,7 @@ import { handleAssistant, type AssistantDeps } from "./assistant/handler";
 import { applyEvent, hasAccess, summarise, type Gateway, type Plan } from "./billing";
 
 export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown; origin?: string; humanPass?: string }
-export interface ApiResponse { status: number; body: unknown; headers?: Record<string, string> }
+export interface ApiResponse { status: number; body: unknown; headers?: Record<string, string>; /** send this file from server/assets instead of a JSON body */ file?: { name: string; type: string; downloadAs: string } }
 export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLimiter; billing?: Gateway; appUrl?: string; assistant?: AssistantDeps; humanPassOk?: (pass: string | undefined) => boolean }
 
 /** A cap on how often one parent can write, so a stuck or hostile client cannot flood the database. */
@@ -87,6 +87,13 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to use the assistant.");
     const out = await handleAssistant(req.body, parent.id, deps.assistant);
     return reply(out.status, out.body, { "Cache-Control": "no-store" });
+  }
+
+  // the curriculum booklet (PDF): signed in, agreed to the terms and, where payments are on, subscribed
+  if (req.path === "/api/account/booklet" && req.method === "GET") {
+    if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+    if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to download the booklet.");
+    return { status: 200, body: null, file: { name: "quarter-curriculum.pdf", type: "application/pdf", downloadAs: "quarter-curriculum.pdf" } };
   }
 
   // feedback: any signed-in parent who has agreed to the terms (no subscription needed, so people can always tell us about a problem)

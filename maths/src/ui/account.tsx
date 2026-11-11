@@ -184,6 +184,11 @@ export function AccountGate() {
     ask: (m, h, y) => api.current!.ask(m, h, y),
     sendFeedback: (f) => api.current!.sendFeedback(f),
     manageBilling: async () => { location.assign(await api.current!.portal()); },
+    downloadBooklet: async () => {
+      const blob = await api.current!.booklet(), url = URL.createObjectURL(blob), link = document.createElement("a");
+      link.href = url; link.download = "quarter-curriculum.pdf"; document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    },
     deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearAllPins(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
   };
 

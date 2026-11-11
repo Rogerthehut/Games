@@ -69,3 +69,10 @@ Its own area on Today, with a mint sticky note under the times tables one (side 
 | KS5 (Years 12 and 13) | information and bits | | gradient descent, a network layer | qubits, qubit states, quantum gates |
 
 Still to do: study-library pages for the STEM ideas, drawn figures (flowcharts, decision trees, qubit pictures), a "build it" activity per theme, a STEM section in the progress report, and a teacher or computer-science specialist review. Planned to be bundled with the subscription; nothing is gated while quarter is a free public beta.
+
+## The curriculum booklet
+
+A designed A4 booklet of everything quarter covers (51 pages: how it works, each stage and year with the "Ask" question for every topic, the 11+ strand, the STEM lab, tools, the study library and tips for helping at home). It is built from the live curriculum data in `src/booklet/model.ts`, so topics can't drift out of date.
+
+- **Flip-through reader:** Parents' area, Settings, Curriculum booklet, Read online. Two-page spreads on wide screens, one page on phones, with a chapter menu, arrow keys, swipe and zoom.
+- **PDF:** `npm run booklet` prints it to `server/assets/quarter-curriculum.pdf` (needs Playwright with Chromium) and reports any page that overflows. Run it again, and commit the PDF, whenever topics change. The download is served only to signed-in parents who have agreed to the terms and, once payments are on, have a subscription (`GET /api/account/booklet`).

@@ -22,6 +22,25 @@ const agree = (t: string) => call(t, "POST", "/api/account/consent", { version: 
 type Billing = { access: boolean; status: string; plan: string | null; trialAvailable: boolean; cancelAtPeriodEnd: boolean };
 const billing = async (t: string) => ((await call(t, "GET", "/api/account")).body as { billing: Billing }).billing;
 
+describe("the curriculum booklet", () => {
+  it("is only for signed-in parents who agreed to the terms and have a subscription", async () => {
+    expect((await call(null, "GET", "/api/account/booklet")).status).toBe(401);
+    expect((await call("fake_a", "GET", "/api/account/booklet")).status).toBe(403);
+    await agree("fake_a");
+    expect((await call("fake_a", "GET", "/api/account/booklet")).status).toBe(402);
+    await call("fake_a", "POST", "/api/billing/checkout", { plan: "monthly" });
+    const ok = await call("fake_a", "GET", "/api/account/booklet");
+    expect(ok.status).toBe(200);
+    expect(ok.file).toEqual({ name: "quarter-curriculum.pdf", type: "application/pdf", downloadAs: "quarter-curriculum.pdf" });
+  });
+  it("has a PDF waiting to be sent", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const pdf = await readFile(new URL("./assets/quarter-curriculum.pdf", import.meta.url));
+    expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(pdf.length).toBeGreaterThan(100_000);
+  });
+});
+
 describe("the paywall", () => {
   it("shows prices and an available trial, and no access, to someone who has not subscribed", async () => {
     await agree("fake_a");

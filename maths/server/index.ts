@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
@@ -165,6 +166,13 @@ createServer(async (req, res) => {
       const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "");
       const proto = TRUST_PROXY ? String(req.headers["x-forwarded-proto"] ?? "https").split(",")[0] : "http";
       const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, humanPass: String(req.headers["x-human-pass"] ?? "") || undefined, origin: host ? `${proto}://${host}` : undefined }, accounts);
+      if (out.file) {
+        try {
+          const data = await readFile(new URL(`./assets/${out.file.name}`, import.meta.url));
+          res.writeHead(200, { "Content-Type": out.file.type, "Content-Length": data.length, "Content-Disposition": `attachment; filename="${out.file.downloadAs}"`, "Cache-Control": "private, no-store" });
+          return res.end(data);
+        } catch { return send(res, 404, { error: "not-found", message: "That file isn't available just now." }); }
+      }
       res.writeHead(out.status, { "Content-Type": "application/json", "Cache-Control": "no-store", ...out.headers });
       return res.end(JSON.stringify(out.body));
     } catch (e) {

@@ -69,6 +69,16 @@ export class AccountApi implements SyncApi {
   async checkout(plan: Plan): Promise<string> { return (await this.request<{ url: string }>("POST", "/api/billing/checkout", { plan })).data.url; }
   /** Where to send the parent to change card, switch plan or cancel. */
   async portal(): Promise<string> { return (await this.request<{ url: string }>("POST", "/api/billing/portal")).data.url; }
+  /** The curriculum booklet as a PDF, for subscribed parents. */
+  async booklet(): Promise<Blob> {
+    let res: Response;
+    try {
+      const token = await this.token();
+      res = await this.fetchFn(`${this.base}/api/account/booklet`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    } catch { throw new AccountError(undefined, "offline", "No connection."); }
+    if (!res.ok) { const j = (await res.json().catch(() => ({}))) as { error?: string; message?: string }; throw new AccountError(res.status, j.error ?? "error", j.message ?? "Something went wrong.", j); }
+    return res.blob();
+  }
   async exportData(): Promise<unknown> { return (await this.request("GET", "/api/account/export")).data; }
   async deleteAccount() { await this.request("DELETE", "/api/account", { confirm: "delete my account" }); }
 }

@@ -3061,3 +3061,22 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .note-mini:hover, .note-mini:focus-visible { transform: rotate(0) translateY(-2px); box-shadow: 0 8px 12px -6px #18192b77; }
 .note-mini:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .note-mini { transition: none; } }
+
+/* the booklet reader: pages are 794 by 1123 and scaled to fit; two-page spreads on wide screens */
+.bk-reader { display: flex; flex-direction: column; height: 100dvh; background: color-mix(in srgb, var(--bg) 82%, #20243a); color: var(--ink); }
+.bk-bar { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background: var(--surface); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.bk-jump { flex: 1 1 140px; min-width: 0; } .bk-jump select { width: 100%; min-height: 40px; }
+.bk-zoom { display: inline-flex; gap: 4px; }
+.bk-stage { flex: 1; min-height: 0; overflow: auto; display: flex; padding: 12px; touch-action: pan-y pinch-zoom; }
+.bk-frame { position: relative; margin: auto; flex: none; box-shadow: 0 18px 40px -14px #20243a88; border-radius: 4px; background: #faf5e9; animation-duration: 380ms; animation-timing-function: var(--ease-out, ease-out); animation-fill-mode: backwards; }
+.bk-frame.turn-next { animation-name: bk-next; transform-origin: 0 50%; } .bk-frame.turn-back { animation-name: bk-back; transform-origin: 100% 50%; }
+@keyframes bk-next { from { opacity: .3; transform: perspective(1400px) rotateY(14deg) translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes bk-back { from { opacity: .3; transform: perspective(1400px) rotateY(-14deg) translateX(-18px); } to { opacity: 1; transform: none; } }
+.bk-spread { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.bk-sheet { position: absolute; top: 0; width: 794px; height: 1123px; overflow: hidden; user-select: text; }
+.bk-sheet.blank { background: color-mix(in srgb, #faf5e9 60%, #20243a 12%); }
+.bk-sheet + .bk-sheet { box-shadow: inset 14px 0 18px -12px #20243a44; }
+.bk-controls { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); }
+.bk-controls .btn { min-width: 64px; min-height: 48px; font-size: 1.3rem; }
+.bk-label { min-width: 150px; text-align: center; font-weight: 750; }
+@media (prefers-reduced-motion: reduce) { .bk-frame { animation: none !important; } }

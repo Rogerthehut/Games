@@ -12,6 +12,7 @@ import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
 import { Tables } from "./tables";
 import { Stem } from "./stem";
+import { BookletLoader } from "./booklet";
 import { Tour } from "./tour";
 import { ConceptPage } from "./concept";
 import { Practice } from "./practice";
@@ -171,6 +172,9 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
 
   if (route.name === "tables")
     return <Ctx.Provider value={ctx}><Tables /></Ctx.Provider>;
+
+  if (route.name === "booklet")
+    return <Ctx.Provider value={ctx}><BookletLoader /></Ctx.Provider>;
 
   if (route.name === "stem")
     return <Ctx.Provider value={ctx}><Stem /></Ctx.Provider>;
