@@ -26,7 +26,14 @@ export type Figure =
   /** Pictures for reasoning questions. A null item is the missing one, drawn as a question mark. */
   | { type: "glyphs"; layout: "series" | "analogy" | "mirror" | "single" | "matrix"; items: (Glyph | null)[]; caption?: string }
   /** Someone's working, one line per step, for "find the mistake" questions. */
-  | { type: "working"; lines: string[] };
+  | { type: "working"; lines: string[] }
+  /** Drawn diagrams. `alt` says in words what the picture shows, for screen readers and for the AI tutor. */
+  | { type: "clock"; h: number; m: number; alt: string }
+  | { type: "scale"; start: number; end: number; gaps: number; unit: string; pointer?: number; alt: string }
+  | { type: "line-graph"; xs: string[]; ys: number[]; xLabel: string; yLabel: string; yMax: number; alt: string }
+  | { type: "scatter"; points: [number, number][]; xLabel: string; yLabel: string; alt: string }
+  | { type: "coord-grid"; max: number; points: { x: number; y: number; label: string }[]; mirror?: { axis: "x" | "y"; value: number }; alt: string }
+  | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 
 /** A choice in a multiple-choice question: words (with $maths$ allowed) or a picture. */
 export type ChoiceOption = { text: string } | { glyph: Glyph };

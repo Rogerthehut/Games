@@ -1,11 +1,11 @@
 import { int, pick, round, type Rng } from "../engine/rng";
-import type { Question, Skill } from "../engine/types";
+import type { Figure, Question, Skill } from "../engine/types";
 
 /**
  * More Key Stage 2, from the gaps listed in docs/ROADMAP.md (Years 3 and 4 first). Written the same way as the rest: each question
  * works out its own answer, so the answer, the worked steps and the hint can never disagree.
  */
-type Task = { prompt: string; value: number; hint: string; solution: string[]; unit?: string; shown?: string };
+type Task = { prompt: string; value: number; hint: string; solution: string[]; unit?: string; shown?: string; figure?: Figure };
 
 export type { Task };
 export function num(info: Omit<Skill, "generate">, task: (r: Rng, level: number) => Task): Skill {
@@ -15,7 +15,7 @@ export function num(info: Omit<Skill, "generate">, task: (r: Rng, level: number)
       const t = task(r, level);
       return {
         skill: info.id, level, prompt: t.prompt, answer: { kind: "number", value: t.value, unit: t.unit },
-        hint: t.hint, solution: t.solution, shown: t.shown ?? `${t.value}${t.unit ? ` ${t.unit}` : ""}`,
+        hint: t.hint, solution: t.solution, shown: t.shown ?? `${t.value}${t.unit ? ` ${t.unit}` : ""}`, figure: t.figure,
       };
     },
   };

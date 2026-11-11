@@ -2954,3 +2954,10 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 /* "Learn about this" links in a new topic's intro */
 .learn-about { margin: 2px 0 10px; }
 .learn-about .chip-btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); font-size: .92rem; }
+
+/* drawn diagrams: clocks, scales, graphs, grids, Venn diagrams */
+.figure-wide { max-width: 340px; }
+.figure-clock { max-width: 230px; }
+.fig-face { fill: var(--surface); stroke: var(--ink); stroke-width: 3; }
+.fig-hand-short { stroke: var(--accent); stroke-width: 6; stroke-linecap: round; }
+.fig-hand-long { stroke: #c2410c; stroke-width: 3.5; stroke-linecap: round; }

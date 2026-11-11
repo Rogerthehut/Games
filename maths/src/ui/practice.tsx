@@ -347,10 +347,11 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
 /** Multiple-choice questions only make sense with their options, and pictures are described in words. */
 function questionForTutor(q: Question): string {
   const a = q.answer;
-  if (a.kind !== "choice") return q.prompt;
+  const drawn = q.figure && "alt" in q.figure ? ` The picture shown: ${q.figure.alt}` : "";
+  if (a.kind !== "choice") return q.prompt + drawn;
   const options = a.options.map((o, i) => `${"ABCDE"[i]}) ${"glyph" in o ? describeGlyph(o.glyph) : o.text}`).join("; ");
   const fig = q.figure?.type === "glyphs" ? ` The pictures shown: ${q.figure.items.map(describeGlyph).join("; ")}.` : q.figure?.type === "working" ? ` The working: ${q.figure.lines.join(" ")}` : "";
-  return `${q.prompt}${fig} Options: ${options}.`;
+  return `${q.prompt}${fig || drawn} Options: ${options}.`;
 }
 function attemptsForTutor(q: Question, values: string[]): string[] {
   const mine = values.filter((v) => v.trim()).map((v) => v.slice(0, 120)).slice(0, 6);

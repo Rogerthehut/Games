@@ -239,7 +239,7 @@ export const ks3Skills: Skill[] = [
   }, (r, l) => {
     const both = int(r, 3, 9), onlyA = int(r, 4, 12), onlyB = int(r, 3, 11), none = int(r, 2, 8);
     const A = onlyA + both, B = onlyB + both, total = onlyA + onlyB + both + none;
-    if (l === 1) return { prompt: `In a class, ${A} children play football and ${B} play tennis. ${both} play both. How many play football only?`, value: onlyA, hint: "Take the ones who play both away from the football total.", solution: [`${A} − ${both} = ${onlyA}.`] };
+    if (l === 1) return { prompt: `The Venn diagram shows children who play football and tennis. How many children play football altogether? (Count everyone in the football circle.)`, figure: { type: "venn", labelA: "Football", labelB: "Tennis", a: onlyA, both, b: onlyB, alt: `A Venn diagram. Football only: ${onlyA}. Both: ${both}. Tennis only: ${onlyB}.` }, value: A, hint: "The football circle includes the overlap.", solution: [`Football only is ${onlyA} and both is ${both}.`, `${onlyA} + ${both} = ${A}.`] };
     if (l === 2) return { prompt: `In a class, ${A} children play football and ${B} play tennis. ${both} play both. How many play at least one of the sports?`, value: onlyA + onlyB + both, hint: "Add the two totals and take off the overlap once.", solution: [`${A} + ${B} − ${both} = ${onlyA + onlyB + both}.`] };
     return { prompt: `There are ${total} children in a year group. ${A} play football and ${B} play tennis. ${both} play both. How many play neither?`, value: none, hint: "Find how many play at least one sport, then take that from the total.", solution: [`At least one: ${A} + ${B} − ${both} = ${onlyA + onlyB + both}.`, `${total} − ${onlyA + onlyB + both} = ${none}.`] };
   }),
@@ -257,7 +257,12 @@ export const ks3Skills: Skill[] = [
       ["The higher a candle is burned, the shorter it gets.", "negative correlation", "As the time goes up, the height goes down."],
       ["Taller people tend to have bigger feet.", "positive correlation", "Both increase together."],
     ];
-    const [text, right, why] = pick(r, l === 1 ? sets.slice(0, 3) : sets);
+    if (l === 1) {
+      const kind = pick(r, ["positive correlation", "negative correlation", "no correlation"]);
+      const pts: [number, number][] = Array.from({ length: 10 }, (_, i) => { const x = 0.7 + i * 0.9 + r() * 0.4, noise = (r() - 0.5) * 2.4; return [round(x, 1), round(Math.max(0.6, Math.min(9.6, kind === "positive correlation" ? x + noise : kind === "negative correlation" ? 10 - x + noise : 1 + r() * 8.5)), 1)]; });
+      return { prompt: "What type of correlation does this scatter graph show?", right: kind, others: ["positive correlation", "negative correlation", "no correlation"].filter((x) => x !== kind), figure: { type: "scatter", points: pts, xLabel: "x", yLabel: "y", alt: `A scatter graph of ten points showing ${kind}.` }, hint: "Look at the dots. Do they go up, go down, or have no pattern?", solution: [kind === "positive correlation" ? "The dots go up from left to right." : kind === "negative correlation" ? "The dots go down from left to right." : "The dots are spread out with no pattern.", `So it is ${kind}.`] };
+    }
+    const [text, right, why] = pick(r, l === 2 ? sets.slice(0, 3) : sets);
     return { prompt: `${text} What type of correlation does a scatter graph of this show?`, right, others: ["positive correlation", "negative correlation", "no correlation"].filter((x) => x !== right), hint: "Think about what happens to one thing as the other goes up.", solution: [why, `So it is ${right}.`] };
   }),
 ];

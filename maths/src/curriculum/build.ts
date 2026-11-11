@@ -1,6 +1,6 @@
 import { shuffle } from "./helpers";
 import type { Poly } from "../engine/poly";
-import type { Question, Skill } from "../engine/types";
+import type { Figure, Question, Skill } from "../engine/types";
 import type { Rng } from "../engine/rng";
 
 /** Small builders for the other kinds of answer: a fraction, a written expression, and picking one option. */
@@ -41,7 +41,7 @@ export function exprSkill(
 /** Pick one. The right option is put in a random position. `others` are the wrong options (up to four). */
 export function choiceSkill(
   info: Omit<Skill, "generate">,
-  task: (r: Rng, level: number) => { prompt: string; right: string; others: string[]; hint: string; solution: string[] },
+  task: (r: Rng, level: number) => { prompt: string; right: string; others: string[]; hint: string; solution: string[]; figure?: Figure },
 ): Skill {
   return {
     ...info,
@@ -50,7 +50,7 @@ export function choiceSkill(
       const options = shuffle(r, [t.right, ...t.others]);
       return {
         skill: info.id, level, prompt: t.prompt, answer: { kind: "choice", options: options.map((text) => ({ text })), correct: options.indexOf(t.right) },
-        hint: t.hint, solution: t.solution, shown: t.right,
+        hint: t.hint, solution: t.solution, shown: t.right, figure: t.figure,
       };
     },
   };

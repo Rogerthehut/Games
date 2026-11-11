@@ -20,9 +20,11 @@ export const secondPassSkills: Skill[] = [
     parentNote: "Use a real clock. When the long hand is on the 6 it is half past. Past 6, say how many minutes to the next hour.",
     talkAbout: "Where is the long hand at quarter past, and why is it there?",
   }, (r, l) => {
-    if (l === 1) { const k = pick(r, [3, 6, 9, 12]); return { prompt: `On a clock, the long (minute) hand points to the ${k}. How many minutes past the hour is it?`, value: (k % 12) * 5, unit: "min", hint: "Count in 5s round the clock face: the 1 is 5 minutes, the 2 is 10 minutes, and so on.", solution: [`${k} × 5 = ${k * 5}${k === 12 ? ", but the 12 means exactly on the hour, which is 0 minutes" : ""}.`] }; }
-    if (l === 2) { const k = int(r, 1, 11), h = int(r, 1, 11); return { prompt: `A clock shows ${h} o'clock and the long hand moves round to the ${k}. How many minutes past ${h} is it?`, value: k * 5, unit: "min", hint: "Count in 5s for each number the long hand has passed.", solution: [`${k} × 5 = ${k * 5} minutes.`] }; }
-    const h = int(r, 1, 11), m = pick(r, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
+    const h = int(r, 1, 11);
+    const fig = (m: number) => ({ type: "clock" as const, h, m, alt: `An analogue clock. The short hand is ${m === 0 ? "pointing at" : m < 30 ? "just past" : "nearly at"} the ${m < 30 || m === 0 ? h : h + 1}. The long hand points to the ${m / 5 === 0 ? 12 : m / 5}.` });
+    if (l === 1) { const m = pick(r, [0, 15, 30, 45]); return { prompt: `Look at the clock. How many minutes past the hour is it? (If the long hand is on the 12, type 0.)`, value: m, unit: "min", figure: fig(m), hint: "Count in 5s round the clock face: the 1 is 5 minutes, the 2 is 10 minutes, and so on.", solution: [`The long hand points to ${m === 0 ? 12 : m / 5}.`, m === 0 ? "The 12 means exactly on the hour: 0 minutes." : `${m / 5} × 5 = ${m} minutes past.`] }; }
+    if (l === 2) { const m = int(r, 1, 11) * 5; return { prompt: `Look at the clock. How many minutes past the hour is it?`, value: m, unit: "min", figure: fig(m), hint: "Count in 5s for each number the long hand has passed.", solution: [`The long hand points to ${m / 5}.`, `${m / 5} × 5 = ${m} minutes past.`] }; }
+    const m = pick(r, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
     return { prompt: `It is ${clock(h, m)} pm. In 24-hour time the hour is written as a number. What is that number?`, value: h + 12, hint: "For pm times, add 12 to the hour.", solution: [`${h} + 12 = ${h + 12}.`, `So ${clock(h, m)} pm is ${h + 12}:${t2(m)}.`] };
   }),
   num({
@@ -34,11 +36,12 @@ export const secondPassSkills: Skill[] = [
   }, (r, l) => {
     const gaps = pick(r, [2, 4, 5, 10]), step = gaps === 4 ? pick(r, [5, 25, 50]) : gaps === 2 ? pick(r, [5, 25, 50, 100]) : pick(r, [2, 5, 10, 20, 50]);
     const start = pick(r, [0, 100, 200, 500]), end = start + gaps * step, unit = pick(r, ["ml", "g"]);
-    if (l === 1) return { prompt: `A scale is labelled ${start} ${unit} and ${end} ${unit}, with ${gaps} equal gaps between them. What is one gap worth in ${unit}?`, value: step, unit, hint: "Divide the difference between the two labels by the number of gaps.", solution: [`${end} − ${start} = ${end - start}.`, `${end - start} ÷ ${gaps} = ${step}.`] };
+    const fig = (pointer?: number) => ({ type: "scale" as const, start, end, gaps, unit, pointer, alt: `A scale from ${start} ${unit} to ${end} ${unit} with ${gaps} equal gaps${pointer === undefined ? "" : `. A pointer shows ${pointer} gap${pointer === 1 ? "" : "s"} up from ${start}`}.` });
+    if (l === 1) return { prompt: `Look at the scale. It goes from ${start} ${unit} to ${end} ${unit}, with ${gaps} equal gaps. What is one gap worth in ${unit}?`, figure: fig(), value: step, unit, hint: "Divide the difference between the two labels by the number of gaps.", solution: [`${end} − ${start} = ${end - start}.`, `${end - start} ÷ ${gaps} = ${step}.`] };
     const k = int(r, 1, gaps - 1);
-    if (l === 2) return { prompt: `A scale is labelled ${start} ${unit} and ${end} ${unit}, with ${gaps} equal gaps between them. The pointer is ${k} gap${k > 1 ? "s" : ""} above ${start} ${unit}. What does it read?`, value: start + k * step, unit, hint: "Find what one gap is worth, then count up from the lower label.", solution: [`One gap is (${end} − ${start}) ÷ ${gaps} = ${step}.`, `${start} + ${k} × ${step} = ${start + k * step}.`] };
+    if (l === 2) return { prompt: `Look at the scale, which goes from ${start} ${unit} to ${end} ${unit} in ${gaps} equal gaps. What does the pointer read?`, figure: fig(k), value: start + k * step, unit, hint: "Find what one gap is worth, then count up from the lower label.", solution: [`One gap is (${end} − ${start}) ÷ ${gaps} = ${step}.`, `${start} + ${k} × ${step} = ${start + k * step}.`] };
     const sub = int(r, 1, gaps - 1);
-    return { prompt: `A jug scale has ${gaps} equal gaps between ${start} ${unit} and ${end} ${unit}. The liquid level is ${sub} gap${sub > 1 ? "s" : ""} below ${end} ${unit}. What is the reading?`, value: end - sub * step, unit, hint: "Work out one gap, then count down from the top label.", solution: [`One gap is ${step}.`, `${end} − ${sub} × ${step} = ${end - sub * step}.`] };
+    return { prompt: `Look at the scale, which goes from ${start} ${unit} to ${end} ${unit} in ${gaps} equal gaps. What does the pointer read?`, figure: fig(gaps - sub), value: end - sub * step, unit, hint: "Work out one gap, then count down from the top label.", solution: [`One gap is ${step}.`, `${end} − ${sub} × ${step} = ${end - sub * step}.`] };
   }),
   num({
     id: "timetables", name: "Timetables and journey times", stage: "KS2", year: 4, strand: "Measures", prereqs: ["elapsed-time", "convert-time"],
@@ -60,10 +63,14 @@ export const secondPassSkills: Skill[] = [
     parentNote: "Draw a quick temperature graph with your child. Ask how much it rose between two times, and what it might have been halfway between.",
     talkAbout: "What does a steep line tell you compared with a flat line?",
   }, (r, l) => {
-    const t1 = int(r, 9, 12), dur = pick(r, [2, 4]), v1 = int(r, 6, 16), rise = int(r, 2, 6) * 2;
-    if (l === 1) return { prompt: `A line graph shows the temperature at ${t1}am was ${v1}° and at ${t1 + dur}am was ${v1 + rise}°. By how many degrees did it rise?`, value: rise, unit: "°", hint: "Subtract the first reading from the second.", solution: [`${v1 + rise} − ${v1} = ${rise}.`] };
-    if (l === 2) return { prompt: `The temperature at ${t1}am was ${v1}° and at ${t1 + dur}am was ${v1 + rise}°. The line between the points is straight. What was the temperature halfway between the two times?`, value: v1 + rise / 2, unit: "°", hint: "Halfway between two readings is half of the rise above the first one.", solution: [`The rise is ${rise}, so half of it is ${rise / 2}.`, `${v1} + ${rise / 2} = ${v1 + rise / 2}.`] };
-    return { prompt: `A plant was ${v1} cm tall on day 0 and ${v1 + rise * 2} cm tall on day ${dur * 2}. If the line between is straight, how many cm did it grow each day?`, value: round((rise * 2) / (dur * 2), 2), unit: "cm", hint: "Divide the total growth by the number of days.", solution: [`Growth = ${rise * 2} cm over ${dur * 2} days.`, `${rise * 2} ÷ ${dur * 2} = ${round((rise * 2) / (dur * 2), 2)}.`] };
+    const t0 = int(r, 6, 7), v0 = int(r, 8, 16), ys = [v0]; // the temperature at 5 times, an hour apart
+    for (let i = 1; i < 5; i++) ys.push(ys[i - 1] + int(r, 1, 4) * (r() < 0.75 ? 1 : -1));
+    const xs = ys.map((_, i) => `${t0 + i}am`), top = Math.ceil((Math.max(...ys) + 1) / 4) * 4;
+    const figure = { type: "line-graph" as const, xs, ys, xLabel: "Time", yLabel: "Temperature (°)", yMax: top, alt: `A line graph of temperature. ${xs.map((x, i) => `${x}: ${ys[i]}°`).join(", ")}.` };
+    const i = int(r, 0, 3), j = int(r, i + 1, 4);
+    if (l === 1) return { prompt: `The line graph shows the temperature each hour. What was the temperature at ${xs[i]}?`, figure, value: ys[i], unit: "°", hint: "Find the time along the bottom, go up to the dot, and read across.", solution: [`At ${xs[i]} the dot is at ${ys[i]}°.`] };
+    if (l === 2) return { prompt: `The line graph shows the temperature each hour. By how many degrees did it change between ${xs[i]} and ${xs[j]}? (Type a number. If it went down, still type a positive number.)`, figure, value: Math.abs(ys[j] - ys[i]), unit: "°", hint: "Read both temperatures and take the smaller from the larger.", solution: [`${xs[i]}: ${ys[i]}°. ${xs[j]}: ${ys[j]}°.`, `The difference is ${Math.abs(ys[j] - ys[i])}°.`] };
+    return { prompt: `The line graph shows the temperature each hour. How many degrees higher was the warmest reading than the coolest?`, figure, value: Math.max(...ys) - Math.min(...ys), unit: "°", hint: "Find the highest and the lowest dots.", solution: [`Highest: ${Math.max(...ys)}°. Lowest: ${Math.min(...ys)}°.`, `${Math.max(...ys)} − ${Math.min(...ys)} = ${Math.max(...ys) - Math.min(...ys)}.`] };
   }),
   num({
     id: "nets-solids", name: "Nets and 3D solids", stage: "KS2", year: 5, strand: "Geometry", prereqs: ["shapes-3d"],
@@ -86,12 +93,14 @@ export const secondPassSkills: Skill[] = [
     talkAbout: "Does a reflection change how far the point is from the mirror line?",
   }, (r, l) => {
     const x = int(r, 1, 6), y = int(r, 1, 6);
-    if (l === 1) { const dx = int(r, 1, 5); return { prompt: `The point $(${x}, ${y})$ is translated ${dx} to the right. What is the new x-coordinate?`, value: x + dx, hint: "Moving right adds to x.", solution: [`${x} + ${dx} = ${x + dx}.`] }; }
-    if (l === 2) { const dy = int(r, 2, 6), dx = int(r, 1, x), askX = r() < 0.5; return { prompt: `The point $(${x}, ${y})$ is translated ${dx} to the left and ${dy} up. What is the new ${askX ? "x" : "y"}-coordinate?`, value: askX ? x - dx : y + dy, hint: askX ? "Moving left takes away from x." : "Moving up adds to y.", solution: askX ? [`${x} − ${dx} = ${x - dx}.`] : [`${y} + ${dy} = ${y + dy}.`] }; }
+    const grid = (extra: { x: number; y: number; label: string }[] = [], mirror?: { axis: "x" | "y"; value: number }, alt2 = "") => ({ type: "coord-grid" as const, max: 12, points: [{ x, y, label: "A" }, ...extra], mirror, alt: `A coordinate grid from 0 to 12 with point A at (${x}, ${y})${alt2}.` });
+    if (l === 1) { const dx = int(r, 1, 5); return { prompt: `The point $(${x}, ${y})$ is translated ${dx} to the right. What is the new x-coordinate?`, figure: grid(), value: x + dx, hint: "Moving right adds to x.", solution: [`${x} + ${dx} = ${x + dx}.`] }; }
+    if (l === 2) { const dy = int(r, 2, 6), dx = int(r, 1, x), askX = r() < 0.5; return { prompt: `The point $(${x}, ${y})$ is translated ${dx} to the left and ${dy} up. What is the new ${askX ? "x" : "y"}-coordinate?`, figure: grid(), value: askX ? x - dx : y + dy, hint: askX ? "Moving left takes away from x." : "Moving up adds to y.", solution: askX ? [`${x} − ${dx} = ${x - dx}.`] : [`${y} + ${dy} = ${y + dy}.`] }; }
     const k = int(r, 3, 6), d = int(r, 1, k - 1), horizontal = r() < 0.5;
     // the point is d to one side of the mirror line, so its image is d on the other side
-    if (horizontal) return { prompt: `The point $(${k - d}, ${y})$ is reflected in the vertical line $x = ${k}$. What is the new x-coordinate?`, value: k + d, hint: `Find how far ${k - d} is from ${k}, then go the same distance the other side.`, solution: [`${k - d} is ${d} to the left of the line.`, `The image is ${d} to the right: ${k} + ${d} = ${k + d}.`] };
-    return { prompt: `The point $(${x}, ${k + d})$ is reflected in the horizontal line $y = ${k}$. What is the new y-coordinate?`, value: k - d, hint: "Find how far the point is above the line, then go the same distance below.", solution: [`${k + d} is ${d} above the line.`, `The image is ${d} below: ${k} − ${d} = ${k - d}.`] };
+    const mirror = (axis: "x" | "y", px: number, py: number) => ({ type: "coord-grid" as const, max: 12, points: [{ x: px, y: py, label: "A" }], mirror: { axis, value: k }, alt: `A coordinate grid from 0 to 12 with point A at (${px}, ${py}) and a dashed mirror line ${axis === "x" ? "x" : "y"} = ${k}.` });
+    if (horizontal) return { prompt: `The point $(${k - d}, ${y})$ is reflected in the vertical line $x = ${k}$ (the dashed line). What is the new x-coordinate?`, figure: mirror("x", k - d, y), value: k + d, hint: `Find how far ${k - d} is from ${k}, then go the same distance the other side.`, solution: [`${k - d} is ${d} to the left of the line.`, `The image is ${d} to the right: ${k} + ${d} = ${k + d}.`] };
+    return { prompt: `The point $(${x}, ${k + d})$ is reflected in the horizontal line $y = ${k}$ (the dashed line). What is the new y-coordinate?`, figure: mirror("y", x, k + d), value: k - d, hint: "Find how far the point is above the line, then go the same distance below.", solution: [`${k + d} is ${d} above the line.`, `The image is ${d} below: ${k} − ${d} = ${k - d}.`] };
   }),
 
   // ---------------------------------------------------------------- Key Stage 3
