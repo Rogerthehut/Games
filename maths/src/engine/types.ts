@@ -51,6 +51,8 @@ export type Figure =
   | { type: "number-line"; min: number; max: number; points: { v: number; tone: "red" | "blue" | "new"; label?: string }[]; alt: string }
   | { type: "neuron"; inputs: number[]; weights: number[]; bias?: number; alt: string }
   | { type: "bars"; items: { label: string; value: number }[]; yLabel: string; alt: string }
+  /** A board with a piece the learner moves by tap, drag, arrow keys or buttons. The piece's place becomes their answer. */
+  | { type: "board"; mode: "line" | "grid"; size: number; start: [number, number]; steps: string[]; ask: "x" | "y" | "dist"; alt: string }
   | { type: "bearing"; angle: number; from: string; to: string; alt: string }
   | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 

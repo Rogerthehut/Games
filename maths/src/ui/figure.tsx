@@ -1,10 +1,12 @@
+import { useEffect, useRef, useState } from "preact/hooks";
 import type { Figure } from "../engine/types";
 
 type Of<T extends Figure["type"]> = Extract<Figure, { type: T }>;
 import { GlyphFigure } from "./glyph";
 import { Maths } from "./maths";
 
-export function FigureView({ fig }: { fig: Figure }) {
+export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called with the piece's new place, when the figure is a board */ onBoard?: (answer: number) => void; locked?: boolean }) {
+  if (fig.type === "board") return <BoardFigure {...fig} onBoard={onBoard} locked={locked} />;
   if (fig.type === "glyphs") return <GlyphFigure layout={fig.layout} items={fig.items} caption={fig.caption} />;
   if (fig.type === "working") {
     return (
@@ -443,5 +445,61 @@ function BarsFigure({ items, yLabel, alt }: Of<"bars">) {
       {items.map((it, i) => <g key={i}><rect x={L + i * w + w * 0.18} y={Y(it.value)} width={w * 0.64} height={B - Y(it.value)} rx="4" fill="#c1c5ee" fill-opacity=".8" stroke="currentColor" stroke-width="2" /><text x={L + i * w + w / 2} y={B + 16} text-anchor="middle" class="fig-label" font-size="11">{it.label}</text></g>)}
       <text x="8" y="14" class="fig-label" font-size="11" opacity=".75">{yLabel}</text>
     </svg>
+  );
+}
+
+/** A board for movement questions: a number line or a grid. Tap a square, drag the piece, use the arrow keys or the big arrow buttons. */
+function BoardFigure({ mode, size, start, steps, ask, alt, onBoard, locked }: Of<"board"> & { onBoard?: (answer: number) => void; locked?: boolean }) {
+  const [pos, setPos] = useState<[number, number]>(start);
+  const [travelled, setTravelled] = useState(0);
+  const dragging = useRef(false), svg = useRef<SVGSVGElement>(null);
+  const n = size + 1, line = mode === "line", cols = n, rows = line ? 1 : n, cell = 300 / cols, H = rows * cell + (line ? 40 : 24);
+  const valueOf = (p: [number, number]) => (ask === "x" ? p[0] : ask === "y" ? p[1] : Math.abs(p[0] - start[0]) + Math.abs(p[1] - start[1]));
+  useEffect(() => { setPos(start); setTravelled(0); }, [start[0], start[1], steps.join()]);
+  const moveTo = (to: [number, number], count = true) => {
+    if (locked) return;
+    const next: [number, number] = [Math.max(0, Math.min(size, to[0])), line ? 0 : Math.max(0, Math.min(size, to[1]))];
+    if (next[0] === pos[0] && next[1] === pos[1]) return;
+    if (count) setTravelled((t) => t + Math.abs(next[0] - pos[0]) + Math.abs(next[1] - pos[1]));
+    setPos(next); onBoard?.(valueOf(next));
+  };
+  const at = (e: PointerEvent): [number, number] => {
+    const r = svg.current!.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * 300, y = ((e.clientY - r.top) / r.height) * H;
+    return [Math.floor(x / cell), line ? 0 : size - Math.floor(y / cell)];
+  };
+  const key = (e: KeyboardEvent) => {
+    const d: Record<string, [number, number]> = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }, m = d[e.key];
+    if (!m || (line && m[1])) return;
+    e.preventDefault(); moveTo([pos[0] + m[0], pos[1] + m[1]]);
+  };
+  const reset = () => { if (locked) return; setPos(start); setTravelled(0); onBoard?.(valueOf(start)); };
+  const X = (x: number) => x * cell, Y = (y: number) => (size - y) * cell;
+  const pieceX = X(pos[0]) + cell / 2, pieceY = (line ? 0 : Y(pos[1])) + cell / 2 + (line ? 6 : 0);
+  return (
+    <div class="board" data-testid="board">
+      <ol class="board-steps" aria-label="The instructions">{steps.map((st, i) => <li key={i}><span class="board-step-n">{i + 1}</span>{st}</li>)}</ol>
+      <svg ref={svg} class="board-svg" viewBox={`0 0 300 ${H}`} role="group" aria-label={`${alt} Use the arrow keys, the arrow buttons, or tap and drag the piece.`} tabindex={locked ? -1 : 0}
+        onKeyDown={key as unknown as (e: KeyboardEvent) => void}
+        onPointerDown={(e: PointerEvent) => { if (locked) return; dragging.current = true; (e.currentTarget as Element).setPointerCapture?.(e.pointerId); moveTo(at(e)); }}
+        onPointerMove={(e: PointerEvent) => { if (dragging.current) moveTo(at(e)); }}
+        onPointerUp={() => { dragging.current = false; }} onPointerCancel={() => { dragging.current = false; }}>
+        {Array.from({ length: cols * rows }, (_, i) => { const cx = i % cols, cy = line ? 0 : size - Math.floor(i / cols); return <g key={i}><rect x={X(cx) + 1} y={(line ? 0 : Y(cy)) + 1 + (line ? 6 : 0)} width={cell - 2} height={cell - 2} rx="4" fill={cx === start[0] && cy === start[1] ? "#c1c5ee" : "var(--surface)"} stroke="currentColor" stroke-opacity=".3" />{line && <text x={X(cx) + cell / 2} y={cell + 22} text-anchor="middle" class="fig-label" font-size="9">{cx}</text>}</g>; })}
+        {!line && Array.from({ length: n }, (_, i) => <g key={i}><text x={X(i) + cell / 2} y={rows * cell + 14} text-anchor="middle" class="fig-label" font-size="9">{i}</text></g>)}
+        <text x={X(start[0]) + cell / 2} y={line ? cell + 32 : Y(start[1]) + cell / 2 + 3} text-anchor="middle" font-size="8" opacity=".6" class="fig-label">start</text>
+        <g style={{ transform: `translate(${pieceX}px, ${pieceY}px)`, transition: "transform 160ms ease" }}>
+          <circle r={Math.max(7, cell * 0.36)} fill="#f6a0bc" stroke="currentColor" stroke-width="2.5" /><circle cx={-cell * 0.1} cy={-cell * 0.05} r="1.8" fill="currentColor" /><circle cx={cell * 0.1} cy={-cell * 0.05} r="1.8" fill="currentColor" />
+        </g>
+      </svg>
+      <p class="board-status" aria-live="polite">The piece is on {line ? `square ${pos[0]}` : `(${pos[0]}, ${pos[1]})`}. Squares moved so far: <strong>{travelled}</strong>.</p>
+      {!locked && (
+        <div class="board-pad" role="group" aria-label="Move the piece">
+          <button type="button" class="btn" aria-label="Move left" onClick={() => moveTo([pos[0] - 1, pos[1]])}>←</button>
+          {!line && <button type="button" class="btn" aria-label="Move up" onClick={() => moveTo([pos[0], pos[1] + 1])}>↑</button>}
+          {!line && <button type="button" class="btn" aria-label="Move down" onClick={() => moveTo([pos[0], pos[1] - 1])}>↓</button>}
+          <button type="button" class="btn" aria-label="Move right" onClick={() => moveTo([pos[0] + 1, pos[1]])}>→</button>
+          <button type="button" class="btn small" onClick={reset}>Back to start</button>
+        </div>
+      )}
+    </div>
   );
 }

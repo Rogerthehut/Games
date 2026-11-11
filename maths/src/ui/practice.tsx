@@ -273,7 +273,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
           <div class="question-desk">
             <div class="question-main">
             <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
-            {q.figure && <FigureView fig={q.figure} />}
+            {q.figure && <FigureView fig={q.figure} onBoard={(v) => setValues([String(v)])} locked={phase !== "ask"} />}
             <p class="practice-answer-label">Your answer</p>
             <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={inputState} reveal={phase === "reveal"} />
 

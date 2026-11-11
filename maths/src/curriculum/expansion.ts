@@ -1,5 +1,5 @@
 import { int, type Rng } from "../engine/rng";
-import { cuboidFig, graph, lineGraph, pointGridFig, sample } from "./figures";
+import { cuboidFig, graph, lineGraph, sample } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 import { frac } from "./helpers";
 
@@ -241,7 +241,7 @@ export const expansionSkills: Skill[] = [
     const x = int(r, 4, 8), y = int(r, 1, 8), step = int(r, 1, 3);
     const left = l > 1;
     return {
-      figure: pointGridFig(x, y, 12),
+      figure: { type: "board", mode: "grid", size: 12, start: [x, y], steps: [`${left ? "left" : "right"} ${step}`], ask: "x", alt: `A grid board with the piece at (${x}, ${y}).` },
       prompt: `A point starts at (${x}, ${y}) and moves ${step} ${step === 1 ? "square" : "squares"} ${left ? "left" : "right"}. What is its new horizontal coordinate?`,
       value: x + (left ? -step : step), hint: "The horizontal coordinate is the first number.",
       solution: [`Start at ${x} on the horizontal axis.`, `${left ? "Subtract" : "Add"} ${step}. The vertical coordinate stays at ${y}.`],

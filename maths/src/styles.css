@@ -2903,10 +2903,10 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 
 /* the times tables sticky note: square, marker-pen writing, stuck to the side panel (wide screens) or the top of Today (narrow) */
 .tables-note {
-  --paper: #fff3a3; --paper-2: #fbe27a; --ink: #1d1b2e; --tilt: -2.5deg;
+  --paper: #fff3a3; --paper-2: #fbe27a; --paper-3: #f4d25a; --ink: #1d1b2e; --tilt: -2.5deg;
   position: relative; display: grid; grid-template-rows: auto auto auto 1fr; align-content: start; justify-items: start; gap: 3px;
   aspect-ratio: 1; padding: 20px 16px 14px; border: 0; text-align: left; cursor: pointer; color: var(--ink); font: inherit;
-  background: linear-gradient(168deg, var(--paper) 0%, var(--paper-2) 70%, #f4d25a 100%);
+  background: linear-gradient(168deg, var(--paper) 0%, var(--paper-2) 70%, var(--paper-3) 100%);
   border-radius: 3px 3px 3px 16px;
   box-shadow: inset 0 1px 0 #fffb, 0 10px 16px -8px #18192b66, 0 2px 3px #18192b33;
   transform: rotate(-2.5deg); transform-origin: 50% 0;
@@ -2963,7 +2963,7 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .fig-hand-long { stroke: #c2410c; stroke-width: 3.5; stroke-linecap: round; }
 
 /* the STEM lab note: a mint sticky note that sits under the times tables one */
-.stem-note { --paper: #c9f1e0; --paper-2: #9ee3c6; --tilt: 2.2deg; }
+.stem-note { --paper: #c9f1e0; --paper-2: #9ee3c6; --paper-3: #84d8b8; --tilt: 2.2deg; }
 .stem-note::after { background: linear-gradient(135deg, transparent 50%, #5fc7a0 50%, #8adcbc 100%); }
 .stem-note .tn-go { color: #1f5a45; -webkit-text-stroke-color: #1f5a45; border-bottom-color: #c2410c; }
 .sn-doodle { width: 46px; height: 46px; margin-bottom: 2px; overflow: visible; }
@@ -3040,3 +3040,15 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 @media (max-width: 400px) { .lamp { min-height: 66px; } .lamp .lamp-bit { font-size: 1.25rem; } }
 .stem-learn { min-height: 44px; padding: 0 8px; }
 @media (max-width: 560px) { .lamps { grid-template-columns: repeat(4, minmax(0, 1fr)); } .lamp { min-height: 72px; } }
+
+/* the movement board: tap a square, drag the piece, use the arrow keys or the big arrow buttons */
+.board { display: grid; gap: 10px; margin: 0 0 18px; max-width: 360px; }
+.board-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.board-steps li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 5px; border-radius: 999px; background: color-mix(in srgb, #c1c5ee 55%, var(--surface)); font-weight: 750; }
+.board-step-n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); font-size: .8rem; }
+.board-svg { width: 100%; touch-action: none; cursor: pointer; border-radius: var(--r-md); user-select: none; -webkit-user-select: none; }
+.board-svg:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.board-status { margin: 0; font-size: .95rem; }
+.board-pad { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.board-pad .btn:not(.small) { min-width: 52px; min-height: 52px; font-size: 1.3rem; padding: 0; }
+@media (prefers-reduced-motion: reduce) { .board-svg g { transition: none !important; } }
