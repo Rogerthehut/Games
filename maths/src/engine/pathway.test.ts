@@ -1,17 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { SKILLS } from "../curriculum";
+import { SKILLS, SKILL_BY_ID } from "../curriculum";
 import { activePathwayStage, awardPathwayCertificate, buildPathwayTest, canTakePathwayTest, nextStage, pathwayPassMark } from "./pathway";
 import { newProfile, SECURE_BOX } from "./progress";
 import { mulberry32 } from "./rng";
 import { exportProfile, importProfile } from "./storage";
 
 describe("pathway certificates", () => {
-  it("sets one question for every topic and uses only topics from the stage", () => {
+  it("samples the stage fairly: right length, only its topics, every topic area, the applied questions", () => {
+    const lengths = { KS2: 30, KS3: 24, KS4: 24, KS5: 24 } as const;
     for (const stage of ["KS2", "KS3", "KS4", "KS5"] as const) {
-      const expected = SKILLS.filter((skill) => skill.stage === stage).map((skill) => skill.id);
-      const paper = buildPathwayTest(stage, mulberry32(1));
-      expect(paper.length).toBeGreaterThanOrEqual(8);
-      expect([...new Set(paper.map((item) => item.skillId))].sort()).toEqual(expected.sort());
+      const inStage = SKILLS.filter((skill) => skill.stage === stage);
+      const ids = new Set(inStage.map((skill) => skill.id));
+      for (const seed of [1, 2, 3]) {
+        const paper = buildPathwayTest(stage, mulberry32(seed));
+        expect(paper.length, `${stage} ${seed}`).toBe(lengths[stage]);
+        expect(paper.every((item) => ids.has(item.skillId))).toBe(true);
+        const strands = new Set(paper.map((item) => SKILL_BY_ID[item.skillId].strand));
+        expect(strands, `${stage} ${seed}`).toEqual(new Set(inStage.map((skill) => skill.strand)));
+        expect(paper.filter((item) => item.level === 3).length).toBeGreaterThanOrEqual(2);
+        // no topic appears twice while others in its area are unused
+        const counts = new Map<string, number>();
+        for (const item of paper) counts.set(item.skillId, (counts.get(item.skillId) ?? 0) + 1);
+        expect(Math.max(...counts.values()), `${stage} ${seed}`).toBeLessThanOrEqual(2);
+      }
+      expect(buildPathwayTest(stage, mulberry32(1))).toEqual(buildPathwayTest(stage, mulberry32(1)));
+      expect(buildPathwayTest(stage, mulberry32(1)).map((i) => i.skillId)).not.toEqual(buildPathwayTest(stage, mulberry32(2)).map((i) => i.skillId));
     }
   });
 

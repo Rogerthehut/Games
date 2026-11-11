@@ -35,18 +35,30 @@ const APPLICATION_SKILLS: Record<Stage, string[]> = {
   KS5: ["constant-acceleration", "definite-integrals"],
 };
 
+/** How many questions each pathway test has: a fair sample across the topic areas, not one for every topic. */
+const PATHWAY_LENGTH: Record<Stage, number> = { KS2: 30, KS3: 24, KS4: 24, KS5: 24 };
 function testLength(stage: Stage) {
-  return Math.max(8, SKILLS.filter((skill) => skill.stage === stage).length + APPLICATION_SKILLS[stage].length);
+  return Math.min(PATHWAY_LENGTH[stage], SKILLS.filter((skill) => skill.stage === stage).length);
 }
 
+/**
+ * A test of questions from across the pathway: the applied questions first, then the rest shared between the topic areas
+ * (number, algebra, geometry …) in proportion to how many topics each has, with at least one from every area, and no topic twice
+ * until every topic in its area has been used. A different mix each time, so a retake isn't the same paper.
+ */
 export function buildPathwayTest(stage: Stage, rng: Rng) {
-  const skills = shuffle(rng, SKILLS.filter((skill) => skill.stage === stage));
-  const coverage = skills.map((skill) => ({ skillId: skill.id, level: 2 }));
-  const applications = shuffle(rng, APPLICATION_SKILLS[stage]).map((skillId) => ({ skillId, level: 3 }));
-  const extra = Array.from({ length: testLength(stage) - coverage.length - applications.length }, (_, i) => ({
-    skillId: skills[i % skills.length].id, level: i % 2 === 0 ? 1 : 3,
-  }));
-  return [...coverage, ...extra, ...applications];
+  const all = SKILLS.filter((skill) => skill.stage === stage), length = testLength(stage);
+  const applications = shuffle(rng, APPLICATION_SKILLS[stage]).slice(0, Math.min(APPLICATION_SKILLS[stage].length, Math.floor(length / 8))).map((skillId) => ({ skillId, level: 3 }));
+  const room = length - applications.length;
+  const areas = [...new Set(all.map((skill) => skill.strand))].map((strand) => ({ strand, pool: shuffle(rng, all.filter((skill) => skill.strand === strand)) }));
+  // share the places out by size, then hand any left over to the biggest areas
+  const quota = new Map(areas.map((a) => [a.strand, Math.max(1, Math.floor((a.pool.length / all.length) * room))]));
+  let given = [...quota.values()].reduce((t, n) => t + n, 0);
+  const bySize = [...areas].sort((x, y) => y.pool.length - x.pool.length);
+  for (let i = 0; given < room; i = (i + 1) % bySize.length, given++) quota.set(bySize[i].strand, quota.get(bySize[i].strand)! + 1);
+  for (let i = bySize.length - 1; given > room; i = (i - 1 + bySize.length) % bySize.length) if (quota.get(bySize[i].strand)! > 1) { quota.set(bySize[i].strand, quota.get(bySize[i].strand)! - 1); given--; }
+  const coverage = areas.flatMap((a) => Array.from({ length: quota.get(a.strand)! }, (_, i) => ({ skillId: a.pool[i % a.pool.length].id, level: i % 3 === 2 ? 3 : 2 })));
+  return shuffle(rng, [...coverage, ...applications]);
 }
 
 export function canTakePathwayTest(profile: Profile, stage: Stage) {

@@ -140,7 +140,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
             <div class="pip-slot"><Pip pose="think" size={110} /></div>
             <h1>{pathwayTestName(pathway)}</h1>
             <p class="splash-sub">{ready
-              ? `This test covers every topic in your quarter pathway. You can save it and come back later. You need to answer at least ${pathwayPassMark(total)} of the ${total} questions correctly to earn your quarter certificate.`
+              ? `This test has questions from across your quarter pathway. You can save it and come back later. You need to answer at least ${pathwayPassMark(total)} of the ${total} questions correctly to earn your quarter certificate.`
               : "Practise every topic in this pathway to unlock the final test."}</p>
             {ready && <button class="btn primary big" onClick={start} data-testid="pathway-start">{saved ? `Continue from question ${idx + 1}` : "Start the test"} <Icon name="arrow" size={20} /></button>}
             <button class="linkish" onClick={() => leave({ name: "map", stage: pathway })}>Go back</button>

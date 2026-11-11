@@ -14,7 +14,7 @@ export function PathwayFinish({ stage, className, top }: { stage: Stage; classNa
     <section class={`pathway-milestone workbook-panel ${className ?? ""}`} style={top === undefined ? undefined : { top }} aria-label={`${STAGE_LABEL[stage]} final test`}>
       <div>
         <h2>{STAGE_LABEL[stage]} final test</h2>
-        <p>You’ve finished the topics in this pathway. Now try a question from each topic.</p>
+        <p>You’ve finished the topics in this pathway. Now try questions from across the topics.</p>
       </div>
       <button type="button" class="btn primary" onClick={() => go({ name: "pathway-test", stage })}>Take the final test</button>
     </section>

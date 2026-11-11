@@ -105,7 +105,7 @@ async function takeTest(page: any, rightCount: number) {
   let r = await takeTest(page, 0);
   ok("a started test can be saved and picked up again from Today", r.offered);
   const total = r.total, mark = pathwayPassMark(total);
-  ok("the test sets one question for each topic plus applied questions", total >= SKILLS.filter((s) => s.stage === "KS2").length + 2);
+  ok("the Key Stage 2 test is a fair sample of 30 questions", total === 30, String(total));
   let text = await page.locator("body").innerText();
   ok("all wrong: the result says to keep going, with the pass mark", /Keep going/.test(text) && text.includes(`at least ${mark} correct`));
   ok("all wrong: no certificate is awarded", ((await saved(page)).certificates ?? []).length === 0);
