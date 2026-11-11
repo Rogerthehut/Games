@@ -368,7 +368,7 @@ function AngleRaysFigure({ total, parts, alt }: Of<"angle-rays">) {
   return (
     <svg class="figure figure-wide" viewBox="0 0 300 200" role="img" aria-label={alt}>
       {total === 180 && <line x1={cx - R} y1={cy} x2={cx + R} y2={cy} stroke="currentColor" stroke-width="2.5" />}
-      {rays.slice(0, total === 360 ? -1 : undefined).map((d, i) => <line key={i} x1={cx} y1={cy} x2={pt(d, R)[0]} y2={pt(d, R)[1]} stroke="currentColor" stroke-width="2.5" />)}
+      {rays.slice(0, parts.reduce((s, p) => s + p.deg, 0) === 360 ? -1 : undefined).map((d, i) => <line key={i} x1={cx} y1={cy} x2={pt(d, R)[0]} y2={pt(d, R)[1]} stroke="currentColor" stroke-width="2.5" />)}
       {parts.map((p, i) => { const a0 = acc, a1 = acc + p.deg, mid = (a0 + a1) / 2; acc = a1; const s = pt(a0, 26), e = pt(a1, 26), t = pt(mid, 44 + (p.deg < 40 ? 8 : 0)); return <g key={i}><path d={`M ${s[0]} ${s[1]} A 26 26 0 ${p.deg > 180 ? 1 : 0} 0 ${e[0]} ${e[1]}`} fill="none" stroke="#c2410c" stroke-width="2.5" /><text x={t[0]} y={t[1] + 5} text-anchor="middle" class="fig-label" font-size="13">{p.label}</text></g>; })}
       <circle cx={cx} cy={cy} r="3.5" fill="currentColor" />
     </svg>

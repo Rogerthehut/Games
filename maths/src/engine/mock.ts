@@ -1,6 +1,6 @@
 import { REASONING_SKILLS, SKILLS } from "../curriculum";
 import { shuffle } from "../curriculum/helpers";
-import type { Rng } from "./rng";
+import { mulberry32, type Rng } from "./rng";
 import type { Strand } from "./types";
 
 /**
@@ -37,7 +37,8 @@ export function sectionOf(skillId: string): Section {
 }
 
 function mathsItems(rng: Rng, count: number): MockItem[] {
-  const pool = SKILLS.filter((s) => s.year <= 6);
+  // Written-answer topics only: a maths paper has no multiple choice.
+  const pool = SKILLS.filter((s) => s.year <= 6 && s.generate(mulberry32(7), 2).answer.kind !== "choice");
   const used: Record<string, number> = {};
   const out: MockItem[] = [];
   const strands = Object.keys(WEIGHTS) as Strand[];
