@@ -488,3 +488,11 @@ Kenney Interface Sounds
 
 	Follow on Twitter for updates:
 	http://twitter.com/KenneyNL
+
+
+============================================================
+Permanent Marker
+============================================================
+
+Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+Distributed through the Fontsource project (https://fontsource.org/fonts/permanent-marker).

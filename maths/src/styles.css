@@ -2901,27 +2901,40 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .concept-page .concept-skills { padding-left: 0; }
 @media print { .concept-back, .concept-read, .concept-rows { display: none !important; } }
 
-/* the times tables sticky note: stuck to the side panel on wide screens, and to the top of Today on narrow ones */
+/* the times tables sticky note: square, marker-pen writing, stuck to the side panel (wide screens) or the top of Today (narrow) */
 .tables-note {
-  position: relative; display: grid; gap: 3px; width: 100%; padding: 24px 16px 14px; border: 0; text-align: left; cursor: pointer; color: #2b2a1f; font: inherit;
-  background: linear-gradient(168deg, #fff6b0 0%, #fbe47f 62%, #f5d65a 100%);
-  border-radius: 3px 3px 3px 14px;
+  --paper: #fff3a3; --paper-2: #fbe27a; --ink: #1d1b2e;
+  position: relative; display: grid; grid-template-rows: auto auto auto 1fr; align-content: start; justify-items: start; gap: 3px;
+  aspect-ratio: 1; padding: 20px 16px 14px; border: 0; text-align: left; cursor: pointer; color: var(--ink); font: inherit;
+  background: linear-gradient(168deg, var(--paper) 0%, var(--paper-2) 70%, #f4d25a 100%);
+  border-radius: 3px 3px 3px 16px;
   box-shadow: inset 0 1px 0 #fffb, 0 10px 16px -8px #18192b66, 0 2px 3px #18192b33;
-  transform: rotate(-2deg); transform-origin: 50% 0;
-  transition: transform 220ms var(--ease-out), box-shadow 220ms;
-  animation: note-stick 520ms var(--ease-out) backwards;
+  transform: rotate(-2.5deg); transform-origin: 50% 0;
+  transition: transform 260ms var(--ease-out), box-shadow 260ms;
+  animation: note-stick 560ms var(--ease-out) backwards, note-nudge 900ms 1.4s ease-in-out 1;
+  -webkit-tap-highlight-color: transparent;
 }
-.tables-note::after { content: ""; position: absolute; right: 0; bottom: 0; width: 22px; height: 22px; background: linear-gradient(135deg, transparent 50%, #e8c545 50%, #f3d968 100%); border-radius: 0 0 0 8px; box-shadow: -2px -2px 3px -1px #18192b22; }
-.tables-note:hover { transform: rotate(-1deg) translateY(-2px); box-shadow: inset 0 1px 0 #fffb, 0 14px 20px -8px #18192b66, 0 3px 4px #18192b33; }
-.tables-note:active { transform: rotate(-1.5deg) scale(.98); }
-.tables-note:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
-.tn-tape { position: absolute; top: -9px; left: 50%; width: 70px; height: 20px; translate: -50% 0; rotate: 3deg; background: color-mix(in srgb, #fff 62%, transparent); border: 1px solid #ffffffaa; box-shadow: 0 1px 2px #18192b22; clip-path: polygon(0 8%, 4% 0, 8% 8%, 12% 0, 16% 8%, 20% 0, 100% 0, 100% 100%, 20% 100%, 16% 92%, 12% 100%, 8% 92%, 4% 100%, 0 92%); }
-.tn-title { font-family: "Caveat Variable", "Segoe Print", "Bradley Hand", cursive; font-size: 1.85rem; font-weight: 700; line-height: 1; color: #1f1d12; }
-.tn-line { font-size: .86rem; font-weight: 700; color: #4a4630; }
-.tn-bar { height: 8px; margin-top: 4px; border-radius: 99px; background: #18192b22; overflow: hidden; }
-.tn-bar i { display: block; height: 100%; background: #2f3a73; border-radius: 99px; transition: width 400ms var(--ease-out); }
-.tn-go { margin-top: 4px; font-family: "Caveat Variable", "Segoe Print", "Bradley Hand", cursive; font-size: 1.3rem; font-weight: 700; color: #2f3a73; }
-.tables-note-rail { margin: 26px 6px 0; width: calc(100% - 12px); }
-.tables-note-inline { max-width: 340px; margin: 6px 0 20px 6px; }
-@keyframes note-stick { from { opacity: 0; transform: translateY(-14px) rotate(-7deg) scale(.94); } to { opacity: 1; transform: rotate(-2deg); } }
-@media (prefers-reduced-motion: reduce) { .tables-note { animation: none; transition: none; } .tn-bar i { transition: none; } }
+.tables-note::after { content: ""; position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; background: linear-gradient(135deg, transparent 50%, #e6c13f 50%, #f5dc70 100%); border-radius: 0 0 0 9px; box-shadow: -2px -2px 3px -1px #18192b25; transition: width 260ms var(--ease-out), height 260ms var(--ease-out); }
+.tables-note:hover, .tables-note:focus-visible { transform: rotate(-1deg) translateY(-3px); box-shadow: inset 0 1px 0 #fffb, 0 16px 22px -9px #18192b70, 0 3px 4px #18192b33; }
+.tables-note:hover::after, .tables-note:focus-visible::after { width: 36px; height: 36px; }
+.tables-note:active { transform: rotate(-1.5deg) scale(.96); }
+.tables-note:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+.tables-note.peeling { transform: translateY(-26px) rotate(7deg) scale(1.04); opacity: .15; transition: transform 260ms ease-in, opacity 260ms; }
+.tn-tape { position: absolute; top: -9px; left: 50%; width: 68px; height: 20px; translate: -50% 0; rotate: 3deg; background: color-mix(in srgb, #fff 62%, transparent); border: 1px solid #ffffffaa; box-shadow: 0 1px 2px #18192b22; clip-path: polygon(0 8%, 4% 0, 8% 8%, 12% 0, 16% 8%, 20% 0, 100% 0, 100% 100%, 20% 100%, 16% 92%, 12% 100%, 8% 92%, 4% 100%, 0 92%); }
+.tn-doodle { width: 46px; height: 46px; margin-bottom: 2px; overflow: visible; }
+.tn-sq { transform-box: fill-box; transform-origin: center; }
+.tn-cross { transform-box: fill-box; transform-origin: center; transition: transform 320ms var(--ease-out); }
+.tables-note:hover .tn-cross, .tables-note:focus-visible .tn-cross { transform: rotate(90deg) scale(1.15); }
+.tables-note:hover .tn-sq, .tables-note:focus-visible .tn-sq { animation: sq-pop 420ms calc(var(--i) * 35ms) var(--ease-out) both; }
+.tn-title, .tn-line, .tn-go { font-family: "Permanent Marker", "Segoe Print", "Bradley Hand", cursive; -webkit-text-stroke: .25px var(--ink); letter-spacing: .01em; }
+.tn-title { font-size: 1.2rem; line-height: 1.05; }
+.tn-line { font-size: .86rem; line-height: 1.2; color: #3b3a4f; -webkit-text-stroke: 0; }
+.tn-go { align-self: end; font-size: 1.02rem; color: #2f3a73; -webkit-text-stroke: .2px #2f3a73; border-bottom: 3px solid #c2410c; line-height: 1.1; padding-bottom: 1px; }
+.tn-arrow { display: inline-block; transition: transform 220ms var(--ease-out); }
+.tables-note:hover .tn-arrow, .tables-note:focus-visible .tn-arrow { transform: translateX(5px); }
+.tables-note-rail { margin: 24px 0 0 14px; width: min(176px, calc(100% - 28px)); }
+.tables-note-inline { width: 156px; margin: 8px 0 22px 10px; }
+@keyframes note-stick { from { opacity: 0; transform: translateY(-16px) rotate(-8deg) scale(.92); } to { opacity: 1; transform: rotate(-2.5deg); } }
+@keyframes note-nudge { 0%, 100% { transform: rotate(-2.5deg); } 25% { transform: rotate(-.5deg) translateY(-3px); } 55% { transform: rotate(-3.5deg); } 80% { transform: rotate(-1.5deg); } }
+@keyframes sq-pop { 0% { transform: scale(1); } 45% { transform: scale(1.18) rotate(-4deg); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .tables-note, .tables-note::after, .tn-cross, .tn-arrow, .tables-note.peeling { animation: none !important; transition: none !important; } .tables-note:hover .tn-sq { animation: none; } }

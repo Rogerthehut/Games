@@ -25,3 +25,8 @@
 @font-face { font-family: "Caveat Variable"; font-style: normal; font-display: swap; font-weight: 400 700;
   src: url("@fontsource-variable/caveat/files/caveat-latin-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+
+/* marker pen writing, for the sticky note */
+@font-face { font-family: "Permanent Marker"; font-style: normal; font-display: swap; font-weight: 400;
+  src: url("@fontsource/permanent-marker/files/permanent-marker-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
