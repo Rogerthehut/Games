@@ -41,6 +41,7 @@ describe("feedback", () => {
   it("can be filtered, newest first", async () => {
     const a = await repo.upsertParent("user_a");
     await repo.addFeedback(a.id, { category: "bug", rating: null, message: "First", mayReply: false, context: null });
+    await new Promise((r) => setTimeout(r, 20)); // so the two have different times
     await repo.addFeedback(a.id, { category: "idea", rating: 4, message: "Second", mayReply: true, context: "Today" });
     expect((await feedbackList(db)).map((f) => f.message)).toEqual(["Second", "First"]);
     expect((await feedbackList(db, { category: "bug" })).map((f) => f.message)).toEqual(["First"]);
