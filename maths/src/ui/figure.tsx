@@ -43,6 +43,8 @@ export function FigureView({ fig }: { fig: Figure }) {
   if (fig.type === "scatter") return <ScatterFigure {...fig} />;
   if (fig.type === "coord-grid") return <CoordGridFigure {...fig} />;
   if (fig.type === "venn") return <VennFigure {...fig} />;
+  if (fig.type === "function-graph") return <FunctionGraphFigure {...fig} />;
+  if (fig.type === "bearing") return <BearingFigure {...fig} />;
   // The right angle is at the bottom right and the marked angle is at the bottom left.
   const A = [34, 150], B = [206, 150], C = [206, 34];
   const label = (s: string, x: number, y: number, anchor = "middle") =>
@@ -141,6 +143,40 @@ function VennFigure({ labelA, labelB, a, both, b, alt }: Of<"venn">) {
       <circle cx="184" cy="94" r="62" fill="#84d8ba" fill-opacity=".55" stroke="currentColor" stroke-width="2" />
       <text x="90" y="30" text-anchor="middle" class="fig-label" font-size="13">{labelA}</text><text x="210" y="30" text-anchor="middle" class="fig-label" font-size="13">{labelB}</text>
       <text x="92" y="100" text-anchor="middle" class="fig-label" font-size="20">{a}</text><text x="150" y="100" text-anchor="middle" class="fig-label" font-size="20">{both}</text><text x="208" y="100" text-anchor="middle" class="fig-label" font-size="20">{b}</text>
+    </svg>
+  );
+}
+
+function FunctionGraphFigure({ xMin, xMax, yMin, yMax, xStep, yStep, curves, marks, strips, alt }: Of<"function-graph">) {
+  const L = 40, R = 288, T = 14, B = 186, px = (x: number) => L + ((x - xMin) / (xMax - xMin)) * (R - L), py = (y: number) => B - ((y - yMin) / (yMax - yMin)) * (B - T);
+  const xs: number[] = [], ys: number[] = [];
+  for (let x = Math.ceil(xMin / xStep) * xStep; x <= xMax + 1e-9; x += xStep) xs.push(r2(x));
+  for (let y = Math.ceil(yMin / yStep) * yStep; y <= yMax + 1e-9; y += yStep) ys.push(r2(y));
+  const x0 = Math.min(Math.max(0, xMin), xMax), y0 = Math.min(Math.max(0, yMin), yMax);
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 214" role="img" aria-label={alt}>
+      {xs.map((x) => <g key={`x${x}`}><line x1={px(x)} x2={px(x)} y1={T} y2={B} stroke="currentColor" opacity=".13" /><text x={px(x)} y={B + 16} text-anchor="middle" class="fig-label" font-size="11">{x}</text></g>)}
+      {ys.map((y) => <g key={`y${y}`}><line x1={L} x2={R} y1={py(y)} y2={py(y)} stroke="currentColor" opacity=".13" /><text x={L - 6} y={py(y) + 4} text-anchor="end" class="fig-label" font-size="11">{y}</text></g>)}
+      <line x1={px(x0)} x2={px(x0)} y1={T} y2={B} stroke="currentColor" stroke-width="2" /><line x1={L} x2={R} y1={py(y0)} y2={py(y0)} stroke="currentColor" stroke-width="2" />
+      {strips && strips.length > 1 && strips.slice(0, -1).map(([x, y], i) => { const [x2, y2] = strips[i + 1]; return <polygon key={i} points={`${px(x)},${py(0)} ${px(x)},${py(y)} ${px(x2)},${py(y2)} ${px(x2)},${py(0)}`} fill="var(--accent)" fill-opacity=".22" stroke="var(--accent)" stroke-width="1.5" />; })}
+      {strips && strips.map(([x, y], i) => <circle key={`s${i}`} cx={px(x)} cy={py(y)} r="3.5" fill="var(--accent)" />)}
+      {curves.map((c, i) => <polyline key={i} points={c.pts.map(([x, y]) => `${r2(px(x))},${r2(py(y))}`).join(" ")} fill="none" stroke={c.dashed ? "#c2410c" : "var(--accent)"} stroke-width="3" stroke-linejoin="round" stroke-dasharray={c.dashed ? "8 5" : undefined} />)}
+      {curves.map((c, i) => c.label ? <text key={`l${i}`} x={Math.min(px(c.pts[c.pts.length - 1][0]) , R - 4)} y={Math.max(T + 10, Math.min(B - 4, py(c.pts[c.pts.length - 1][1]) - 6))} text-anchor="end" class="fig-label" font-size="13" fill={c.dashed ? "#c2410c" : "var(--accent)"}>{c.label}</text> : null)}
+      {marks?.map((m, i) => <g key={`m${i}`}><circle cx={px(m.x)} cy={py(m.y)} r="5" fill="#c2410c" stroke="var(--surface)" stroke-width="1.5" />{m.label && <text x={px(m.x) + 8} y={py(m.y) - 7} class="fig-label" font-size="12">{m.label}</text>}</g>)}
+    </svg>
+  );
+}
+
+function BearingFigure({ angle, from, to, alt }: Of<"bearing">) {
+  const cx = 150, cy = 118, len = 86, rad = (angle * Math.PI) / 180, tx = r2(cx + len * Math.sin(rad)), ty = r2(cy - len * Math.cos(rad));
+  const arcR = 30, ax = r2(cx + arcR * Math.sin(rad)), ay = r2(cy - arcR * Math.cos(rad)), large = angle > 180 ? 1 : 0;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 230" role="img" aria-label={alt}>
+      <line x1={cx} y1={cy} x2={cx} y2="18" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4" /><polygon points={`${cx},8 ${cx - 6},22 ${cx + 6},22`} fill="currentColor" /><text x={cx + 12} y="22" class="fig-label" font-size="14">N</text>
+      <path d={`M ${cx} ${cy - arcR} A ${arcR} ${arcR} 0 ${large} 1 ${ax} ${ay}`} fill="none" stroke="#c2410c" stroke-width="3" />
+      <line x1={cx} y1={cy} x2={tx} y2={ty} stroke="var(--accent)" stroke-width="3" />
+      <circle cx={cx} cy={cy} r="5.5" fill="currentColor" /><circle cx={tx} cy={ty} r="5.5" fill="var(--accent)" />
+      <text x={cx - 10} y={cy + 20} text-anchor="end" class="fig-label" font-size="15">{from}</text><text x={tx + (tx >= cx ? 9 : -9)} y={ty + (ty < cy ? -8 : 18)} text-anchor={tx >= cx ? "start" : "end"} class="fig-label" font-size="15">{to}</text>
     </svg>
   );
 }

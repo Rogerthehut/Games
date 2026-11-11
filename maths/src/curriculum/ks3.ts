@@ -213,7 +213,8 @@ export const ks3Skills: Skill[] = [
   }, (r, l) => {
     const b = l === 1 ? int(r, 10, 170) : l === 2 ? int(r, 190, 350) : int(r, 20, 340);
     const back = b < 180 ? b + 180 : b - 180, pad = (n: number) => String(n).padStart(3, "0");
-    if (l <= 2) return { prompt: `The bearing of B from A is ${pad(b)}°. What is the bearing of A from B? Type the number of degrees.`, value: back, unit: "°", hint: b < 180 ? "Add 180°." : "Subtract 180°.", solution: [`${b} ${b < 180 ? "+" : "−"} 180 = ${back}.`, `The bearing of A from B is ${pad(back)}°.`] };
+    const figure = { type: "bearing" as const, angle: b, from: "A", to: "B", alt: `A diagram with north pointing up. B is on a bearing of ${pad(b)}° from A, measured clockwise from north.` };
+    if (l <= 2) return { prompt: `The bearing of B from A is ${pad(b)}°, as in the diagram. What is the bearing of A from B? Type the number of degrees.`, figure, value: back, unit: "°", hint: b < 180 ? "Add 180°." : "Subtract 180°.", solution: [`${b} ${b < 180 ? "+" : "−"} 180 = ${back}.`, `The bearing of A from B is ${pad(back)}°.`] };
     const turn = int(r, 30, 90);
     const nb = (b + turn) % 360;
     return { prompt: `A ship sails on a bearing of ${pad(b)}°. It then turns ${turn}° clockwise. What is its new bearing? Type the number of degrees.`, value: nb, unit: "°", hint: "Turning clockwise adds to the bearing. If it goes past 360°, take 360° off.", solution: [`${b} + ${turn} = ${b + turn}.`, b + turn >= 360 ? `${b + turn} − 360 = ${nb}.` : `The new bearing is ${pad(nb)}°.`] };

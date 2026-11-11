@@ -33,6 +33,8 @@ export type Figure =
   | { type: "line-graph"; xs: string[]; ys: number[]; xLabel: string; yLabel: string; yMax: number; alt: string }
   | { type: "scatter"; points: [number, number][]; xLabel: string; yLabel: string; alt: string }
   | { type: "coord-grid"; max: number; points: { x: number; y: number; label: string }[]; mirror?: { axis: "x" | "y"; value: number }; alt: string }
+  | { type: "function-graph"; xMin: number; xMax: number; yMin: number; yMax: number; xStep: number; yStep: number; curves: { pts: [number, number][]; label?: string; dashed?: boolean }[]; marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][]; alt: string }
+  | { type: "bearing"; angle: number; from: string; to: string; alt: string }
   | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 
 /** A choice in a multiple-choice question: words (with $maths$ allowed) or a picture. */

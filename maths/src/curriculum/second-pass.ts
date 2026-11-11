@@ -11,6 +11,14 @@ import { num } from "./ks2";
 const t2 = (n: number) => String(n).padStart(2, "0");
 const clock = (h: number, m: number) => `${h}:${t2(m)}`;
 
+
+const nice = (lo: number, hi: number) => { const span = hi - lo, step = span <= 8 ? 1 : span <= 16 ? 2 : span <= 40 ? 5 : span <= 80 ? 10 : 20; return { lo: Math.floor(lo / step) * step, hi: Math.ceil(hi / step) * step, step }; };
+const sample = (f: (x: number) => number, a: number, b: number, n = 80): [number, number][] => Array.from({ length: n + 1 }, (_, i) => { const x = a + ((b - a) * i) / n; return [x, f(x)] as [number, number]; });
+const graph = (curves: { pts: [number, number][]; label?: string; dashed?: boolean }[], xr: [number, number, number], alt: string, extra: { marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][] } = {}) => {
+  const ys = curves.flatMap((c) => c.pts.map((p) => p[1])).concat((extra.marks ?? []).map((m) => m.y), (extra.strips ?? []).map((q) => q[1]), 0), y = nice(Math.min(...ys) - 0.5, Math.max(...ys) + 0.5);
+  return { type: "function-graph" as const, xMin: xr[0], xMax: xr[1], xStep: xr[2], yMin: y.lo, yMax: y.hi, yStep: y.step, curves, alt, ...extra };
+};
+
 export const secondPassSkills: Skill[] = [
   // ---------------------------------------------------------------- earlier years
   num({
@@ -174,23 +182,26 @@ export const secondPassSkills: Skill[] = [
     parentNote: "f(x) + a moves up a. f(x + a) moves left a, which feels backwards. −f(x) flips over the x-axis, and f(−x) flips over the y-axis.",
     talkAbout: "Why does f(x + 3) move the graph left, not right?",
   }, (r, l) => {
-    const a = int(r, 2, 6);
-    const lv1: [string, string, string[]][] = [
-      [`f(x) + ${a}`, `a translation of ${a} up`, [`a translation of ${a} down`, `a translation of ${a} to the right`, `a translation of ${a} to the left`]],
-      [`f(x) − ${a}`, `a translation of ${a} down`, [`a translation of ${a} up`, `a translation of ${a} to the right`, `a translation of ${a} to the left`]],
+
+    const f = (x: number) => ((x - 1) * (x - 1)) / 6 - 1, a = int(r, 1, 3);
+    type T = [string, string, string[], (x: number) => number, string?];
+    const lv1: T[] = [
+      [`f(x) + ${a}`, `a translation of ${a} up`, [`a translation of ${a} down`, `a translation of ${a} to the right`, `a translation of ${a} to the left`], (x) => f(x) + a],
+      [`f(x) − ${a}`, `a translation of ${a} down`, [`a translation of ${a} up`, `a translation of ${a} to the right`, `a translation of ${a} to the left`], (x) => f(x) - a],
     ];
-    const lv2: [string, string, string[]][] = [
-      [`f(x + ${a})`, `a translation of ${a} to the left`, [`a translation of ${a} to the right`, `a translation of ${a} up`, `a translation of ${a} down`]],
-      [`f(x − ${a})`, `a translation of ${a} to the right`, [`a translation of ${a} to the left`, `a translation of ${a} up`, `a translation of ${a} down`]],
+    const lv2: T[] = [
+      [`f(x + ${a})`, `a translation of ${a} to the left`, [`a translation of ${a} to the right`, `a translation of ${a} up`, `a translation of ${a} down`], (x) => f(x + a)],
+      [`f(x − ${a})`, `a translation of ${a} to the right`, [`a translation of ${a} to the left`, `a translation of ${a} up`, `a translation of ${a} down`], (x) => f(x - a)],
     ];
-    const lv3: [string, string, string[]][] = [
-      ["−f(x)", "a reflection in the x-axis", ["a reflection in the y-axis", "a rotation of 180°", "a translation down"]],
-      ["f(−x)", "a reflection in the y-axis", ["a reflection in the x-axis", "a rotation of 180°", "a translation to the left"]],
-      [`${a}f(x)`, `a vertical stretch with scale factor ${a}`, [`a horizontal stretch with scale factor ${a}`, `a translation of ${a} up`, `a vertical stretch with scale factor 1/${a}`]],
-      [`f(${a}x)`, `a horizontal stretch with scale factor 1/${a}`, [`a horizontal stretch with scale factor ${a}`, `a vertical stretch with scale factor ${a}`, `a translation of ${a} to the left`]],
+    const lv3: T[] = [
+      ["−f(x)", "a reflection in the x-axis", ["a reflection in the y-axis", "a rotation of 180°", "a translation down"], (x) => -f(x)],
+      ["f(−x)", "a reflection in the y-axis", ["a reflection in the x-axis", "a rotation of 180°", "a translation to the left"], (x) => f(-x)],
+      ["2f(x)", "a vertical stretch with scale factor 2", ["a horizontal stretch with scale factor 2", "a translation of 2 up", "a vertical stretch with scale factor 1/2"], (x) => 2 * f(x)],
+      ["f(2x)", "a horizontal stretch with scale factor 1/2", ["a horizontal stretch with scale factor 2", "a vertical stretch with scale factor 2", "a translation of 2 to the left"], (x) => f(2 * x)],
     ];
-    const [eq, right, others] = pick(r, l === 1 ? lv1 : l === 2 ? lv2 : lv3);
-    return { prompt: `The graph of $y = f(x)$ is changed to $y = ${eq.replace(/−/g, "-")}$. Which describes the change?`, right, others, hint: "Outside the brackets works up and down. Inside the brackets works sideways, and does the opposite of what it looks like.", solution: [`$y = ${eq.replace(/−/g, "-")}$ is ${right}.`] };
+    const [eq, right, others, g] = pick(r, l === 1 ? lv1 : l === 2 ? lv2 : lv3);
+    const figure = graph([{ pts: sample(f, -6, 6) }, { pts: sample(g, -6, 6), dashed: true }], [-6, 6, 2], `A graph of y = f(x), a curve with its lowest point near (1, −1), and a dashed copy: the new graph, y = ${eq}.`);
+    return { prompt: `The solid curve is $y = f(x)$. The dashed curve is $y = ${eq.replace(/−/g, "-")}$. Which describes the change?`, figure, right, others, hint: "Compare the lowest points of the two curves. Where has the dashed curve gone, and has it been flipped or stretched?", solution: [`$y = ${eq.replace(/−/g, "-")}$ is ${right}.`] };
   }),
   num({
     id: "trig-graphs", name: "Graphs of sine and cosine", stage: "KS4", year: 11, strand: "Geometry", prereqs: ["exact-trig"],
@@ -199,11 +210,12 @@ export const secondPassSkills: Skill[] = [
     parentNote: "For y = a sin x, the highest point is a and the lowest is −a. For y = sin(kx), the wave repeats every 360 ÷ k degrees.",
     talkAbout: "What happens to the wave if you multiply x by 2 inside the brackets?",
   }, (r, l) => {
-    const fn = pick(r, ["sin", "cos"]);
-    if (l === 1) { const a = int(r, 2, 9); return { prompt: `What is the maximum value of $y = ${a} \\${fn} x$?`, value: a, hint: `${fn} x never goes above 1, so multiply 1 by ${a}.`, solution: [`The highest ${fn} x can be is 1.`, `${a} × 1 = ${a}.`] }; }
-    if (l === 2) { const k = pick(r, [2, 3, 4, 5, 6, 8, 9, 10]); return { prompt: `How many degrees long is one full cycle of $y = \\${fn}(${k}x)$?`, value: 360 / k, unit: "°", hint: "The normal cycle is 360°. Divide by the number multiplying x.", solution: [`360 ÷ ${k} = ${360 / k}.`] }; }
-    const a = int(r, 2, 6), c = int(r, 1, 5);
-    return { prompt: `What is the minimum value of $y = ${a} \\${fn} x + ${c}$?`, value: c - a, hint: `The smallest ${fn} x can be is −1.`, solution: [`The smallest ${fn} x can be is −1.`, `${a} × (−1) + ${c} = ${c - a}.`] };
+
+    const fn = pick(r, ["sin", "cos"]), F = fn === "sin" ? Math.sin : Math.cos, rad = (d: number) => (d * Math.PI) / 180;
+    if (l === 1) { const a = int(r, 2, 5); return { prompt: `The graph shows $y = ${a} \\${fn} x$. What is its maximum value?`, figure: graph([{ pts: sample((x) => a * F(rad(x)), 0, 360, 120) }], [0, 360, 90], `The graph of y = ${a} ${fn} x from 0° to 360°, a wave between −${a} and ${a}.`), value: a, hint: "Find the highest point of the wave.", solution: [`The wave goes as high as ${a}.`, `So the maximum value is ${a}.`] }; }
+    if (l === 2) { const k = pick(r, [2, 3, 4]); return { prompt: `The graph shows $y = \\${fn}(${k}x)$ from 0° to 360°. How many degrees long is one full cycle?`, figure: graph([{ pts: sample((x) => F(rad(k * x)), 0, 360, 240) }], [0, 360, 90], `The graph of y = ${fn}(${k}x) from 0° to 360°, which repeats ${k} times.`), value: 360 / k, unit: "°", hint: "The wave repeats several times between 0° and 360°. Divide 360° by the number of cycles.", solution: [`The graph has ${k} full cycles in 360°.`, `360 ÷ ${k} = ${360 / k}.`] }; }
+    const a = int(r, 2, 4), c = int(r, 1, 4);
+    return { prompt: `The graph shows $y = ${a} \\${fn} x + ${c}$. What is its minimum value?`, figure: graph([{ pts: sample((x) => a * F(rad(x)) + c, 0, 360, 120) }], [0, 360, 90], `The graph of y = ${a} ${fn} x + ${c} from 0° to 360°, a wave between ${c - a} and ${c + a}.`), value: c - a, hint: "Find the lowest point of the wave.", solution: [`The smallest ${fn} x can be is −1.`, `${a} × (−1) + ${c} = ${c - a}.`] };
   }),
 
   // ---------------------------------------------------------------- A-level
@@ -215,7 +227,8 @@ export const secondPassSkills: Skill[] = [
     talkAbout: "Why is a prediction outside the range of the data less trustworthy?",
   }, (r, l) => {
     const a = int(r, 5, 40), b = int(r, 2, 9), x = int(r, 3, 12);
-    if (l === 1) return { prompt: `A regression line for ice-cream sales (y, in £) against temperature (x, in °C) is $y = ${a} + ${b}x$. Predict the sales when the temperature is ${x}°C.`, value: a + b * x, hint: "Put the value of x into the equation.", solution: [`y = ${a} + ${b} × ${x}.`, `y = ${a + b * x}.`] };
+    const line = graph([{ pts: [[0, a], [14, a + 14 * b]] }], [0, 14, 2], `A straight regression line from (0, ${a}) rising by ${b} for each 1 along. y is sales in pounds and x is temperature in degrees.`);
+    if (l === 1) return { prompt: `A regression line for ice-cream sales (y, in £) against temperature (x, in °C) is $y = ${a} + ${b}x$ (drawn). Predict the sales when the temperature is ${x}°C.`, figure: line, value: a + b * x, hint: "Put the value of x into the equation.", solution: [`y = ${a} + ${b} × ${x}.`, `y = ${a + b * x}.`] };
     if (l === 2) { const k = int(r, 2, 6); return { prompt: `A regression line is $y = ${a} + ${b}x$, with y in £ and x in °C. By how much does the predicted sales figure change when the temperature goes up by ${k}°C? Type the change in £.`, value: b * k, unit: "", hint: "The gradient is the change in y for each 1 in x.", solution: [`The gradient is ${b}.`, `${b} × ${k} = ${b * k}.`] }; }
     const diff = int(r, 1, 9) * (r() < 0.5 ? 1 : -1), obs = a + b * x + diff;
     return { prompt: `A regression line is $y = ${a} + ${b}x$. When x = ${x} the observed value of y is ${obs}. What is the residual (observed − predicted)?`, value: diff, hint: "Predict y first, then subtract it from the observed value.", solution: [`Predicted: ${a} + ${b} × ${x} = ${a + b * x}.`, `${obs} − ${a + b * x} = ${diff}.`] };
@@ -278,9 +291,12 @@ export const secondPassSkills: Skill[] = [
     parentNote: "List the y-values, add the first and last, double the middle ones and add them on, then multiply by half the strip width.",
     talkAbout: "Would more strips make the estimate better or worse, and why?",
   }, (r, l) => {
+
     const strips = l === 1 ? 2 : l === 2 ? 3 : 4, h = l === 3 ? pick(r, [0.5, 1]) : pick(r, [1, 2]);
     const ys = Array.from({ length: strips + 1 }, () => int(r, 2, 12));
     const mid = ys.slice(1, -1).reduce((a, b) => a + b, 0), total = (h / 2) * (ys[0] + ys[strips] + 2 * mid);
-    return { prompt: `Use the trapezium rule with ${strips} strips of width ${h} to estimate the area under a curve with y-values ${ys.join(", ")}.`, value: round(total, 3), hint: "Add the first and last, add double the middle ones, then multiply by h ÷ 2.", solution: [`First + last = ${ys[0]} + ${ys[strips]} = ${ys[0] + ys[strips]}.`, `Double the middle values: 2 × ${mid} = ${2 * mid}.`, `Total in brackets = ${ys[0] + ys[strips] + 2 * mid}.`, `${h} ÷ 2 × ${ys[0] + ys[strips] + 2 * mid} = ${round(total, 3)}.`] };
+    const pts = ys.map((y, i) => [i * h, y] as [number, number]);
+    const figure = graph([], [0, strips * h, h], `${strips} trapezium strips, each ${h} wide. The y-values are ${ys.join(", ")}.`, { strips: pts });
+    return { prompt: `The diagram shows ${strips} strips of width ${h} under a curve, with y-values ${ys.join(", ")}. Use the trapezium rule to estimate the area.`, figure, value: round(total, 3), hint: "Add the first and last, add double the middle ones, then multiply by h ÷ 2.", solution: [`First + last = ${ys[0]} + ${ys[strips]} = ${ys[0] + ys[strips]}.`, `Double the middle values: 2 × ${mid} = ${2 * mid}.`, `Total in brackets = ${ys[0] + ys[strips] + 2 * mid}.`, `${h} ÷ 2 × ${ys[0] + ys[strips] + 2 * mid} = ${round(total, 3)}.`] };
   }),
 ];
