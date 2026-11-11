@@ -58,7 +58,7 @@ export function ParentAssistant() {
           onInput={(e) => setText((e.target as HTMLInputElement).value)} aria-label="Question for the AI assistant" data-testid="assistant-input" />
         <button class="btn primary" type="submit" disabled={busy || !text.trim()} data-testid="assistant-send">Ask</button>
       </form>
-      <p class="small muted">An AI assistant. It can make mistakes, so check important things with your child's teacher. It can't give medical or special-needs advice. Please don't include names or personal details. Questions aren't saved to your account.{left !== null ? ` ${left} left today.` : ""}</p>
+      <p class="small muted">AI can make mistakes, so check important things with your child's teacher. It can't give medical or special-needs advice. Please don't include names or personal details. Questions aren't saved to your account.{left !== null ? ` ${left} left today.` : ""}</p>
     </section>
   );
 }

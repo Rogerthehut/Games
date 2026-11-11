@@ -2950,3 +2950,7 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 @media (prefers-reduced-motion: reduce) { .qbar-float .tutor { animation: none; } }
 @media (max-height: 520px) { .qbar-float .tutor { max-height: 78dvh; } }
 @media (max-width: 600px) { .qpage .qbar-in:has(.qbar-ask) { flex-wrap: wrap; justify-content: flex-start; } }
+
+/* "Learn about this" links in a new topic's intro */
+.learn-about { margin: 2px 0 10px; }
+.learn-about .chip-btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); font-size: .92rem; }

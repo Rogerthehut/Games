@@ -15,6 +15,7 @@ import { Maths } from "./maths";
 import { Sparkles } from "./pip";
 import { Avatar } from "./avatar";
 import { WorkingOut } from "./working-out";
+import { conceptsForSkill } from "../concepts";
 import { playPracticeSound, readPracticeQuestion, spokenQuestion, stopPracticeNarration, type NarrationStatus } from "./practice-audio";
 import { ChapterFriend } from "./chapter-friend";
 import { QBar, QTop } from "./qshell";
@@ -256,6 +257,9 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
         {phase === "intro" ? (
           <>
             {skill.explainer && <p class="q-lead explainer" data-testid="explainer">{skill.explainer}</p>}
+            {conceptsForSkill(skill.id).length > 0 && (
+              <p class="concept-links learn-about">{conceptsForSkill(skill.id).slice(0, 2).map((c) => <a key={c.id} class="chip-btn" href={`./learn/${c.id}.html`} target="_blank" rel="noopener" data-testid={`learn-about-${c.id}`}><Icon name="book" size={18} /> Learn about {c.title.charAt(0).toLowerCase() + c.title.slice(1)}</a>)}</p>
+            )}
             <p class="q-lead">Here's one worked through.</p>
             <p class="q-text"><Maths text={q.prompt} /></p>
             {q.figure && <FigureView fig={q.figure} />}

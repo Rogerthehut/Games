@@ -74,7 +74,7 @@ export function TutorPanel({ ctx, onClose }: { ctx: TutorContext; onClose: () =>
           onInput={(e) => setText((e.target as HTMLInputElement).value)} aria-label="Message to the tutor" />
         <button class="btn primary" type="submit" disabled={busy || !text.trim()}>Send</button>
       </form>
-      <p class="small muted">An AI tutor. It can make mistakes, so check with a grown-up if something seems wrong. Don't share personal details.{left !== null ? ` ${left} questions left today.` : ""}</p>
+      <p class="small muted">I'm an AI tutor and I can make mistakes, so check with a grown-up if something seems wrong. Don't share personal details.{left !== null ? ` ${left} questions left today.` : ""}</p>
     </section>
   );
 }
