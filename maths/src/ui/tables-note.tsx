@@ -31,7 +31,7 @@ function TablesDoodle() {
  * A sticky note for the times tables, stuck to the side panel on wide screens (and to the top of Today on narrow ones),
  * so the way back to the tables is always one tap away. Square, with a drawing and marker writing a child can read.
  */
-export function TablesNote({ variant }: { variant: "rail" | "inline" }) {
+export function TablesNote({ variant }: { variant: "rail" | "inline" | "mini" }) {
   const { profile, go } = useApp();
   const s = useMemo(() => summarise(profile), [profile]);
   const started = s.counts.new < s.total;
@@ -44,6 +44,13 @@ export function TablesNote({ variant }: { variant: "rail" | "inline" }) {
     setPeeling(true); // the note peels off the page for a moment, then the tables open
     timer.current = window.setTimeout(() => go({ name: "tables" }), 260);
   };
+  if (variant === "mini") {
+    return (
+      <button type="button" class="note-mini" onClick={() => go({ name: "tables" })} data-testid="start-tables" aria-label={started ? `Times tables. ${s.counts.quick} of ${s.total} learned.` : "Times tables"} title="Times tables">
+        <TablesDoodle />
+      </button>
+    );
+  }
   return (
     <button type="button" class={`tables-note tables-note-${variant}${peeling ? " peeling" : ""}`} onClick={open} data-testid="start-tables"
       aria-label={started ? `Times tables. You have learned ${s.counts.quick} of ${s.total} facts. Tap to keep going.` : "Times tables. Tap to start learning your tables."}>
@@ -67,7 +74,7 @@ function StemDoodle() {
 }
 
 /** A second sticky note, for the STEM lab: computing, data, AI and quantum ideas. */
-export function StemNote({ variant }: { variant: "rail" | "inline" }) {
+export function StemNote({ variant }: { variant: "rail" | "inline" | "mini" }) {
   const { profile, go } = useApp();
   const done = useMemo(() => STEM_SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0).length, [profile]);
   const [peeling, setPeeling] = useState(false);
@@ -79,6 +86,13 @@ export function StemNote({ variant }: { variant: "rail" | "inline" }) {
     setPeeling(true);
     timer.current = window.setTimeout(() => go({ name: "stem" }), 260);
   };
+  if (variant === "mini") {
+    return (
+      <button type="button" class="note-mini stem-mini" onClick={() => go({ name: "stem" })} data-testid="open-stem" aria-label="STEM lab" title="STEM lab">
+        <StemDoodle />
+      </button>
+    );
+  }
   return (
     <button type="button" class={`tables-note stem-note tables-note-${variant}${variant === "inline" ? " stem-note-inline" : ""}${peeling ? " peeling" : ""}`} onClick={open} data-testid="open-stem"
       aria-label={done ? `STEM lab. You have tried ${done} topics. Tap to explore more.` : "STEM lab. Code, data, AI and quantum ideas. Tap to explore."}>

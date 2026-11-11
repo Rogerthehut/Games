@@ -88,7 +88,6 @@ export function ConceptPage({ id }: { id: string }) {
 
       <section aria-labelledby="cf">
         <h2 id="cf">Read more</h2>
-        <p class="small muted">These are other websites. We link to them and do not copy their text.</p>
         <ul>{concept.further.map((f) => <li key={f.url}><a class="legal-link" href={f.url} target="_blank" rel="noopener noreferrer">{f.label}</a></li>)}</ul>
       </section>
     </article>

@@ -85,8 +85,9 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
         {brand()}
         {nav("rail-nav")}
         {searchButton(false)}
-        {wide && <TablesNote variant="rail" />}
-        {wide && <StemNote variant="rail" />}
+        {wide && (tab === "today"
+          ? <><TablesNote variant="rail" /><StemNote variant="rail" /></>
+          : <div class="note-minis" aria-label="Quick links"><TablesNote variant="mini" /><StemNote variant="mini" /></div>)}
         <button class="rail-me" aria-current={tab === "me" ? "page" : undefined} onClick={() => go({ name: "me" })} aria-label={`${profile.name}, open Me`}>
           <Avatar choice={profile.avatar} size={36} />
           <span><ProfileHi /><strong>{profile.name}</strong><small>Year {profile.year}</small></span>

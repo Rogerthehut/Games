@@ -32,5 +32,5 @@ export function conceptBodyHtml(c: Concept, skillNames: Record<string, string>):
 <section aria-labelledby="c-grown"><h2 id="c-grown">For grown-ups</h2>${blocksToHtml(c.grownUp)}</section>
 <section aria-labelledby="c-why"><h2 id="c-why">Why it matters</h2><p>${mathsToHtml(c.why)}</p></section>
 ${c.skills.length ? `<section aria-labelledby="c-skills"><h2 id="c-skills">Topics in quarter that use this</h2><ul>${c.skills.map((id) => `<li>${escapeHtml(skillNames[id] ?? id)}</li>`).join("")}</ul></section>` : ""}
-<section aria-labelledby="c-more"><h2 id="c-more">Read more</h2><p class="small muted">These are other websites. We link to them and do not copy their text.</p><ul>${c.further.map((f) => `<li><a class="legal-link" href="${escapeHtml(f.url)}" rel="noopener noreferrer">${escapeHtml(f.label)}</a></li>`).join("")}</ul></section>`;
+<section aria-labelledby="c-more"><h2 id="c-more">Read more</h2><ul>${c.further.map((f) => `<li><a class="legal-link" href="${escapeHtml(f.url)}" rel="noopener noreferrer">${escapeHtml(f.label)}</a></li>`).join("")}</ul></section>`;
 }

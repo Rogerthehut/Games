@@ -59,7 +59,7 @@ simple interest, VAT and wages (Year 8) and budgets (Year 9). Compound interest 
 
 Its own area on Today, with a mint sticky note under the times tables one (side panel on wide screens, top of Today on narrow ones). It is separate from the maths plan, the skills map and the 11+ papers, and uses the same practice engine, so progress, hints, read-aloud and the AI tutor all work.
 
-29 topics in four themes, written so each idea is simplified for the age but never wrong:
+29 topics in four themes, each idea pitched for the age:
 
 | Stage | Computing | Data science | AI and machine learning | Quantum ideas |
 |---|---|---|---|---|

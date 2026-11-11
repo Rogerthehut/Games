@@ -25,6 +25,6 @@ export interface Concept {
   /** The topics in quarter that use this idea. */
   skills: string[];
   related: string[];
-  /** Places to read more. Links only: we do not copy their text. */
+  /** Places to read more. */
   further: { label: string; url: string }[];
 }

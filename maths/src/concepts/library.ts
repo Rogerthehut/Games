@@ -1,7 +1,7 @@
 import type { Concept } from "./types";
 
 /**
- * The study library. Every explanation here is written for quarter. Other sites are linked, never copied.
+ * The study library: short, illustrated explanations, with links to other sites to read more.
  * Each concept names the topics that use it, so a parent looking at a topic can find the idea behind it.
  */
 const wiki = (title: string, path: string) => ({ label: `${title} (Wikipedia)`, url: `https://en.wikipedia.org/wiki/${path}` });
@@ -521,7 +521,7 @@ export const CONCEPTS: Concept[] = [
       { p: "Another big idea is that, for tiny things, we can only say how likely each result is when we measure." },
     ],
     grownUp: [
-      { p: "The ideas here are true but simplified: quantised energy, photons, and measurement giving probabilities. A qubit is described by two amplitudes. Squaring each amplitude gives the probability of that result, and the two probabilities add to 1. Gates like X and H change the amplitudes, and applying H twice returns the qubit to where it began." },
+      { p: "The key ideas are quantised energy, photons, and measurement giving probabilities. A qubit is described by two amplitudes. Squaring each amplitude gives the probability of that result, and the two probabilities add to 1. Gates like X and H change the amplitudes, and applying H twice returns the qubit to where it began." },
       { h: "Common mistakes" },
       { list: ["Thinking 'quantum' means 'magic' or 'anything is possible'.", "Forgetting to square the amplitude to get a probability.", "Thinking a measurement can give a result in between 0 and 1: it always gives one or the other."] },
     ],

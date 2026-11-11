@@ -38,7 +38,7 @@ describe("the study library", () => {
   it("has balanced maths markers in every paragraph", () => {
     for (const c of CONCEPTS) for (const t of texts(c)) expect((t.match(/\$/g) ?? []).length % 2, `${c.id}: ${t.slice(0, 50)}`).toBe(0);
   });
-  it("links only to https pages, and never copies another site's text", () => {
+  it("links only to https pages", () => {
     for (const c of CONCEPTS) for (const f of c.further) expect(f.url, c.id).toMatch(/^https:\/\//);
   });
   it("finds the concepts for a topic", () => {

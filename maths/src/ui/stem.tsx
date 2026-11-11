@@ -46,7 +46,7 @@ export function Stem() {
           <button type="button" class="btn" onClick={() => leave({ name: "home" })} data-testid="stem-back"><Icon name="back" size={18} /> Back</button>
         </div>
         <h1>STEM lab</h1>
-        <p class="tt-lead">Computing, data, AI and a little quantum physics. Try anything: these topics are separate from your maths plan, so there's no pressure. <strong>{tried}</strong> of {STEM_SKILLS.length} tried so far.</p>
+        <p class="tt-lead">Computing, data, AI and a little quantum physics. Try anything: these topics sit apart from your maths plan. <strong>{tried}</strong> of {STEM_SKILLS.length} tried so far.</p>
 
         <section class="stem-labs" aria-labelledby="stem-labs-title">
           <h2 id="stem-labs-title">Build it</h2>
@@ -89,7 +89,7 @@ export function Stem() {
             </details>
           );
         })}
-        <p class="small muted">The ideas here are simplified for each age but always true. If a topic feels too easy or too hard, try one from the stage above or below.</p>
+        <p class="small muted">If a topic feels too easy or too hard, try one from the stage above or below.</p>
       </div>
       <MoreBelow />
     </main>

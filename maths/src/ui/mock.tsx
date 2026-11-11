@@ -166,7 +166,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
             {kind !== "maths" && <li>Reasoning questions are multiple choice. Tap an answer (or press 1 to 5), then Next.</li>}
             <li>Then you'll see every miss, with the steps.</li>
           </ul>
-          <p class="small muted">Original practice, written in a general 11+ style. Not an official paper. Real tests vary in length, order and which parts they include, so check your school's own guidance.</p>
+          <p class="small muted">Written in a general 11+ style. Real tests vary in length, order and which parts they include, so check your school's own guidance.</p>
           <button class="btn primary big" onClick={start} data-testid="mock-start">Start <Icon name="arrow" size={20} /></button>
           <button class="linkish" onClick={() => leave({ name: "plan" })}>Not now</button>
         </div>

@@ -41,7 +41,7 @@ Each generator checks its own answer, and the tests re-derive it independently, 
 - No skill appears more than twice in a paper. Questions are generated and marked like any other.
 - Results show the score by part of the paper. The review lists each miss; for multiple-choice questions it can show the picture and the options with the right one marked.
 - In Plan, an 11+ goal can switch on "Include reasoning practice". That adds the reasoning skills to the weekly plan and makes the combined paper the default. Plans without it are unchanged.
-- The papers are original practice, not official or past papers. Real tests differ in length, order and which parts they include, and the paper screen says so.
+- The papers are written in a general 11+ style. Real tests differ in length, order and which parts they include, and the paper screen says so.
 
 ## For learners
 

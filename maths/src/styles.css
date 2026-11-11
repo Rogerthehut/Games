@@ -3052,3 +3052,12 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .board-pad { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .board-pad .btn:not(.small) { min-width: 52px; min-height: 52px; font-size: 1.3rem; padding: 0; }
 @media (prefers-reduced-motion: reduce) { .board-svg g { transition: none !important; } }
+
+/* away from Today the sticky notes shrink to quiet icon tabs, so they don't pull attention while a child is working */
+.note-minis { display: flex; gap: 8px; margin: 18px 0 0 14px; }
+.note-mini { position: relative; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 4px 4px 4px 12px; background: linear-gradient(168deg, #fff3a3, #fbe27a); box-shadow: 0 4px 8px -4px #18192b66; cursor: pointer; transform: rotate(-2deg); transition: transform 160ms var(--ease-out), box-shadow 160ms; }
+.note-mini.stem-mini { background: linear-gradient(168deg, #c9f1e0, #9ee3c6); transform: rotate(2deg); }
+.note-mini svg { width: 30px; height: 30px; }
+.note-mini:hover, .note-mini:focus-visible { transform: rotate(0) translateY(-2px); box-shadow: 0 8px 12px -6px #18192b77; }
+.note-mini:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .note-mini { transition: none; } }

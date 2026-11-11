@@ -6,7 +6,7 @@ import { num } from "./ks2";
 
 /**
  * The STEM lab: computing, data science, AI and machine learning, and the ideas of quantum physics, from Year 3 to Year 13.
- * Every question works out its own answer. The ideas are kept honest at every age: simplified, never wrong.
+ * Every question works out its own answer.
  * These topics sit in their own area, away from the maths plan, practice and 11+ papers.
  */
 const bin = (n: number, bits = 0) => n.toString(2).padStart(bits, "0");
