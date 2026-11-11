@@ -63,14 +63,16 @@ const crumbs = (name: string, path: string) => ({ "@type": "BreadcrumbList", ite
   ...(path === "learn/index.html" ? [] : [{ "@type": "ListItem", position: 3, name, item: `${SITE}/${path}` }]),
 ] });
 
-export function conceptPages(styles: string): { path: string; html: string }[] {
+export function conceptPages(styles: string, dev = false): { path: string; html: string }[] {
   const publisher = { "@type": "Organization", name: "quarter", url: `${SITE}/`, logo: `${SITE}/icon-512.png` };
   const index = shell({
     title: "Study guides", path: "learn/index.html", styles,
     description: "Short, illustrated explanations of the ideas in school maths, written for learners and for the grown-ups helping them.",
     jsonLd: { "@context": "https://schema.org", "@graph": [{ "@type": "CollectionPage", url: `${SITE}/learn/index.html`, name: "Study guides", inLanguage: "en-GB" }, crumbs("Study guides", "learn/index.html")] },
     body: `<p class="muted">Short, illustrated explanations of the ideas behind school maths. Each one has plain words for the learner, a worked example, and notes for the grown-up helping them.</p>
-<ul class="rows sitemap-links">${CONCEPTS.map((c) => `<li><a class="row" href="${conceptPath(c.id)}"><span>${escapeHtml(c.title)}<small>${escapeHtml(c.years)} · ${escapeHtml(c.summary)}</small></span></a></li>`).join("")}</ul>
+<form id="learn-search" role="search" hidden><label for="learn-q">Search the study guides</label><input id="learn-q" type="search" autocomplete="off" maxlength="120" placeholder="Try fractions, angles or frac*"><p class="small muted" role="status">Use <code>*</code> for any number of letters or <code>?</code> for one. Small spelling slips are fine.</p></form>
+<ul id="learn-list" class="rows sitemap-links">${CONCEPTS.map((c) => `<li data-title="${escapeHtml(c.title)}" data-keywords="${escapeHtml(`${plainText(c.summary)} ${c.id.replace(/-/g, " ")} ${c.years}`)}"><a class="row" href="${conceptPath(c.id)}"><span>${escapeHtml(c.title)}<small>${escapeHtml(c.years)} · ${escapeHtml(c.summary)}</small></span></a></li>`).join("")}</ul>
+${dev ? `<script type="module" src="/src/learn-search.ts"></script>` : `<script src="./learn/search.js" defer></script>`}
 <p class="small muted">Looking for full lessons? ${`<a class="legal-link" href="https://www.thenational.academy/" rel="noopener noreferrer">Oak National Academy</a>`} offers free lessons for England's curriculum. It is a separate website, not run by quarter.</p>`,
   });
   const pages = CONCEPTS.map((c) => shell({
@@ -89,19 +91,22 @@ export function conceptStudyPages(): Plugin {
       server.middlewares.use((req, res, next) => {
         const path = req.url?.split("?")[0]?.replace(/^\//, "");
         if (!path?.startsWith("learn/")) return next();
-        const page = conceptPages('<link rel="stylesheet" href="/src/fonts.css"><link rel="stylesheet" href="/src/styles.css">').find((p) => p.path === path);
+        const page = conceptPages('<link rel="stylesheet" href="/src/fonts.css"><link rel="stylesheet" href="/src/styles.css">', true).find((p) => p.path === path);
         if (!page) return next();
         res.setHeader("Content-Type", "text/html; charset=utf-8");
         res.end(page.html);
       });
     },
-    writeBundle(options) {
+    async writeBundle(options) {
       const directory = resolve(options.dir ?? "dist");
       const index = readFileSync(resolve(directory, "index.html"), "utf8");
       const styles = index.match(/<link\b[^>]*\brel="stylesheet"[^>]*>/g)?.join("\n");
       if (!styles) throw new Error("quarter's built stylesheet is missing.");
       mkdirSync(resolve(directory, "learn"), { recursive: true });
       for (const page of conceptPages(styles)) writeFileSync(resolve(directory, page.path), page.html);
+      // the search on the index page: the app's own matching, bundled as one small script
+      const { build } = await import("rolldown");
+      await build({ input: resolve(import.meta.dirname, "../src/learn-search.ts"), output: { file: resolve(directory, "learn/search.js"), format: "iife", minify: true }, write: true });
     },
   };
 }

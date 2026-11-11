@@ -3110,3 +3110,11 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .mp-coming > summary { cursor: pointer; font-weight: 750; min-height: 44px; display: flex; align-items: center; }
 @keyframes mp-pop { 0% { transform: scale(.85); } 60% { transform: scale(1.06); } 100% { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .mp-badge.earned.new { animation: none; } }
+
+/* search box on the public study guides page */
+#learn-search { margin: 18px 0 14px; }
+#learn-search label { display: block; font-weight: 700; margin-bottom: 6px; }
+#learn-search input { width: 100%; box-sizing: border-box; min-height: 48px; padding: 10px 14px; font: inherit; font-size: 1rem; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; }
+#learn-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+#learn-search p { margin: 8px 2px 0; }
+#learn-list li[hidden] { display: none; }
