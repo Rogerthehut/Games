@@ -172,7 +172,7 @@ function curriculumPages(styles: string) {
     body: `<p class="muted">${mathsSkills.length} maths topics from Year 3 to A-level, following the National Curriculum for England, plus ${STEM_SKILLS.length} STEM lab topics. Pick a year to see what's covered.</p>
 <ul class="rows sitemap-links">${years.map((y) => { const n = mathsSkills.filter((s) => s.year === y).length; const st = mathsSkills.find((s) => s.year === y)?.stage ?? "KS2"; return `<li><a class="row" href="${yearPath(y)}"><span>Year ${y} maths<small>${NAME[st]} · ${ageOf(y)} · ${n} topics</small></span></a></li>`; }).join("")}
 <li><a class="row" href="curriculum/stem.html"><span>The STEM lab<small>Computing, data science, AI and quantum ideas · Years 3 to 13 · ${STEM_SKILLS.length} topics</small></span></a></li></ul>
-<p>${a("11-plus-maths.html", "Getting started with 11+ maths")} · ${a("learn/index.html", "Study guides")}</p>`,
+<p>${a("11-plus-maths.html", "Getting started with 11+ maths")}</p>`,
   });
   const yearPages = years.map((y) => {
     const skills = mathsSkills.filter((s) => s.year === y).sort((p, q) => STRANDS.indexOf(p.strand) - STRANDS.indexOf(q.strand) || p.name.localeCompare(q.name));
