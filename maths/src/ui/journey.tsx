@@ -178,7 +178,7 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
                   {st === "secure" && <span class="tick">✓</span>}
                   <span class="node-label">{s.name}</span>
                 </button>
-                {i === avatarStop && <div class={`you-are-here ${avatarOnLeft ? "to-left" : ""}`} style={{ left: `${(pos[i].x / width) * 100}%`, top: `${pos[i].y + 3}px` }}><Avatar choice={profile.avatar} pose="wave" size={56} /></div>}
+                {i === avatarStop && <div class={`you-are-here ${avatarOnLeft ? "to-left" : ""}`} style={{ left: `${(pos[i].x / width) * 100}%`, top: `${pos[i].y + 3}px` }}><Avatar choice={profile.avatar} year={profile.year} pose="wave" size={56} /></div>}
               </div>
             );
           })}

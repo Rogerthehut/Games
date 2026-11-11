@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { MyProgress } from "./progress-shelf";
-import { AVATAR_ROLES, GLASSES, clayAvatar, type AvatarRole } from "../engine/avatar";
+import { AVATAR_ROLES, GLASSES, avatarBand, avatarForYear, type AvatarRole } from "../engine/avatar";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { currentStreak, statusOf, type Profile } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
@@ -35,7 +35,7 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
 
 export function Me() {
   const { profile, profiles, switchTo, go, update } = useApp();
-  const currentAvatar = clayAvatar(profile.avatar);
+  const band = avatarBand(profile.year), currentAvatar = avatarForYear(profile.avatar, profile.year);
   const [browseRole, setBrowseRole] = useState<AvatarRole | null>(null);
   const role = browseRole ?? currentAvatar.role;
   const roleLabel = AVATAR_ROLES.find(({ id }) => id === role)?.label ?? "Explorer";
@@ -56,7 +56,7 @@ export function Me() {
   return (
     <div class="me">
       <header class="me-head">
-        <Avatar choice={profile.avatar} size={72} />
+        <Avatar choice={profile.avatar} year={profile.year} size={72} />
         <div>
           <h1>{profile.name}</h1>
           <p class="muted">Year {profile.year}{last ? ` · working at ${yearLabel(last.theta)}` : ""}</p>
@@ -96,7 +96,7 @@ export function Me() {
           {profiles.map((p) => (
             <li key={p.id}>
               <button class={`row ${p.id === profile.id ? "current" : ""}`} onClick={() => p.id !== profile.id && switchTo(p.id)} aria-current={p.id === profile.id ? "true" : undefined}>
-                <Avatar choice={p.avatar} size={32} /><span>{p.name} <small class="muted">Year {p.year}</small></span>
+                <Avatar choice={p.avatar} year={p.year} size={32} /><span>{p.name} <small class="muted">Year {p.year}</small></span>
                 {p.id === profile.id ? <Icon name="check" size={18} /> : <Icon name="chevron" size={18} />}
               </button>
             </li>
@@ -114,17 +114,17 @@ export function Me() {
           ))}
         </div>
         <div class="avatar-choices" role="group" aria-label={`${roleLabel} portraits`}>
-          {avatarVariants(role).map((variant) => (
+          {avatarVariants(role, band).map((variant) => (
             <button key={variant} type="button" class="btn" aria-label={variant ? `${roleLabel}, look ${variant}` : `${roleLabel}, original`}
               aria-pressed={currentAvatar.role === role && currentAvatar.variant === variant}
-              onClick={() => update((p) => ({ ...p, avatar: { role, variant, glasses: currentAvatar.glasses } }))}>
-              <Avatar choice={{ role, variant, glasses: currentAvatar.role === role && currentAvatar.variant === variant ? currentAvatar.glasses : undefined }} size={80} showProp />
+              onClick={() => update((p) => ({ ...p, avatar: { role, variant, glasses: currentAvatar.glasses, band } }))}>
+              <Avatar choice={{ role, variant, band, glasses: currentAvatar.role === role && currentAvatar.variant === variant ? currentAvatar.glasses : undefined }} year={profile.year} size={80} showProp />
             </button>
           ))}
         </div>
         <p class="field-label">Glasses</p>
         <Segmented label="Avatar glasses" value={currentAvatar.glasses ?? "none"} options={[...GLASSES]}
-          onChange={(glasses) => update((p) => ({ ...p, avatar: { ...clayAvatar(p.avatar), glasses } }))} />
+          onChange={(glasses) => update((p) => ({ ...p, avatar: { ...avatarForYear(p.avatar, p.year), glasses } }))} />
       </section>
 
       <section class="appearance-panel paper-edge" aria-labelledby="look-h">

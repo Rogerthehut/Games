@@ -1,4 +1,7 @@
-import type { AvatarRole } from "../engine/avatar";
+import type { AvatarBand, AvatarRole } from "../engine/avatar";
+
+/** Eye positions for the older and teenage portraits, filled in as the art is added: `AVATAR_EYES_BAND.older.explorer[0] = [...]`. Without an entry, glasses are not drawn. */
+export const AVATAR_EYES_BAND: Record<Exclude<AvatarBand, "junior">, Partial<Record<AvatarRole, readonly (readonly number[])[]>>> = { older: {}, teen: {} };
 
 // Eye centres as percentages of each portrait, used to align the glasses.
 export const AVATAR_EYES: Record<AvatarRole, readonly (readonly number[])[]> = {

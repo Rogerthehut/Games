@@ -32,7 +32,7 @@ export function Certificate({ stage }: { stage: Stage }) {
         <>
           <article class="certificate-paper">
             <div class="certificate-brand"><CubeMark /><Wordmark /></div>
-            <div class="certificate-avatar"><Avatar choice={profile.avatar} size={72} /><Icon name="star" size={32} /></div>
+            <div class="certificate-avatar"><Avatar choice={profile.avatar} year={profile.year} size={72} /><Icon name="star" size={32} /></div>
             <p class="eyebrow">quarter maths pathway</p>
             <h1>Certificate of achievement</h1>
             <p class="muted">Presented to</p>

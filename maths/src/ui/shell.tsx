@@ -89,7 +89,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
           ? <><TablesNote variant="rail" /><StemNote variant="rail" /></>
           : <div class="note-minis" aria-label="Quick links"><TablesNote variant="mini" /><StemNote variant="mini" /></div>)}
         <button class="rail-me" aria-current={tab === "me" ? "page" : undefined} onClick={() => go({ name: "me" })} aria-label={`${profile.name}, open Me`}>
-          <Avatar choice={profile.avatar} size={36} />
+          <Avatar choice={profile.avatar} year={profile.year} size={36} />
           <span><ProfileHi /><strong>{profile.name}</strong><small>Year {profile.year}</small></span>
         </button>
       </aside>
@@ -98,7 +98,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
         {searchButton(true)}
         <button class="mobile-profile" onClick={() => go({ name: "me" })} aria-label={`${profile.name}, open Me`}>
           <span class="mobile-profile-label"><ProfileHi /><span class="mobile-profile-name">{profile.name}</span></span>
-          <Avatar choice={profile.avatar} size={32} />
+          <Avatar choice={profile.avatar} year={profile.year} size={32} />
         </button>
       </header>
       <main class="content" id="main">

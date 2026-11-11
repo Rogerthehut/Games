@@ -287,7 +287,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
             <div class="fb-zone" ref={feedback} aria-live="polite">
               {phase === "ask" && result && (result.outcome === "wrong" || result.outcome === "almost" || result.outcome === "invalid") && !stale && (
                 <div class={`fb ${result.outcome === "almost" ? "nearly" : "bad"}`} role="alert">
-                  <span class="fb-pip"><Avatar choice={profile.avatar} pose="think" size={48} /></span>
+                  <span class="fb-pip"><Avatar choice={profile.avatar} year={profile.year} pose="think" size={48} /></span>
                   <p>
                     <strong>{result.outcome === "wrong" ? voice.notQuite(skin) : result.outcome === "almost" ? voice.nearly : ""}</strong>{" "}
                     {result.feedback ? <Maths text={result.feedback} /> : result.outcome === "wrong" && !showHint ? <Maths text={q.hint} /> : null}
