@@ -5,7 +5,7 @@ import {
   ALL_TABLES, CHECK_LENGTH, CHECK_SECONDS, MAX_TABLE, STATUS_WORDS, TRICKS, checkQuestions, factKey, factStatus, pickRound, recordFact, summarise, tablesOf,
   type FactStatus, type TableQ,
 } from "../engine/tables";
-import { Keypad, applyKey } from "./answer-input";
+import { Keypad, applyKey, useDigitKeys } from "./answer-input";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 import { playPracticeSound, readPracticeQuestion, stopPracticeNarration } from "./practice-audio";
@@ -180,14 +180,7 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
     if (phaseRef.current === "wrong") { if (text === want) next(); return; } // typing the right answer in after a mistake
     if (text.length >= want.length) settle(text === want, text);
   };
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Backspace") { e.preventDefault(); press("⌫"); } else if (/^\d$/.test(e.key)) { e.preventDefault(); press(e.key); }
-    };
-    addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
-  });
+  useDigitKeys(press, { onEscape: () => leaveEarlyRef.current() });
 
   // the optional countdown, on the timed check only
   useEffect(() => {
@@ -215,6 +208,7 @@ function Session({ timed, only, onBack, onAgain }: { timed: boolean; only?: numb
   };
   useEffect(() => { if (done) finish(); }, [done]);
   const leaveEarly = () => { stopPracticeNarration(); finish(); onBack(); };
+  const leaveEarlyRef = useRef(leaveEarly); leaveEarlyRef.current = leaveEarly;
   useEffect(() => () => stopPracticeNarration(), [i]);
 
   if (done) return <Summary timed={timed} results={results} onAgain={onAgain} onBack={onBack} />;

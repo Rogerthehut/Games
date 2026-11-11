@@ -1,6 +1,6 @@
 import { useMemo, useState } from "preact/hooks";
 import { useAccount } from "./account-context";
-import { applyKey, Keypad } from "./answer-input";
+import { applyKey, Keypad, useDigitKeys } from "./answer-input";
 import { checkPin, hasPin, pinProblem, setPin } from "./pin";
 
 let unlockedUntil = 0;
@@ -10,7 +10,9 @@ const unlock = () => { unlockedUntil = Date.now() + 10 * 60_000; };
 const digitsOnly = (t: string) => t.replace(/[^\d]/g, "");
 
 /** A PIN field with the on-screen keypad. Shows dots, never the digits. */
-export function PinPad({ value, onChange, label, testId }: { value: string; onChange: (v: string) => void; label: string; testId: string }) {
+export function PinPad({ value, onChange, label, testId, onEnter }: { value: string; onChange: (v: string) => void; label: string; testId: string; onEnter?: () => void }) {
+  // a physical keyboard works too: digits, Backspace, and Enter to go on
+  useDigitKeys((k) => onChange(digitsOnly(applyKey(value, k, value.length, value.length).text).slice(0, 8)), { onEnter });
   return (
     <>
       <input class="gate-input gate-pin" value={"●".repeat(value.length)} inputMode="none" readOnly aria-label={label} data-testid={testId} />
@@ -59,6 +61,10 @@ export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel:
     } finally { setBusy(false); }
   };
 
+  // physical keyboard on the sum step: digits, Backspace, Enter to go on, Escape to close
+  useDigitKeys((k) => setText((t) => digitsOnly(applyKey(t, k, t.length, t.length).text)), { enabled: step === "sum", onEnter: () => { if (text) submitSum(); }, onEscape: onCancel });
+  useDigitKeys(() => {}, { enabled: step === "pin", onEscape: onCancel });
+
   return (
     <div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="gate-h">
       <div class="gate">
@@ -86,7 +92,7 @@ export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel:
         ) : (
           <>
             <p data-testid="pin-prompt">{making ? (first ? "Type it once more to confirm." : "Make a PIN of 6 or 8 digits. You'll use it each time you open this area on this device.") : "Enter your PIN."}</p>
-            <div class={wrong ? "shake" : ""}><PinPad value={pin} onChange={setPinText} label="PIN" testId="pin-input" /></div>
+            <div class={wrong ? "shake" : ""}><PinPad value={pin} onChange={setPinText} label="PIN" testId="pin-input" onEnter={() => { if (pin.length >= 6 && !busy) void submitPin(); }} /></div>
             {note && <p class="small gate-note" role="alert" data-testid="pin-note">{note}</p>}
             <div class="actions">
               <button class="btn" onClick={onCancel}>Cancel</button>

@@ -43,7 +43,7 @@ export function PinSettings() {
       ) : (
         <div class="pin-change">
           <p>{step === "current" ? "Enter your current PIN." : step === "new" ? "Choose a new PIN of 6 or 8 digits." : "Type the new PIN once more."}</p>
-          <PinPad value={pin} onChange={setPinText} label="PIN" testId="pin-change-input" />
+          <PinPad value={pin} onChange={setPinText} label="PIN" testId="pin-change-input" onEnter={() => { if (!busy && pin.length >= 6) void next(); }} />
           {note && <p class="small gate-note" role="alert">{note}</p>}
           <div class="actions">
             <button class="btn" onClick={reset}>Cancel</button>

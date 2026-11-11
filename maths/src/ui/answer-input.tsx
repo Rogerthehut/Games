@@ -41,6 +41,27 @@ const EXPR_KEYS: Key[][] = [
   [{ k: "+", fn: true }, { k: "−", fn: true, label: "Minus" }, { k: "×", fn: true, label: "Times" }, { k: "/", fn: true, label: "Divide" }],
 ];
 
+/**
+ * Lets the physical keyboard drive an on-screen keypad: digits, Backspace, and optionally Enter and Escape.
+ * Ignores typing in a real text field, and any shortcut with Ctrl, Alt or Cmd held.
+ */
+export function useDigitKeys(onKey: (k: string) => void, opts: { onEnter?: () => void; onEscape?: () => void; enabled?: boolean } = {}) {
+  useEffect(() => {
+    if (opts.enabled === false) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.isComposing) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "TEXTAREA" || t.tagName === "SELECT" || (t.tagName === "INPUT" && !(t as HTMLInputElement).readOnly))) return;
+      if (/^\d$/.test(e.key)) { e.preventDefault(); onKey(e.key); }
+      else if (e.key === "Backspace") { e.preventDefault(); onKey("⌫"); }
+      else if (e.key === "Enter" && opts.onEnter) { e.preventDefault(); opts.onEnter(); }
+      else if (e.key === "Escape" && opts.onEscape) { e.preventDefault(); opts.onEscape(); }
+    };
+    addEventListener("keydown", handler);
+    return () => removeEventListener("keydown", handler);
+  });
+}
+
 /** A keypad made for answers: big targets, only the keys this answer can use. Shown on touch screens. */
 export function Keypad({ mode, onKey }: { mode: "number" | "expr" | "digits"; onKey: (k: string) => void }) {
   const rows = mode === "expr" ? EXPR_KEYS : mode === "digits" ? DIGIT_KEYS : NUMBER_KEYS;
@@ -98,7 +119,8 @@ export function AnswerInput(props: {
   const [showAlso, setShowAlso] = useState(false);
   const keypadMode: "number" | "expr" | null = answer.kind === "expr" ? "expr" : "number";
 
-  useEffect(() => { if (!disabled && !touch) refs.current[0]?.focus(); }, []);
+  // focus the answer box on every device: on touch screens its own keyboard stays hidden (inputMode none), but a connected keyboard then just works
+  useEffect(() => { if (!disabled) refs.current[0]?.focus({ preventScroll: true }); }, []);
 
   // A fraction answer is kept as "n/d" in values[0], so marking works unchanged.
   const get = (i: number): string => (fraction ? (values[0] ?? "").split("/")[i] ?? "" : values[i] ?? "");
