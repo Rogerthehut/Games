@@ -46,6 +46,11 @@ export function FigureView({ fig }: { fig: Figure }) {
   if (fig.type === "function-graph") return <FunctionGraphFigure {...fig} />;
   if (fig.type === "bearing") return <BearingFigure {...fig} />;
   if (fig.type === "polygon") return <PolygonFigure {...fig} />;
+  if (fig.type === "square-grid") return <SquareGridFigure {...fig} />;
+  if (fig.type === "solid") return <SolidFigure {...fig} />;
+  if (fig.type === "circle-theorem") return <CircleTheoremFigure {...fig} />;
+  if (fig.type === "boxplot") return <BoxplotFigure {...fig} />;
+  if (fig.type === "angle-rays") return <AngleRaysFigure {...fig} />;
   if (fig.type === "circle-diagram") return <CircleFigure {...fig} />;
   if (fig.type === "pie") return <PieFigure {...fig} />;
   if (fig.type === "parallel-lines") return <ParallelFigure {...fig} />;
@@ -126,16 +131,18 @@ function ScatterFigure({ points, xLabel, yLabel, alt }: Of<"scatter">) {
   );
 }
 
-function CoordGridFigure({ max, points, mirror, alt }: Of<"coord-grid">) {
-  const L = 30, S = 240, step = S / max, px = (v: number) => L + v * step, py = (v: number) => S + 10 - v * step;
+function CoordGridFigure({ max, min = 0, points, poly, mirror, alt }: Of<"coord-grid">) {
+  const L = 34, S = 232, n = max - min, step = S / n, px = (v: number) => L + (v - min) * step, py = (v: number) => S + 12 - (v - min) * step, every = n > 12 ? 2 : 1;
+  const ticks = Array.from({ length: n + 1 }, (_, i) => min + i);
   return (
     <svg class="figure figure-wide" viewBox="0 0 300 280" role="img" aria-label={alt}>
-      {Array.from({ length: max + 1 }, (_, i) => <g key={i}><line x1={px(i)} y1={py(0)} x2={px(i)} y2={py(max)} stroke="currentColor" opacity={i === 0 ? .8 : .18} /><line x1={px(0)} y1={py(i)} x2={px(max)} y2={py(i)} stroke="currentColor" opacity={i === 0 ? .8 : .18} />
-        <text x={px(i)} y={py(0) + 17} text-anchor="middle" class="fig-label" font-size="12">{i}</text><text x={px(0) - 8} y={py(i) + 4} text-anchor="end" class="fig-label" font-size="12">{i}</text></g>)}
+      {ticks.map((i) => <g key={i}><line x1={px(i)} y1={py(min)} x2={px(i)} y2={py(max)} stroke="currentColor" opacity={i === 0 ? .8 : .16} stroke-width={i === 0 ? 2 : 1} /><line x1={px(min)} y1={py(i)} x2={px(max)} y2={py(i)} stroke="currentColor" opacity={i === 0 ? .8 : .16} stroke-width={i === 0 ? 2 : 1} />
+        {i !== 0 && i % every === 0 && <><text x={px(i)} y={py(0) + 14} text-anchor="middle" class="fig-label" font-size="10">{i}</text><text x={px(0) - 5} y={py(i) + 4} text-anchor="end" class="fig-label" font-size="10">{i}</text></>}</g>)}
+      {poly && <polygon points={poly.map(([x, y]) => `${px(x)},${py(y)}`).join(" ")} fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-width="2" />}
       {mirror && (mirror.axis === "x"
-        ? <line x1={px(mirror.value)} y1={py(0)} x2={px(mirror.value)} y2={py(max)} stroke="#c2410c" stroke-width="3" stroke-dasharray="7 5" />
-        : <line x1={px(0)} y1={py(mirror.value)} x2={px(max)} y2={py(mirror.value)} stroke="#c2410c" stroke-width="3" stroke-dasharray="7 5" />)}
-      {points.map((p, i) => <g key={i}><circle cx={px(p.x)} cy={py(p.y)} r="6" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" /><text x={px(p.x) + 9} y={py(p.y) - 8} class="fig-label" font-size="14">{p.label}</text></g>)}
+        ? <line x1={px(mirror.value)} y1={py(min)} x2={px(mirror.value)} y2={py(max)} stroke="#c2410c" stroke-width="3" stroke-dasharray="7 5" />
+        : <line x1={px(min)} y1={py(mirror.value)} x2={px(max)} y2={py(mirror.value)} stroke="#c2410c" stroke-width="3" stroke-dasharray="7 5" />)}
+      {points.map((p, i) => <g key={i}><circle cx={px(p.x)} cy={py(p.y)} r="5.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" /><text x={px(p.x) + 8} y={py(p.y) - 8} class="fig-label" font-size="13">{p.label}</text></g>)}
     </svg>
   );
 }
@@ -188,8 +195,8 @@ function BearingFigure({ angle, from, to, alt }: Of<"bearing">) {
 
 const NET_FILL = ["#c1c5ee", "#f6a0bc", "#84d8ba", "#f0be65"];
 
-function PolygonFigure({ pts, labels, dashed, rights, alt }: Of<"polygon">) {
-  const xs = [...pts.map((p) => p[0]), ...labels.map((l) => l.x)], ys = [...pts.map((p) => p[1]), ...labels.map((l) => l.y)];
+function PolygonFigure({ pts, more, labels, dashed, rights, alt }: Of<"polygon">) {
+  const allPts = [...pts, ...(more ?? []).flat()], xs = [...allPts.map((p) => p[0]), ...labels.map((l) => l.x)], ys = [...allPts.map((p) => p[1]), ...labels.map((l) => l.y)];
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), W = 300, H = 200, pad = 38;
   const k = Math.min((W - 2 * pad) / Math.max(x1 - x0, 0.01), (H - 2 * pad) / Math.max(y1 - y0, 0.01));
   const ox = (W - k * (x1 - x0)) / 2 - k * x0, oy = (H + k * (y1 - y0)) / 2 + k * y0;
@@ -197,6 +204,7 @@ function PolygonFigure({ pts, labels, dashed, rights, alt }: Of<"polygon">) {
   return (
     <svg class="figure figure-wide" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
       <polygon points={pts.map((p) => `${X(p[0])},${Y(p[1])}`).join(" ")} class="fig-shape" />
+      {more?.map((m, i) => <polygon key={`m${i}`} points={m.map((p) => `${X(p[0])},${Y(p[1])}`).join(" ")} class="fig-shape" />)}
       {dashed?.map((d, i) => <line key={i} x1={X(d[0])} y1={Y(d[1])} x2={X(d[2])} y2={Y(d[3])} stroke="#c2410c" stroke-width="2.2" stroke-dasharray="6 4" />)}
       {rights?.map(([cx, cy, ux, uy, vx, vy], i) => <polyline key={i} points={`${X(cx + ux * sq)},${Y(cy + uy * sq)} ${X(cx + (ux + vx) * sq)},${Y(cy + (uy + vy) * sq)} ${X(cx + vx * sq)},${Y(cy + vy * sq)}`} fill="none" stroke="currentColor" stroke-width="1.6" />)}
       {labels.map((l, i) => <text key={i} x={X(l.x)} y={Y(l.y) + 5} text-anchor={l.anchor ?? "middle"} class="fig-label" font-size="14">{l.text}</text>)}
@@ -269,6 +277,87 @@ function NetFigure({ solid, alt }: Of<"net">) {
   return (
     <svg class="figure figure-wide" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
       {pieces.map((pc, i) => <polygon key={i} points={pc.map(([x, y]) => `${r2(ox + k * x)},${r2(oy + k * y)}`).join(" ")} fill={NET_FILL[i % NET_FILL.length]} fill-opacity=".7" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />)}
+    </svg>
+  );
+}
+
+function SquareGridFigure({ rows, cols, cut, alt }: Of<"square-grid">) {
+  const cell = Math.min(24, 250 / cols, 150 / rows), W = cols * cell, H = rows * cell, x0 = (300 - W) / 2, y0 = (190 - H) / 2 + 6;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 190" role="img" aria-label={alt}>
+      {Array.from({ length: rows * cols }, (_, i) => { const r = Math.floor(i / cols), c = i % cols; if (cut && r < cut.rows && c >= cols - cut.cols) return null; return <rect key={i} x={r2(x0 + c * cell)} y={r2(y0 + r * cell)} width={r2(cell)} height={r2(cell)} fill="#c1c5ee" fill-opacity=".6" stroke="currentColor" stroke-width="1.2" />; })}
+    </svg>
+  );
+}
+
+function SolidFigure({ kind, a, b, c, alt }: Of<"solid">) {
+  const lab = (x: number, y: number, t: string | undefined, anchor = "middle") => (t ? <text x={x} y={y} text-anchor={anchor} class="fig-label" font-size="14">{t}</text> : null);
+  const fill = "#c1c5ee", edge = { stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round" } as const;
+  let body;
+  if (kind === "cuboid") body = <>
+    <polygon points="70,70 190,70 230,40 110,40" fill="#e0e3f7" {...edge} /><polygon points="190,70 230,40 230,120 190,150" fill="#a9afe0" {...edge} /><rect x="70" y="70" width="120" height="80" fill={fill} {...edge} />
+    {lab(130, 172, a)}{lab(222, 150, b, "start")}{lab(60, 114, c, "end")}</>;
+  else if (kind === "tri-prism") body = <>
+    <polygon points="60,150 150,150 105,70" fill={fill} {...edge} /><polygon points="150,150 230,120 185,40 105,70 60,150" fill="#a9afe0" fill-opacity=".7" {...edge} /><polygon points="60,150 150,150 105,70" fill={fill} {...edge} /><line x1="105" y1="70" x2="185" y2="40" {...edge} />
+    {lab(105, 172, a)}{lab(80, 108, b, "end")}{lab(208, 144, c, "start")}</>;
+  else if (kind === "cylinder") body = <>
+    <path d="M 90 50 L 90 140 A 60 18 0 0 0 210 140 L 210 50" fill={fill} {...edge} /><ellipse cx="150" cy="50" rx="60" ry="18" fill="#e0e3f7" {...edge} />
+    <line x1="150" y1="50" x2="210" y2="50" stroke="#c2410c" stroke-width="3" />{lab(182, 30, a)}{lab(222, 100, b, "start")}</>;
+  else if (kind === "cone") body = <>
+    <path d="M 150 25 L 90 140 A 60 18 0 0 0 210 140 Z" fill={fill} {...edge} /><line x1="150" y1="25" x2="150" y2="140" stroke="#c2410c" stroke-width="2.5" stroke-dasharray="6 4" /><line x1="150" y1="140" x2="210" y2="140" stroke="#c2410c" stroke-width="3" />
+    {lab(180, 134, a)}{lab(158, 90, b, "start")}</>;
+  else body = <>
+    {kind === "sphere" ? <circle cx="150" cy="90" r="64" fill={fill} {...edge} /> : <path d="M 86 90 A 64 64 0 0 1 214 90 Z" fill={fill} {...edge} />}
+    <ellipse cx="150" cy="90" rx="64" ry="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" /><line x1="150" y1="90" x2="214" y2="90" stroke="#c2410c" stroke-width="3" /><circle cx="150" cy="90" r="3.5" fill="currentColor" />{lab(184, 112, a)}</>;
+  return <svg class="figure figure-wide" viewBox="0 0 300 190" role="img" aria-label={alt}>{body}</svg>;
+}
+
+function CircleTheoremFigure({ kind, angles, alt }: Of<"circle-theorem">) {
+  const cx = 150, cy = 100, R = 72, P = (deg: number): [number, number] => [r2(cx + R * Math.cos((deg * Math.PI) / 180)), r2(cy - R * Math.sin((deg * Math.PI) / 180))];
+  const set = kind === "centre" ? { A: 210, B: 330, C: 90 } : kind === "cyclic" ? { A: 200, B: 110, C: 20, D: 290 } : { A: 180, B: 0, C: 70 };
+  const pts = Object.fromEntries(Object.entries(set).map(([k, d]) => [k, P(d)])) as Record<string, [number, number]>;
+  const line = (a: string, b: string) => <line x1={pts[a][0]} y1={pts[a][1]} x2={pts[b][0]} y2={pts[b][1]} stroke="currentColor" stroke-width="2.2" />;
+  const centre: [number, number] = [cx, cy];
+  const label = (name: string, text: string) => { const v = name === "O" ? centre : pts[name]; const t = name === "O" ? 0 : 0.3; return <text key={name} x={r2(v[0] + (cx - v[0]) * t)} y={r2(v[1] + (cy - v[1]) * t + (name === "O" ? -12 : 5))} text-anchor="middle" class="fig-label" font-size="13" fill="#c2410c">{text}</text>; };
+  const names = Object.keys(pts);
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 200" role="img" aria-label={alt}>
+      <circle cx={cx} cy={cy} r={R} fill="var(--surface)" stroke="currentColor" stroke-width="2.5" />
+      {kind === "centre" && <>{line("A", "C")}{line("B", "C")}<line x1={cx} y1={cy} x2={pts.A[0]} y2={pts.A[1]} stroke="var(--accent)" stroke-width="2.2" /><line x1={cx} y1={cy} x2={pts.B[0]} y2={pts.B[1]} stroke="var(--accent)" stroke-width="2.2" /><circle cx={cx} cy={cy} r="3.5" fill="currentColor" /></>}
+      {kind === "cyclic" && <>{line("A", "B")}{line("B", "C")}{line("C", "D")}{line("D", "A")}</>}
+      {kind === "semicircle" && <>{line("A", "B")}{line("A", "C")}{line("B", "C")}<circle cx={cx} cy={cy} r="3.5" fill="currentColor" /></>}
+      {names.map((k) => { const v = pts[k], out = 1.17; return <text key={k} x={r2(cx + (v[0] - cx) * out)} y={r2(cy + (v[1] - cy) * out + 5)} text-anchor="middle" class="fig-label" font-size="14">{k}</text>; })}
+      {kind !== "cyclic" && <text x={cx + 8} y={cy + 20} class="fig-label" font-size="13">O</text>}
+      {angles.map((a) => label(a.at, a.text))}
+    </svg>
+  );
+}
+
+function BoxplotFigure({ min, lq, med, uq, max, labelled, alt }: Of<"boxplot">) {
+  const L = 24, R = 276, span = max - min, X = (v: number) => r2(L + ((v - min) / span) * (R - L)), y = 70, h = 44;
+  const lab = (k: "lq" | "uq" | "min" | "max" | "med", v: number) => labelled.includes(k) ? <text key={k} x={X(v)} y={y + h + 24} text-anchor="middle" class="fig-label" font-size="13">{v}</text> : null;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 160" role="img" aria-label={alt}>
+      <line x1={X(min)} y1={y + h / 2} x2={X(lq)} y2={y + h / 2} stroke="currentColor" stroke-width="2.5" /><line x1={X(uq)} y1={y + h / 2} x2={X(max)} y2={y + h / 2} stroke="currentColor" stroke-width="2.5" />
+      <line x1={X(min)} y1={y + 10} x2={X(min)} y2={y + h - 10} stroke="currentColor" stroke-width="2.5" /><line x1={X(max)} y1={y + 10} x2={X(max)} y2={y + h - 10} stroke="currentColor" stroke-width="2.5" />
+      <rect x={X(lq)} y={y} width={X(uq) - X(lq)} height={h} fill="#c1c5ee" fill-opacity=".7" stroke="currentColor" stroke-width="2.5" /><line x1={X(med)} y1={y} x2={X(med)} y2={y + h} stroke="#c2410c" stroke-width="3" />
+      {lab("min", min)}{lab("lq", lq)}{lab("med", med)}{lab("uq", uq)}{lab("max", max)}
+    </svg>
+  );
+}
+
+function AngleRaysFigure({ total, parts, alt }: Of<"angle-rays">) {
+  const cx = 150, cy = total === 180 ? 130 : 100, R = total === 180 ? 100 : 72, start = total === 180 ? 0 : 20;
+  let acc = start;
+  const pt = (d: number, len: number): [number, number] => [r2(cx + len * Math.cos((d * Math.PI) / 180)), r2(cy - len * Math.sin((d * Math.PI) / 180))];
+  const rays = [start, ...parts.map((p) => (acc += p.deg, acc))];
+  acc = start;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 200" role="img" aria-label={alt}>
+      {total === 180 && <line x1={cx - R} y1={cy} x2={cx + R} y2={cy} stroke="currentColor" stroke-width="2.5" />}
+      {rays.slice(0, total === 360 ? -1 : undefined).map((d, i) => <line key={i} x1={cx} y1={cy} x2={pt(d, R)[0]} y2={pt(d, R)[1]} stroke="currentColor" stroke-width="2.5" />)}
+      {parts.map((p, i) => { const a0 = acc, a1 = acc + p.deg, mid = (a0 + a1) / 2; acc = a1; const s = pt(a0, 26), e = pt(a1, 26), t = pt(mid, 44 + (p.deg < 40 ? 8 : 0)); return <g key={i}><path d={`M ${s[0]} ${s[1]} A 26 26 0 ${p.deg > 180 ? 1 : 0} 0 ${e[0]} ${e[1]}`} fill="none" stroke="#c2410c" stroke-width="2.5" /><text x={t[0]} y={t[1] + 5} text-anchor="middle" class="fig-label" font-size="13">{p.label}</text></g>; })}
+      <circle cx={cx} cy={cy} r="3.5" fill="currentColor" />
     </svg>
   );
 }

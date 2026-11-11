@@ -69,3 +69,20 @@ export function houseFig(w: number, h: number, th: number): Figure {
 
 export const circleFig = (mode: "radius" | "diameter", label: string): Figure => ({ type: "circle-diagram", mode, label, alt: `A circle with its ${mode} marked and labelled ${label}.` });
 export const sectorFig = (angle: number, label: string): Figure => ({ type: "circle-diagram", mode: "sector", angle, label, alt: `A sector of a circle with an angle of ${angle}° and a radius of ${label}.` });
+
+/** Two similar shapes side by side, to show a scale factor. The big one is drawn at most 2.6 times as big. */
+export function similarPairFig(kind: "rect" | "tri", smallLabel: string, largeLabel: string, k: number): Figure {
+  const v = Math.min(k, 2.6), shape = (x: number, sc: number): Pt[] => (kind === "rect" ? [[x, 0], [x + 1.3 * sc, 0], [x + 1.3 * sc, sc], [x, sc]] : [[x, 0], [x + 1.4 * sc, 0], [x + 0.5 * sc, 1.1 * sc]]);
+  const x2 = 1.3 + 0.8;
+  return { type: "polygon", pts: shape(0, 1), more: [shape(x2, v)], labels: [{ x: (kind === "rect" ? 0.65 : 0.7), y: -0.28, text: smallLabel }, { x: x2 + (kind === "rect" ? 0.65 : 0.7) * v, y: -0.28, text: largeLabel }], alt: `Two similar ${kind === "rect" ? "rectangles" : "triangles"}. The matching sides are ${smallLabel} on the small one and ${largeLabel} on the large one.` };
+}
+
+export function triangleAnglesFig(labels: [string, string, string]): Figure {
+  return { type: "polygon", pts: [[0, 0], [6, 0], [2.2, 3.6]], labels: [{ x: 0.9, y: 0.45, text: labels[0] }, { x: 5.0, y: 0.45, text: labels[1] }, { x: 2.2, y: 2.75, text: labels[2] }], alt: `A triangle with its angles marked ${labels.join(", ")}.` };
+}
+export function quadAnglesFig(labels: [string, string, string, string]): Figure {
+  return { type: "polygon", pts: [[0, 0], [6, 0.4], [5, 3.6], [0.8, 3]], labels: [{ x: 0.9, y: 0.55, text: labels[0] }, { x: 5.0, y: 0.8, text: labels[1] }, { x: 4.2, y: 3.0, text: labels[2] }, { x: 1.6, y: 2.5, text: labels[3] }], alt: `A four-sided shape with its angles marked ${labels.join(", ")}.` };
+}
+export const straightLineAnglesFig = (a: number): Figure => ({ type: "angle-rays", total: 180, parts: [{ deg: a, label: `${a}°` }, { deg: 180 - a, label: "x" }], alt: `Two angles on a straight line: one is ${a} degrees and the other is marked x.` });
+export const pointAnglesFig = (a: number, b: number, c: number): Figure => ({ type: "angle-rays", total: 360, parts: [{ deg: a, label: `${a}°` }, { deg: b, label: `${b}°` }, { deg: c, label: `${c}°` }, { deg: 360 - a - b - c, label: "x" }], alt: `Four angles around a point: ${a}, ${b}, ${c} degrees, and one marked x.` });
+export const cuboidFig = (a: number, b: number, c: number): Figure => ({ type: "solid", kind: "cuboid", a: cm(a), b: cm(b), c: cm(c), alt: `A cuboid ${cm(a)} long, ${cm(b)} wide and ${cm(c)} high.` });

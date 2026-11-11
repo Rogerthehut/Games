@@ -1,5 +1,5 @@
 import { int, type Rng } from "../engine/rng";
-import { lineGraph } from "./figures";
+import { cuboidFig, lineGraph } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 import { frac } from "./helpers";
 
@@ -128,7 +128,7 @@ export const expansionSkills: Skill[] = [
     blurb: "Use layers of cubes to calculate volume.", parentNote: "Calculate the number of cubes in one layer, then multiply by the number of layers.", talkAbout: "What does one cubic centimetre look like?",
   }, (r, l) => {
     const a = int(r, 2, 4+l), b = int(r, 2, 5+l), c = int(r, 2, 4+l);
-    return { prompt: `A cuboid is ${a} cm long, ${b} cm wide and ${c} cm high. What is its volume in cubic centimetres?`,
+    return { figure: cuboidFig(a, b, c), prompt: `A cuboid is ${a} cm long, ${b} cm wide and ${c} cm high. What is its volume in cubic centimetres?`,
       value: a*b*c, unit: "cm³", hint: "Find how many 1 cm cubes fit in one layer.", solution: [`One layer holds ${a} × ${b} = ${a*b} cubes.`, `Multiply by the ${c} layers.`] };
   }),
   numericSkill({

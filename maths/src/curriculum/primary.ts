@@ -1,4 +1,5 @@
 import type { Question, Skill } from "../engine/types";
+import { pointAnglesFig, quadAnglesFig, straightLineAnglesFig, triangleAnglesFig } from "./figures";
 import { gcd, int, lcm, nonZero, pick, round } from "../engine/rng";
 import { dedupeWrong, frac, shuffle } from "./helpers";
 
@@ -347,19 +348,19 @@ function factorsMultiples(r: R, level: number): Question {
 function angles(r: R, level: number): Question {
   if (level === 1) {
     const a = 10 * int(r, 3, 12), b = 10 * int(r, 2, Math.min(8, Math.floor((170 - a) / 10)));
-    if (r() < 0.5) return { skill: "angles-basic", level, prompt: `Two angles on a straight line are $${a}^\\circ$ and $x^\\circ$. Find $x$.`, answer: { kind: "number", value: 180 - a, label: "x =" }, hint: "Angles on a straight line add up to 180°.", solution: [`$180 - ${a} = ${180 - a}$.`], shown: `$x = ${180 - a}^\\circ$` };
-    return { skill: "angles-basic", level, prompt: `Two angles in a triangle are $${a}^\\circ$ and $${b}^\\circ$. Find the third angle, $x$.`, answer: { kind: "number", value: 180 - a - b, label: "x =" }, hint: "Angles in a triangle add up to 180°.", solution: [`$${a} + ${b} = ${a + b}$.`, `$180 - ${a + b} = ${180 - a - b}$.`], shown: `$x = ${180 - a - b}^\\circ$` };
+    if (r() < 0.5) return { figure: straightLineAnglesFig(a), skill: "angles-basic", level, prompt: `Two angles on a straight line are $${a}^\\circ$ and $x^\\circ$. Find $x$.`, answer: { kind: "number", value: 180 - a, label: "x =" }, hint: "Angles on a straight line add up to 180°.", solution: [`$180 - ${a} = ${180 - a}$.`], shown: `$x = ${180 - a}^\\circ$` };
+    return { figure: triangleAnglesFig([`${a}°`, `${b}°`, "x"]), skill: "angles-basic", level, prompt: `Two angles in a triangle are $${a}^\\circ$ and $${b}^\\circ$. Find the third angle, $x$.`, answer: { kind: "number", value: 180 - a - b, label: "x =" }, hint: "Angles in a triangle add up to 180°.", solution: [`$${a} + ${b} = ${a + b}$.`, `$180 - ${a + b} = ${180 - a - b}$.`], shown: `$x = ${180 - a - b}^\\circ$` };
   }
   if (level === 2) {
     const a = 10 * int(r, 5, 12), b = 10 * int(r, 5, 12), c = 10 * int(r, 3, 8);
     const x = 360 - a - b - c;
-    if (x > 0) return { skill: "angles-basic", level, prompt: `Angles around a point are $${a}^\\circ$, $${b}^\\circ$, $${c}^\\circ$ and $x^\\circ$. Find $x$.`, answer: { kind: "number", value: x, label: "x =" }, hint: "Angles around a point add up to 360°.", solution: [`$${a} + ${b} + ${c} = ${a + b + c}$.`, `$360 - ${a + b + c} = ${x}$.`], shown: `$x = ${x}^\\circ$` };
+    if (x > 0) return { figure: pointAnglesFig(a, b, c), skill: "angles-basic", level, prompt: `Angles around a point are $${a}^\\circ$, $${b}^\\circ$, $${c}^\\circ$ and $x^\\circ$. Find $x$.`, answer: { kind: "number", value: x, label: "x =" }, hint: "Angles around a point add up to 360°.", solution: [`$${a} + ${b} + ${c} = ${a + b + c}$.`, `$360 - ${a + b + c} = ${x}$.`], shown: `$x = ${x}^\\circ$` };
     return angles(r, level);
   }
   if (r() < 0.5) { const apex = 2 * int(r, 10, 40); return { skill: "angles-basic", level, prompt: `An isosceles triangle has an angle of $${apex}^\\circ$ between its two equal sides. What size is each of the other two angles?`, answer: { kind: "number", value: (180 - apex) / 2 }, hint: "The other two angles are the same size. Take the angle you know away from 180°, then split what’s left in half.", solution: [`$180 - ${apex} = ${180 - apex}$.`, `Share between two equal angles: $${180 - apex} \\div 2 = ${(180 - apex) / 2}$.`], shown: `$${(180 - apex) / 2}^\\circ$` }; }
   const a = 10 * int(r, 6, 12), b = 10 * int(r, 6, 12), c = 10 * int(r, 5, 11), x = 360 - a - b - c;
   if (x <= 0) return angles(r, level);
-  return { skill: "angles-basic", level, prompt: `Three angles of a quadrilateral are $${a}^\\circ$, $${b}^\\circ$ and $${c}^\\circ$. Find the fourth angle.`, answer: { kind: "number", value: x }, hint: "Angles in a quadrilateral add up to 360°.", solution: [`$${a} + ${b} + ${c} = ${a + b + c}$.`, `$360 - ${a + b + c} = ${x}$.`], shown: `$${x}^\\circ$` };
+  return { figure: quadAnglesFig([`${a}°`, `${b}°`, `${c}°`, "?"]), skill: "angles-basic", level, prompt: `Three angles of a quadrilateral are $${a}^\\circ$, $${b}^\\circ$ and $${c}^\\circ$. Find the fourth angle.`, answer: { kind: "number", value: x }, hint: "Angles in a quadrilateral add up to 360°.", solution: [`$${a} + ${b} + ${c} = ${a + b + c}$.`, `$360 - ${a + b + c} = ${x}$.`], shown: `$${x}^\\circ$` };
 }
 
 /* ---------- Year 6 ---------- */

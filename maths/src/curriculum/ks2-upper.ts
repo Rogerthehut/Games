@@ -1,5 +1,5 @@
 import { int, pick, round } from "../engine/rng";
-import { circleFig, parallelogramFig } from "./figures";
+import { circleFig, parallelogramFig, similarPairFig } from "./figures";
 import type { Skill } from "../engine/types";
 import { num } from "./ks2";
 
@@ -147,8 +147,8 @@ export const ks2UpperSkills: Skill[] = [
     parentNote: "Every length is multiplied by the same number, but the angles stay the same. A map scale of 1:50,000 means 1 cm on the map is 50,000 cm in real life.",
     talkAbout: "What do you multiply by to go from the small shape to the big one?",
   }, (r, l) => {
-    if (l === 1) { const k = int(r, 2, 5), a = int(r, 3, 9); return { prompt: `A shape is enlarged by scale factor ${k}. A side that was ${a} cm long becomes how long in cm?`, value: a * k, unit: "cm", hint: "Multiply the length by the scale factor.", solution: [`${a} × ${k} = ${a * k}.`] }; }
-    if (l === 2) { const k = int(r, 2, 6), a = int(r, 3, 8); return { prompt: `A shape is enlarged. A side of ${a} cm becomes ${a * k} cm. What is the scale factor?`, value: k, hint: "Divide the new length by the old length.", solution: [`${a * k} ÷ ${a} = ${k}.`] }; }
+    if (l === 1) { const k = int(r, 2, 5), a = int(r, 3, 9); return { figure: similarPairFig("rect", `${a} cm`, "?", k), prompt: `A shape is enlarged by scale factor ${k}. A side that was ${a} cm long becomes how long in cm?`, value: a * k, unit: "cm", hint: "Multiply the length by the scale factor.", solution: [`${a} × ${k} = ${a * k}.`] }; }
+    if (l === 2) { const k = int(r, 2, 6), a = int(r, 3, 8); return { figure: similarPairFig("rect", `${a} cm`, `${a * k} cm`, k), prompt: `A shape is enlarged. A side of ${a} cm becomes ${a * k} cm. What is the scale factor?`, value: k, hint: "Divide the new length by the old length.", solution: [`${a * k} ÷ ${a} = ${k}.`] }; }
     const cm = pick(r, [2, 4, 6, 8]); return { prompt: `A map has a scale of 1 : 50 000, so 1 cm on the map is 50 000 cm in real life. Two towns are ${cm} cm apart on the map. How far apart are they in real life, in km? (100 000 cm = 1 km)`, value: cm / 2, hint: "Multiply by 50 000 to get centimetres, then change to kilometres.", solution: [`${cm} × 50 000 = ${place(cm * 50000)} cm.`, `${place(cm * 50000)} ÷ 100 000 = ${cm / 2} km.`] };
   }),
   num({
@@ -200,10 +200,10 @@ export const ks2UpperSkills: Skill[] = [
     parentNote: "Remind them: along the corridor (x) first, then up the stairs (y). To find a distance across zero, add the two parts together.",
     talkAbout: "How do you find the distance between −3 and 4 on a number line?",
   }, (r, l) => {
-    if (l === 1) { const x1 = int(r, 2, 6), x2 = int(r, 2, 7), y = int(r, -4, 4); return { prompt: `Point A is at (−${x1}, ${neg(y)}) and point B is at (${x2}, ${neg(y)}). How far apart are they, in squares?`, value: x1 + x2, hint: "They are on the same horizontal line. Count the squares to zero, then on to the other point.", solution: [`From −${x1} to 0 is ${x1} squares.`, `From 0 to ${x2} is ${x2} squares.`, `${x1} + ${x2} = ${x1 + x2}.`] }; }
-    if (l === 2) { const y1 = int(r, 2, 6), y2 = int(r, 2, 6), x = int(r, -5, 5); return { prompt: `Point C is at (${neg(x)}, ${y1}) and point D is at (${neg(x)}, −${y2}). How far apart are they, in squares?`, value: y1 + y2, hint: "They are on the same vertical line. Count to zero and then on.", solution: [`From ${y1} down to 0 is ${y1} squares.`, `From 0 down to −${y2} is ${y2} squares.`, `${y1} + ${y2} = ${y1 + y2}.`] }; }
+    if (l === 1) { const x1 = int(r, 2, 6), x2 = int(r, 2, 7), y = int(r, -4, 4); return { figure: { type: "coord-grid", min: -8, max: 8, points: [{ x: -x1, y, label: "A" }, { x: x2, y, label: "B" }], alt: `A coordinate grid with point A at (−${x1}, ${y}) and point B at (${x2}, ${y}).` }, prompt: `Point A is at (−${x1}, ${neg(y)}) and point B is at (${x2}, ${neg(y)}). How far apart are they, in squares?`, value: x1 + x2, hint: "They are on the same horizontal line. Count the squares to zero, then on to the other point.", solution: [`From −${x1} to 0 is ${x1} squares.`, `From 0 to ${x2} is ${x2} squares.`, `${x1} + ${x2} = ${x1 + x2}.`] }; }
+    if (l === 2) { const y1 = int(r, 2, 6), y2 = int(r, 2, 6), x = int(r, -5, 5); return { figure: { type: "coord-grid", min: -8, max: 8, points: [{ x, y: y1, label: "C" }, { x, y: -y2, label: "D" }], alt: `A coordinate grid with point C at (${x}, ${y1}) and point D at (${x}, −${y2}).` }, prompt: `Point C is at (${neg(x)}, ${y1}) and point D is at (${neg(x)}, −${y2}). How far apart are they, in squares?`, value: y1 + y2, hint: "They are on the same vertical line. Count to zero and then on.", solution: [`From ${y1} down to 0 is ${y1} squares.`, `From 0 down to −${y2} is ${y2} squares.`, `${y1} + ${y2} = ${y1 + y2}.`] }; }
     const x1 = int(r, 2, 5), x2 = int(r, 2, 6), y1 = int(r, 1, 4), y2 = int(r, 1, 4);
-    return { prompt: `A rectangle has corners at (−${x1}, −${y1}), (${x2}, −${y1}) and (${x2}, ${y2}). What is its area in square units?`, value: (x1 + x2) * (y1 + y2), hint: "Find the width and the height first.", solution: [`The width is ${x1} + ${x2} = ${x1 + x2}.`, `The height is ${y1} + ${y2} = ${y1 + y2}.`, `${x1 + x2} × ${y1 + y2} = ${(x1 + x2) * (y1 + y2)}.`] };
+    return { figure: { type: "coord-grid", min: -8, max: 8, points: [{ x: -x1, y: -y1, label: "" }, { x: x2, y: -y1, label: "" }, { x: x2, y: y2, label: "" }], poly: [[-x1, -y1], [x2, -y1], [x2, y2], [-x1, y2]], alt: `A rectangle on a coordinate grid with corners at (−${x1}, −${y1}), (${x2}, −${y1}), (${x2}, ${y2}) and (−${x1}, ${y2}).` }, prompt: `A rectangle has corners at (−${x1}, −${y1}), (${x2}, −${y1}) and (${x2}, ${y2}). What is its area in square units?`, value: (x1 + x2) * (y1 + y2), hint: "Find the width and the height first.", solution: [`The width is ${x1} + ${x2} = ${x1 + x2}.`, `The height is ${y1} + ${y2} = ${y1 + y2}.`, `${x1 + x2} × ${y1 + y2} = ${(x1 + x2) * (y1 + y2)}.`] };
   }),
   num({
     id: "circle-parts", name: "Parts of a circle", stage: "KS2", year: 6, strand: "Geometry", prereqs: [],

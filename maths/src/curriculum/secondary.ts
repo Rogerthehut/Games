@@ -1,5 +1,5 @@
 import { int, pick, round, type Rng } from "../engine/rng";
-import { circleFig, parallelogramFig, trapeziumFig, triangleBaseHeightFig } from "./figures";
+import { circleFig, parallelogramFig, similarPairFig, trapeziumFig, triangleBaseHeightFig } from "./figures";
 import type { Figure, Question, Skill } from "../engine/types";
 import { frac } from "./helpers";
 
@@ -192,7 +192,7 @@ export const secondarySkills: Skill[] = [
     }
     if (l === 2) {
       const b = int(r, 2, 8) * 2, h = int(r, 3, 9), area = (b * h) / 2;
-      return { prompt: `A triangular prism has a triangle end with base ${b} cm and height ${h} cm. The prism is ${len} cm long. Work out its volume.`, value: area * len, unit: "cm³", hint: "Find the area of the triangle first, then multiply by the length.",
+      return { figure: { type: "solid", kind: "tri-prism", a: `${b} cm`, b: `${h} cm`, c: `${len} cm`, alt: `A triangular prism. The triangle end has a base of ${b} cm and a height of ${h} cm, and the prism is ${len} cm long.` }, prompt: `A triangular prism has a triangle end with base ${b} cm and height ${h} cm. The prism is ${len} cm long. Work out its volume.`, value: area * len, unit: "cm³", hint: "Find the area of the triangle first, then multiply by the length.",
         solution: [`Area of the triangle = ${b} × ${h} ÷ 2 = ${area} cm².`, `Volume = ${area} × ${len} = ${area * len} cm³.`] };
     }
     const area = int(r, 3, 15) * 2;
@@ -286,7 +286,7 @@ export const secondarySkills: Skill[] = [
   }, (r, l) => {
     if (l === 1) {
       const a = int(r, 2, 9), k = int(r, 2, 5);
-      return { prompt: `Triangle B is an enlargement of triangle A with scale factor ${k}. A side on triangle A is ${a} cm. How long is the matching side on triangle B?`, value: a * k, unit: "cm", hint: "Multiply by the scale factor.", solution: [`${a} × ${k} = ${a * k} cm.`] };
+      return { figure: similarPairFig("tri", `${a} cm`, "?", k), prompt: `Triangle B is an enlargement of triangle A with scale factor ${k}. A side on triangle A is ${a} cm. How long is the matching side on triangle B?`, value: a * k, unit: "cm", hint: "Multiply by the scale factor.", solution: [`${a} × ${k} = ${a * k} cm.`] };
     }
     if (l === 2) {
       const [q, p] = pick(r, [[2, 3], [2, 5], [3, 4], [3, 5], [3, 7], [4, 5], [4, 7]] as const); // the scale factor p/q, in its simplest form
