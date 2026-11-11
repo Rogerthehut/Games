@@ -8,6 +8,7 @@ import {
 import { Keypad, applyKey, useDigitKeys } from "./answer-input";
 import { useApp } from "./context";
 import { Icon } from "./icons";
+import { MoreBelow } from "./qshell";
 import { playPracticeSound, readPracticeQuestion, stopPracticeNarration } from "./practice-audio";
 
 type View = { name: "hub" } | { name: "learn"; table: number } | { name: "round"; only?: number } | { name: "check" };
@@ -26,6 +27,7 @@ export function Tables() {
       {view.name === "learn" && <Learn table={view.table} onTable={(table) => setView({ name: "learn", table })} onPractise={() => setView({ name: "round", only: view.table })} onBack={hub} />}
       {view.name === "round" && <Session key={`r${view.only ?? 0}-${run}`} timed={false} only={view.only} onBack={hub} onAgain={again} />}
       {view.name === "check" && <Session key={`check-${run}`} timed onBack={hub} onAgain={again} />}
+      {(view.name === "hub" || view.name === "learn") && <MoreBelow />}
     </main>
   );
 }

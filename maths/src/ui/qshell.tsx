@@ -87,3 +87,48 @@ export function QBar({ left, right, help = false }: { left?: ComponentChildren; 
     </div>
   );
 }
+
+
+/** The nearest ancestor that scrolls by itself, or null when the whole page scrolls. */
+function scrollerOf(el: HTMLElement | null): HTMLElement | null {
+  for (let n = el; n && n !== document.body; n = n.parentElement) {
+    const o = getComputedStyle(n).overflowY;
+    if ((o === "auto" || o === "scroll") && n.scrollHeight > n.clientHeight + 1) return n;
+  }
+  return null;
+}
+
+/**
+ * "Scroll for more": a small pill that appears while a page carries on below the screen and goes when the end is reached.
+ * Put it last inside the page. It sticks to the bottom of the visible area, clear of the tab bar.
+ */
+export function MoreBelow() {
+  const anchor = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const update = () => {
+      const sc = scrollerOf(anchor.current?.parentElement ?? null);
+      const doc = document.scrollingElement ?? document.documentElement;
+      const remaining = sc ? sc.scrollHeight - sc.clientHeight - sc.scrollTop : doc.scrollHeight - innerHeight - doc.scrollTop;
+      setMore(remaining > 60);
+    };
+    const watch = new ResizeObserver(update);
+    watch.observe(document.body);
+    if (anchor.current?.parentElement) watch.observe(anchor.current.parentElement);
+    document.addEventListener("scroll", update, { capture: true, passive: true });
+    addEventListener("resize", update);
+    update();
+    const soon = setTimeout(update, 400); // pages that fade in or load a little late
+    return () => { watch.disconnect(); document.removeEventListener("scroll", update, true); removeEventListener("resize", update); clearTimeout(soon); };
+  });
+  const down = () => {
+    const sc = scrollerOf(anchor.current?.parentElement ?? null);
+    const behavior = matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    if (sc) sc.scrollBy({ top: sc.clientHeight * 0.75, behavior }); else scrollBy({ top: innerHeight * 0.75, behavior });
+  };
+  return (
+    <div class="more-below" ref={anchor}>
+      {more && <button type="button" class="more-cue" onClick={down} data-testid="more-below">Scroll for more <Icon name="chevron" size={18} /></button>}
+    </div>
+  );
+}

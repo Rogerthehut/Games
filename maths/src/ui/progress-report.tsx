@@ -3,6 +3,7 @@ import { buildProgressReport, type Range, reportCsv, reportFileName, STATUS_ORDE
 import type { Profile } from "../engine/progress";
 import { useApp } from "./context";
 import { Icon } from "./icons";
+import { MoreBelow } from "./qshell";
 import { Maths } from "./maths";
 import { CubeMark, Wordmark } from "./wordmark";
 
@@ -242,6 +243,7 @@ export function ProgressReport() {
           <p class="pr-credit">Prepared by quarter, a trading name of Wristed Ltd · yourquarter.co.uk · from practice done in the app. Contains a first name or nickname and maths progress only.</p>
         </footer>
       </article>
+      <MoreBelow />
     </main>
   );
 }

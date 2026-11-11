@@ -1,3 +1,4 @@
+import { MoreBelow } from "./qshell";
 import type { ComponentChildren } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 import { useApp } from "./context";
@@ -97,6 +98,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
       </header>
       <main class="content" id="main">
         {children}
+        <MoreBelow />
       </main>
       <SearchDialog dialog={searchDialog} />
       <BrowserStorageNotice />
