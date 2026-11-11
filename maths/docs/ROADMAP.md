@@ -40,7 +40,8 @@ practised the same way as maths: short questions that work out their own answers
 There is no separate price or second Stripe product, so billing does not change. When it ships, the wording on the welcome page, the title,
 the terms and the privacy notice moves from "maths" to "maths and STEM".
 
-**Still open:** whether it sits as a new strand in the same Skills list or as its own area on Today.
+**Also decided:** it gets its own area on Today, next to the maths activities, rather than being folded into the Skills list. It has its own tile and its own
+progress, and it appears for every learner on the account as part of the same subscription.
 
 ## England Key Stage 2 coverage audit
 
