@@ -214,6 +214,79 @@ export function averagesFigure(): string {
   return s + "</svg>";
 }
 
+/** An analogue clock face with both hands. */
+export function clockFace(h = 3, m = 20): string {
+  const cx = 110, cy = 110, R = 90;
+  const pt = (deg: number, len: number): [number, number] => [round2(cx + len * Math.sin((deg * Math.PI) / 180)), round2(cy - len * Math.cos((deg * Math.PI) / 180))];
+  let s = open(220, 240, `A clock showing ${h}:${String(m).padStart(2, "0")}. The short hand points near the ${h} and the long hand points to the ${m / 5}`);
+  s += circle(cx, cy, R, CREAM, { sw: 3 });
+  for (let i = 1; i <= 12; i++) { const [x, y] = pt(i * 30, R - 26); s += text(x, y + 5, i, { size: 16, weight: 700 }); }
+  for (let i = 0; i < 60; i++) { const a = pt(i * 6, R - 2), b = pt(i * 6, R - (i % 5 === 0 ? 8 : 4)); s += line(a[0], a[1], b[0], b[1], { w: i % 5 === 0 ? 2 : 1 }); }
+  const hand = pt(((h % 12) + m / 60) * 30, 36), minute = pt(m * 6, 52);
+  s += line(cx, cy, hand[0], hand[1], { w: 6, stroke: ACCENT }) + line(cx, cy, minute[0], minute[1], { w: 3.5, stroke: "#c2410c" }) + circle(cx, cy, 5, INK);
+  return s + text(110, 232, `${h}:${String(m).padStart(2, "0")}  (long hand on the ${m / 5} = ${m} minutes)`, { size: 12 }) + "</svg>";
+}
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** A rectangle and the triangle that is half of it, with their area rules. */
+export function areaShapes(): string {
+  let s = open(380, 220, "A rectangle 6 by 4 with area 24, and a triangle with base 6 and height 4 with area 12, which is half the rectangle");
+  const u = 22;
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) s += rect(12 + c * u, 20 + r * u, u, u, MINT, { r: 1, sw: 1 });
+  s += text(12 + 3 * u, 126, "6", { size: 14 }) + text(4, 20 + 2 * u + 5, "4", { size: 14 });
+  s += text(12 + 3 * u, 160, "rectangle = 6 × 4 = 24", { size: 13 });
+  const x0 = 214;
+  s += poly([[x0, 108], [x0 + 6 * 22 + 0, 108], [x0 + 70, 20]], PERI);
+  s += line(x0 + 70, 20, x0 + 70, 108, { dash: "5 4", w: 1.5 }) + text(x0 + 76, 68, "4", { size: 14, anchor: "start" }) + text(x0 + 66, 126, "6", { size: 14 });
+  s += text(x0 + 56, 160, "triangle = ½ × 6 × 4 = 12", { size: 13 });
+  s += text(190, 200, "A triangle is half of the rectangle around it.", { size: 13, weight: 500 });
+  return s + "</svg>";
+}
+
+/** A right-angled triangle with the sides named from one angle, and the three ratios. */
+export function trigTriangle(): string {
+  let s = open(360, 230, "A right-angled triangle with angle theta. The side opposite theta, the side next to it (adjacent), and the longest side (hypotenuse) are labelled");
+  const A: [number, number] = [40, 170], B: [number, number] = [240, 170], C: [number, number] = [240, 50];
+  s += poly([A, B, C], CREAM, 2.5) + poly([[228, 170], [228, 158], [240, 158], [240, 170]], "none", 1.5);
+  s += text(A[0] + 52, A[1] - 6, "θ", { size: 17, weight: 700, fill: "#c2410c" });
+  s += text(140, 195, "adjacent (next to θ)", { size: 13 }) + text(292, 114, "opposite", { size: 13 }) + text(114, 96, "hypotenuse", { size: 13, fill: ACCENT });
+  s += text(180, 218, "sin θ = opp ÷ hyp  ·  cos θ = adj ÷ hyp  ·  tan θ = opp ÷ adj", { size: 11.5 });
+  return s + "</svg>";
+}
+
+/** 45 000 as 4.5 × 10⁴, showing the decimal point moving four places. */
+export function standardFormFigure(): string {
+  let s = open(360, 190, "The number 45000 with an arrow showing the decimal point moving 4 places left, giving 4.5 times 10 to the power 4");
+  const digits = ["4", "5", "0", "0", "0"];
+  digits.forEach((d, i) => { s += rect(30 + i * 52, 30, 46, 50, i < 2 ? PINK : CREAM, { r: 8 }) + text(53 + i * 52, 64, d, { size: 24, fill: "#18192b" }); });
+  s += `<path d="M 300 96 C 300 130, 80 130, 80 98" fill="none" stroke="${ACCENT}" stroke-width="2.5"/><polygon points="80,92 74,104 86,104" fill="${ACCENT}"/>`;
+  s += text(190, 150, "the decimal point moves 4 places", { size: 13 });
+  s += text(180, 178, "45 000 = 4.5 × 10⁴", { size: 17, weight: 700 });
+  return s + "</svg>";
+}
+
+/** A sequence with its steps, for finding the nth term. */
+export function sequenceSteps(): string {
+  let s = open(380, 200, "The sequence 4, 7, 10, 13 going up by 3 each time, with the rule term equals 3n plus 1");
+  const terms = [4, 7, 10, 13];
+  terms.forEach((t, i) => {
+    const x = 20 + i * 88;
+    s += text(x + 28, 28, `n = ${i + 1}`, { size: 12, weight: 500 }) + rect(x, 36, 56, 44, i % 2 ? PERI : MINT, { r: 10 }) + text(x + 28, 66, t, { size: 20, fill: "#18192b" });
+    if (i < 3) s += text(x + 72, 110, "+3", { size: 14, fill: "#c2410c", weight: 700 }) + `<path d="M ${x + 40} 84 Q ${x + 72} 100 ${x + 104} 84" fill="none" stroke="#c2410c" stroke-width="2"/>`;
+  });
+  s += text(190, 150, "The steps are +3, so the rule starts with 3n.", { size: 13 }) + text(190, 178, "n = 1 gives 3, we need 4, so add 1:  term = 3n + 1", { size: 14, weight: 700 });
+  return s + "</svg>";
+}
+
+/** Powers: 2 to the power of 1 to 5 as repeated doubling, with the index law for multiplying. */
+export function indicesFigure(): string {
+  let s = open(380, 200, "Powers of 2: 2 to the 1 is 2, 2 squared is 4, 2 cubed is 8, 2 to the 4 is 16, 2 to the 5 is 32");
+  const pw = ["2¹ = 2", "2² = 4", "2³ = 8", "2⁴ = 16", "2⁵ = 32"];
+  pw.forEach((t, i) => { const h = 16 + i * 22; s += rect(14 + i * 72, 120 - h, 62, h, i % 2 ? PERI : PINK, { r: 6 }) + text(45 + i * 72, 142, t, { size: 12 }); });
+  s += text(190, 176, "Same base, multiply: add the powers.   2³ × 2² = 2⁵", { size: 13, weight: 700 });
+  return s + "</svg>";
+}
+
 export const FIGURES: Record<FigureId, (param?: number) => string> = {
   pascal: (n) => pascalTriangle(7, n ?? -1),
   "factor-tree": (n) => factorTree(n ?? 60),
@@ -230,6 +303,12 @@ export const FIGURES: Record<FigureId, (param?: number) => string> = {
   "prob-tree": () => probabilityTree(),
   tangent: () => tangentFigure(),
   averages: () => averagesFigure(),
+  clock: (m) => clockFace(4, m ?? 20),
+  "area-shapes": () => areaShapes(),
+  "trig-triangle": () => trigTriangle(),
+  "standard-form": () => standardFormFigure(),
+  "sequence-steps": () => sequenceSteps(),
+  indices: () => indicesFigure(),
 };
 
 export const figureSvg = (id: FigureId, param?: number) => FIGURES[id](param);
