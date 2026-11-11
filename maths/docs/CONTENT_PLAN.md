@@ -8,10 +8,10 @@ common mistakes cannot disagree. `src/engine/engine.test.ts` checks 150 question
 
 | Stage | Years | Topics now |
 |---|---|---|
-| Key Stage 2 | 3 to 6 | 66 (was 32; batches 2, 3 and the money set added 34) |
-| Key Stage 3 | 7 to 9 | 38 (was 8; batch 1, the money set and batch 4) |
-| GCSE | 10 and 11 | 33 (was 8; batch 1 and batch 5) |
-| A-level | 12 and 13 | 30 (was 4; batch 1 and batch 6) |
+| Key Stage 2 | 3 to 6 | 74 (was 32; batches 2, 3, the money set and the second pass) |
+| Key Stage 3 | 7 to 9 | 40 (was 8; batch 1, the money set, batch 4 and the second pass) |
+| GCSE | 10 and 11 | 37 (was 8; batch 1, batch 5 and the second pass) |
+| A-level | 12 and 13 | 35 (was 4; batch 1, batch 6 and the second pass) |
 
 Batch 1 added 18 topics: negative-number calculation, area of triangles and trapeziums, percentage change, angles in parallel lines,
 speed/distance/time, circumference, laws of indices, volume of prisms, compound interest, upper and lower bounds, composite functions,
