@@ -11,6 +11,7 @@ import { legalHref, sitemapHref } from "./legal";
 import { WORLDS } from "./world-scene";
 import parentContent from "../parents/content.json";
 import admissions from "../parents/admissions.json";
+import { CONCEPTS } from "../concepts";
 
 type Entry = {
   title: string;
@@ -77,6 +78,8 @@ const curriculum = [
   )),
 ];
 
+const studyGuides = CONCEPTS.map((c) => entry(c.title, `Study guide · ${c.years}`, `${c.summary} ${c.id.replace(/-/g, " ")} explain explanation learn study idea`, { name: "concept", id: c.id }));
+
 export function quarterSearch(profile: Profile) {
   const available: Entry[] = [];
   const draft = profile.practiceDraft;
@@ -100,5 +103,5 @@ export function quarterSearch(profile: Profile) {
       available.push(entry(`${STAGE_LABEL[stage]} certificate`, "Certificate", `${stage} award achievement download`, { name: "certificate", stage }));
     }
   }
-  return makeSearchIndex([...pages, ...lessons, ...curriculum, ...available]);
+  return makeSearchIndex([...pages, ...lessons, ...curriculum, ...studyGuides, ...available]);
 }

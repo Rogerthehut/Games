@@ -89,6 +89,8 @@ const SCREENS = [
   { name: "checkup-question", go: async (p) => { await navTab(p, "plan"); await click(p, "start-checkup").catch(() => {}); await click(p, "checkup-start").catch(() => {}); await wait(p, 500); } },
   { name: "parent-guide-test-finder", fresh: true, path: "/11-plus-maths.html", go: async (p) => { await p.locator("#test-finder").scrollIntoViewIfNeeded(); await wait(p, 300); } },
   { name: "parent-guide-test-finder-search", fresh: true, path: "/11-plus-maths.html", go: async (p) => { await p.locator("#test-finder").scrollIntoViewIfNeeded(); await p.fill("#test-finder-query", "kent"); await wait(p, 300); } },
+  { name: "study-guide", fresh: true, path: "/learn/pascals-triangle.html", go: async (p) => { await wait(p, 300); } },
+  { name: "study-guide-index", fresh: true, path: "/learn/index.html", go: async (p) => { await wait(p, 300); } },
   { name: "tables-hub", go: async (p) => { await click(p, "start-tables"); } },
   { name: "tables-learn", go: async (p) => { await click(p, "start-tables"); await click(p, "tables-learn"); await p.getByRole("button", { name: "Cover the answers" }).click(); await wait(p, 300); } },
   { name: "tables-round", go: async (p) => { await click(p, "start-tables"); await click(p, "tables-practise"); await wait(p, 400); } },

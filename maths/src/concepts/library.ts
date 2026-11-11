@@ -1,0 +1,287 @@
+import type { Concept } from "./types";
+
+/**
+ * The study library. Every explanation here is written for quarter. Other sites are linked, never copied.
+ * Each concept names the topics that use it, so a parent looking at a topic can find the idea behind it.
+ */
+const wiki = (title: string, path: string) => ({ label: `${title} (Wikipedia)`, url: `https://en.wikipedia.org/wiki/${path}` });
+
+export const CONCEPTS: Concept[] = [
+  {
+    id: "pascals-triangle", title: "Pascal's triangle", years: "Years 9 to 13", summary: "A triangle of numbers where each one is the two above it added together, and the rows give the numbers in a binomial expansion.",
+    kid: [
+      { p: "Pascal's triangle is a pattern of numbers. Start with a 1 at the top. Every number below is made by adding the two numbers just above it. The edges are always 1." },
+      { p: "Look at the row 1, 3, 3, 1. The 3 is made from 1 + 2 in the row above. Try it for the next row: 1, 4, 6, 4, 1." },
+      { p: "The numbers in a row tell you how many ways there are to choose things. In the row for 4, the middle number 6 is the number of ways to choose 2 things from 4." },
+    ],
+    grownUp: [
+      { p: "In the row numbered $n$ (the top 1 is row 0), the numbers are $\\binom{n}{0}, \\binom{n}{1}, \\ldots, \\binom{n}{n}$. They are the coefficients when you expand $(1 + x)^n$." },
+      { h: "Why it matters in the questions" },
+      { p: "To expand $(1 + px)^n$, the coefficient of $x^k$ is the number from Pascal's triangle times $p^k$. Row 4 is 1, 4, 6, 4, 1, so $(1 + 2x)^4 = 1 + 8x + 24x^2 + 32x^3 + 16x^4$." },
+      { h: "Common mistakes" },
+      { list: ["Counting the top 1 as row 1. It is row 0, so the second row is row 1.", "Forgetting to raise $p$ to the power as well, so only the triangle number is used.", "Mixing up the numbers $\\binom{n}{k}$ with $n \\times k$."] },
+    ],
+    figure: { id: "pascal", caption: "Pascal's triangle. Each number is the sum of the two above it. The highlighted row is row 4: 1, 4, 6, 4, 1.", param: 4 },
+    example: { prompt: "Find the coefficient of $x^2$ in $(1 + 3x)^4$.", steps: ["Row 4 of the triangle is 1, 4, 6, 4, 1.", "The number for $x^2$ is the third one: 6.", "Raise 3 to the power 2: $3^2 = 9$.", "$6 \\times 9 = 54$. So the coefficient is 54."] },
+    why: "Pascal's triangle links counting, probability and algebra. The same numbers appear when you count ways to choose, and in the binomial distribution.",
+    skills: ["binomial-coefficient", "binomial-dist"], related: ["probability-trees"],
+    further: [wiki("Pascal's triangle", "Pascal%27s_triangle"), wiki("Binomial theorem", "Binomial_theorem")],
+  },
+  {
+    id: "prime-factor-trees", title: "Prime numbers and factor trees", years: "Years 5 to 9", summary: "Every number can be built from prime numbers, and a factor tree shows how.",
+    kid: [
+      { p: "A prime number can only be divided exactly by 1 and by itself. 2, 3, 5, 7, 11 and 13 are prime. 9 is not prime, because 3 × 3 = 9." },
+      { p: "A factor tree breaks a number into smaller and smaller pairs until only primes are left. For 60: 60 = 6 × 10, then 6 = 2 × 3 and 10 = 2 × 5." },
+      { p: "The primes at the ends of the branches are the prime factors. 60 = 2 × 2 × 3 × 5. Every number has just one set of prime factors." },
+    ],
+    grownUp: [
+      { p: "Any whole number bigger than 1 is a product of primes in exactly one way (apart from the order). That is why prime factors are useful for finding the highest common factor and lowest common multiple." },
+      { h: "How to help" },
+      { list: ["Start by dividing by 2 while you can, then 3, then 5, then 7.", "Write repeats as powers: $2 \\times 2 \\times 3 \\times 5 = 2^2 \\times 3 \\times 5$.", "Remember that 1 is not prime, and 2 is the only even prime."] },
+    ],
+    figure: { id: "factor-tree", caption: "A factor tree for 60. The green circles are the prime factors: 2, 2, 3 and 5.", param: 60 },
+    example: { prompt: "Write 72 as a product of prime factors.", steps: ["72 = 8 × 9.", "8 = 2 × 2 × 2 and 9 = 3 × 3.", "So $72 = 2^3 \\times 3^2$."] },
+    why: "Prime factors are used to simplify fractions, find common factors and multiples, and later in security codes that keep information safe online.",
+    skills: ["prime-factors", "factors-multiples", "primes-squares-cubes"], related: ["place-value"],
+    further: [wiki("Prime number", "Prime_number"), wiki("Prime factor", "Prime_factor")],
+  },
+  {
+    id: "place-value", title: "Place value", years: "Years 3 to 6", summary: "The position of a digit tells you how much it is worth.",
+    kid: [
+      { p: "In the number 4,573, the 5 is not worth 5. It is in the hundreds place, so it is worth 500." },
+      { p: "Each place is worth ten times more than the one to its right: ones, tens, hundreds, thousands. A zero holds a place when there is nothing in it, like the 0 in 4,073." },
+      { p: "Say 4,573 as: four thousand, five hundred and seventy-three." },
+    ],
+    grownUp: [
+      { p: "Place value is the base of all written calculation. A chart with columns helps. Digits move one place left when multiplied by 10, and one place right when divided by 10." },
+      { h: "Common mistakes" },
+      { list: ["Saying the digit's face value, not its place value.", "Leaving out a zero placeholder, so 4,073 is written as 473.", "Thinking that multiplying by 10 'adds a zero'. It moves the digits, and that matters for decimals."] },
+    ],
+    figure: { id: "place-value", caption: "Place value chart for 4,573. Each digit is worth its number times its place.", param: 4573 },
+    example: { prompt: "What is the value of the 7 in 4,573?", steps: ["The 7 is in the tens place.", "$7 \\times 10 = 70$.", "So the 7 is worth 70."] },
+    why: "Everything from adding and subtracting to decimals and standard form depends on place value.",
+    skills: ["place-value", "large-numbers", "rounding", "divide-10-100", "pounds-pence"], related: ["negative-numbers"],
+    further: [wiki("Positional notation", "Positional_notation")],
+  },
+  {
+    id: "equivalent-fractions", title: "Equivalent fractions", years: "Years 3 to 7", summary: "Different fractions can name the same amount, and multiplying or dividing top and bottom by the same number keeps the size.",
+    kid: [
+      { p: "Half a bar of chocolate is the same as 2 quarters, and the same as 4 eighths. These are equivalent fractions: $\\frac{1}{2} = \\frac{2}{4} = \\frac{4}{8}$." },
+      { p: "To make an equivalent fraction, multiply the top and the bottom by the same number. $\\frac{1}{2} \\times \\frac{3}{3} = \\frac{3}{6}$." },
+      { p: "To make a fraction simpler, divide the top and the bottom by the same number. $\\frac{6}{8} = \\frac{3}{4}$." },
+    ],
+    grownUp: [
+      { p: "The size of a fraction does not change when you scale the pieces and the number of pieces together. Drawing bars the same length and cutting them into different numbers of parts makes this visible." },
+      { h: "Common mistakes" },
+      { list: ["Adding the same number to the top and the bottom, instead of multiplying.", "Thinking a bigger bottom number means a bigger fraction.", "Stopping simplifying too early. Keep dividing until the top and bottom share no factor."] },
+    ],
+    figure: { id: "fraction-bars", caption: "Bars of the same length. One half, two quarters and four eighths are all the same size." },
+    example: { prompt: "Write $\\frac{3}{5}$ with a bottom number of 20.", steps: ["$5 \\times 4 = 20$, so multiply the top and bottom by 4.", "$\\frac{3 \\times 4}{5 \\times 4} = \\frac{12}{20}$."] },
+    why: "You need equivalent fractions to add and subtract fractions, to compare them, and to understand ratios and percentages.",
+    skills: ["frac-equiv", "fraction-order", "frac-same-denom", "frac-add", "mixed-numbers", "mixed-number-ops"], related: ["percentages"],
+    further: [wiki("Fraction", "Fraction")],
+  },
+  {
+    id: "multiplication-arrays", title: "Multiplication as groups and arrays", years: "Years 3 to 6", summary: "Multiplication means equal groups, and a grid of dots shows why the order does not matter.",
+    kid: [
+      { p: "4 × 6 means 4 groups of 6. Draw 4 rows with 6 dots in each row. Count them: 24." },
+      { p: "Turn the picture on its side. Now there are 6 rows of 4. It is still 24. That is why 4 × 6 = 6 × 4." },
+      { p: "Division is the other way round. 24 ÷ 4 asks: if I share 24 dots into 4 equal rows, how many are in each row?" },
+    ],
+    grownUp: [
+      { p: "Seeing multiplication as an array builds the idea of area, factors and the link between multiplying and dividing. If a child knows 4 × 6 = 24, they also know 6 × 4 = 24, 24 ÷ 4 = 6 and 24 ÷ 6 = 4." },
+      { h: "How to help" },
+      { list: ["Learn the tables in short daily bursts, and use the commutative trick to halve what you must learn.", "Use the quiet-speed idea: quick recall is the aim, not rushing.", "Link tables to patterns: the 9s digits add to 9, the 5s end in 0 or 5."] },
+    ],
+    figure: { id: "array", caption: "4 rows of 6 dots. The array shows 4 × 6 = 24.", param: 4 },
+    example: { prompt: "Use an array to work out 7 × 8.", steps: ["Draw 7 rows of 8 dots.", "Split it into 5 rows and 2 rows: 5 × 8 = 40 and 2 × 8 = 16.", "40 + 16 = 56."] },
+    why: "Arrays lead straight to area, to long multiplication and to algebra, where $3(x + 2)$ is also a rectangle split into parts.",
+    skills: ["times-tables", "mult-written", "division", "area-counting"], related: ["place-value"],
+    further: [wiki("Multiplication", "Multiplication")],
+  },
+  {
+    id: "negative-numbers", title: "Negative numbers and the number line", years: "Years 4 to 8", summary: "Numbers below zero live on the left of the number line, and adding and subtracting are moves along it.",
+    kid: [
+      { p: "Numbers can go below zero. On a cold day the temperature might be −3°C. We say 'minus three'." },
+      { p: "On a number line, zero is in the middle. Positive numbers go to the right. Negative numbers go to the left." },
+      { p: "Adding moves you right. Taking away moves you left. 2 − 5 means start at 2 and move 5 to the left. You land on −3." },
+    ],
+    grownUp: [
+      { p: "A number line or a thermometer is the best model. Count down to zero first, then carry on below zero. Later, the rules for multiplying two negatives come from patterns, not tricks." },
+      { h: "Common mistakes" },
+      { list: ["Thinking −5 is bigger than −2 because 5 is bigger than 2. −2 is closer to zero, so it is bigger.", "Dropping the minus sign when subtracting a negative: $5 - (-2)$ goes up to 7.", "Treating two minuses next to each other as 'cancel' without understanding the move."] },
+    ],
+    figure: { id: "number-line", caption: "2 − 5 = −3. Start at 2 and move 5 steps to the left." },
+    example: { prompt: "What is $-3 + 8$?", steps: ["Start at −3 on the number line.", "Move 8 to the right: −3 to 0 is 3 steps, then 5 more.", "You land on 5."] },
+    why: "Negative numbers are used in temperatures, money owed, heights below sea level, and in all of algebra and graphs.",
+    skills: ["negative-numbers", "negative-ops", "count-through-zero", "substitute-negatives"], related: ["place-value"],
+    further: [wiki("Negative number", "Negative_number")],
+  },
+  {
+    id: "percentages", title: "Percentages", years: "Years 5 to 11", summary: "A percentage is a number out of 100, and it links to fractions and decimals.",
+    kid: [
+      { p: "Per cent means out of 100. 35% means 35 out of every 100." },
+      { p: "Colour in 35 squares of a hundred square, and you have shown 35%. It is also the fraction $\\frac{35}{100}$ and the decimal 0.35." },
+      { p: "10% is easy: divide by 10. To find 35% of something, find 10% three times and 5% once." },
+    ],
+    grownUp: [
+      { p: "Percentages, fractions and decimals are three ways to write the same amount. Learn the common ones: 50% = ½, 25% = ¼, 10% = ⅒, 20% = ⅕, 75% = ¾." },
+      { h: "Common mistakes" },
+      { list: ["Working out the change but forgetting to add it to (or take it from) the original price.", "Taking a percentage increase and decrease as if they cancel. +20% then −20% is not back to the start.", "Using the new value instead of the original value for percentage change."] },
+    ],
+    figure: { id: "hundred-square", caption: "A hundred square with 35 squares shaded: 35% = 35/100 = 0.35.", param: 35 },
+    example: { prompt: "Find 35% of £60.", steps: ["10% of £60 = £6.", "30% = 3 × £6 = £18.", "5% = £3 (half of 10%).", "35% = £18 + £3 = £21."] },
+    why: "Shops, interest, tax, test scores and statistics all use percentages.",
+    skills: ["pct-amount", "percent-change", "fdp-convert", "profit-loss", "simple-interest", "vat-wages", "growth-decay"], related: ["equivalent-fractions"],
+    further: [wiki("Percentage", "Percentage")],
+  },
+  {
+    id: "angles-in-triangles", title: "Angles in a triangle", years: "Years 5 to 9", summary: "The three angles in any triangle always add up to 180°.",
+    kid: [
+      { p: "Every triangle has three angles. Add them up and you always get 180°. It works for tall, thin and wide triangles." },
+      { p: "If you know two angles, you can find the third. If two angles are 50° and 60°, the third is 180 − 50 − 60 = 70°." },
+      { p: "Try it: tear the three corners off a paper triangle and put them side by side. They make a straight line, which is 180°." },
+    ],
+    grownUp: [
+      { p: "The paper-tearing activity is a convincing demonstration. A straight line is 180°, and the corners fit along it. Later, this fact is used to prove angle rules for polygons and parallel lines." },
+      { h: "Common mistakes" },
+      { list: ["Using 360° (the total for a quadrilateral).", "Reading the wrong scale on a protractor.", "Forgetting that an isosceles triangle has two equal angles."] },
+    ],
+    figure: { id: "triangle-angles", caption: "The angles in a triangle: 50° + 60° + 70° = 180°." },
+    example: { prompt: "A triangle has angles of 35° and 85°. What is the third angle?", steps: ["35 + 85 = 120.", "180 − 120 = 60.", "The third angle is 60°."] },
+    why: "Triangles are the building blocks of shapes. Surveyors, builders and trigonometry all depend on this rule.",
+    skills: ["angles-basic", "angles-polygon", "angles-parallel", "bearings"], related: ["pythagoras-theorem"],
+    further: [wiki("Triangle", "Triangle")],
+  },
+  {
+    id: "pythagoras-theorem", title: "Pythagoras' theorem", years: "Years 9 to 11", summary: "In a right-angled triangle, the square on the longest side equals the sum of the squares on the other two.",
+    kid: [
+      { p: "A right-angled triangle has one square corner. The longest side, opposite the square corner, is called the hypotenuse." },
+      { p: "Draw a square on each side. The big square on the longest side has exactly the same area as the two smaller squares added together." },
+      { p: "For the 3, 4, 5 triangle: 3 × 3 = 9 and 4 × 4 = 16. Add them: 25. And 5 × 5 = 25." },
+    ],
+    grownUp: [
+      { p: "Pythagoras' theorem says $a^2 + b^2 = c^2$, where $c$ is the longest side. To find a short side, rearrange: $a^2 = c^2 - b^2$." },
+      { h: "Common mistakes" },
+      { list: ["Forgetting to take the square root at the end.", "Adding the squares when you need to subtract (finding a short side).", "Using it on a triangle that has no right angle."] },
+    ],
+    figure: { id: "pythagoras", caption: "A 3, 4, 5 triangle with a square on each side. 9 + 16 = 25." },
+    example: { prompt: "A right-angled triangle has short sides 5 cm and 12 cm. Find the longest side.", steps: ["$5^2 + 12^2 = 25 + 144 = 169$.", "$\\sqrt{169} = 13$.", "The longest side is 13 cm."] },
+    why: "It is used to find distances, to check corners are square in building, and in navigation and computer graphics.",
+    skills: ["pythagoras", "vectors", "vectors-3d"], related: ["angles-in-triangles"],
+    further: [wiki("Pythagorean theorem", "Pythagorean_theorem")],
+  },
+  {
+    id: "parts-of-a-circle", title: "Parts of a circle", years: "Years 6 to 11", summary: "The radius, diameter and circumference, and how they are linked.",
+    kid: [
+      { p: "The radius goes from the centre of a circle to the edge. The diameter goes all the way across, through the centre. The diameter is twice the radius." },
+      { p: "The circumference is the distance around the edge of the circle." },
+      { p: "Measure the circumference and divide by the diameter, and you always get about 3.14. This number is called pi (π)." },
+    ],
+    grownUp: [
+      { p: "Circumference $C = \\pi d = 2\\pi r$ and area $A = \\pi r^2$. Learners often mix up the two. Perimeter-type answers are in plain units; area answers are in square units." },
+      { h: "Common mistakes" },
+      { list: ["Using the diameter in the area formula where the radius is needed.", "Mixing up $2\\pi r$ and $\\pi r^2$.", "Forgetting the units are squared for area."] },
+    ],
+    figure: { id: "circle-parts", caption: "A circle with the radius, diameter and circumference marked." },
+    example: { prompt: "A circle has a diameter of 10 cm. Find its circumference. Use π = 3.14.", steps: ["$C = \\pi \\times d$.", "$3.14 \\times 10 = 31.4$.", "The circumference is 31.4 cm."] },
+    why: "Wheels, clocks, pipes, planets and waves all involve circles.",
+    skills: ["circle-parts", "circumference", "circle-area", "arcs-sectors", "cylinder-volume", "cones-spheres", "radians"], related: ["angles-in-triangles"],
+    further: [wiki("Circle", "Circle"), wiki("Pi", "Pi")],
+  },
+  {
+    id: "straight-line-graphs", title: "Gradient and straight-line graphs", years: "Years 8 to 11", summary: "The gradient of a line tells you how steep it is, and y = mx + c describes it.",
+    kid: [
+      { p: "The gradient tells you how steep a line is. Go along 1 step, then see how far the line goes up. That is the gradient." },
+      { p: "A line with the rule $y = 2x + 1$ goes up 2 each time you move 1 along. It crosses the up-and-down axis at 1." },
+      { p: "In $y = mx + c$, the number $m$ is the gradient and $c$ is where the line crosses the y-axis." },
+    ],
+    grownUp: [
+      { p: "Gradient = change in $y$ ÷ change in $x$ (rise over run). Parallel lines have the same gradient. A line that goes down as you move right has a negative gradient." },
+      { h: "Common mistakes" },
+      { list: ["Dividing the change in $x$ by the change in $y$ (run over rise).", "Losing the sign when the line slopes downwards.", "Reading the intercept from the x-axis instead of the y-axis."] },
+    ],
+    figure: { id: "gradient", caption: "The line y = 2x + 1. For every 1 step along, it goes up 2. It crosses the y-axis at 1." },
+    example: { prompt: "Find the gradient of the line through (1, 3) and (3, 7).", steps: ["Change in $y$: 7 − 3 = 4.", "Change in $x$: 3 − 1 = 2.", "Gradient = 4 ÷ 2 = 2."] },
+    why: "Gradients describe speed on a distance-time graph, the rate of change in science, and lead to calculus.",
+    skills: ["linear-gradient", "line-equation", "quadratic-graphs"], related: ["derivative-tangent"],
+    further: [wiki("Slope", "Slope"), wiki("Linear equation", "Linear_equation")],
+  },
+  {
+    id: "quadratic-graphs-roots", title: "Quadratic graphs and their roots", years: "Years 10 to 12", summary: "A quadratic makes a U-shaped curve, and its roots are where it crosses the x-axis.",
+    kid: [
+      { p: "A quadratic equation has an $x^2$ in it, like $y = x^2 - 4x + 3$. Its graph is a smooth U-shape called a parabola." },
+      { p: "The roots are the x-values where the curve crosses the x-axis. For this curve they are 1 and 3." },
+      { p: "The curve is the same on both sides of its lowest point. The line down the middle is the line of symmetry." },
+    ],
+    grownUp: [
+      { p: "Factorising $x^2 - 4x + 3 = (x - 1)(x - 3)$ gives the roots directly. The turning point lies halfway between the roots, and completing the square gives it as $(x - 2)^2 - 1$, so the lowest point is $(2, -1)$." },
+      { h: "Common mistakes" },
+      { list: ["Writing the roots with the wrong sign: the factor $(x - 1)$ gives root $+1$.", "Forgetting that a negative $x^2$ term makes the graph turn upside down.", "Not checking the answer by substituting back in."] },
+    ],
+    figure: { id: "parabola", caption: "y = x² − 4x + 3. It crosses the x-axis at 1 and 3, and has its lowest point at (2, −1)." },
+    example: { prompt: "Solve $x^2 - 5x + 6 = 0$.", steps: ["Factorise: $(x - 2)(x - 3) = 0$.", "So $x - 2 = 0$ or $x - 3 = 0$.", "$x = 2$ or $x = 3$."] },
+    why: "Quadratics describe the path of a thrown ball, areas, and many problems in physics and engineering.",
+    skills: ["solve-quad", "factorise-quad", "completing-square", "quadratic-formula", "quadratic-graphs"], related: ["straight-line-graphs"],
+    further: [wiki("Quadratic function", "Quadratic_function"), wiki("Quadratic equation", "Quadratic_equation")],
+  },
+  {
+    id: "probability-trees", title: "Probability tree diagrams", years: "Years 8 to 13", summary: "A tree diagram shows every outcome of two events and how to multiply along the branches.",
+    kid: [
+      { p: "A tree diagram shows what can happen, one step at a time. Each branch has a chance written on it." },
+      { p: "Here is a bag with 3 red and 2 blue counters. Pick one, then pick another without putting the first back. The chances for the second pick change, because there are fewer counters." },
+      { p: "To find the chance of a whole path, multiply along the branches. Red then red: $\\frac{3}{5} \\times \\frac{2}{4} = \\frac{6}{20} = \\frac{3}{10}$." },
+    ],
+    grownUp: [
+      { p: "Probabilities on the branches leaving one point must add to 1. Multiply along a path to get its probability, and add the paths when more than one path gives the result you want." },
+      { h: "Common mistakes" },
+      { list: ["Not changing the second set of probabilities when nothing is put back.", "Adding along a path instead of multiplying.", "Forgetting the second order: 'different colours' needs red-then-blue and blue-then-red."] },
+    ],
+    figure: { id: "prob-tree", caption: "Two picks from 3 red and 2 blue counters, without replacement. The chance of red then red is 3/5 × 2/4." },
+    example: { prompt: "A bag has 3 red and 2 blue counters. Two are taken without replacement. Find P(both red).", steps: ["First red: $\\frac{3}{5}$.", "Second red (2 reds left out of 4): $\\frac{2}{4}$.", "$\\frac{3}{5} \\times \\frac{2}{4} = \\frac{6}{20} = \\frac{3}{10}$."] },
+    why: "Probability trees are used in games, medical tests, weather forecasts and risk.",
+    skills: ["tree-probability", "conditional-probability", "probability-fractions", "outcomes", "binomial-dist"], related: ["pascals-triangle"],
+    further: [wiki("Tree diagram", "Tree_diagram_(probability_theory)"), wiki("Probability", "Probability")],
+  },
+  {
+    id: "derivative-tangent", title: "Differentiation and the tangent", years: "Years 12 and 13", summary: "The derivative gives the gradient of a curve at any point, which is the gradient of its tangent.",
+    kid: [
+      { p: "A curve changes steepness as you move along it. At each point we can ask: how steep is it right here?" },
+      { p: "A tangent is a straight line that just touches the curve at one point and has the same steepness there." },
+      { p: "Differentiation is a way of finding that steepness with a rule. For $y = x^2$, the steepness at any point is $2x$. At $x = 1$ the gradient is 2." },
+    ],
+    grownUp: [
+      { p: "The derivative $\\frac{dy}{dx}$ is the rate of change of $y$ with respect to $x$. The rule for powers is: multiply by the power, then reduce the power by 1, so $x^n$ becomes $nx^{n-1}$." },
+      { h: "Common mistakes" },
+      { list: ["Forgetting to reduce the power.", "Differentiating a constant and getting the constant back (it becomes 0).", "Using $x$ in the answer when asked for the gradient at a particular point."] },
+    ],
+    figure: { id: "tangent", caption: "The curve y = x² with a tangent at x = 1. The gradient there is 2." },
+    example: { prompt: "Find the gradient of $y = x^2 + 3x$ at $x = 2$.", steps: ["Differentiate: $\\frac{dy}{dx} = 2x + 3$.", "Put in $x = 2$: $2 \\times 2 + 3 = 7$.", "The gradient is 7."] },
+    why: "Differentiation describes speed and acceleration, the best shape for a box, and how fast things grow or cool.",
+    skills: ["differentiate", "chain-rule", "product-quotient", "stationary-points", "differentiate-exp-trig", "kinematics-calculus"], related: ["straight-line-graphs"],
+    further: [wiki("Derivative", "Derivative"), wiki("Tangent", "Tangent")],
+  },
+  {
+    id: "averages-mean-median-mode", title: "Averages: mean, median, mode and range", years: "Years 6 to 11", summary: "Different ways to describe a typical value, and how spread out the data is.",
+    kid: [
+      { p: "An average tells you what is typical. There are three kinds." },
+      { list: ["The mode is the number that appears most often.", "The median is the middle number when they are in order.", "The mean is all the numbers added up, then divided by how many there are."] },
+      { p: "The range tells you how spread out the numbers are: the biggest number minus the smallest." },
+    ],
+    grownUp: [
+      { p: "Always put the numbers in order before finding the median. With an even number of values, the median is halfway between the two middle ones. The mean is affected by very large or small values, so the median is often a better 'typical' value for things like house prices." },
+      { h: "Common mistakes" },
+      { list: ["Finding the median without ordering the list first.", "Dividing by the wrong number when finding the mean.", "Giving the number that is most common as the mean."] },
+    ],
+    figure: { id: "averages", caption: "The numbers 2, 3, 3, 5, 7, 8, 9. The mode is 3, the median is 5 and the mean is about 5.3." },
+    example: { prompt: "Find the mean of 4, 6, 6, 8 and 11.", steps: ["Add: $4 + 6 + 6 + 8 + 11 = 35$.", "There are 5 numbers.", "$35 \\div 5 = 7$."] },
+    why: "News, sports, weather and science all use averages to make sense of a lot of numbers.",
+    skills: ["averages", "frequency-mean", "box-plots", "normal-dist"], related: ["probability-trees"],
+    further: [wiki("Average", "Average"), wiki("Median", "Median")],
+  },
+];
+
+export const CONCEPT_BY_ID: Record<string, Concept> = Object.fromEntries(CONCEPTS.map((c) => [c.id, c]));
+
+/** The concepts that explain the idea behind a topic. */
+export const conceptsForSkill = (skillId: string): Concept[] => CONCEPTS.filter((c) => c.skills.includes(skillId));

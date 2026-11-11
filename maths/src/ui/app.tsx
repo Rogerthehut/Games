@@ -12,6 +12,7 @@ import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
 import { Tables } from "./tables";
 import { Tour } from "./tour";
+import { ConceptPage } from "./concept";
 import { Practice } from "./practice";
 import { Parent } from "./parent";
 import { Checkup } from "./checkup";
@@ -173,12 +174,13 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   if (route.name === "equal-groups")
     return <Ctx.Provider value={ctx}><EqualGroups /></Ctx.Provider>;
 
-  const tab: Tab = route.name === "map" ? "skills" : route.name === "plan" || route.name === "report" ? "plan" : route.name === "me" || route.name === "parent" ? "me" : "today";
+  const tab: Tab = route.name === "map" || route.name === "concept" ? "skills" : route.name === "plan" || route.name === "report" ? "plan" : route.name === "me" || route.name === "parent" ? "me" : "today";
   return (
     <Ctx.Provider value={ctx}>
       <Shell tab={tab}>
         {route.name === "home" && <Home />}
         {route.name === "map" && <SkillMap key={`${profile.id}:${route.stage ?? ""}:${route.skill ?? ""}:${route.view ?? ""}`} navigation={route} />}
+        {route.name === "concept" && <ConceptPage key={route.id} id={route.id} />}
         {route.name === "plan" && <PlanView initialWeek={route.week} />}
         {route.name === "report" && <Report />}
         {route.name === "me" && <Me />}

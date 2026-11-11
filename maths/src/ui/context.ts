@@ -9,6 +9,7 @@ export type Route =
   | { name: "equal-groups" }
   | { name: "tables" }
   | { name: "tour" }
+  | { name: "concept"; id: string }
   | { name: "time-lesson" }
   | { name: "angles-lesson" }
   | { name: "fractions-lesson" }

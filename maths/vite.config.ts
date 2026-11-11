@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import preact from "@preact/preset-vite";
 import { parentPages } from "./scripts/parent-pages";
+import { conceptStudyPages } from "./scripts/concept-pages";
 
 export default defineConfig({
-  plugins: [preact(), parentPages()],
+  plugins: [preact(), parentPages(), conceptStudyPages()],
   base: "./",
   build: { assetsInlineLimit: 0 },
   // for development: send API calls to the local server (npm run server)

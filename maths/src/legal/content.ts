@@ -28,6 +28,7 @@ export function footerGroups(parents: { hub: { path: string; title: string }; fa
       { label: parents.hub.title, href: parents.hub.path },
       { label: "FAQs", href: parents.faq.path },
       { label: "Find your local 11+ test", href: "11-plus-maths.html#test-finder" },
+      { label: "Study guides", href: "learn/index.html" },
     ] },
     { heading: "About quarter", links: [
       ...legalPages.map((key) => ({ label: legalTitles[key], href: `./?info=${key}` })),

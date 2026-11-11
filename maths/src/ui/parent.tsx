@@ -12,6 +12,7 @@ import { STATUS_LABEL_PARENT } from "./labels";
 import { Maths } from "./maths";
 import { downloadProgressCsv } from "./progress-report";
 import { ParentAssistant } from "./assistant";
+import { conceptsForSkill } from "../concepts";
 import { FeedbackSection } from "./feedback";
 import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
@@ -153,6 +154,9 @@ export function Parent() {
                       <div class="t-body">
                         <p><strong>How to explain it.</strong> <Maths text={s.parentNote} /></p>
                         <p><strong>Ask them.</strong> {s.talkAbout}</p>
+                        {conceptsForSkill(s.id).length > 0 && (
+                          <p class="concept-links"><strong>Learn more.</strong>{" "}{conceptsForSkill(s.id).map((c) => <button type="button" key={c.id} class="chip-btn" onClick={() => go({ name: "concept", id: c.id }, { name: "parent" })} data-testid={`concept-link-${c.id}`}>{c.title}</button>)}</p>
+                        )}
                         {st && st.seen > 0 && <p class="small muted">{st.right} right, {st.wrong} wrong. Last practised {when(st.last)}. Due again {when(st.due)}.</p>}
                         <label class="check"><input type="checkbox" checked={profile.focus.includes(s.id)} onChange={() => toggleFocus(s.id)} /> Focus on this</label>
                       </div>
