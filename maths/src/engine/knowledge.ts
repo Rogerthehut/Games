@@ -45,7 +45,10 @@ export function searchNotes(query: string, limit = 3, year?: number): Note[] {
       if (note.includes(stem)) score += 2;
       if (ask.includes(stem)) score += 1;
     }
-    if (score > 0 && year) score += Math.max(0, 1.5 - Math.abs(s.year - year) * 0.4); // nudge towards the child's year
+    if (score > 0 && year) {
+      score += Math.max(0, 1.5 - Math.abs(s.year - year) * 0.4); // nudge towards the child's year
+      if (s.year > year + 2) score *= 0.5; // a topic taught years later is rarely what a parent of a younger child means
+    }
     return { s, score: strong ? score : 0 }; // the topic must be named or described by the words, not just mentioned in passing
   }).filter((x) => x.score >= 4).sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map((x) => noteFor(x.s));
