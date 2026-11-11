@@ -159,6 +159,7 @@ export function Me() {
       </section>
 
       <ul class="rows">
+        <li><button class="row" onClick={() => go({ name: "tour" })} data-testid="replay-tour"><Icon name="star" /><span>Show me around<small>A quick tour of quarter</small></span><Icon name="chevron" size={18} /></button></li>
         <li><button class="row" onClick={() => (parentUnlocked() ? go({ name: "parent" }) : setGate(true))} data-testid="open-parents"><Icon name="lock" /><span>Parents' area</span><Icon name="chevron" size={18} /></button></li>
       </ul>
 

@@ -30,7 +30,8 @@ const text = async (p) => (await p.locator("body").innerText()).replace(/\s+/g, 
 const signIn = async (p, who) => { await p.getByTestId("fake-auth").locator("input").fill(who); await p.getByTestId("fake-auth-go").click(); await p.waitForTimeout(1200); await p.waitForFunction(() => !document.querySelector(".boot-splash"), null, { timeout: 10000 }).catch(() => {}); await p.getByRole("button", { name: /^Continue/ }).click({ timeout: 1200 }).catch(() => {}); await p.waitForTimeout(400); };
 const api = async (who, path, init = {}) => (await fetch(`http://localhost:8787${path}`, { ...init, headers: { Authorization: `Bearer fake_${who}`, "Content-Type": "application/json", ...(init.headers ?? {}) } })).json();
 const consent = async (p) => { await p.getByTestId("consent-check").check(); await p.getByTestId("consent-go").click(); await p.waitForTimeout(1200); await p.waitForFunction(() => !document.querySelector(".boot-splash"), null, { timeout: 10000 }).catch(() => {}); };
-const addLearner = async (p, name, year = 5) => { await p.fill("#name", name); await p.getByTestId("name-next").click(); await p.getByTestId(`year-${year}`).click(); await p.getByTestId("year-go").click(); await p.waitForTimeout(900); };
+let tourSeen = 0; // a brand-new learner is offered the welcome tour, which is skipped here
+const addLearner = async (p, name, year = 5) => { await p.fill("#name", name); await p.getByTestId("name-next").click(); await p.getByTestId(`year-${year}`).click(); await p.getByTestId("year-go").click(); await p.waitForTimeout(900); if (await p.getByTestId("tour-skip").count()) { tourSeen++; await p.getByTestId("tour-skip").click(); await p.waitForTimeout(500); } };
 
 // 1. a new parent signs up
 let { ctx, p } = await open();
@@ -159,6 +160,7 @@ ok("and the server holds nothing for that family", (await api("ben", "/api/accou
   p3.errs.push(...q.errs);
 }
 
+ok("a new learner is offered the welcome tour", tourSeen > 0);
 const errs = [p, p3, p4].flatMap((x) => x.errs); ok("no page errors", errs.length === 0, errs.slice(0, 2).join(" | "));
 console.log(`\n${results.filter((r) => r[0] === "PASS").length} passed, ${results.filter((r) => r[0] === "FAIL").length} failed`);
 await b.close();

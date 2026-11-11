@@ -11,6 +11,7 @@ import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
 import { Tables } from "./tables";
+import { Tour } from "./tour";
 import { Practice } from "./practice";
 import { Parent } from "./parent";
 import { Checkup } from "./checkup";
@@ -138,6 +139,10 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   if (!profile || route.name === "onboard")
     return <Ctx.Provider value={ctx}><Onboarding first={!profile} account={!!bridge} destination={route.name === "onboard" ? undefined : route} /></Ctx.Provider>;
   if (showWelcome && route.name === "home") return <Welcome name={profile.name} onContinue={closeWelcome} />;
+  // a brand-new learner is offered a short tour once; it can also be replayed from Me
+  const tourDue = route.name === "home" && !profile.toured && profile.sessions.length === 0 && profile.baselines.length === 0;
+  if (tourDue) return <Ctx.Provider value={ctx}><Tour name={profile.name} onDone={() => ctx.update((p) => ({ ...p, toured: true }))} /></Ctx.Provider>;
+  if (route.name === "tour") return <Ctx.Provider value={ctx}><Tour name={profile.name} onDone={() => { ctx.update((p) => ({ ...p, toured: true })); ctx.go({ name: "me" }); }} /></Ctx.Provider>;
   if (route.name === "mock")
     return <Ctx.Provider value={ctx}><Mock /></Ctx.Provider>;
   if (route.name === "pathway-test")

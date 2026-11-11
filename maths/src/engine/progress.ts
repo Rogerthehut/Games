@@ -128,6 +128,8 @@ export interface Profile {
   tutorLog?: TutorLogEntry[];
   /** Times tables: how well each fact is known, which tables are being worked on, and timed checks. */
   tables?: TablesState;
+  /** The welcome tour has been shown (or skipped). */
+  toured?: boolean;
 }
 
 export function newProfile(name: string, year: number, now = Date.now()): Profile {
