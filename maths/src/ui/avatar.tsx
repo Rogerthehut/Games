@@ -1,6 +1,5 @@
 import { avatarForYear, clayAvatar, type AvatarBand, type AvatarChoice, type AvatarRole } from "../engine/avatar";
 import { AVATAR_EYES, AVATAR_EYES_BAND } from "./avatar-eyes";
-import { TEEN_EYES, TEEN_VARIANTS, TeenPortrait } from "./teen-avatar";
 import type { Profile } from "../engine/progress";
 import explorer from "../assets/avatars/explorer-clay.webp";
 import builder from "../assets/avatars/scholar-wooden-protractor.webp";
@@ -9,17 +8,17 @@ import skater from "../assets/avatars/skater-clay.webp";
 
 const originals = { explorer, builder, artist, skater };
 const junior = import.meta.glob<string>("../assets/avatars/variants/*.webp", { eager: true, import: "default" });
-// Art for Years 7 to 10 goes in variants-older/, named like the others (explorer-1.webp). Years 11 to 13 are drawn in code (teen-avatar.tsx).
+// Art for Years 7 to 10 goes in variants-older/ and for Years 11 to 13 in variants-teen/, named like the others (explorer-1.webp).
+const teen = import.meta.glob<string>("../assets/avatars/variants-teen/*.webp", { eager: true, import: "default" });
 const older = import.meta.glob<string>("../assets/avatars/variants-older/*.webp", { eager: true, import: "default" });
 
-const SETS: Record<Exclude<AvatarBand, "teen">, { folder: string; files: Record<string, string> }> = {
-  junior: { folder: "variants", files: junior }, older: { folder: "variants-older", files: older },
+const SETS: Record<AvatarBand, { folder: string; files: Record<string, string> }> = {
+  junior: { folder: "variants", files: junior }, older: { folder: "variants-older", files: older }, teen: { folder: "variants-teen", files: teen },
 };
-const hasArt = (band: "junior" | "older", role: AvatarRole) => Object.keys(SETS[band].files).some((path) => path.includes(`/${role}-`));
+const hasArt = (band: AvatarBand, role: AvatarRole) => Object.keys(SETS[band].files).some((path) => path.includes(`/${role}-`));
 
 /** The portrait numbers a learner in this band can pick for a character. Until a band has its own art, it shows the youngest set. */
 export function avatarVariants(role: AvatarRole, band: AvatarBand = "junior"): number[] {
-  if (band === "teen") return TEEN_VARIANTS; // drawn in code, no image files
   const set = hasArt(band, role) ? band : "junior";
   const numbers = Object.keys(SETS[set].files)
     .filter((path) => path.includes(`/${role}-`))
@@ -37,18 +36,17 @@ export function Avatar({ choice, year, size = 40, pose, showProp = false }: {
   showProp?: boolean;
 }) {
   const { role, variant, glasses, band = "junior" } = year === undefined ? clayAvatar(choice) : avatarForYear(choice, year);
-  const drawn = band === "teen";
-  const own = band === "older" && SETS[band].files[`../assets/avatars/${SETS[band].folder}/${role}-${variant}.webp`];
+  const own = band !== "junior" && SETS[band].files[`../assets/avatars/${SETS[band].folder}/${role}-${variant}.webp`];
   const portrait = own || junior[`../assets/avatars/variants/${role}-${variant}.webp`];
-  const eyes = drawn ? TEEN_EYES : own ? AVATAR_EYES_BAND.older[role]?.[variant] : AVATAR_EYES[role]?.[variant];
+  const eyes = own ? AVATAR_EYES_BAND[band as "older" | "teen"][role]?.[variant] : AVATAR_EYES[role]?.[variant];
   // Until a band has its own art, older learners get the youngest portraits styled to look more grown up: head and shoulders
   // only (no toys), calmer colours and a different frame.
-  const restyled = band === "older" && !own;
-  const className = ["learner-avatar", drawn && "avatar-teen", showProp && !restyled && "avatar-with-prop", restyled && `avatar-${band}`, pose && `pip pip-${pose}`].filter(Boolean).join(" ");
+  const restyled = band !== "junior" && !own;
+  const className = ["learner-avatar", own && "avatar-cut", showProp && !restyled && "avatar-with-prop", restyled && `avatar-${band}`, pose && `pip pip-${pose}`].filter(Boolean).join(" ");
   return (
     <span class={className} style={{ width: size, height: size }} aria-hidden="true">
       <span class="avatar-art">
-        {drawn ? <TeenPortrait role={role} variant={variant} /> : <img src={portrait ?? originals[role] ?? explorer} alt="" draggable={false} />}
+        <img src={portrait ?? originals[role] ?? explorer} alt="" draggable={false} />
         {eyes && (glasses === "round" || glasses === "square") && <Glasses eyes={eyes} square={glasses === "square"} />}
       </span>
     </span>
