@@ -25,7 +25,7 @@ function shell(opts: { title: string; description: string; path: string; body: s
 <title>${escapeHtml(opts.title)} | quarter</title>
 <meta name="description" content="${escapeHtml(opts.description)}">
 <link rel="canonical" href="${url}">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0f766e">
 <link rel="icon" href="./icon.svg?v=quarter" type="image/svg+xml">
 <link rel="icon" href="./favicon.ico" sizes="48x48">

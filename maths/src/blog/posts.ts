@@ -50,7 +50,7 @@ export const POSTS: Post[] = [
       { p: "Pressure makes recall harder. A friendly timed round can be fun, but it shouldn't become a test of nerves. Celebrate facts that become quick." },
       { p: "On quarter, the times tables area fills in a grid as facts become quick and keeps coming back to the tricky ones, with an optional timed check when they feel ready." },
     ],
-    related: [{ label: "A parent's guide to Key Stage 2 maths", path: "key-stage-2-maths.html" }, { label: "Multiplication as groups and arrays", path: "learn/multiplication-arrays.html" }],
+    related: [{ label: "A parent's guide to Key Stage 2 maths", path: "key-stage-2-maths.html" }],
   },
   {
     slug: "what-is-the-11-plus",
@@ -110,7 +110,7 @@ export const POSTS: Post[] = [
       { h: "Keeping it age-appropriate" },
       { p: "In the quarter STEM lab, the same ideas grow with the child. A seven-year-old follows a robot's instructions, a twelve-year-old writes binary numbers and a sixteen-year-old calculates a neuron's output. Every age gets a version that's simple, true and fun." },
     ],
-    related: [{ label: "Algorithms and loops", path: "learn/algorithms-and-loops.html" }, { label: "Binary numbers", path: "learn/binary-numbers.html" }, { label: "What quarter covers: STEM", path: "curriculum/stem.html" }],
+    related: [{ label: "What quarter covers: STEM", path: "curriculum/stem.html" }],
   },
   {
     slug: "talking-to-children-about-ai",
@@ -130,7 +130,7 @@ export const POSTS: Post[] = [
       { list: ["How do you think it knew that?", "What could it have got wrong?", "How could we check?"] },
       { p: "In the quarter STEM lab, children try nearest-neighbour examples, see how lopsided data leads to unfair results and work through a tiny artificial neuron. The optional AI tutor is designed to ask questions and give hints, not to hand over answers." },
     ],
-    related: [{ label: "How machines learn from examples", path: "learn/machine-learning-examples.html" }, { label: "Fair and unfair data", path: "learn/ai-fairness.html" }],
+    related: [{ label: "What quarter covers: STEM", path: "curriculum/stem.html" }],
   },
 ];
 

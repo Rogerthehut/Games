@@ -8,7 +8,7 @@ Everything public is plain HTML, generated at build time from the same data the 
 | --- | --- |
 | Home page title, description, share image, structured data (Organization, WebSite, WebApplication) | `index.html` |
 | Parent guides and FAQs | `scripts/parent-pages.ts`, `src/parents/content.json` |
-| Study guides (`/learn/`) | `scripts/concept-pages.ts`, `src/concepts/library.ts` |
+| Study guides (`/learn/`), kept out of search on purpose: `noindex`, not in the sitemap or llms files, not linked from public pages | `scripts/concept-pages.ts`, `src/concepts/library.ts` |
 | What quarter covers (`/curriculum/`: one page per year, plus the STEM lab) | `scripts/site-pages.ts`, built from the curriculum |
 | Blog (`/blog/`) and its RSS feed (`/blog/rss.xml`) | `src/blog/posts.ts`, `scripts/site-pages.ts` |
 | Reading list (`/reading/`) | `src/blog/reading-list.json`, filled by `npm run reading-list` |
@@ -38,7 +38,7 @@ The booklet PDF, the learning app and the account pages are deliberately not in 
 ## Ongoing
 
 - Publish an article every week or two. Fresh, useful pages matter more than any tag.
-- Link from articles to the matching study guide, curriculum page or parent guide, and the other way round.
+- Link from articles to the matching curriculum page or parent guide. Study guides are deliberately not linked from public pages or indexed.
 - Look at Search Console's Performance report monthly. Queries that show impressions but few clicks are a good source of article ideas.
 - Keep titles under 60 characters and descriptions under 160 where possible. The tests enforce hard limits.
 - When a topic is added to the app, rebuild the booklet (`npm run booklet`) so the PDF matches.

@@ -91,8 +91,11 @@ describe("the public study pages", () => {
       expect(p.html, p.path).not.toMatch(/NaN|undefined|\[object/);
     }
   });
-  it("are all in the sitemap, so search engines can find them", () => {
+  it("are kept out of search engines: not in the sitemap, marked noindex", () => {
     const sitemap = sitemapXml();
-    for (const p of pages) expect(sitemap, p.path).toContain(`https://yourquarter.co.uk/${p.path}`);
+    for (const p of pages) {
+      expect(sitemap, p.path).not.toContain(`https://yourquarter.co.uk/${p.path}`);
+      expect(p.html, p.path).toContain('content="noindex, nofollow"');
+    }
   });
 });

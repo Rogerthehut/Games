@@ -4,8 +4,7 @@ import type { Plugin } from "vite";
 import { POSTS, type Post } from "../src/blog/posts";
 import readingList from "../src/blog/reading-list.json";
 import { SOURCES } from "../src/blog/sources";
-import { CONCEPTS, conceptsForSkill } from "../src/concepts/library";
-import { blocksToHtml, conceptPath, escapeHtml, plainText } from "../src/concepts/render";
+import { blocksToHtml, escapeHtml, plainText } from "../src/concepts/render";
 import { SKILLS, STEM_SKILLS, STRANDS } from "../src/curriculum";
 import { THEMES, themeOf } from "../src/curriculum/stem-themes";
 import type { Skill } from "../src/engine/types";
@@ -161,7 +160,7 @@ const yearPath = (y: number) => `curriculum/year-${y}.html`;
 const strandLabel = (s: string) => (s === "Ratio" ? "Ratio and proportion" : s);
 const ageOf = (y: number) => `ages ${y + 4} to ${y + 5}`;
 const mathsSkills = SKILLS.filter((s) => s.strand !== "STEM");
-const topicList = (skills: Skill[]) => `<ul>${skills.map((s) => { const guides = conceptsForSkill(s.id).slice(0, 1); return `<li><strong>${escapeHtml(plainText(s.name))}</strong>: ${escapeHtml(plainText(s.blurb))}${guides.map((c) => ` ${a(conceptPath(c.id), `Study guide: ${c.title}`)}`).join("")}</li>`; }).join("")}</ul>`;
+const topicList = (skills: Skill[]) => `<ul>${skills.map((s) => { return `<li><strong>${escapeHtml(plainText(s.name))}</strong>: ${escapeHtml(plainText(s.blurb))}</li>`; }).join("")}</ul>`;
 
 function curriculumPages(styles: string) {
   const years = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
@@ -207,7 +206,6 @@ export function sitemapEntries(): { path: string; lastmod: string }[] {
   return [
     e(""), ...legalPages.map((p) => e(`?info=${p}`)), e("?info=sitemap"),
     e(content.hub.path), e(content.faq.path), ...content.guides.map((g) => e(g.path)),
-    e("learn/index.html"), ...CONCEPTS.map((c) => e(conceptPath(c.id))),
     e("blog/index.html", [...POSTS].sort((x, y) => y.date.localeCompare(x.date))[0].date), ...POSTS.map((p) => e(postPath(p), p.date)),
     e("reading/index.html", readingList.updated || CONTENT_DATE),
     e("curriculum/index.html"), ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => e(yearPath(y))), e("curriculum/stem.html"),
@@ -228,8 +226,6 @@ export function llmsFull() {
   }
   lines.push(`## The STEM lab: ${SITE}/curriculum/stem.html`, "");
   for (const t of THEMES) { lines.push(`### ${t.label}`); for (const s of STEM_SKILLS.filter((x) => themeOf(x) === t.id)) lines.push(`- ${plainText(s.name)} (Year ${s.year}): ${plainText(s.blurb)}`); lines.push(""); }
-  lines.push("## Study guides", "");
-  for (const c of CONCEPTS) lines.push(`- [${c.title}](${SITE}/${conceptPath(c.id)}): ${plainText(c.summary)}`);
   lines.push("", "## Blog", "");
   for (const p of [...POSTS].sort((x, y) => y.date.localeCompare(x.date))) lines.push(`- [${p.title}](${SITE}/${postPath(p)}) (${p.date}): ${p.description}`);
   lines.push("", `Feed: ${SITE}/blog/rss.xml`, "", "## Parent guides", "");

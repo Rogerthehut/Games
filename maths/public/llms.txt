@@ -9,7 +9,6 @@ Contact: hello@yourquarter.co.uk
 ## What quarter covers
 - [What quarter covers](https://yourquarter.co.uk/curriculum/index.html): every maths topic, year by year, and the STEM lab
 - [The STEM lab](https://yourquarter.co.uk/curriculum/stem.html): computing, data science, AI and machine learning, and quantum ideas
-- [Study guides](https://yourquarter.co.uk/learn/index.html): short illustrated explanations of the ideas behind the topics
 - [Full site guide for assistants](https://yourquarter.co.uk/llms-full.txt): every topic with a one-line description
 
 ## Blog and reading
