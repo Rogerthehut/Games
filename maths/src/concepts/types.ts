@@ -4,6 +4,7 @@ export type Block = { p: string } | { h: string } | { list: string[] };
 export type FigureId =
   | "pascal" | "factor-tree" | "place-value" | "fraction-bars" | "array" | "number-line" | "hundred-square"
   | "triangle-angles" | "pythagoras" | "circle-parts" | "gradient" | "parabola" | "prob-tree" | "tangent" | "averages"
+  | "binary-bits" | "flowchart" | "sort-steps" | "classify" | "neuron" | "bias-bars" | "qubit-bars" | "caesar" | "energy-levels"
   | "clock" | "area-shapes" | "trig-triangle" | "standard-form" | "sequence-steps" | "indices";
 
 export interface Concept {

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "preact/hooks";
 import { STAGE_LABEL, STEM_SKILLS } from "../curriculum";
+import { conceptsForSkill } from "../concepts";
 import { statusOf } from "../engine/progress";
 import type { Skill, Stage } from "../engine/types";
 import { useApp } from "./context";
@@ -64,7 +65,7 @@ export function Stem() {
                       <div class="stem-text">
                         <h3>{s.name}</h3>
                         <p class="small muted">{s.blurb}</p>
-                        <p class="stem-meta"><span class={`stem-theme t-${themeOf(s)}`}>{THEMES.find((t) => t.id === themeOf(s))!.label}</span> <span class={`status ${status}`}>{STATUS_LABEL[status]}</span></p>
+                        <p class="stem-meta"><span class={`stem-theme t-${themeOf(s)}`}>{THEMES.find((t) => t.id === themeOf(s))!.label}</span> <span class={`status ${status}`}>{STATUS_LABEL[status]}</span>{conceptsForSkill(s.id).slice(0, 1).map((c) => <button key={c.id} type="button" class="stem-learn" onClick={() => go({ name: "concept", id: c.id }, { name: "stem" })} data-testid={`stem-learn-${c.id}`}><Icon name="book" size={14} /> Learn: {c.title}</button>)}</p>
                       </div>
                       <button class="btn small" onClick={() => go({ name: "practice", plan: Array.from({ length: 6 }, () => ({ skillId: s.id, reason: "continue" as const })) }, { name: "stem" })} data-testid={`stem-practise-${s.id}`}>
                         {status === "new" ? "Try it" : "Practise"}

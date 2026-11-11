@@ -287,6 +287,104 @@ export function indicesFigure(): string {
   return s + "</svg>";
 }
 
+/** Eight bit boxes with their place values, showing 13 = 1101 in binary. */
+export function binaryBits(): string {
+  const vals = [128, 64, 32, 16, 8, 4, 2, 1], bits = [0, 0, 0, 0, 1, 1, 0, 1];
+  let s = open(380, 190, "Eight binary place values 128, 64, 32, 16, 8, 4, 2, 1 with the bits 00001101 underneath, which make the number 13");
+  vals.forEach((v, i) => {
+    const x = 14 + i * 44;
+    s += text(x + 20, 26, v, { size: 13, weight: 500 }) + rect(x, 36, 40, 50, bits[i] ? MINT : CREAM, { r: 8 }) + text(x + 20, 70, bits[i], { size: 22, fill: "#18192b" });
+  });
+  s += text(190, 118, "8 + 4 + 1 = 13", { size: 16, weight: 700 }) + text(190, 150, "Each place is worth double the one to its right.", { size: 13, weight: 500 }) + text(190, 174, "A 1 means 'count this place', a 0 means 'skip it'.", { size: 13, weight: 500 });
+  return s + "</svg>";
+}
+
+/** A little flowchart of a loop: start, do something, ask a question, go round again or stop. */
+export function flowchart(): string {
+  let s = open(380, 230, "A flowchart: start, set count to 1, say hello, add 1 to count, then ask if count is more than 3. If no, go back to say hello. If yes, stop.");
+  const box = (x: number, y: number, w: number, label: string, fill: string) => rect(x, y, w, 36, fill, { r: 18 }) + text(x + w / 2, y + 23, label, { size: 13 });
+  s += box(20, 12, 90, "Start", PERI) + box(20, 64, 120, "count = 1", CREAM) + box(20, 116, 120, "say hello", MINT) + box(20, 168, 120, "count = count + 1", CREAM);
+  s += poly([[250, 150], [310, 186], [250, 222], [190, 186]], GOLD) + text(250, 191, "count > 3 ?", { size: 12 });
+  s += line(65, 48, 65, 64) + line(80, 100, 80, 116) + line(80, 152, 80, 168) + line(140, 186, 190, 186);
+  s += line(250, 150, 250, 134, { stroke: "#c2410c" }) + line(250, 134, 140, 134, { stroke: "#c2410c" }) + text(262, 144, "no", { size: 12, anchor: "start", fill: "#c2410c" });
+  s += line(310, 186, 352, 186) + text(332, 178, "yes", { size: 12, fill: "#c2410c" }) + rect(322, 196, 50, 28, PINK, { r: 14 }) + text(347, 215, "Stop", { size: 12 });
+  return s + "</svg>";
+}
+
+/** One pass of a bubble sort on 5, 2, 4, 1, 3. */
+export function sortSteps(): string {
+  const rows = [[5, 2, 4, 1, 3], [2, 5, 4, 1, 3], [2, 4, 5, 1, 3], [2, 4, 1, 5, 3], [2, 4, 1, 3, 5]], notes = ["start", "swap 5 and 2", "swap 5 and 4", "swap 5 and 1", "swap 5 and 3"];
+  let s = open(380, 230, "One pass of a bubble sort: 5, 2, 4, 1, 3 becomes 2, 4, 1, 3, 5 after four swaps, with the biggest number, 5, bubbling to the end");
+  rows.forEach((row, r) => {
+    const y = 10 + r * 42;
+    row.forEach((v, i) => { s += rect(14 + i * 40, y, 34, 32, v === 5 ? PINK : CREAM, { r: 7 }) + text(31 + i * 40, y + 22, v, { size: 16, fill: "#18192b" }); });
+    s += text(236, y + 21, notes[r], { size: 13, anchor: "start", weight: 500 });
+  });
+  return s + "</svg>";
+}
+
+/** Two groups of labelled dots and a new point that sits nearest to the red group. */
+export function classify(): string {
+  const red = [[50, 60], [70, 100], [95, 70], [60, 130]], blue = [[230, 50], [260, 110], [215, 130], [285, 70]];
+  let s = open(380, 200, "Red dots on the left, blue dots on the right, and a new point marked with a question mark that is nearer to the red dots");
+  s += rect(10, 10, 360, 180, "none", { r: 10, sw: 1.2 });
+  red.forEach(([x, y]) => (s += circle(x, y, 9, PINK)));
+  blue.forEach(([x, y]) => (s += circle(x, y, 9, PERI)));
+  s += circle(135, 95, 10, "#fff", { sw: 3 }) + text(135, 100, "?", { size: 14 }) + line(135, 95, 95, 70, { dash: "5 4", w: 1.6 }) + text(190, 186, "The nearest labelled dot is red, so the new point is red.", { size: 12, weight: 500 });
+  return s + "</svg>";
+}
+
+/** One artificial neuron: inputs, weights, a sum and an output. */
+export function neuron(): string {
+  let s = open(380, 210, "An artificial neuron: input 2 times weight 3 plus input 1 times weight minus 2 equals 4; since 4 is more than 0, the neuron outputs 1");
+  s += circle(60, 62, 22, MINT) + text(60, 67, "2", { size: 16 }) + circle(60, 148, 22, MINT) + text(60, 153, "1", { size: 16 });
+  s += line(82, 66, 190, 100) + line(82, 144, 190, 110) + text(122, 74, "× 3", { size: 13, fill: "#c2410c" }) + text(122, 142, "× −2", { size: 13, fill: "#c2410c" });
+  s += circle(212, 105, 30, GOLD) + text(212, 100, "add", { size: 12, weight: 500 }) + text(212, 117, "= 4", { size: 14 });
+  s += line(242, 105, 300, 105) + rect(300, 85, 56, 40, PINK, { r: 10 }) + text(328, 111, "1", { size: 20 }) + text(328, 142, "output", { size: 12, weight: 500 });
+  s += text(190, 196, "4 > 0, so it 'fires' and outputs 1.", { size: 13, weight: 500 });
+  return s + "</svg>";
+}
+
+/** Training data that is lopsided, so a model sees far more of one group. */
+export function biasBars(): string {
+  let s = open(380, 200, "A bar chart of training photos: 900 photos of group A and only 60 photos of group B, so the model has little to learn from for group B");
+  s += line(50, 160, 340, 160) + rect(90, 160 - 120, 70, 120, PERI, { r: 4 }) + rect(220, 160 - 8, 70, 8, PINK, { r: 2 });
+  s += text(125, 178, "Group A", { size: 13 }) + text(255, 178, "Group B", { size: 13 }) + text(125, 30, "900 photos", { size: 13, weight: 700 }) + text(255, 134, "60 photos", { size: 13, weight: 700 });
+  s += text(190, 196, "Little data for B means the model is likely to get B wrong more often.", { size: 11.5, weight: 500 });
+  return s + "</svg>";
+}
+
+/** Amplitudes 0.6 and 0.8 turned into probabilities 36% and 64%. */
+export function qubitBars(): string {
+  let s = open(380, 210, "A qubit with amplitudes 0.6 for 0 and 0.8 for 1. Squaring them gives probabilities of 36 percent for measuring 0 and 64 percent for measuring 1");
+  const base = 150, h0 = 0.36 * 110, h1 = 0.64 * 110;
+  s += line(40, base, 340, base) + rect(90, base - h0, 70, h0, MINT, { r: 4 }) + rect(220, base - h1, 70, h1, PINK, { r: 4 });
+  s += text(125, base + 20, "measure 0", { size: 13 }) + text(255, base + 20, "measure 1", { size: 13 }) + text(125, base - h0 - 8, "0.6² = 36%", { size: 13, weight: 700 }) + text(255, base - h1 - 8, "0.8² = 64%", { size: 13, weight: 700 });
+  s += text(190, 200, "36% + 64% = 100%: one of the two results always happens.", { size: 12, weight: 500 });
+  return s + "</svg>";
+}
+
+/** The alphabet and the same alphabet shifted by 3. */
+export function caesar(): string {
+  const A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let s = open(380, 150, "Two rows of letters. The top row is A to Z. The bottom row starts at D, because every letter is shifted along by 3, so A becomes D and X becomes A");
+  for (let i = 0; i < 13; i++) {
+    const x = 12 + i * 27;
+    s += rect(x, 14, 24, 30, CREAM, { r: 5, sw: 1.5 }) + text(x + 12, 35, A[i], { size: 14, fill: "#18192b" }) + rect(x, 70, 24, 30, i < 10 ? MINT : GOLD, { r: 5, sw: 1.5 }) + text(x + 12, 91, A[(i + 3) % 26], { size: 14, fill: "#18192b" }) + line(x + 12, 44, x + 12, 70, { w: 1, stroke: "#c2410c" });
+  }
+  s += text(190, 128, "Shift of 3: A → D, B → E, C → F …", { size: 13, weight: 600 }) + text(190, 144, "(first half of the alphabet shown)", { size: 11, weight: 500 });
+  return s + "</svg>";
+}
+
+/** Energy levels in an atom: electrons sit on fixed rungs, and light is made when one drops. */
+export function energyLevels(): string {
+  let s = open(380, 210, "Four fixed energy levels like rungs of a ladder. An electron drops from level 3 to level 1 and gives out one packet of light, a photon");
+  [34, 78, 122, 166].forEach((y, i) => { s += line(60, y, 230, y, { w: 3 }) + text(40, y + 5, 4 - i, { size: 13, anchor: "end", weight: 500 }); });
+  s += circle(145, 78 - 10, 8, GOLD) + `<path d="M 175 70 C 215 90 215 130 175 150" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-dasharray="6 4"/><polygon points="176,152 186,142 188,156" fill="#c2410c"/>`;
+  s += `<path d="M 250 120 q 10 -16 20 0 t 20 0 t 20 0 t 20 0" fill="none" stroke="${ACCENT}" stroke-width="3"/>` + text(310, 142, "a photon", { size: 13 }) + text(190, 200, "Only these rungs are allowed: energy comes in packets.", { size: 12, weight: 500 });
+  return s + "</svg>";
+}
+
 export const FIGURES: Record<FigureId, (param?: number) => string> = {
   pascal: (n) => pascalTriangle(7, n ?? -1),
   "factor-tree": (n) => factorTree(n ?? 60),
@@ -309,6 +407,15 @@ export const FIGURES: Record<FigureId, (param?: number) => string> = {
   "standard-form": () => standardFormFigure(),
   "sequence-steps": () => sequenceSteps(),
   indices: () => indicesFigure(),
+  "binary-bits": () => binaryBits(),
+  flowchart: () => flowchart(),
+  "sort-steps": () => sortSteps(),
+  classify: () => classify(),
+  neuron: () => neuron(),
+  "bias-bars": () => biasBars(),
+  "qubit-bars": () => qubitBars(),
+  caesar: () => caesar(),
+  "energy-levels": () => energyLevels(),
 };
 
 export const figureSvg = (id: FigureId, param?: number) => FIGURES[id](param);
