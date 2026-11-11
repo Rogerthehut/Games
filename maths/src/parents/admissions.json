@@ -15,7 +15,21 @@
         "label": "Queen Elizabeth’s School admissions",
         "path": "https://www.qebarnet.co.uk/admissions-information/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Set by the school",
+      "status": "reported",
+      "note": "Queen Elizabeth's School says its own entrance test is two multiple-choice papers, English and Mathematics, taken in one session in September. It doesn't name an outside provider.",
+      "parts": [
+        "English",
+        "Mathematics"
+      ],
+      "source": {
+        "label": "QE Barnet: entrance test FAQs",
+        "path": "https://www.qebarnet.co.uk/admissions-information/secondary-transfer-entrance-test-faqs/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "bexley",
@@ -282,7 +296,21 @@
         "label": "South West Herts Schools Consortium",
         "path": "https://www.swhertsschools.org.uk/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "GL Assessment",
+      "status": "reported",
+      "note": "The South West Herts consortium says GL Assessment provides its Verbal Reasoning and Mathematics tests. This is the consortium's own page, so other Hertfordshire grammar schools may differ.",
+      "parts": [
+        "Mathematics",
+        "Verbal reasoning"
+      ],
+      "source": {
+        "label": "South West Herts Schools: familiarisation papers",
+        "path": "https://www.swhertsschools.org.uk/familiarisation-papers/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "kent",
@@ -344,7 +372,17 @@
         "label": "Heckmondwike Grammar School admissions",
         "path": "https://www.heckgrammar.co.uk/admissions/admissions-policy/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Future Stories (FSCE)",
+      "status": "reported",
+      "note": "Heckmondwike Grammar School says it uses the Future Stories Community Enterprise entrance exam for Year 7. Check other Kirklees schools separately.",
+      "source": {
+        "label": "Heckmondwike Grammar: entrance exam",
+        "path": "https://www.heckgrammar.co.uk/admissions/entrance-exam/"
+      },
+      "checked": "2026-11-11"
+    }
   },
   {
     "id": "lancashire",
