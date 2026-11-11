@@ -3142,3 +3142,11 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 
 /* "Back" on the public pages */
 .page-back { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 4px; }
+
+/* older learners: the youngest portraits, restyled until their own art is added */
+.learner-avatar.avatar-older { border-radius: 16%; box-shadow: 0 0 0 1.5px #3a334a2e, 0 2px 5px #201a331e; }
+.learner-avatar.avatar-older img { filter: saturate(.8) contrast(1.05); }
+.learner-avatar.avatar-older .avatar-art { transform: scale(1.42); transform-origin: 50% 8%; }
+.learner-avatar.avatar-teen { border-radius: 50%; box-shadow: 0 0 0 1.5px #3a334a38, 0 2px 5px #201a331e; }
+.learner-avatar.avatar-teen img { filter: saturate(.6) contrast(1.1) brightness(.97); }
+.learner-avatar.avatar-teen .avatar-art { transform: scale(1.55); transform-origin: 50% 6%; }

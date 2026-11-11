@@ -38,7 +38,10 @@ export function Avatar({ choice, year, size = 40, pose, showProp = false }: {
   const own = band !== "junior" && SETS[band].files[`../assets/avatars/${SETS[band].folder}/${role}-${variant}.webp`];
   const portrait = own || junior[`../assets/avatars/variants/${role}-${variant}.webp`];
   const eyes = own ? AVATAR_EYES_BAND[band as "older" | "teen"][role]?.[variant] : AVATAR_EYES[role]?.[variant];
-  const className = ["learner-avatar", showProp && "avatar-with-prop", pose && `pip pip-${pose}`].filter(Boolean).join(" ");
+  // Until a band has its own art, older learners get the youngest portraits styled to look more grown up: head and shoulders
+  // only (no toys), calmer colours and a different frame.
+  const restyled = band !== "junior" && !own;
+  const className = ["learner-avatar", showProp && !restyled && "avatar-with-prop", restyled && `avatar-${band}`, pose && `pip pip-${pose}`].filter(Boolean).join(" ");
   return (
     <span class={className} style={{ width: size, height: size }} aria-hidden="true">
       <span class="avatar-art">
