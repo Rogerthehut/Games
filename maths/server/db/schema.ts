@@ -53,5 +53,13 @@ export const feedback = pgTable("feedback", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const opsAudit = pgTable("ops_audit", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  actor: text("actor").notNull(),
+  action: text("action").notNull(),
+  target: text("target").notNull(),
+});
+
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Parent = typeof parents.$inferSelect;
