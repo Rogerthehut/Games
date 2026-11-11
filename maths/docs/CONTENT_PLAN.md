@@ -8,7 +8,7 @@ common mistakes cannot disagree. `src/engine/engine.test.ts` checks 150 question
 
 | Stage | Years | Topics now |
 |---|---|---|
-| Key Stage 2 | 3 to 6 | 45 (was 32; batch 2 added 13 for Years 3 and 4) |
+| Key Stage 2 | 3 to 6 | 59 (was 32; batches 2 and 3 added 27 for Years 3 to 6) |
 | Key Stage 3 | 7 to 9 | 14 (was 8) |
 | GCSE | 10 and 11 | 13 (was 8), including Year 11 for the first time |
 | A-level | 12 and 13 | 8 (was 4), including Year 13 for the first time |
@@ -21,7 +21,11 @@ Batch 2 (Key Stage 2, Years 3 and 4) added 13 topics: counting in steps, same-de
 amounts, perimeter of shapes, right angles and turns, pictograms, Roman numerals, counting through zero, dividing by 10 and 100,
 converting units of time, area by counting squares, perimeter of compound shapes, lines of symmetry and reading tables.
 Still to do for Years 3 and 4: analogue and Roman numeral clocks, scales, 3-D shapes, plotting and drawing on grids, time graphs.
-Then Years 5 and 6, per the table in `docs/ROADMAP.md`.
+Batch 3 (Key Stage 2, Years 5 and 6) added 14 topics: numbers to a million, prime, square and cube numbers, multiplying fractions by whole
+numbers, 3-D shapes, metric and imperial units, multiplying fractions, dividing fractions by whole numbers, fractions-decimals-percentages,
+scale factors and maps, missing-number equations, two unknowns, parallelogram area, coordinates in four quadrants, parts of a circle and pie chart angles.
+Still to do for Years 5 and 6: roman numerals to 1,000 in context, long multiplication and division checks, nets, reflection and translation,
+line graphs, timetables, and mean as a choice of average.
 
 ## Order of work
 

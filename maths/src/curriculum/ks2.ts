@@ -7,7 +7,8 @@ import type { Question, Skill } from "../engine/types";
  */
 type Task = { prompt: string; value: number; hint: string; solution: string[]; unit?: string; shown?: string };
 
-function num(info: Omit<Skill, "generate">, task: (r: Rng, level: number) => Task): Skill {
+export type { Task };
+export function num(info: Omit<Skill, "generate">, task: (r: Rng, level: number) => Task): Skill {
   return {
     ...info,
     generate(r, level): Question {

@@ -8,6 +8,7 @@ import { expansionSkills } from "./expansion";
 import { primarySkills } from "./primary";
 import { secondarySkills } from "./secondary";
 import { ks2Skills } from "./ks2";
+import { ks2UpperSkills } from "./ks2-upper";
 import { reasoningSkills } from "./reasoning";
 
 /** A "common mistake" that happens to equal the right answer is not a mistake: drop it. */
@@ -63,7 +64,7 @@ function withAnswerFormat(q: Question): Question {
   return { ...q, answer: out };
 }
 
-const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills, ...ks2Skills, ...secondarySkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
+const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills, ...ks2Skills, ...ks2UpperSkills, ...secondarySkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
 const prepared = (s: Skill): Skill => ({ ...s, generate: (r, l) => withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l))) });
 /** The maths curriculum. The check-up, pathway tests, plans and daily practice all work from this list. */
 export const SKILLS: Skill[] = raw.map(prepared);
