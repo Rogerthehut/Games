@@ -2018,6 +2018,9 @@ a.legal-home[href] {
   background: var(--surface);
   box-shadow: var(--paper-depth);
 }
+.skills-filter { transition: opacity 220ms ease, transform 220ms ease; }
+.skills-filter.faded:not(:focus-within) { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .skills-filter { transition: none; } }
 .skills-filter:not(.has-view) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-block: 12px;
@@ -2949,7 +2952,16 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 @keyframes tutor-rise { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .qbar-float .tutor { animation: none; } }
 @media (max-height: 520px) { .qbar-float .tutor { max-height: 78dvh; } }
-@media (max-width: 600px) { .qpage .qbar-in:has(.qbar-ask) { flex-wrap: wrap; justify-content: flex-start; } }
+/* on phones the pills and the main button share one row, so the strip stays short */
+@media (max-width: 600px) {
+  .qpage .qbar-in:has(.qbar-ask), .qpage .qbar-in:has(.qbar-left > :nth-child(3)) { flex-wrap: nowrap; gap: 6px; }
+  .qpage .qbar-in:has(.qbar-ask) .qbar-left { padding: 2px 4px; }
+  .qpage .qbar-in:has(.qbar-ask) .btn.ghost { padding-inline: .4rem; font-size: .88rem; gap: 4px; }
+  .qpage .qbar-in:has(.qbar-ask) .btn.primary { min-height: 46px; padding-inline: .85rem; font-size: .95rem; }
+}
+.qpage .qbar-in:has(.qbar-ask) .qbar-left, .qpage .qbar-in:has(.qbar-ask) .qbar-right { flex: 0 0 auto; min-width: 0; }
+@media (max-width: 370px) { .qpage .qbar .lbl-text-2 { display: none; } .qpage .qbar .btn.ghost { min-width: 44px; justify-content: center; } }
+@media (max-width: 335px) { .qpage .qbar .lbl-text { display: none; } }
 
 /* "Learn about this" links in a new topic's intro */
 .learn-about { margin: 2px 0 10px; }

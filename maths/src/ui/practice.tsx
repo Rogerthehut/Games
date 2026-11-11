@@ -225,7 +225,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     setSoundOn(!soundOn);
   };
 
-  const askPill = tutorOn && !showTutor ? <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> Ask</button> : undefined;
+  const askPill = tutorOn && !showTutor ? <button class="btn ghost" onClick={() => setShowTutor(true)} data-testid="tutor-open" aria-label="Ask the AI tutor"><Icon name="chat" size={20} /> <span class="lbl-text-2">Ask</span></button> : undefined;
   const tutorPanel = tutorOn && showTutor && phase !== "intro" ? <TutorPanel key={idx} ctx={tutorContext(q, skill.name, profile.year, phase, values, attempts, hinted)} onClose={() => setShowTutor(false)} /> : undefined;
 
   return (
@@ -335,10 +335,10 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
       ) : phase === "ask" ? (
         <QBar
           help ask={askPill} float={tutorPanel}
-          right={<button class="btn primary" onClick={submit} disabled={!canCheck} data-testid="check">Check my answer</button>}
+          right={<button class="btn primary" onClick={submit} disabled={!canCheck} data-testid="check"><span class="lbl-long">Check my answer</span><span class="lbl-short">Check</span></button>}
           left={<>
-            {!showHint && <button class="btn ghost" onClick={() => { setShowHint(true); setHinted(true); }} data-testid="hint"><Icon name="bulb" size={20} /> Hint</button>}
-            {(showHint || attempts > 0) && <button class="btn ghost" onClick={showMe} data-testid="show-me"><Icon name="eye" size={20} /> Show the steps</button>}
+            {!showHint && <button class="btn ghost" onClick={() => { setShowHint(true); setHinted(true); }} data-testid="hint" aria-label="Hint"><Icon name="bulb" size={20} /> <span class="lbl-text">Hint</span></button>}
+            {(showHint || attempts > 0) && <button class="btn ghost" onClick={showMe} data-testid="show-me" aria-label="Show the steps"><Icon name="eye" size={20} /> <span class="lbl-long">Show the steps</span><span class="lbl-short lbl-text-2">Steps</span></button>}
           </>}
         />
       ) : (

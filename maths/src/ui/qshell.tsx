@@ -81,7 +81,7 @@ export function QBar({ left, right, ask, float, help = false }: { left?: Compone
       <div class="qbar-in">
         <div class="qbar-left">
           {left}
-          {help && <button type="button" class="btn ghost" aria-controls="question-tools" aria-expanded={helpOpen} onClick={toggleHelp}><Icon name="pencil" size={20} /> <span class="lbl-long">{helpOpen ? "Hide tools" : "Working-out tools"}</span><span class="lbl-short">{helpOpen ? "Hide" : "Tools"}</span></button>}
+          {help && <button type="button" class="btn ghost" aria-label="Working-out tools" aria-controls="question-tools" aria-expanded={helpOpen} onClick={toggleHelp}><Icon name="pencil" size={20} /> <span class="lbl-long">{helpOpen ? "Hide tools" : "Working-out tools"}</span><span class="lbl-short lbl-text-2">{helpOpen ? "Hide" : "Tools"}</span></button>}
         </div>
         {ask && <div class="qbar-left qbar-ask">{ask}</div>}
         <div class="qbar-right">

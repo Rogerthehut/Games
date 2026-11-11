@@ -1,4 +1,5 @@
 import type { ComponentChildren } from "preact";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { ALL_SKILLS, STAGE_LABEL, STRANDS } from "../curriculum";
 import { STAGE_ORDER } from "../engine/activity";
 import type { Stage, Strand } from "../engine/types";
@@ -11,12 +12,35 @@ export function filterSkills({ stage, topic }: SkillFilters) {
   return ALL_SKILLS.filter((skill) => skill.strand !== "STEM" && (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
 }
 
+/** True while the person is scrolling down the list, so the filter panel can fade out of the way and come back when they scroll up. */
+function useFadeOnScroll() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [faded, setFaded] = useState(false);
+  useEffect(() => {
+    const born = performance.now();
+    let last = -1, run = 0;
+    const on = (e: Event) => {
+      const el = ref.current, t = e.target as Document | HTMLElement;
+      if (!el || !(t === document || t.contains?.(el))) return;
+      const y = t === document ? window.scrollY : (t as HTMLElement).scrollTop;
+      if (last < 0 || performance.now() - born < 800) { last = y; return; } // the page settling in isn't the person scrolling
+      const dy = y - last; last = y;
+      run = Math.sign(dy) === Math.sign(run) ? run + dy : dy; // distance travelled in one direction
+      if (y < 80) { setFaded(false); run = 0; } else if (run > 24) setFaded(true); else if (run < -12) setFaded(false);
+    };
+    document.addEventListener("scroll", on, { capture: true, passive: true });
+    return () => document.removeEventListener("scroll", on, { capture: true } as EventListenerOptions);
+  }, []);
+  return { ref, faded };
+}
+
 export function SkillFilterControls({ filters, onChange, count, children }: {
   filters: SkillFilters; onChange: (filters: SkillFilters) => void; count: number; children?: ComponentChildren;
 }) {
   const topics = STRANDS.filter((topic) => ALL_SKILLS.some((skill) => (!filters.stage || skill.stage === filters.stage) && skill.strand === topic));
+  const { ref, faded } = useFadeOnScroll();
   return (
-    <div class={`skills-filter${children ? " has-view" : ""}`} role="group" aria-label="Filter skills">
+    <div ref={ref} class={`skills-filter${children ? " has-view" : ""}${faded ? " faded" : ""}`} role="group" aria-label="Filter skills">
       <label>
         Stage
         <select value={filters.stage ?? ""} onChange={(event) => {
