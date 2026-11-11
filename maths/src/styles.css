@@ -3148,5 +3148,8 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .learner-avatar.avatar-older img { filter: saturate(.8) contrast(1.05); }
 .learner-avatar.avatar-older .avatar-art { transform: scale(1.42); transform-origin: 50% 8%; }
 .learner-avatar.avatar-teen { border-radius: 50%; box-shadow: 0 0 0 1.5px #3a334a38, 0 2px 5px #201a331e; }
-.learner-avatar.avatar-teen img { filter: saturate(.6) contrast(1.1) brightness(.97); }
-.learner-avatar.avatar-teen .avatar-art { transform: scale(1.55); transform-origin: 50% 6%; }
+
+/* Years 11 to 13: portraits drawn in code */
+.avatar-drawn { display: block; width: 100%; height: 100%; }
+.learner-avatar.avatar-teen .avatar-art { transform: none; }
+.learner-avatar.avatar-teen.avatar-with-prop { padding: 0; background: none; }
