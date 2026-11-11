@@ -22,7 +22,7 @@ export const CONTENT_DATE = "2026-11-11";
 const SITE_TITLE = "quarter";
 
 const slash = `<span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter</span><sup class="wordmark-tm" aria-hidden="true">™</sup>`;
-const a = (href: string, label: string, extra = "") => `<a class="legal-link" href="${escapeHtml(href)}"${extra}>${escapeHtml(label)}</a>`;
+const a = (href: string, label: string, extra = "") => `<a class="legal-link" href="${escapeHtml(href)}"${/^https?:/.test(href) && !/target=/.test(extra) ? ' target="_blank" rel="noopener noreferrer"' : ""}${extra}>${escapeHtml(label)}</a>`;
 const longDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 const rfc822 = (iso: string) => new Date(`${iso}T09:00:00Z`).toUTCString();
 const json = (o: unknown) => JSON.stringify(o).replace(/</g, "\\u003c");
@@ -73,11 +73,13 @@ ${o.styles}
 <body>
 <main class="page legal-page parent-resource concept-static">
 <a class="legal-home" href="./" aria-label="Back to quarter"><img class="cube-mark" src="./icon.svg" alt="">${slash}</a>
+<a class="btn small page-back" href="./" data-back><span aria-hidden="true">←</span> Back</a>
 ${o.back ? `<p>${a(o.back.href, o.back.label)}</p>` : ""}
 <h1>${escapeHtml(o.title)}</h1>
 ${o.body}
 <footer class="legal-footer"><div class="footer-groups">${groups.map((g, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(g.heading)}</h2><ul>${g.links.map((l) => `<li>${a(l.href, l.label)}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>${designer.credit} · ${a(designer.href, designer.name)}</small></div><p class="footer-company small">${escapeHtml(companyLine)}</p></footer>
 </main>
+<script src="./back.js" defer></script>
 </body>
 </html>
 `;
@@ -147,8 +149,8 @@ function readingPage(styles: string) {
     description: "Recent articles from education organisations on maths, learning and schools, with links to the originals.",
     jsonLd: [{ "@type": "CollectionPage", url: `${SITE}/reading/index.html`, name: "Reading list for parents", inLanguage: "en-GB", dateModified: readingList.updated || CONTENT_DATE, publisher }, ...(items.length ? [{ "@type": "ItemList", itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, url: it.url, name: it.title })) }] : []), crumbs([{ name: "Reading list", path: "reading/index.html" }])],
     body: `<p class="muted">Recent articles from education organisations, gathered in one place. Each one opens on the original site.${readingList.updated ? ` Updated ${longDate(readingList.updated)}.` : ""}</p>
-${items.length ? `<ul class="rows sitemap-links">${items.map((it) => `<li><a class="row" href="${escapeHtml(it.url)}" rel="noopener noreferrer"><span>${escapeHtml(it.title)}<small>${escapeHtml(it.source)} · ${longDate(it.date)}${it.summary ? ` · ${escapeHtml(it.summary)}` : ""}</small></span></a></li>`).join("")}</ul>` : `<p>New articles will appear here soon.</p>`}
-<section aria-labelledby="src"><h2 id="src">Where they come from</h2><ul>${(used.length ? used : SOURCES).map((s) => `<li>${a(s.home, s.name, ' rel="noopener noreferrer"')}</li>`).join("")}</ul></section>
+${items.length ? `<ul class="rows sitemap-links">${items.map((it) => `<li><a class="row" href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer"><span>${escapeHtml(it.title)}<small>${escapeHtml(it.source)} · ${longDate(it.date)}${it.summary ? ` · ${escapeHtml(it.summary)}` : ""}</small></span></a></li>`).join("")}</ul>` : `<p>New articles will appear here soon.</p>`}
+<section aria-labelledby="src"><h2 id="src">Where they come from</h2><ul>${(used.length ? used : SOURCES).map((s) => `<li>${a(s.home, s.name)}</li>`).join("")}</ul></section>
 <p>${a("blog/index.html", "More from the quarter blog")}</p>`,
   });
 }

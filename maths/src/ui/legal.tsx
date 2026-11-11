@@ -7,6 +7,15 @@ import parentContent from "../parents/content.json";
 
 const NOTICE_KEY = "quarter.storage-notice.v1";
 export const legalHref = (page: LegalPage) => `./?info=${page}`;
+/** Back to the page the visitor came from on this site, or to the home page. */
+export function BackLink() {
+  const back = (e: Event) => {
+    let same = false;
+    try { same = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch { /* no referrer */ }
+    if (history.length > 1 && same) { e.preventDefault(); history.back(); }
+  };
+  return <a class="btn small page-back" href="./" onClick={back}><span aria-hidden="true">←</span> Back</a>;
+}
 export const sitemapHref = "./?info=sitemap";
 
 export function getInformationPage(search: string): LegalPage | "sitemap" | undefined {
@@ -28,7 +37,7 @@ export function LegalFooter() {
       <div class="footer-credit">
         <CubeMark />
         <small>{copyright}</small>
-        <small>{designer.credit} · <a class="legal-link" href={designer.href}>{designer.name}</a></small>
+        <small>{designer.credit} · <a class="legal-link" href={designer.href} target="_blank" rel="noopener noreferrer">{designer.name}</a></small>
       </div>
       <p class="footer-company small">{companyLine}</p>
     </footer>
@@ -39,6 +48,7 @@ export function SitemapScreen() {
   return (
     <main class="page legal-page">
       <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
+      <BackLink />
       <h1>Sitemap</h1>
       <p class="muted">Find your way around quarter.</p>
       <nav aria-label="Sitemap">
@@ -116,6 +126,7 @@ export function LegalScreen({ page }: { page: LegalPage }) {
   return (
     <main class="page legal-page">
       <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
+      <BackLink />
       <h1>{legalTitles[page]}</h1>
       <p class="small muted">Updated {legalUpdated[page]}</p>
       {page !== "licences" && <p class="small">Questions about this page? Email <a class="legal-link" href={`mailto:${contactEmail}`}>{contactEmail}</a>.</p>}
@@ -127,7 +138,7 @@ export function LegalScreen({ page }: { page: LegalPage }) {
       ))}
       {page === "terms" && <p><a class="legal-link" href={legalHref("licences")}>Read the third-party licences</a></p>}
       {page === "licences" && <p><a class="legal-link" href="./third-party-licences.txt">Read the full licence notices (plain text)</a></p>}
-      {page === "privacy" && <p><a class="legal-link" href={icoComplaints}>Make a privacy complaint to the ICO</a></p>}
+      {page === "privacy" && <p><a class="legal-link" href={icoComplaints} target="_blank" rel="noopener noreferrer">Make a privacy complaint to the ICO</a></p>}
       <LegalFooter />
     </main>
   );

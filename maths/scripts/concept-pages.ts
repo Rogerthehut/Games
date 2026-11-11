@@ -11,7 +11,7 @@ import content from "../src/parents/content.json";
 const SITE = "https://yourquarter.co.uk";
 const skillNames = Object.fromEntries(Object.keys(SKILL_BY_ID).map((id) => [id, SKILL_BY_ID[id].name]));
 const slash = `<span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup class="wordmark-tm">™</sup></span>`;
-const link = (href: string, label: string) => `<a class="legal-link" href="${escapeHtml(href)}">${escapeHtml(label)}</a>`;
+const link = (href: string, label: string) => `<a class="legal-link" href="${escapeHtml(href)}"${/^https?:/.test(href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
 
 function shell(opts: { title: string; description: string; path: string; body: string; jsonLd: object; styles: string }) {
   const groups = footerGroups({ hub: content.hub, faq: content.faq });
@@ -47,11 +47,13 @@ ${opts.styles}
 <body>
 <main class="page legal-page parent-resource concept-static">
 <a class="legal-home" href="./" aria-label="Back to quarter"><img class="cube-mark" src="./icon.svg" alt="">${slash}</a>
+<a class="btn small page-back" href="./" data-back><span aria-hidden="true">←</span> Back</a>
 <p>${link("learn/index.html", "All study guides")}</p>
 <h1>${escapeHtml(opts.title)}</h1>
 ${opts.body}
 <footer class="legal-footer"><div class="footer-groups">${groups.map((g, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(g.heading)}</h2><ul>${g.links.map((l) => `<li>${link(l.href, l.label)}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>${designer.credit} · ${link(designer.href, designer.name)}</small></div><p class="footer-company small">${escapeHtml(companyLine)}</p></footer>
 </main>
+<script src="./back.js" defer></script>
 </body>
 </html>
 `;
@@ -73,7 +75,7 @@ export function conceptPages(styles: string, dev = false): { path: string; html:
 <form id="learn-search" role="search" hidden><label for="learn-q">Search the study guides</label><input id="learn-q" type="search" autocomplete="off" maxlength="120" placeholder="Try fractions, angles or frac*"><p class="small muted" role="status">Use <code>*</code> for any number of letters or <code>?</code> for one. Small spelling slips are fine.</p></form>
 <ul id="learn-list" class="rows sitemap-links">${CONCEPTS.map((c) => `<li data-title="${escapeHtml(c.title)}" data-keywords="${escapeHtml(`${plainText(c.summary)} ${c.id.replace(/-/g, " ")} ${c.years}`)}"><a class="row" href="${conceptPath(c.id)}"><span>${escapeHtml(c.title)}<small>${escapeHtml(c.years)} · ${escapeHtml(c.summary)}</small></span></a></li>`).join("")}</ul>
 ${dev ? `<script type="module" src="/src/learn-search.ts"></script>` : `<script src="./learn/search.js" defer></script>`}
-<p class="small muted">Looking for full lessons? ${`<a class="legal-link" href="https://www.thenational.academy/" rel="noopener noreferrer">Oak National Academy</a>`} offers free lessons for England's curriculum. It is a separate website, not run by quarter.</p>`,
+<p class="small muted">Looking for full lessons? ${`<a class="legal-link" href="https://www.thenational.academy/" target="_blank" rel="noopener noreferrer">Oak National Academy</a>`} offers free lessons for England's curriculum. It is a separate website, not run by quarter.</p>`,
   });
   const pages = CONCEPTS.map((c) => shell({
     title: c.title, path: conceptPath(c.id), styles,

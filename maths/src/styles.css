@@ -3139,3 +3139,6 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .journey-key-fold summary { cursor: pointer; font-weight: 700; padding: 8px 2px; }
 .journey-key-fold .journey-key { margin-top: 4px; }
 .journey-key-fold .journey-key h2 { display: none; }
+
+/* "Back" on the public pages */
+.page-back { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 4px; }

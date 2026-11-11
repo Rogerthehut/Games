@@ -17,7 +17,7 @@ function escapeHtml(value: string) {
 }
 
 function link({ path, label }: Link, css = "legal-link") {
-  return `<a class="${css}" href="${escapeHtml(path)}">${escapeHtml(label)}</a>`;
+  return `<a class="${css}" href="${escapeHtml(path)}"${/^https?:/.test(path) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
 }
 
 function sectionBody(section: Section) {
@@ -125,6 +125,7 @@ ${styles}
 <body>
 <main class="page legal-page parent-resource">
 <a class="legal-home" href="./" aria-label="Back to quarter"><img class="cube-mark" src="./icon.svg" alt=""><span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup class="wordmark-tm">™</sup></span></a>
+<a class="btn small page-back" href="./" data-back><span aria-hidden="true">←</span> Back</a>
 ${page === hub ? "" : `<p>${link({ path: hub.path, label: "All parent guides" })}</p>`}
 <h1>${escapeHtml(page.title)}</h1>
 <p class="muted">${escapeHtml(page.description)}</p>
@@ -132,6 +133,7 @@ ${body}
 ${page.path === "11-plus-maths.html" ? testFinder() : ""}
 <footer class="legal-footer"><div class="footer-groups">${groups.map((group, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(group.heading)}</h2><ul>${group.links.map((item) => `<li>${link({ path: item.href, label: item.label })}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>${designer.credit} · ${link({path:designer.href,label:designer.name})}</small></div><p class="footer-company small">${escapeHtml(companyLine)}</p></footer>
 </main>
+<script src="./back.js" defer></script>
 </body>
 </html>
 `;
