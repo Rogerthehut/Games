@@ -3,6 +3,7 @@
  *
  *   npx tsx scripts/fetch-11plus-pages.ts            # the areas with no test recorded
  *   npx tsx scripts/fetch-11plus-pages.ts bcp reading  # just these
+ *   npx tsx scripts/fetch-11plus-pages.ts --all         # every area, to fill in the per-school table
  *
  * For each area it reads the school and council pages already linked in src/parents/admissions.json, plus up to three more pages on the
  * same site whose link text looks about the entrance test (admissions, 11+, entrance, selective, test, register, eligibility). The readable
@@ -17,8 +18,10 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const admissions: { id: string; area: string; links: { label: string; path: string }[]; test?: unknown }[] = JSON.parse(readFileSync(resolve(root, "src/parents/admissions.json"), "utf8"));
-const wanted = process.argv.slice(2);
-const areas = admissions.filter((a) => (wanted.length ? wanted.includes(a.id) : !a.test));
+const args = process.argv.slice(2);
+const all = args.includes("--all");
+const wanted = args.filter((a) => !a.startsWith("--"));
+const areas = admissions.filter((a) => (wanted.length ? wanted.includes(a.id) : all || !a.test));
 const KEYWORDS = /11\s*\+|eleven|entrance|selective|selection|admission|test|register|registration|eligib|sat|exam|assessment|how to apply|year 7/i;
 const MAX_TEXT = 40_000, EXTRA_PAGES = 3;
 const ua = "Mozilla/5.0 (compatible; quarter-research)";

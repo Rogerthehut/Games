@@ -2,6 +2,9 @@ import { timingSafeEqual } from "node:crypto";
 import { mailerFromEnv } from "./mail";
 import { runDigestJob } from "./digest-job";
 import { unsubscribePage } from "./unsubscribe-page";
+import { OpsAccess, parseAdmins } from "./ops-access";
+import { handleOpsApi, isOpsRoute } from "./ops-api";
+import type { Db } from "./db";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
@@ -39,8 +42,10 @@ if (!HAS_KEY && process.env.TUTOR_FAKE !== "1") console.warn(`${WHICH === "openr
 const AUTH_FAKE = process.env.AUTH_FAKE === "1" && process.env.NODE_ENV !== "production";
 if (process.env.AUTH_FAKE === "1" && !AUTH_FAKE) console.warn("AUTH_FAKE is ignored in production.");
 let accounts: AccountDeps | null = null;
+let opsDb: Db | null = null;
 if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || AUTH_FAKE)) {
   const db = process.env.DATABASE_URL ? await connect() : await connectMemory();
+  opsDb = db;
   const applied = await migrate(db);
   if (applied.length) console.log(`Database migrations applied: ${applied.join(", ")}`);
   const parties = (process.env.CLERK_AUTHORIZED_PARTIES ?? "").split(",").map((x) => x.trim()).filter(Boolean);
@@ -60,6 +65,14 @@ if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || 
 // Email: Resend when RESEND_API_KEY is set, otherwise nothing is sent. The weekly email job is run by a scheduler calling /api/internal/digest.
 const mailer = mailerFromEnv();
 if (accounts && !mailer.live) console.warn("Email is off: set RESEND_API_KEY (and MAIL_FROM) to turn on the weekly parent email. See docs/EMAIL.md.");
+
+// The team's ops page (/ops). Needs the allow-list, a secret to sign sessions with, and working email for the sign-in code.
+const opsAdmins = parseAdmins(process.env.OPS_ADMINS);
+const opsSecret = process.env.OPS_SESSION_SECRET ?? "";
+// in development with the fake sign-in nothing is really sent, so the subject (which holds the code) is printed to the server log
+const opsMailer: typeof mailer = AUTH_FAKE && !mailer.live ? { live: false, send: (e) => { console.log(`[dev email to ${e.to}] ${e.subject}`); return mailer.send(e); } } : mailer;
+const opsAccess = accounts && opsDb && opsAdmins.size && opsSecret.length >= 24 && (mailer.live || AUTH_FAKE) ? new OpsAccess({ auth: accounts.auth, mailer: opsMailer, admins: opsAdmins, secret: opsSecret }) : null;
+if (accounts && !opsAccess) console.warn("The ops page is off: set OPS_ADMINS, OPS_SESSION_SECRET (24+ characters) and RESEND_API_KEY to turn it on. See docs/OPS.md.");
 
 const limiter = new Limiter({
   perDeviceDay: Number(process.env.TUTOR_PER_DEVICE_DAY ?? DEFAULT_LIMITS.perDeviceDay),
@@ -173,6 +186,23 @@ createServer(async (req, res) => {
       return html(done ? "You're unsubscribed" : "That link isn't valid", done ? "<p>You won't get the weekly email any more. You can turn it back on any time in the Parents' area.</p>" : "<p>That unsubscribe link isn't valid or has already been used.</p>");
     }
     return html("Unsubscribe from the weekly email", `<p>Stop the weekly quarter progress email?</p><form method="post" action="/unsubscribe?t=${encodeURIComponent(token)}"><button type="submit">Unsubscribe</button></form>`);
+  }
+
+  // The team's ops page: the page itself is the app's shell (noindex); the API checks sign-in, allow-list and emailed code.
+  if (isOpsRoute(url.pathname)) {
+    if (!accounts || !opsDb || !opsAccess) return send(res, 404, { error: "not-found" });
+    try {
+      let body: unknown;
+      if (req.method === "POST") { try { body = await readBody(req, 8192); } catch { return send(res, 400, { error: "bad-request" }); } }
+      const token = /^Bearer (.+)$/i.exec(String(req.headers.authorization ?? ""))?.[1] ?? null;
+      const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess });
+      return send(res, out.status, out.body);
+    } catch (e) { console.error("ops route failed:", (e as Error).name); return send(res, 500, { error: "server-error" }); }
+  }
+
+  if (url.pathname === "/ops" && (req.method === "GET" || req.method === "HEAD") && existsSync(join(DIST, "index.html"))) {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" });
+    return res.end(req.method === "HEAD" ? undefined : readFileSync(join(DIST, "index.html")));
   }
 
   if (url.pathname === "/api/stripe/webhook" && req.method === "POST") {

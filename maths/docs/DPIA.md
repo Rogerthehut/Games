@@ -19,6 +19,8 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 | Weekly email choice and unsubscribe token (not the address) | Our database | Send the weekly progress email only to parents who turned it on |
 | Card, billing details, invoices | Stripe | Payment |
 | Feedback form (parent) | Message, topic, optional 1-5 rating, may-reply tick and screen size, linked to the parent account. No email stored (looked up from Clerk only if replying). Deleted with the account; included in the data download. Limited to 5 a day per parent and behind Turnstile | Improve the product, reply to the parent |
+| Replies to feedback | Our reply text, date and an anonymous admin tag, linked to the feedback. The parent's email is looked up from Clerk when a reply is sent and never stored. Only sent where the parent ticked "may reply". Deleted with the account | Answer parents who asked for an answer |
+| Ops audit log | Admin tag (not a name or email), action and the internal id looked at. Kept even after a parent is deleted | Show who on the team looked at what |
 | AI assistant questions (parent) | Not saved anywhere. Sent with the recent chat and the learner's school year (not nickname or account id) to the AI provider for a reply | Parent help |
 | AI tutor chats | The child's browser only. Sent to the tutor service and AI provider to get a reply; not saved to our database | Tutoring |
 
@@ -40,6 +42,7 @@ Contract (the service the parent asked for) and legitimate interests (security).
 | Child shares personal details with the AI tutor or says they are unsafe | Off by default; messages screened; kind reply pointing to a trusted adult and Childline; parent alerted; chats not saved to our database; provider asked not to keep or train on them | Medium until tested live **[CONFIRM]** |
 | AI tutor gives a wrong answer | Clearly labelled "AI tutor"; answers are not simply given; terms say it can be wrong; parent can switch it off | Low |
 | Data sent outside the UK/EU | Only what each provider needs; safeguards **[CONFIRM]** | Low |
+| Team access misused or an admin account taken over (the ops page shows feedback, account facts and numbers; never a child's name, answers or progress) | Server-side checks on every request: parent sign-in, an allow-list of admin email addresses, and a six-digit code emailed to that address (10 minutes, 5 tries); sessions last an hour; people not on the list see only "not found"; every view, reply and failed sign-in is audit-logged; replies only to parents who ticked "may reply"; use two-step verification on the admin's own email and Clerk account **[CONFIRM]** | Low |
 | Data kept too long | Parent can delete everything (also removes the Stripe customer) or download it; retention rule below | Low |
 
 ## Other controls

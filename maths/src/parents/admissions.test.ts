@@ -25,6 +25,18 @@ describe("11+ test finder data", () => {
   });
 });
 
+describe("per-school entries", () => {
+  it("each carry a test, a note, a dated source and a link to a school or council site", () => {
+    for (const a of admissions) for (const sc of (a as { schools?: { name: string; test: string; note: string; checked: string; source: { path: string } }[] }).schools ?? []) {
+      expect(sc.name.length, a.id).toBeGreaterThan(3);
+      expect(sc.test.length, sc.name).toBeGreaterThan(2);
+      expect(sc.note.length, sc.name).toBeGreaterThan(10);
+      expect(sc.checked, sc.name).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(sc.source.path, sc.name).toMatch(/^https:\/\//);
+    }
+  });
+});
+
 describe("11+ finder areas for postcode search", () => {
   it("lists the council names each area covers", () => {
     for (const a of admissions) {

@@ -19,6 +19,7 @@ const topicRest = (names: string[]) => (names.length > 1 ? `plus ${names.slice(1
 export function Home() {
   const { profile, go } = useApp();
   const wide = useWide();
+  const startRefresher = () => go({ name: "practice", plan: buildRefresher(profile, Date.now(), mulberry32(Date.now())) });
   const refresherCount = canRefresh(profile) ? refresherTopics(profile).length : 0;
   const now = Date.now();
   // The grown-up's focus topics and this week's plan topics both steer today's session.
@@ -105,13 +106,14 @@ export function Home() {
             {profile.groupsLesson && profile.groupsLesson.step < 3 && <button class="btn" onClick={() => go({ name: "equal-groups" })}>Continue equal groups</button>}
             {profile.timeLesson && profile.timeLesson.step < 3 && <button class="btn" onClick={() => go({ name: "time-lesson" })}>Continue telling the time</button>}
             {pausedAngles && <button class="btn" onClick={() => go({ name: "angles-lesson" })}>Continue angles lesson</button>}
+            {refresherCount > 0 && <button class="btn" onClick={startRefresher} data-testid="start-refresher" aria-label={`Quick-fire refresher: 10 questions from the ${refresherCount} topics you practised this week`} title={`10 questions from the ${refresherCount} topics you practised this week`}><Icon name="target" size={18} /> Quick-fire refresher</button>}
           </div>
         </section>
       ) : null}
 
-      {refresherCount > 0 && (
+      {refresherCount > 0 && !hasSavedActivity && (
         <ul class="rows refresher-row">
-          <li><button class="row" onClick={() => go({ name: "practice", plan: buildRefresher(profile, Date.now(), mulberry32(Date.now())) })} data-testid="start-refresher"><Icon name="target" /><span>Quick-fire refresher<small>10 questions from the {refresherCount} topics you practised this week</small></span><Icon name="chevron" size={18} /></button></li>
+          <li><button class="row" onClick={startRefresher} data-testid="start-refresher"><Icon name="target" /><span>Quick-fire refresher<small>10 questions from the {refresherCount} topics you practised this week</small></span><Icon name="chevron" size={18} /></button></li>
         </ul>
       )}
 

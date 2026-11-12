@@ -41,6 +41,13 @@ function testNote(test: (typeof admissions)[number]["test"]) {
 <p class="small muted">${TEST_STATUS[test.status as keyof typeof TEST_STATUS]}. Checked ${checkedOn(test.checked)}. ${escapeHtml(test.note)}${test.source ? ` ${link(test.source)}` : ""}</p>${"parts" in test && test.parts?.length ? `\n<p class="small muted"><strong>Covers:</strong> ${test.parts.map(escapeHtml).join(", ")}.</p>` : ""}`;
 }
 
+type School = { name: string; type?: string; test: string; parts?: string[]; note: string; source: { label: string; path: string }; checked: string };
+/** A table of the schools we've checked in an area. Only schools whose own page we've read are listed. */
+function schoolTable(schools: School[] | undefined) {
+  if (!schools?.length) return "";
+  return `<div class="school-table-wrap"><table class="school-table"><caption>Schools we've checked</caption><thead><tr><th scope="col">School</th><th scope="col">Entry test</th><th scope="col">What we found</th></tr></thead><tbody>${schools.map((s) => `<tr><th scope="row">${escapeHtml(s.name)}${s.type ? `<br><span class="small muted">${escapeHtml(s.type)}</span>` : ""}</th><td>${escapeHtml(s.test)}${s.parts?.length ? `<br><span class="small muted">${s.parts.map(escapeHtml).join(", ")}</span>` : ""}</td><td>${escapeHtml(s.note)} <span class="small muted">Checked ${checkedOn(s.checked)}.</span> ${link(s.source)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
 function testFinder() {
   return `<section id="test-finder" aria-labelledby="test-finder-title" class="test-finder">
 <h2 id="test-finder-title">Find your local 11+ test</h2>
@@ -52,11 +59,12 @@ function testFinder() {
 <p class="small muted" role="status" aria-live="polite"></p>
 <p class="small muted test-finder-privacy">If you type a postcode, only its first half (such as BR1) is used to find your council area. The rest is never sent or kept.</p>
 </div>
-<ul class="rows sitemap-links">${admissions.map(({ id, area, keywords, links, test, councils }) => `
+<ul class="rows sitemap-links">${admissions.map(({ id, area, keywords, links, test, councils, ...rest }) => `
 <li id="${id}" data-test-area="${escapeHtml(area + " " + keywords)}" data-councils="${escapeHtml(councils.join("|"))}">
 <article class="test-finder-entry">
 <h3>${escapeHtml(area)}</h3>
 ${testNote(test)}
+${schoolTable((rest as { schools?: School[] }).schools)}
 <ul>${links.map((item) => `<li>${link(item)}</li>`).join("")}</ul>
 </article>
 </li>`).join("")}</ul>

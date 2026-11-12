@@ -29,7 +29,24 @@
         "path": "https://www.qebarnet.co.uk/admissions-information/secondary-transfer-entrance-test-faqs/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Queen Elizabeth's School, Barnet",
+        "type": "Boys",
+        "test": "Set by the school",
+        "parts": [
+          "English",
+          "Mathematics"
+        ],
+        "note": "Its own entrance test: two multiple-choice papers taken in one session in September.",
+        "source": {
+          "label": "QE Barnet: entrance test FAQs",
+          "path": "https://www.qebarnet.co.uk/admissions-information/secondary-transfer-entrance-test-faqs/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "bexley",
@@ -99,7 +116,25 @@
         "path": "https://wearebsg.uk/school-information/admissions/"
       },
       "checked": "2026-11-12"
-    }
+    },
+    "schools": [
+      {
+        "name": "Bournemouth School for Girls",
+        "type": "Girls",
+        "test": "GL Assessment",
+        "parts": [
+          "Maths",
+          "English",
+          "Verbal reasoning"
+        ],
+        "note": "Maths (50 minutes), English (45 minutes) and Verbal Reasoning (50 minutes), multiple choice. The school says it moves to Quest from the 2027 entry round.",
+        "source": {
+          "label": "Bournemouth School for Girls admissions",
+          "path": "https://wearebsg.uk/school-information/admissions/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "bromley",
@@ -189,7 +224,39 @@
         "path": "https://new.calderdale.gov.uk/schools-and-learning/schools/admissions/secondary-criteria/north-halifax-grammar"
       },
       "checked": "2026-11-12"
-    }
+    },
+    "schools": [
+      {
+        "name": "North Halifax Grammar School",
+        "test": "Set by the school",
+        "parts": [
+          "English",
+          "Mathematics",
+          "Creative writing"
+        ],
+        "note": "English, Mathematics and Creative Writing, set by the school.",
+        "source": {
+          "label": "Calderdale Council guidance for North Halifax Grammar School",
+          "path": "https://new.calderdale.gov.uk/schools-and-learning/schools/admissions/secondary-criteria/north-halifax-grammar"
+        },
+        "checked": "2026-11-12"
+      },
+      {
+        "name": "Crossley Heath School",
+        "test": "Set by the school",
+        "parts": [
+          "English",
+          "Mathematics",
+          "Creative writing"
+        ],
+        "note": "English, Mathematics and Creative Writing, set by the school.",
+        "source": {
+          "label": "Calderdale Council guidance for Crossley Heath School",
+          "path": "https://new.calderdale.gov.uk/schools-and-learning/schools/admissions/secondary-criteria/crossley-heath"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "devon",
@@ -478,7 +545,19 @@
         "path": "https://www.bluecoatschoolliverpool.org.uk/page/?pid=58&title=Year+7"
       },
       "checked": "2026-11-12"
-    }
+    },
+    "schools": [
+      {
+        "name": "The Blue Coat School",
+        "test": "Not confirmed",
+        "note": "An entrance test in September of Year 6. The page doesn't name a provider or the papers.",
+        "source": {
+          "label": "The Blue Coat School Year 7 admissions",
+          "path": "https://www.bluecoatschoolliverpool.org.uk/page/?pid=58&title=Year+7"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "medway",
@@ -619,7 +698,31 @@
         "path": "https://www.reading-school.co.uk/admissions"
       },
       "checked": "2026-11-12"
-    }
+    },
+    "schools": [
+      {
+        "name": "Reading School",
+        "type": "Boys",
+        "test": "Set by the school",
+        "note": "Runs its own selection test. The papers aren't set out on the page we could read.",
+        "source": {
+          "label": "Reading School admissions",
+          "path": "https://www.reading-school.co.uk/admissions"
+        },
+        "checked": "2026-11-12"
+      },
+      {
+        "name": "Kendrick School",
+        "type": "Girls",
+        "test": "Set by the school",
+        "note": "Runs its own selection test. The papers aren't set out on the page we could read.",
+        "source": {
+          "label": "Kendrick School Year 7 admissions",
+          "path": "https://www.kendrick.reading.sch.uk/page/?pid=71&title=Year+7+Admissions"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "redbridge",
@@ -858,7 +961,19 @@
         "path": "https://qegspenrith.education/admissions/"
       },
       "checked": "2026-11-12"
-    }
+    },
+    "schools": [
+      {
+        "name": "Queen Elizabeth Grammar School, Penrith",
+        "test": "Set by the school",
+        "note": "Its own entrance test in September at the start of Year 6. Register in May or June of Year 5, and name the school on your council form by 31 October.",
+        "source": {
+          "label": "Queen Elizabeth Grammar School, Penrith admissions",
+          "path": "https://qegspenrith.education/admissions/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "wiltshire",

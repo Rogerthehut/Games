@@ -105,7 +105,7 @@ Still to do: a teacher's review of the methods and reasons wording, and per-topi
 
 ## 11+ track: what is left
 
-Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, wrong answers logged into the learning report, and test details recorded for all 33 areas except Lancashire (the council pages don't cover selection). Most are marked reported, and Redbridge is disputed, so they're worth confirming with the schools. Still to do: a per-school grammar table, which needs more official sources, and Lancashire.
+Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, wrong answers logged into the learning report, and test details recorded for all 33 areas except Lancashire (the council pages don't cover selection). Most are marked reported, and Redbridge is disputed, so they're worth confirming with the schools. The per-school table is built (see the changelog) and holds the schools whose pages have been read. Still to do: add more schools. Run `npm run fetch:11plus -- --all` from Replit, commit `docs/research/11plus/`, and the details can be filled in from the quoted pages. Lancashire is still unrecorded.
 
 ## Times tables challenge (built)
 
@@ -169,5 +169,6 @@ Run against a built preview (`VITE_ALLOW_LOCAL_ONLY=1 npm run build && npx vite 
 - `npm run e2e:taps`: a quick double tap on Check, Show the steps or Next counts once.
 - `npm run e2e:grownup`: the Parents' area, adding or changing a learner and the search all ask for the sum and PIN, and the area locks again on leaving. The review behind it is `docs/GROWN_UP_CONTROLS_REVIEW.md`.
 - `npm run e2e:report`, `e2e:topicsearch`: the learning report and the topic search.
+- `npm run e2e:ops`: the ops page (starts its own server and app; set `PLAYWRIGHT_MODULE` to the path of `playwright/index.js`).
 - `npm run e2e:lesson`, `e2e:refresher`, `e2e:instruments`, `e2e:tools`, `e2e:guides`, `e2e:challenge`: the worked-example lessons, the weekly refresher, the protractor and drawing questions, the working-out tools, the user guides and the times tables challenges.
 - Accounts: see the notes at the top of `scripts/accounts-e2e.mjs`.

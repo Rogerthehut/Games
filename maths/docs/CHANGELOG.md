@@ -2,6 +2,23 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Landing page header
+- "Public beta" is now a small tab hanging from the header under the wordmark, instead of sitting in the line of text under it (where it collided on a phone).
+- On touch screens the sticky header is opaque and on its own layer, so it no longer shimmers or wobbles as Safari's toolbar collapses while scrolling.
+- The header's Sign in and Create an account buttons no longer wrap onto two lines on a laptop.
+
+## 11+ finder: per-school table
+Areas can now list the schools we've checked, in a table (School, Entry test, What we found) with a source and date for each. It reads as stacked cards on a phone. Eight schools are in so far (Queen Elizabeth's Barnet, Bournemouth School for Girls, North Halifax Grammar, Crossley Heath, The Blue Coat School, Reading School, Kendrick School, QEGS Penrith), each only where its own page has been read. Other areas keep their links until their school pages are read. `npm run fetch:11plus -- --all` collects pages for every area so more can be added.
+
+## Quick-fire refresher beside Continue
+When there's something to pick up on Today, the Quick-fire refresher is now a third pill with its target icon in the "Pick up where you left off" row, next to the Continue buttons (hover or long-press shows the 10 questions and topic count; screen readers read it in full). With nothing to continue, it keeps its own row as before. Check: `npm run e2e:refresher`.
+
+## Ops page for the team (/ops), with a feedback inbox
+- A secure page for the team: feedback inbox, numbers, account lookup, audit log. Needs a parent sign-in, an allow-list (`OPS_ADMINS`) and a six-digit code emailed to the admin. Anyone else sees "not found". Setup in `docs/OPS.md`.
+- You can reply to parents who ticked "may reply": the email goes out through Resend from hello@, their address is looked up from Clerk and never stored, and the reply is kept under the feedback. A new table (`feedback_replies`, migration 0006) holds it.
+- Every view, reply and failed sign-in is audit-logged. DPIA updated. `/ops` is noindex and in `robots.txt`.
+- After pulling: restart the app so migration 0006 runs, then add `OPS_ADMINS` and `OPS_SESSION_SECRET` in Secrets.
+
 ## 11+ test details for six more areas
 - BCP, Calderdale, Liverpool, Reading, Redbridge and Westmorland now show what's known about the entrance test (provider, parts, how to register), each with its source and the date checked. Where a school's page doesn't name the provider it says so, and Redbridge is marked disputed because its sources disagree. Lancashire is still unrecorded.
 
