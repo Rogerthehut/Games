@@ -2,6 +2,7 @@ import { SKILL_BY_ID, STAGE_LABEL, STRANDS } from "../curriculum";
 import { isUnlocked, skillName, statusOf } from "../engine/progress";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useApp, type Route } from "./context";
+import { recall, remember } from "./memory";
 import { Journey } from "./journey";
 import { hasLesson } from "../engine/lesson";
 import { resolveSkin } from "./skin";
@@ -14,14 +15,39 @@ import { SkillFilterControls, filterSkills, topicLabel, type SkillFilters } from
 
 type SkillsRoute = Extract<Route, { name: "map" }>;
 
+/** Where each learner last was on the map and on the list, so coming back puts them in the same place (kept on the device). */
+const lastSpot = { get: (k: string) => recall<number | undefined>(k, undefined), set: (k: string, v: number) => remember(k, v) };
+/** The element that scrolls the page: the nearest scrolling ancestor, or null for the window itself. */
+function scroller(el: Element | null): HTMLElement | null {
+  for (let e = el?.parentElement; e; e = e.parentElement) {
+    if (/(auto|scroll)/.test(getComputedStyle(e).overflowY) && e.scrollHeight > e.clientHeight + 1) return e;
+  }
+  return null;
+}
+
 export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
   const { profile, go, update } = useApp();
   const destination = skillDestination(profile, navigation.stage, navigation.skill);
   const lastNavigation = useRef(navigation);
   const [view, setView] = useState(navigation.view ?? profile.skillsView ?? (resolveSkin(profile) === "explorer" ? "journey" : "list"));
   const [picked, setPicked] = useState(destination.skill);
-  const [filters, setFilters] = useState<SkillFilters>(navigation.filters ?? {});
+  const [filters, setFilters] = useState<SkillFilters>(() => navigation.filters ?? recall<SkillFilters>(`${profile.id}:skills.filters`, {}));
+  useEffect(() => { remember(`${profile.id}:skills.filters`, Object.keys(filters).length ? filters : undefined); }, [filters]);
   const filterStart = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const spotKey = `${profile.id}:skills.${profile.year}.${view}`;
+  // remember where they are as they scroll (not the first moments, while the page is still settling into place)
+  useEffect(() => {
+    const born = performance.now();
+    let frame = 0;
+    const on = () => {
+      if (performance.now() - born < 600) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => { const sc = scroller(root.current); lastSpot.set(spotKey, sc ? sc.scrollTop : window.scrollY); });
+    };
+    document.addEventListener("scroll", on, { capture: true, passive: true });
+    return () => { cancelAnimationFrame(frame); document.removeEventListener("scroll", on, { capture: true } as EventListenerOptions); };
+  }, [spotKey]);
   const visibleSkills = filterSkills(filters);
   const setListFilters = (next: SkillFilters) => {
     setFilters(next);
@@ -44,14 +70,29 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
     const targetSkill = revisiting ? destination.skill : picked;
     if (revisiting) setPicked(targetSkill);
     const id = targetSkill ? `skill-${targetSkill}` : `${view}-world-${destination.stage}`;
+    let retry = 0;
     const frame = requestAnimationFrame(() => {
+      // Coming back with no particular topic or stage asked for: go to exactly where they were.
+      const saved = !targetSkill && !navigation.stage ? lastSpot.get(spotKey) : undefined;
+      if (saved !== undefined) {
+        // the list can still be laying itself out, so keep trying for a moment until the page is tall enough to reach the spot
+        let tries = 0;
+        const place = () => {
+          const sc = scroller(root.current);
+          if (sc) sc.scrollTop = saved; else window.scrollTo(0, saved);
+          const at = sc ? sc.scrollTop : window.scrollY;
+          if (Math.abs(at - saved) > 2 && ++tries < 30) retry = requestAnimationFrame(place);
+        };
+        place();
+        return;
+      }
       // With nothing chosen, open the map where the learner is now, not at the top of their stage.
       const here = !targetSkill && view === "journey" ? document.querySelector<HTMLElement>(".journey .node.here") : null;
       const target = here ?? document.getElementById(id);
       target?.scrollIntoView({ block: targetSkill || here ? "center" : "start" });
       target?.focus({ preventScroll: true });
     });
-    return () => cancelAnimationFrame(frame);
+    return () => { cancelAnimationFrame(frame); cancelAnimationFrame(retry); };
   }, [view, navigation]);
   const stage = activePathwayStage(profile);
   const viewSwitch = (
@@ -67,9 +108,9 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
       <h1>Skills</h1>
     </div>
   );
-  if (view === "journey") return <Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}</>} />;
+  if (view === "journey") return <div ref={root} style="display:contents"><Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}</>} /></div>;
   return (
-    <div class="map">
+    <div class="map" ref={root}>
       {heading}
       <p class="lede">Tap Practise on anything you want to work on.</p>
       <div ref={filterStart} />

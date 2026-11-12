@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
+import { useRemembered } from "./memory";
 import { buildLearningReport, diagnoseAttempt, lastDays, PERIODS, type Example, type Period, type TopicFinding } from "../engine/learning-report";
 import { fixPlan, wrongLogOf } from "../engine/wrong-log";
 import { STATUS_LABEL_PARENT } from "./labels";
@@ -39,7 +40,7 @@ export function LearningSummaryCard() {
 /** Exactly which questions were wrong in a period, why that may be happening, and how to help. */
 export function LearningReport() {
   const { profile, go, leave } = useApp();
-  const [days, setDays] = useState<number | "custom">(14);
+  const [days, setDays] = useRemembered<number | "custom">(`${profile.id}:report.days`, 14);
   const [from, setFrom] = useState(toInput(Date.now() - 14 * DAY)), [to, setTo] = useState(toInput(Date.now()));
   const [printing, setPrinting] = useState(false);
   const period: Period = useMemo(() => days === "custom"

@@ -1,3 +1,4 @@
+import { recall, remember, forgetLearner, restoreScroll, scrollNow } from "./memory";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import { loadStore, saveStore, type Store } from "../engine/storage";
 import type { Profile } from "../engine/progress";
@@ -72,7 +73,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     const oldRestoration = history.scrollRestoration;
     history.scrollRestoration = "manual";
     const pop = (event: PopStateEvent) => {
-      if (event.state?.quarter === currentSession) setRouteRaw(event.state.route);
+      if (event.state?.quarter === currentSession) { saveSpot(); cameBack.current = true; setRouteRaw(event.state.route); }
     };
     window.addEventListener("popstate", pop);
     return () => {
@@ -82,6 +83,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   }, []);
 
   const setRoute = (next: Route, returnTo?: Route) => {
+    saveSpot();
     if (returnTo) history.replaceState({ ...history.state, route: returnTo }, "", hrefForRoute(returnTo));
     if (JSON.stringify(route) !== JSON.stringify(next) || returnTo) {
       history.pushState({ quarter: session.current, route: next, canLeave: true }, "", hrefForRoute(next));
@@ -102,8 +104,30 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     return () => { events.forEach((e) => removeEventListener(e, touch, { capture: true })); clearInterval(check); };
   }, [inParents]);
 
+  // Where they were on each screen. Coming back to a main tab, or going back from a sub-screen, puts the page exactly where it was left.
+  // The place is written down at the moment they leave (before the old screen is taken away and the page shrinks), and when the app is closed.
+  const cameBack = useRef(false);
+  const routeNow = useRef(route); routeNow.current = route;
+  const noSpot = ["practice", "mock", "pathway-test", "lesson", "checkup", "onboard", "tour", "certificate", "map"];
+  const spot = (r: Route) => `${store.activeId ?? "device"}:scroll.${r.name}`;
+  const lastSeen = useRef(0); // the latest scroll position seen, for when the page is being closed and can no longer be measured
+  const saveSpot = () => { const r = routeNow.current; if (!noSpot.includes(r.name)) remember(spot(r), scrollNow()); };
   useEffect(() => {
-    if (showWelcome) return;
+    const on = () => { lastSeen.current = scrollNow(); };
+    const closing = () => { const r = routeNow.current; if (!noSpot.includes(r.name)) remember(spot(r), lastSeen.current); };
+    const hide = () => { if (document.visibilityState === "hidden") closing(); };
+    document.addEventListener("scroll", on, { capture: true, passive: true });
+    document.addEventListener("visibilitychange", hide); addEventListener("pagehide", closing);
+    return () => { document.removeEventListener("scroll", on, { capture: true } as EventListenerOptions); document.removeEventListener("visibilitychange", hide); removeEventListener("pagehide", closing); };
+  }, [store.activeId]);
+  useEffect(() => {
+    if (showWelcome && route.name === "home") return; // the welcome screen is on top
+    const tabRoot = ["home", "plan", "me"].includes(route.name);
+    const saved = (tabRoot || cameBack.current) && !noSpot.includes(route.name) && !(route.name === "plan" && route.week) && !(route.name === "me" && route.section)
+      ? recall<number | undefined>(spot(route), undefined) : undefined;
+    cameBack.current = false;
+    lastSeen.current = saved ?? 0;
+    if (saved !== undefined && saved > 0) return restoreScroll(saved);
     window.scrollTo(0, 0);
     document.getElementById("main")?.scrollTo(0, 0);
     if (route.name === "map") return;
@@ -146,6 +170,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
       }),
     removeProfile: (id: string) => {
       bridge?.forget(id);
+      forgetLearner(id);
       setStore((s) => {
         const profiles = s.profiles.filter((p) => p.id !== id);
         return { ...s, profiles, activeId: profiles[0]?.id ?? null };

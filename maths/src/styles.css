@@ -2345,7 +2345,8 @@ html:has(.quarter-search[open]),
 .account-card h1 { margin-bottom: 4px; }
 .account-tabs { margin: 16px 0 12px; width: 100%; }
 .account-tabs button { flex: 1; min-height: 48px; }
-.clerk-mount { width: 100%; min-height: 120px; display: flex; justify-content: center; }
+.clerk-mount { width: 100%; display: flex; justify-content: center; }
+.clerk-mount.open { min-height: 120px; } /* kept only while the form is on its way, so the card doesn't jump when it appears */
 .account-points { list-style: none; margin: 12px 0 16px; padding: 0; display: grid; gap: 10px; text-align: left; }
 .account-points li { padding: 12px 14px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); line-height: 1.4; }
 .account-check { display: flex; gap: 12px; align-items: flex-start; text-align: left; margin: 8px 0 16px; line-height: 1.4; }

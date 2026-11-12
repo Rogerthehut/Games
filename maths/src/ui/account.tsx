@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { clearAllPins } from "./pin";
 import { AccountApi, AccountError, NO_BILLING, type BillingInfo, type Plan } from "../account/api";
 import { createAuth, type AuthClient } from "../account/auth";
+import { inAppBrowser } from "../account/inapp";
 import { forgetAgreement, hasAgreed, rememberAgreement } from "../account/agree";
 import { clearCaches, clearLegacy, declineLegacy, legacyDeclined, loadActive, loadCache, loadLegacy, saveActive, saveCache } from "../account/cache";
 import { Sync, forServer, type RemoteLearner, type SyncStatus } from "../account/sync";
@@ -279,6 +280,22 @@ function likelySignedIn(): boolean {
   } catch { return true; }
 }
 
+/** Shown only inside another app's built-in browser, where Google sign-in often fails. */
+function InAppNotice() {
+  const app = useMemo(() => inAppBrowser(), []);
+  const [copied, setCopied] = useState(false);
+  if (!app) return null;
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(location.origin + location.pathname); setCopied(true); } catch { /* the address is still shown to select */ }
+  };
+  return (
+    <div class="alert-note inapp-notice" role="note" data-testid="inapp-notice">
+      <p><strong>You're viewing quarter inside {app}.</strong> Signing in with Google often doesn't work in here. For the smoothest sign-in, open this page in Safari or Chrome (the menu in the corner usually has "Open in browser").</p>
+      <p><button type="button" class="btn small" onClick={copy}>{copied ? "Link copied" : "Copy the link"}</button> <span class="small muted">{location.origin + location.pathname}</span></p>
+    </div>
+  );
+}
+
 function SignedOut({ auth }: { auth: AuthClient | null }) {
   // Visitors land on the welcome page first. A hash means Clerk is mid-flow (for example coming back from Google), so go straight to the form.
   const [kind, setKind] = useState<"sign-up" | "sign-in" | null>(() => (location.hash.length > 1 ? "sign-in" : null));
@@ -320,7 +337,8 @@ function SignedOut({ auth }: { auth: AuthClient | null }) {
           {!agreed && <p class="small muted">Please tick the box to create your account.</p>}
         </div>
       )}
-      <div class="clerk-mount" ref={box} data-testid="auth-box" />
+      <InAppNotice />
+      <div class={`clerk-mount${formOpen ? " open" : ""}`} ref={box} data-testid="auth-box" />
       {formOpen && !auth && <p class="small muted account-hint" role="status">Getting the sign-in form ready…</p>}
       {formOpen && !stuck && <p class="small muted account-hint" data-testid="check-junk">After you continue, we email you a code or link to confirm your address. If it doesn't arrive within a minute or two, check your junk or spam folder.</p>}
       {stuck && <p class="alert-note" role="alert" data-testid="auth-stuck">{stuck} Try opening this page in its own browser tab. If it still doesn't load, the site owner should check that this address is an allowed domain in the Clerk dashboard.</p>}

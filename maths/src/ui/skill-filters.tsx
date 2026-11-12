@@ -23,23 +23,32 @@ export function filterSkills({ stage, topic, q }: SkillFilters) {
 }
 
 /** True while the person is scrolling down the list, so the filter panel can fade out of the way and come back when they scroll up. */
+/**
+ * The search panel stays put at the top while the list scrolls under it. It is shown whenever the first topic in the list is still below
+ * the top of the page, and fades out only once that first topic has scrolled up to the top, then comes back as it scrolls down again
+ * to that point. Where you are in the list decides, not how fast or in which direction you scroll, so it never flickers.
+ */
 function useFadeOnScroll() {
   const ref = useRef<HTMLDivElement>(null);
   const [faded, setFaded] = useState(false);
   useEffect(() => {
-    const born = performance.now();
-    let last = -1, run = 0;
-    const on = (e: Event) => {
-      const el = ref.current, t = e.target as Document | HTMLElement;
-      if (!el || !(t === document || t.contains?.(el))) return;
-      const y = t === document ? window.scrollY : (t as HTMLElement).scrollTop;
-      if (last < 0 || performance.now() - born < 800) { last = y; return; } // the page settling in isn't the person scrolling
-      const dy = y - last; last = y;
-      run = Math.sign(dy) === Math.sign(run) ? run + dy : dy; // distance travelled in one direction
-      if (y < 80) { setFaded(false); run = 0; } else if (run > 24) setFaded(true); else if (run < -12) setFaded(false);
+    let frame = 0;
+    const check = () => {
+      const panel = ref.current;
+      const first = panel?.parentElement?.querySelector<HTMLElement>(".topics > li, .skill-list > li");
+      if (!panel || !first) { setFaded(false); return; }
+      // "the top of the page" is where the panel sticks: its own top offset inside whatever scrolls
+      let edge = 0;
+      for (let e: HTMLElement | null = panel.parentElement; e; e = e.parentElement) {
+        if (/(auto|scroll)/.test(getComputedStyle(e).overflowY) && e.scrollHeight > e.clientHeight + 1) { edge = e.getBoundingClientRect().top; break; }
+      }
+      setFaded(first.getBoundingClientRect().top <= edge + (parseFloat(getComputedStyle(panel).top) || 0) + 2);
     };
+    const on = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(check); };
     document.addEventListener("scroll", on, { capture: true, passive: true });
-    return () => document.removeEventListener("scroll", on, { capture: true } as EventListenerOptions);
+    addEventListener("resize", on);
+    on();
+    return () => { cancelAnimationFrame(frame); document.removeEventListener("scroll", on, { capture: true } as EventListenerOptions); removeEventListener("resize", on); };
   }, []);
   return { ref, faded };
 }

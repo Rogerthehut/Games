@@ -57,6 +57,17 @@ Add these in Replit Secrets, then restart:
 
 Without all three the page stays off, and the server logs "The ops page is off".
 
+### If "The code email couldn't be sent"
+
+You got past the sign-in and the allow-list; the failure is Resend refusing the email. The screen now shows what Resend said, and the server log has the line `ops code email not sent: ...`. Common causes:
+
+- `403` / `validation_error` about the **from address**: the sending domain isn't verified in Resend yet. `MAIL_FROM` defaults to `quarter <weekly@mail.yourquarter.co.uk>`, so `mail.yourquarter.co.uk` must be added and verified in Resend (the DNS records in `docs/EMAIL.md`). Or set `MAIL_FROM` to an address on a domain you have verified.
+- `403` saying you can **only send to your own address**: Resend is in test mode (no verified domain). Until the domain is verified it only delivers to the email you signed up to Resend with.
+- `401`: `RESEND_API_KEY` is wrong, or was created with "sending access" for a different domain.
+- `429`: too many tries. Wait a minute.
+
+`OPS_ADMINS` must be the email address on your quarter sign-in (the code goes to that address, looked up from Clerk).
+
 ### Signing in (three checks, all on the server)
 
 1. Sign in at `/ops` with your normal quarter parent account.

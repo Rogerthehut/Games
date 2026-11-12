@@ -31,7 +31,9 @@ export class ResendMailer implements Mailer {
         signal: AbortSignal.timeout(15_000),
       });
       if (res.ok) return { ok: true as const };
-      return { ok: false as const, error: `Resend answered ${res.status}` }; // the body can echo the address, so it is not logged
+      // the body can echo the address, so it is not logged, but its short error name (for example "validation_error") is safe and says what to fix
+      const name = await res.json().then((b: { name?: unknown }) => (typeof b?.name === "string" ? b.name.replace(/[^a-z_]/gi, "").slice(0, 40) : ""), () => "");
+      return { ok: false as const, error: `Resend answered ${res.status}${name ? ` (${name})` : ""}` };
     } catch (err) {
       return { ok: false as const, error: (err as Error).name === "TimeoutError" ? "Resend timed out" : "Resend could not be reached" };
     }

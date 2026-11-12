@@ -39,7 +39,8 @@ function shell(opts: { title: string; description: string; path: string; body: s
 <meta property="og:title" content="${escapeHtml(opts.title)} | quarter">
 <meta property="og:description" content="${escapeHtml(opts.description)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}/og-image.png">
+<meta property="og:image" content="${SITE}/og-image-2.png">
+<meta property="og:image:type" content="image/png">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(opts.jsonLd).replace(/</g, "\\u003c")}</script>
 ${opts.styles}

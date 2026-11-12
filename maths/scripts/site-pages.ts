@@ -58,7 +58,8 @@ function shell(o: Shell) {
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(o.description)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}/og-image.png">
+<meta property="og:image" content="${SITE}/og-image-2.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="quarter: maths and STEM practice for Years 3 to 13">
@@ -66,7 +67,7 @@ ${o.published ? `<meta property="article:published_time" content="${o.published}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(o.description)}">
-<meta name="twitter:image" content="${SITE}/og-image.png">
+<meta name="twitter:image" content="${SITE}/og-image-2.png">
 <script type="application/ld+json">${json({ "@context": "https://schema.org", "@graph": o.jsonLd })}</script>
 ${o.styles}
 </head>
@@ -90,7 +91,7 @@ const publisher = { "@type": "Organization", "@id": `${SITE}/#org`, name: "quart
 
 // ------------------------------------------------------------------ the blog
 const postPath = (p: Post) => `blog/${p.slug}.html`;
-const postJsonLd = (p: Post) => ({ "@type": "BlogPosting", "@id": `${SITE}/${postPath(p)}#article`, mainEntityOfPage: `${SITE}/${postPath(p)}`, headline: p.title, description: p.description, datePublished: p.date, dateModified: p.date, inLanguage: "en-GB", keywords: p.tags.join(", "), image: `${SITE}/og-image.png`, author: publisher, publisher });
+const postJsonLd = (p: Post) => ({ "@type": "BlogPosting", "@id": `${SITE}/${postPath(p)}#article`, mainEntityOfPage: `${SITE}/${postPath(p)}`, headline: p.title, description: p.description, datePublished: p.date, dateModified: p.date, inLanguage: "en-GB", keywords: p.tags.join(", "), image: `${SITE}/og-image-2.png`, author: publisher, publisher });
 
 function blogPages(styles: string) {
   const sorted = [...POSTS].sort((x, y) => y.date.localeCompare(x.date));

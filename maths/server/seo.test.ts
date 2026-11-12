@@ -17,7 +17,7 @@ describe("search and sharing set-up", () => {
   });
   it("has the icons, share image and details the head points at", () => {
     const html = site("index.html");
-    for (const f of ["favicon-32.png", "apple-touch-icon.png", "og-image.png", "icon-512.png", "icon.svg"]) {
+    for (const f of ["favicon-32.png", "apple-touch-icon.png", "og-image-2.png", "icon-512.png", "icon.svg"]) {
       expect(() => readFileSync(`public/${f}`), f).not.toThrow();
     }
     expect(html).toContain('property="og:image"');

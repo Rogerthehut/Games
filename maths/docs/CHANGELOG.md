@@ -5,6 +5,14 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Search and AI findability refresh
 - Sitemap dates moved to today, so crawlers see the changed 11+ page. `/llms-full.txt` now includes the 11+ test notes for every area and the per-school entries, each with its source and confidence. `llms.txt` and the home page's structured data (feature list) now mention the learning report, timed papers, times tables challenges and the weekly email. `/ops` is in `robots.txt` and sends `noindex`. Icons, favicons and the manifest were checked and need no change.
 
+## Remembering where people left off, and smaller fixes
+- **Remembers the place.** Coming back to Today, Skills (map and list), Plan or Me, or going back from a sub-screen, now puts the page exactly where it was left, including after the app is closed and reopened. The Parents' area remembers its tab, the learning report remembers its period, the guides remember which guide was open, and the Skills list remembers its filters. It's kept on the device only (`quarter.where.v1`: positions and choices, no answers or personal details) and cleared when a learner is deleted. Check: `npm run e2e:memory`.
+- **Search panel on Topics.** The Find a topic panel now stays visible until the first topic in the list reaches the top of the page, fades only then, and comes back when you scroll back up past that point. It no longer reacts to scroll speed.
+- **Welcome card.** Removed the empty space under the tick box on Create an account.
+- **Opening quarter inside Instagram, Facebook, TikTok and similar apps** now shows a short note suggesting Safari or Chrome for sign-in, with a copy-link button, because Google blocks its sign-in in those browsers.
+- **Share image.** A new 1200 x 630 image (`og-image-2.png`, made by `npm run` script `scripts/make-og.mjs`) that says "Maths and STEM", with image type and size tags on every page. The file name is versioned so chat apps fetch it afresh.
+- **Ops code email.** When Resend refuses the sign-in code email, the screen and the server log now say what Resend said (see `docs/OPS.md`).
+
 ## Practice papers timed like real tests
 The practice paper screen now has two groups: **Quick practice** (the three short papers) and **Timed like a real test**: Quest-style maths (60 questions, 40 minutes, as Colyton's Quest paper), Ripon-style reasoning and maths (40 non-verbal reasoning questions then about 25 maths, 45 minutes), Maths in 50 minutes (as Bournemouth School for Girls' GL paper) and Maths in 60 minutes (as the Essex CSSE paper). Each says what its timing is based on. The questions are quarter's own and, where a school doesn't publish a question count, the number is ours. Maths and reasoning only: there are no English papers. Results, Fix this and the progress report work as before.
 

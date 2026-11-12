@@ -1,4 +1,5 @@
 import { useRef, useState } from "preact/hooks";
+import { useRemembered } from "./memory";
 import { ALL_SKILLS, SKILLS, STAGE_LABEL } from "../curriculum";
 import { buildRefresher, canRefresh, refresherTopics } from "../engine/refresher";
 import { mulberry32 } from "../engine/rng";
@@ -30,7 +31,7 @@ type Part = "progress" | "assistant" | "tutor" | "guides" | "settings" | "feedba
 export function Parent() {
   const { profile, update, go, removeProfile } = useApp();
   const account = useAccount();
-  const [part, setPart] = useState<Part>("progress");
+  const [part, setPart] = useRemembered<Part>("device:parent.part", "progress");
   const [filters, setFilters] = useState<SkillFilters>({});
   const found = filterSkills(filters);
   const visibleSkills = filters.q?.trim() ? found : found.sort((a, b) => a.year - b.year);

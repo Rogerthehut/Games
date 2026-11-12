@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import { useRemembered } from "./memory";
 import { CHILD_GUIDE, PARENT_GUIDE, type GuideSection } from "../guides/content";
 import { useApp } from "./context";
 import { Icon } from "./icons";
@@ -12,7 +13,8 @@ const NOTE = ["yellow", "mint", "rose", "peri"] as const;
  * With `only`, a single guide is shown on its own, without the switch, for a screen a child can open.
  */
 export function Guides({ only }: { only?: "parents" | "children" }) {
-  const [which, setWhich] = useState<"parents" | "children">(only ?? "parents");
+  const [saved, setWhich] = useRemembered<"parents" | "children">("device:guides.which", "parents");
+  const which = only ?? saved;
   const [printing, setPrinting] = useState(false);
   const { profile } = useApp();
   const [reading, setReading] = useState<string | null>(null);   // the section being read aloud

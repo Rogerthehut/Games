@@ -22,9 +22,11 @@ export const actorOf = (userId: string) => `admin:${userId.replace(/^user_/, "")
 
 export interface OpsAccessDeps { auth: AuthProvider; mailer: Mailer; admins: Set<string>; secret: string; now?: () => number }
 export type CodeOutcome = "sent" | "not-admin" | "too-soon" | "mail-failed";
+/** Why the last code email failed, for the server log and the sign-in screen (it holds no address, only what the mail service said). */
 export type VerifyOutcome = { ok: true; session: string; expiresAt: number } | { ok: false; reason: "no-code" | "wrong" | "locked" };
 
 export class OpsAccess {
+  lastMailError = "";
   private pending = new Map<string, { hash: string; expires: number; attempts: number; sentAt: number }>();
   private adminCache = new Map<string, { ok: boolean; at: number }>();
   constructor(private d: OpsAccessDeps) {}
@@ -53,7 +55,7 @@ export class OpsAccess {
       text: `Your quarter ops code is ${code}. It works for 10 minutes. If you didn't ask for it, ignore this email: nothing happens without the code.`,
       html: `<p style="font:16px system-ui,sans-serif">Your quarter ops code is</p><p style="font:700 32px/1.2 ui-monospace,monospace;letter-spacing:4px">${code}</p><p style="font:14px system-ui,sans-serif;color:#555">It works for 10 minutes. If you didn't ask for it, ignore this email: nothing happens without the code.</p>`,
     });
-    if (!res.ok) return "mail-failed";
+    if (!res.ok) { this.lastMailError = res.error; console.error("ops code email not sent:", res.error); return "mail-failed"; }
     this.pending.set(userId, { hash: this.hash(code), expires: this.now() + CODE_TTL_MS, attempts: 0, sentAt: this.now() });
     return "sent";
   }

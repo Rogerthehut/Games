@@ -121,12 +121,15 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
 <meta property="og:title" content="${escapeHtml(page.title)} | quarter">
 <meta property="og:description" content="${escapeHtml(page.description)}">
 <meta property="og:url" content="https://yourquarter.co.uk/${page.path}">
-<meta property="og:image" content="https://yourquarter.co.uk/og-image.png">
+<meta property="og:image" content="https://yourquarter.co.uk/og-image-2.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="quarter: maths and STEM practice for Years 3 to 13">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(page.title)} | quarter">
 <meta name="twitter:description" content="${escapeHtml(page.description)}">
-<meta name="twitter:image" content="https://yourquarter.co.uk/og-image.png">
+<meta name="twitter:image" content="https://yourquarter.co.uk/og-image-2.png">
 <script type="application/ld+json">${jsonLd(page)}</script>
 ${styles}
 </head>

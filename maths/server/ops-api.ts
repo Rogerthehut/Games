@@ -27,7 +27,7 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     const out = await d.access.sendCode(who.userId);
     if (out === "not-admin") { await audit(d.db, actor, "denied", "code"); return NOT_FOUND; }
     if (out === "too-soon") return { status: 429, body: { error: "too-soon", message: "Please wait a moment before asking for another code." } };
-    if (out === "mail-failed") return { status: 502, body: { error: "mail-failed", message: "The code email couldn't be sent." } };
+    if (out === "mail-failed") return { status: 502, body: { error: "mail-failed", message: `The code email couldn't be sent (${d.access.lastMailError || "no reason given"}). The sending address may not be verified in Resend yet: see docs/OPS.md.` } };
     await audit(d.db, actor, "code-sent", "-");
     return ok({ sent: true });
   }
