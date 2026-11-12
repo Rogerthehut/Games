@@ -3212,3 +3212,11 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
   body.printing-guide .guide-block summary::after { content: ""; }
 }
 .guide-block summary::marker { content: ""; font-size: 0; }
+
+/* worked-example lessons */
+.lesson-panel { padding: clamp(16px, 4vw, 30px); display: grid; gap: 12px; align-content: start; }
+.lesson-panel > * { margin-block: 0; }
+.lesson-panel .workbook-tab { justify-self: start; }
+.lesson-panel .steps { margin: 0; }
+.lesson-panel .q-text { margin: 0; }
+.skill-lesson .qbody { max-width: 760px; }

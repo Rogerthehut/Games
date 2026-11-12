@@ -95,6 +95,14 @@ Three topics use them to close the two KS2 outcomes that were only partly covere
 
 Still to do: tools for secondary topics (graph paper with plotting, a calculator-free long-division frame with remainders, algebra tiles), and fully constructing triangles from three given sides or two angles and a side.
 
+## Times tables challenge (requested)
+
+Timed times-table tests, in the spirit of Times Tables Rock Stars, to make revision fun. Each learner has personal bests (by table and overall, with recall times), a scoreboard for themselves, and a family board across every learner under the same parent login, so brothers and sisters can compete. Needs: a timed recall mode (short rounds, e.g. 60 seconds or 25 questions, mixed or chosen tables, with the tables a learner knows slowest practised more); results stored per learner (score, speed, which facts were missed); personal bests and streaks; a family leaderboard on the sibling profiles of one account (nicknames and avatars only, nothing leaving the account); kind wording so a slow round is never shameful; a grown-up setting to switch the family board off. Builds on the times tables note on the left and the existing practice engine.
+
+## Full screen audit (last)
+
+Once the remaining roadmap items are done, a full screen audit across all aspect ratios (phones in both orientations, tablets, laptops, wide and ultrawide), using `scripts/screen-audit.mjs`, with fixes.
+
 ## Teaching and writing standards
 
 - **Key Stage 2.** Show the idea using familiar objects or pictures where they help. Link the picture to the symbols. Model one example, guide a second, then remove the prompts for an independent problem. Return to the idea later in a different context.
