@@ -17,11 +17,12 @@ import { downloadProgressCsv } from "./progress-report";
 import { ParentAssistant } from "./assistant";
 import { conceptsForSkill } from "../concepts";
 import { FeedbackSection } from "./feedback";
+import { Guides } from "./guides";
 import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
 const when = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-type Part = "progress" | "assistant" | "tutor" | "settings" | "feedback";
+type Part = "progress" | "assistant" | "tutor" | "guides" | "settings" | "feedback";
 
 export function Parent() {
   const { profile, update, go, removeProfile } = useApp();
@@ -70,7 +71,7 @@ export function Parent() {
       )}
 
       <div class="seg parts" role="tablist" aria-label="Sections">
-        {([["progress", "Progress"], ...(account ? [["assistant", "AI assistant"]] : []), ["tutor", "AI tutor"], ["settings", "Settings"], ...(account ? [["feedback", "Feedback"]] : [])] as [Part, string][]).map(([id, label]) => (
+        {([["progress", "Progress"], ...(account ? [["assistant", "AI assistant"]] : []), ["tutor", "AI tutor"], ["guides", "Guides"], ["settings", "Settings"], ...(account ? [["feedback", "Feedback"]] : [])] as [Part, string][]).map(([id, label]) => (
           <button key={id} role="tab" aria-selected={part === id} class={part === id ? "on" : ""} onClick={() => setPart(id)} data-testid={`part-${id}`}>{label}</button>
         ))}
       </div>
@@ -182,6 +183,7 @@ export function Parent() {
 
       {part === "assistant" && account && <ParentAssistant />}
       {part === "feedback" && account && <FeedbackSection />}
+      {part === "guides" && <Guides />}
 
       {part === "tutor" && (
         <section class="card" aria-labelledby="tut">

@@ -3180,3 +3180,11 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .instrument-turn { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: .85rem; }
 .instrument-turn input { flex: 1; min-width: 0; }
 .instrument-turn output { min-width: 3.4ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* user guides in the Parents' area */
+.guide-list { display: grid; gap: 8px; margin-top: 10px; }
+.guide-block { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); padding: 2px 14px; }
+.guide-block summary { cursor: pointer; font-weight: 800; padding: 12px 0; }
+.guide-block[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.guide-block ul, .guide-block ol { padding-left: 1.3rem; display: grid; gap: .4rem; margin: .5rem 0 .8rem; }
+.guide-block p { margin: .5rem 0; }

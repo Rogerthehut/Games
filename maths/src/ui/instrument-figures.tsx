@@ -13,9 +13,9 @@ export function Scale() {
   }
   const labels = [];
   for (let a = 0; a <= 180; a += 10) {
-    const [ox, oy] = pt(a, R - 24), [ix, iy] = pt(a, R - 46);
+    const [ox, oy] = pt(a, R - 22), [ix, iy] = pt(a, R - 49);
     labels.push(<text key={`o${a}`} x={ox} y={oy + 3} text-anchor="middle" font-size="8.5" class="fig-label">{a}</text>);
-    labels.push(<text key={`i${a}`} x={ix} y={iy + 3} text-anchor="middle" font-size="7" class="fig-label" opacity=".65">{180 - a}</text>);
+    labels.push(<text key={`i${a}`} x={ix} y={iy + 3} text-anchor="middle" font-size="6.5" class="fig-label" opacity=".75">{180 - a}</text>);
   }
   return (
     <g>
