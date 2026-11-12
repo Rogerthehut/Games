@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "preact/hooks";
 import { ActivityArt } from "./activity-art";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
@@ -26,25 +25,6 @@ const TOPIC_AREAS = ["Number", "Ratio", "Algebra", "Measures", "Geometry", "Stat
 
 /** A link to where independent reviews live (for example the Trustpilot page). Until one is set, the strip says reviews are on their way. */
 const REVIEW_URL = ((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_REVIEWS_URL ?? "").trim();
-
-/**
- * Holds the place of the "Try one" card and loads it only when it is about to scroll into view, so the questions, the maths renderer and
- * the pictures don't weigh down the first load of the page.
- */
-function TryLoader({ onStart }: { onStart(kind: "sign-up" | "sign-in"): void }) {
-  const slot = useRef<HTMLDivElement>(null);
-  const [Card, setCard] = useState<((p: { onStart(kind: "sign-up" | "sign-in"): void }) => preact.JSX.Element) | null>(null);
-  useEffect(() => {
-    const el = slot.current;
-    if (!el) return;
-    const load = () => { void import("./landing-try").then((m) => setCard(() => m.TryCard)); };
-    if (typeof IntersectionObserver === "undefined") { load(); return; }
-    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: "400px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  return <div class="try-slot" ref={slot}>{Card ? <Card onStart={onStart} /> : <div class="try-card try-ghost" aria-hidden="true" />}</div>;
-}
 
 /** Scroll to a section without touching the address, because the sign-in form reads the address hash. */
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
@@ -204,7 +184,6 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
               <ActivityArt kind="checkup" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
-            <li class="l-try-cell"><TryLoader onStart={onStart} /></li>
           </ul>
         </div>
       </section>

@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## "Try one" card removed
+The interactive "Try one" card on the landing page (and its question bank, quick-fire tables and tests) has been taken out: it didn't show how explanatory and friendly the app is. The cell beside the Learning report card is empty again. It's in the git history (commits `65591ed` to `e83aad4`) if any of it is wanted back.
+
 ## "Try one" card: a livelier, darker design
 The marketing card is now a deep indigo tile with drifting maths symbols, so it stands out from the pastel ones. New: a year picker (Any, 3, 4, 5, 6); the Pip mascot reacting to each answer (thinking, cheering, waving); points and a streak flame with a progress bar to a "Maths star!" medal after five right; confetti and a "+10"; a wrong answer slides in the "In the learning report" note; "Show me how" zooms the picture in with a light sweep, draws an underline under the answer and ticks the steps in one by one; quick-fire has a colour-changing timer, a combo flame, and a Gold, Silver or Bronze result. Still cheap: transform and opacity only, paused off screen, off for reduced motion, and not loaded until you scroll near it.
 
