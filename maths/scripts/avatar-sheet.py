@@ -8,7 +8,22 @@ Each portrait is a tight head-and-shoulders crop, so held props don't show. Tile
 If higher-resolution originals turn up, replace the files in those folders (same names, any square size).
 """
 import os
+import sys
 from PIL import Image, ImageFilter
+
+# Sharper enlargement with a super-resolution model, if one is available:
+#   pip install opencv-contrib-python-headless
+#   curl -L -o EDSR_x4.pb https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x4.pb
+#   AVATAR_SR_MODEL=EDSR_x4.pb python3 scripts/avatar-sheet.py
+# Without it the portraits are enlarged with a plain sharpen, which is softer.
+SR = None
+if os.environ.get("AVATAR_SR_MODEL"):
+    sys.path.insert(0, os.environ.get("AVATAR_SR_LIB", ""))
+    import cv2
+    import numpy as np
+    SR = cv2.dnn_superres.DnnSuperResImpl_create()
+    SR.readModel(os.environ["AVATAR_SR_MODEL"])
+    SR.setModel("edsr", 4)
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "avatars")
 sheet = Image.open(os.path.join(ROOT, "source", "preteen-teen-sheet.webp")).convert("RGB")
@@ -31,7 +46,10 @@ for band, folder in (("older", "variants-older"), ("teen", "variants-teen")):
         for n, i in enumerate(tiles, 1):
             x = COLS[i]
             tile = sheet.crop((x + 9, top + 3, x + 46, top + 40))  # 37 x 37: head and shoulders
-            tile = tile.resize((SIZE * 2, SIZE * 2), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=3, percent=70, threshold=2))
+            if SR:
+                tile = Image.fromarray(cv2.cvtColor(SR.upsample(cv2.cvtColor(np.array(tile), cv2.COLOR_RGB2BGR)), cv2.COLOR_BGR2RGB))
+            else:
+                tile = tile.resize((SIZE * 2, SIZE * 2), Image.LANCZOS).filter(ImageFilter.UnsharpMask(radius=3, percent=70, threshold=2))
             tile = tile.resize((SIZE, SIZE), Image.LANCZOS)
             tile.save(os.path.join(out, f"{role}-{n}.webp"), quality=92)
         print(band, role, len(tiles))
