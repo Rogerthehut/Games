@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, integer, jsonb, pgTable, primaryKey, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 /** The tables, mirrored from migrations/. The SQL files are the source of truth; this is for typed queries. */
 export const parents = pgTable("parents", {
@@ -77,6 +77,13 @@ export const opsAudit = pgTable("ops_audit", {
   action: text("action").notNull(),
   target: text("target").notNull(),
 });
+
+export const rateCounters = pgTable("rate_counters", {
+  key: text("key").notNull(),
+  slot: bigint("slot", { mode: "number" }).notNull(),
+  n: integer("n").notNull().default(0),
+  expiresAt: bigint("expires_at", { mode: "number" }).notNull(),
+}, (t) => ({ pk: primaryKey({ columns: [t.key, t.slot] }) }));
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Parent = typeof parents.$inferSelect;

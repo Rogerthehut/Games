@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { startMonitoring, reportError } from "./monitoring";
 import { clientIp, resolveStatic, securityHeaders } from "./http-safety";
+import { DbCounters, FallbackCounters, MemoryCounters, type Counters } from "./counters";
 import { mailerFromEnv } from "./mail";
 import { runDigestJob } from "./digest-job";
 import { unsubscribePage } from "./unsubscribe-page";
@@ -48,9 +49,12 @@ const AUTH_FAKE = process.env.AUTH_FAKE === "1" && process.env.NODE_ENV !== "pro
 if (process.env.AUTH_FAKE === "1" && !AUTH_FAKE) console.warn("AUTH_FAKE is ignored in production.");
 let accounts: AccountDeps | null = null;
 let opsDb: Db | null = null;
+// Rate limits and the AI cost caps count in the database when there is one (shared by every copy of the server, kept across restarts), else in memory.
+let counters: Counters = new MemoryCounters();
 if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || AUTH_FAKE)) {
   const db = process.env.DATABASE_URL ? await connect() : await connectMemory();
   opsDb = db;
+  counters = new FallbackCounters(new DbCounters(db));
   const applied = await migrate(db);
   if (applied.length) console.log(`Database migrations applied: ${applied.join(", ")}`);
   const parties = (process.env.CLERK_AUTHORIZED_PARTIES ?? "").split(",").map((x) => x.trim()).filter(Boolean);
@@ -62,7 +66,7 @@ if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || 
     for (const [name, ok] of [["STRIPE_WEBHOOK_SECRET", stripeCfg.webhookSecret], ["STRIPE_PRICE_MONTHLY", stripeCfg.priceMonthly], ["STRIPE_PRICE_YEARLY", stripeCfg.priceYearly]] as const) if (!ok) console.warn(`${name} is not set: payments will not work properly until it is.`);
   } else if (process.env.BILLING_FAKE === "1" && process.env.NODE_ENV !== "production") billing = new FakeGateway(Number(process.env.TRIAL_DAYS ?? 7));
   if (!billing) console.warn("Payments are off: set STRIPE_SECRET_KEY (and the price ids) to turn on the paywall.");
-  accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter(), billing, appUrl: process.env.APP_URL };
+  accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter(900, Date.now, counters), billing, appUrl: process.env.APP_URL };
 } else {
   console.warn("Accounts are off: set DATABASE_URL and CLERK_SECRET_KEY to turn them on.");
 }
@@ -84,7 +88,7 @@ const limiter = new Limiter({
   perDeviceHour: Number(process.env.TUTOR_PER_DEVICE_HOUR ?? DEFAULT_LIMITS.perDeviceHour),
   perIpDay: Number(process.env.TUTOR_PER_IP_DAY ?? DEFAULT_LIMITS.perIpDay),
   globalDay: Number(process.env.TUTOR_GLOBAL_DAY ?? DEFAULT_LIMITS.globalDay),
-});
+}, counters);
 // TUTOR_FAKE=1 answers from a script, so the app can be developed and tested without a key or any spend.
 const FAKE = process.env.TUTOR_FAKE === "1";
 const provider: Provider = FAKE
@@ -97,14 +101,13 @@ const provider: Provider = FAKE
   : WHICH === "openrouter" ? new OpenRouterProvider(openRouterConfig()) : new AnthropicProvider(DEFAULT_CONFIG);
 
 // The parents' assistant uses the same model service as the tutor, with its own, separate limits.
-if (accounts) accounts.assistant = { provider, limiter: new AssistantLimiter(Number(process.env.ASSISTANT_PER_PARENT_DAY ?? 40), Number(process.env.ASSISTANT_PER_PARENT_HOUR ?? 20), Number(process.env.ASSISTANT_GLOBAL_DAY ?? 3000)), log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), assistant: true, ...e })) };
+if (accounts) accounts.assistant = { provider, limiter: new AssistantLimiter(Number(process.env.ASSISTANT_PER_PARENT_DAY ?? 40), Number(process.env.ASSISTANT_PER_PARENT_HOUR ?? 20), Number(process.env.ASSISTANT_GLOBAL_DAY ?? 3000), counters), log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), assistant: true, ...e })) };
 
 // Cloudflare Turnstile: when TURNSTILE_SECRET_KEY is set, the AI endpoints need a pass from a solved check. Off otherwise.
 const turnstile = turnstileConfig(process.env);
 if (!turnstile) console.warn("Turnstile is off: set TURNSTILE_SECRET_KEY (and VITE_TURNSTILE_SITE_KEY when building) to require the human check on the AI endpoints.");
 const humanOk = (pass: string | undefined) => !turnstile || passIsValid(turnstile, pass);
 if (accounts) accounts.humanPassOk = humanOk;
-const verifyHits = new Map<string, number[]>();
 
 const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json", ".txt": "text/plain; charset=utf-8", ".xml": "application/xml; charset=utf-8", ".png": "image/png", ".pdf": "application/pdf", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp" };
 
@@ -132,7 +135,6 @@ function readBody(req: IncomingMessage, max = 16_384): Promise<unknown> {
   });
 }
 
-const postcodeHits = new Map<string, number[]>();
 const outcodeLookup = makeOutcodeLookup();
 
 const handle = async (req: IncomingMessage, res: ServerResponse) => {
@@ -145,9 +147,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
   if (url.pathname === "/api/humans/verify" && req.method === "POST") {
     if (!turnstile) return send(res, 200, { pass: "", expiresInSeconds: 0, off: true });
     const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
-    const recent = (verifyHits.get(ip) ?? []).filter((t) => Date.now() - t < 3_600_000);
-    if (recent.length >= 40) return send(res, 429, { error: "slow-down" });
-    verifyHits.set(ip, [...recent, Date.now()]);
+    if ((await counters.hit(`v:${ip}`, 3_600_000)) > 40) return send(res, 429, { error: "slow-down" });
     let body: unknown;
     try { body = await readBody(req, 4096); } catch { return send(res, 400, { error: "bad-request" }); }
     const token = typeof (body as { token?: unknown })?.token === "string" ? (body as { token: string }).token : "";
@@ -158,9 +158,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
   // 11+ finder: which council areas does the start of a postcode (such as BR1) cover? Only that outward code is ever sent here.
   if (url.pathname === "/api/outcode" && req.method === "GET") {
     const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
-    const recent = (postcodeHits.get(ip) ?? []).filter((t) => Date.now() - t < 3_600_000);
-    if (recent.length >= 60) return send(res, 429, { error: "slow-down" });
-    postcodeHits.set(ip, [...recent, Date.now()]);
+    if ((await counters.hit(`o:${ip}`, 3_600_000)) > 60) return send(res, 429, { error: "slow-down" });
     const code = outwardCode(url.searchParams.get("code") ?? "");
     if (!code) return send(res, 400, { error: "not-a-postcode" });
     const found = await outcodeLookup(code);

@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Rate limits in the database
+The AI tutor's limits and daily cost cap, the parents' assistant limits, the write limit and the limits on the public postcode and human-check endpoints now count in the database (`rate_counters`, migration 0007) instead of in memory. They survive restarts and are shared by every copy of the server, so the daily cap really is a daily cap. Visitor addresses and ids are stored only as a keyed hash, and rows are swept within a day. If the database can't be reached the counters fall back to memory. After pulling, restart so migration 0007 runs. Tests: `server/counters.test.ts`.
+
 ## Pick up a half-finished lesson
 Leaving a worked-example lesson part-way now saves the step, and Today shows **Continue lesson · topic** with the other "pick up where you left off" buttons. It opens on the same screen with the running tally kept, and finishing clears it. A saved lesson is offered for 30 days. The lesson's last screen now takes you to Skills even if you opened the lesson from Today. Checks: `src/engine/lesson.test.ts` and `npm run e2e:lesson`.
 

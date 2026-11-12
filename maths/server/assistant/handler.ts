@@ -22,7 +22,7 @@ export async function handleAssistant(body: unknown, parentId: string, deps: Ass
   if (!v.ok) return { status: 400, body: { error: "invalid", message: v.error } };
   const { req } = v;
 
-  const slot = deps.limiter.take(parentId, t0);
+  const slot = await deps.limiter.take(parentId, t0);
   if (!slot) { deps.log?.({ kind: "limit", flag: "limit" }); return { status: 429, body: { reply: LIMIT, flag: "limit", remainingToday: 0 } }; }
 
   const screen = screenParentMessage(req.message);

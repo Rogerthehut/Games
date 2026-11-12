@@ -120,22 +120,22 @@ describe("cleaning a reply", () => {
 });
 
 describe("rate limiting", () => {
-  it("limits per device per hour and per day, and counts remaining", () => {
+  it("limits per device per hour and per day, and counts remaining", async () => {
     const lim = new Limiter({ perDeviceDay: 5, perDeviceHour: 3, perIpDay: 100, globalDay: 100 });
     const t = 1_000_000;
-    expect(lim.take("d", "ip", t)?.remaining).toBe(4);
-    lim.take("d", "ip", t); lim.take("d", "ip", t);
-    expect(lim.take("d", "ip", t)).toBeNull(); // hourly cap
-    expect(lim.take("d", "ip", t + 3_700_000)?.remaining).toBe(1); // an hour later, but two of five left... then day cap
-    expect(lim.take("other", "ip", t)).not.toBeNull();
+    expect((await lim.take("d", "ip", t))?.remaining).toBe(4);
+    await lim.take("d", "ip", t); await lim.take("d", "ip", t);
+    expect(await lim.take("d", "ip", t)).toBeNull(); // hourly cap
+    expect((await lim.take("d", "ip", t + 3_700_000))?.remaining).toBe(1); // an hour later, but two of five left... then day cap
+    expect(await lim.take("other", "ip", t)).not.toBeNull();
   });
-  it("applies a per-network and a global cap", () => {
+  it("applies a per-network and a global cap", async () => {
     const a = new Limiter({ perDeviceDay: 100, perDeviceHour: 100, perIpDay: 2, globalDay: 100 });
-    a.take("d1", "ip", 1); a.take("d2", "ip", 1);
-    expect(a.take("d3", "ip", 1)).toBeNull();
+    await a.take("d1", "ip", 1); await a.take("d2", "ip", 1);
+    expect(await a.take("d3", "ip", 1)).toBeNull();
     const g = new Limiter({ perDeviceDay: 100, perDeviceHour: 100, perIpDay: 100, globalDay: 2 });
-    g.take("d1", "a", 1); g.take("d2", "b", 1);
-    expect(g.take("d3", "c", 1)).toBeNull();
+    await g.take("d1", "a", 1); await g.take("d2", "b", 1);
+    expect(await g.take("d3", "c", 1)).toBeNull();
   });
 });
 

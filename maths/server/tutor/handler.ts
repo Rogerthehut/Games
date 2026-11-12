@@ -27,7 +27,7 @@ export async function handleTutor(body: unknown, ip: string, deps: Deps): Promis
   if (!v.ok) return { status: 400, body: { error: v.error } };
   const { req } = v;
 
-  const slot = deps.limiter.take(req.deviceId, ip, now);
+  const slot = await deps.limiter.take(req.deviceId, ip, now);
   if (!slot) {
     deps.log?.({ kind: "limit", flag: "limit" });
     return { status: 429, body: { reply: LIMIT_REPLY, flag: "limit", remainingToday: 0 } };

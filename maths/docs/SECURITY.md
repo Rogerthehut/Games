@@ -49,7 +49,7 @@ What protects quarter's server, what to set, and what is still open. Reviewed 12
 
 ## Known limits (not fixed yet)
 
-- **Rate limits are kept in memory.** They reset when the server restarts, and each copy of the server counts on its own, so on Autoscale the limits are looser than they look. The tutor's daily cost cap has the same weakness. Moving them into the database would fix it.
+- **Rate limits now live in the database** (table `rate_counters`, `server/counters.ts`), so they survive restarts and are shared by every copy of the server, including the AI tutor's daily cost cap. If the database can't be reached they fall back to memory for that moment, so limits stay on. They use calendar hours and days (not rolling windows), so the first minutes after midnight or the top of the hour can allow a short burst.
 - **No independent test.** A professional penetration test before launch is worth the money for a product used by children.
 - **The AI tutor and assistant** are screened, but no screen is perfect; keep the tutor off by default (it is) and review the safety notes in `docs/TUTOR.md`.
 - **Accounts:** the sign-in provider (Clerk) holds the passwords and sessions. Turn on two-step verification for your own Clerk and Resend accounts, and for the team email used for `/ops`.

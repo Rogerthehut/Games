@@ -1,3 +1,4 @@
+import { MemoryCounters, type Counters } from "../counters";
 import { searchNotes, type Note } from "../../src/engine/knowledge";
 import { EXTRACTION, PERSONAL, WELLBEING, sanitizeReply } from "../tutor/policy";
 import { ASSISTANT_LIMITS, type AssistantTurn } from "../../src/assistant/types";
@@ -106,17 +107,13 @@ export const sanitizeAssistantReply = (text: string) => sanitizeReply(text, ASSI
 
 /** A cap on how much one parent can ask per day, and how much the service answers in total. Counts only, never text. */
 export class AssistantLimiter {
-  private hits = new Map<string, number[]>();
-  constructor(private perParentDay = 40, private perParentHour = 20, private globalDay = 3000) {}
-  private recent(key: string, now: number, windowMs: number) {
-    const arr = (this.hits.get(key) ?? []).filter((t) => now - t < 86_400_000);
-    this.hits.set(key, arr);
-    return arr.filter((t) => now - t < windowMs).length;
-  }
-  take(parentId: string, now: number): { remaining: number } | null {
-    if (this.recent(parentId, now, 86_400_000) >= this.perParentDay || this.recent(parentId, now, 3_600_000) >= this.perParentHour || this.recent("global", now, 86_400_000) >= this.globalDay) return null;
-    this.hits.get(parentId)!.push(now);
-    this.hits.get("global")!.push(now);
-    return { remaining: Math.max(0, this.perParentDay - this.recent(parentId, now, 86_400_000)) };
+  constructor(private perParentDay = 40, private perParentHour = 20, private globalDay = 3000, private counters: Counters = new MemoryCounters()) {}
+  /** Remaining questions today for this parent, or null if over a limit. Counts the attempt only if it is allowed. */
+  async take(parentId: string, now: number): Promise<{ remaining: number } | null> {
+    const DAY = 86_400_000, HOUR = 3_600_000;
+    const checks: [string, number, number][] = [[`a:d:${parentId}`, DAY, this.perParentDay], [`a:h:${parentId}`, HOUR, this.perParentHour], ["a:global", DAY, this.globalDay]];
+    for (const [key, window, limit] of checks) if ((await this.counters.peek(key, window, now)) >= limit) return null;
+    const used = await Promise.all(checks.map(([key, window]) => this.counters.hit(key, window, now)));
+    return { remaining: Math.max(0, this.perParentDay - used[0]) };
   }
 }

@@ -1,3 +1,4 @@
+import { MemoryCounters, type Counters } from "../counters";
 import { noteById } from "../../src/engine/knowledge";
 import { LIMITS, type RevealPolicy, type TutorContext, type TutorFlag, type TutorRequest, type TutorTurn } from "../../src/tutor/types";
 
@@ -265,24 +266,24 @@ export function fallbackReply(ctx: TutorContext): string {
 export interface LimitConfig { perDeviceDay: number; perDeviceHour: number; perIpDay: number; globalDay: number }
 export const DEFAULT_LIMITS: LimitConfig = { perDeviceDay: 40, perDeviceHour: 20, perIpDay: 200, globalDay: 5000 };
 
-/** In-memory sliding-window limiter. Holds only counts, never message text. */
+const DAY = 86_400_000, HOUR = 3_600_000;
+
+/**
+ * The tutor's limits: per device (a day and an hour), per address (a day) and for everyone (a day, which is the cost cap). Counts live in `counters`
+ * (memory, or the database so they survive restarts and are shared by every copy of the server). Windows are the calendar hour and day. Holds only
+ * counts, never message text.
+ */
 export class Limiter {
-  private hits = new Map<string, number[]>();
-  constructor(private cfg: LimitConfig = DEFAULT_LIMITS) {}
+  constructor(private cfg: LimitConfig = DEFAULT_LIMITS, private counters: Counters = new MemoryCounters()) {}
 
-  private count(key: string, now: number, windowMs: number): number {
-    const arr = (this.hits.get(key) ?? []).filter((t) => now - t < 86_400_000);
-    this.hits.set(key, arr);
-    return arr.filter((t) => now - t < windowMs).length;
-  }
-
-  /** Returns remaining messages today for the device, or null if over a limit. Counts the attempt if allowed. */
-  take(deviceId: string, ip: string, now: number): { remaining: number } | null {
-    if (this.count(`d:${deviceId}`, now, 86_400_000) >= this.cfg.perDeviceDay) return null;
-    if (this.count(`d:${deviceId}`, now, 3_600_000) >= this.cfg.perDeviceHour) return null;
-    if (this.count(`i:${ip}`, now, 86_400_000) >= this.cfg.perIpDay) return null;
-    if (this.count("global", now, 86_400_000) >= this.cfg.globalDay) return null;
-    for (const k of [`d:${deviceId}`, `i:${ip}`, "global"]) this.hits.get(k)!.push(now);
-    return { remaining: Math.max(0, this.cfg.perDeviceDay - this.count(`d:${deviceId}`, now, 86_400_000)) };
+  /** Returns remaining messages today for the device, or null if over a limit. Counts the attempt only if it is allowed. */
+  async take(deviceId: string, ip: string, now: number): Promise<{ remaining: number } | null> {
+    const checks: [string, number, number][] = [
+      [`t:d:${deviceId}`, DAY, this.cfg.perDeviceDay], [`t:h:${deviceId}`, HOUR, this.cfg.perDeviceHour],
+      [`t:i:${ip}`, DAY, this.cfg.perIpDay], ["t:global", DAY, this.cfg.globalDay],
+    ];
+    for (const [key, window, limit] of checks) if ((await this.counters.peek(key, window, now)) >= limit) return null;
+    const used = await Promise.all(checks.map(([key, window]) => this.counters.hit(key, window, now)));
+    return { remaining: Math.max(0, this.cfg.perDeviceDay - used[0]) };
   }
 }

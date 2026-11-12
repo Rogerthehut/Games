@@ -20,6 +20,7 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 | Card, billing details, invoices | Stripe | Payment |
 | Feedback form (parent) | Message, topic, optional 1-5 rating, may-reply tick and screen size, linked to the parent account. No email stored (looked up from Clerk only if replying). Deleted with the account; included in the data download. Limited to 5 a day per parent and behind Turnstile | Improve the product, reply to the parent |
 | Replies to feedback | Our reply text, date and an anonymous admin tag, linked to the feedback. The parent's email is looked up from Clerk when a reply is sent and never stored. Only sent where the parent ticked "may reply". Deleted with the account | Answer parents who asked for an answer |
+| Rate-limit counters | Our database. A count of requests per hour or day for a keyed hash of a device id, parent id or visitor address (never the value itself, never message text); rows are removed within a day | Keep the AI tutor and the free endpoints from being overused or abused |
 | Ops audit log | Admin tag (not a name or email), action and the internal id looked at. Kept even after a parent is deleted | Show who on the team looked at what |
 | AI assistant questions (parent) | Not saved anywhere. Sent with the recent chat and the learner's school year (not nickname or account id) to the AI provider for a reply | Parent help |
 | AI tutor chats | The child's browser only. Sent to the tutor service and AI provider to get a reply; not saved to our database | Tutoring |

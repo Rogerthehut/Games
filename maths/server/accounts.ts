@@ -1,3 +1,4 @@
+import { MemoryCounters, type Counters } from "./counters";
 import { TERMS_VERSION } from "../src/legal/terms-version";
 import type { AuthProvider } from "./auth";
 import { MAX_PROFILE_BYTES } from "./db/profile-check";
@@ -11,13 +12,10 @@ export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLi
 
 /** A cap on how often one parent can write, so a stuck or hostile client cannot flood the database. */
 export class WriteLimiter {
-  private hits = new Map<string, number[]>();
-  constructor(private perHour = 900, private now: () => number = Date.now) {}
-  allow(key: string): boolean {
-    const t = this.now(), recent = (this.hits.get(key) ?? []).filter((x) => t - x < 3_600_000);
-    if (recent.length >= this.perHour) { this.hits.set(key, recent); return false; }
-    recent.push(t); this.hits.set(key, recent);
-    return true;
+  constructor(private perHour = 900, private now: () => number = Date.now, private counters: Counters = new MemoryCounters()) {}
+  /** Counts a change by this parent and says whether it is within the hourly limit. */
+  async allow(key: string): Promise<boolean> {
+    return (await this.counters.hit(`w:${key}`, 3_600_000, this.now())) <= this.perHour;
   }
 }
 
@@ -50,7 +48,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   const parent = await deps.repo.upsertParent(who.userId);
   const consented = parent.consentVersion === TERMS_VERSION;
   const writing = req.method !== "GET";
-  if (writing && deps.limiter && !deps.limiter.allow(parent.id)) return err(429, "slow-down", "Too many changes just now. Please wait a moment.");
+  if (writing && deps.limiter && !(await deps.limiter.allow(parent.id))) return err(429, "slow-down", "Too many changes just now. Please wait a moment.");
   const body = (req.body ?? {}) as Record<string, unknown>;
 
   // the account itself
