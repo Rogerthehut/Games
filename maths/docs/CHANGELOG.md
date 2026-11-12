@@ -2,6 +2,14 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Learning report, topic search, read aloud in guides, static page header
+- **Learning report** (Parents' area, Progress tab): exactly which questions were wrong in a chosen period, what was answered, likely reasons (from the answers and the marking's recognised mistakes), methods to try together, things to ask, the right working-out tool, and links to practise, the lesson and study guides; printable. Questions are logged in `wrongLog` (practice and lessons), kept 120 days, up to 250. Privacy notice and DPIA updated. Check: `npm run e2e:report`.
+- **Marketing site:** a new "Drill down into where they're struggling" card and an expanded "How it works" (check-up, a plan that targets the gaps, little and often, see exactly where they're stuck).
+- **Topic search** under the filters (Parents' area "Topics, explained" and the Skills list), with wildcards and fuzzy matching. Check: `npm run e2e:topicsearch`.
+- **Read aloud** on each guide section. Check: `npm run e2e:guides`.
+- **Blog subscribe:** "Subscribe with RSS" now opens a readable page (`/blog/subscribe.html`) with Feedly, Inoreader, NewsBlur, The Old Reader and "open in your feed app" buttons, plus a copy-the-address box. The feed itself (`/blog/rss.xml`) is styled with `rss.xsl`, so opening it directly shows a readable page that points to the subscribe page. Check: `server/seo.test.ts`.
+- **Public pages:** the Back button is now compact and in the app's style, and the ™ beside the wordmark sits correctly on every public page (guides, FAQs, curriculum, blog, study and legal pages).
+
 ## Focus box on headings
 A heading the app focuses on arriving at a screen (Parents' area and every other screen) no longer gets a box drawn round it when a keyboard was last used. Check: `npm run e2e:grownup`.
 

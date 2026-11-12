@@ -18,6 +18,7 @@ import { ParentAssistant } from "./assistant";
 import { conceptsForSkill } from "../concepts";
 import { FeedbackSection } from "./feedback";
 import { Guides } from "./guides";
+import { LearningSummaryCard } from "./learning-report";
 import { tablesOf } from "../engine/tables";
 import { lockParents } from "./gate";
 import { PinSettings } from "./pin-settings";
@@ -31,7 +32,8 @@ export function Parent() {
   const account = useAccount();
   const [part, setPart] = useState<Part>("progress");
   const [filters, setFilters] = useState<SkillFilters>({});
-  const visibleSkills = filterSkills(filters).sort((a, b) => a.year - b.year);
+  const found = filterSkills(filters);
+  const visibleSkills = filters.q?.trim() ? found : found.sort((a, b) => a.year - b.year);
   const topicsHeading = useRef<HTMLHeadingElement>(null);
   const stats = weekStats(profile);
   const [confirmDel, setConfirmDel] = useState(false);
@@ -89,6 +91,8 @@ export function Parent() {
               <button class="btn" onClick={() => downloadProgressCsv(profile)} data-testid="download-progress-csv">Spreadsheet (CSV)</button>
             </div>
           </section>
+
+          <LearningSummaryCard />
 
           <section class="card" aria-labelledby="refresher-card">
             <h2 id="refresher-card">Weekly refresher</h2>
@@ -153,7 +157,7 @@ export function Parent() {
             <p class="small muted">Tick “Focus” to move a topic into the next sessions, for example to match what you're teaching this week.</p>
             <SkillFilterControls filters={filters} onChange={(next) => {
               setFilters(next);
-              topicsHeading.current?.scrollIntoView({ block: "start" });
+              if (next.q === filters.q) topicsHeading.current?.scrollIntoView({ block: "start" }); // not on every letter typed
             }} count={visibleSkills.length} />
             <ul class="topics">
               {visibleSkills.map((s) => {

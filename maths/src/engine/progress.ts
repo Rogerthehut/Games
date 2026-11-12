@@ -103,6 +103,8 @@ export interface Profile {
   anglesLesson?: { step: number; degrees: number; longDoor: boolean; answer: string; checked: boolean };
   timeLesson?: { step: number; answer: string; example?: number };
   groupsLesson?: { step: number; answer: string; groups: number[]; places: number[] };
+  /** The questions the learner got wrong or needed help with, newest last, for the grown-ups' learning report (see wrong-log.ts). */
+  wrongLog?: import("./wrong-log").WrongEntry[];
   /** When the learner last started a quick-fire refresher. */
   lastRefresher?: number;
   /** When each worked-example lesson was last finished, by topic. */

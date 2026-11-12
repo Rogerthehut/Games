@@ -9,6 +9,7 @@ import { SkillMap } from "./skillmap";
 import { FractionsLesson } from "./fractions-lesson";
 import { SkillLesson } from "./skill-lesson";
 import { ChildGuidePage } from "./guides";
+import { LearningReport } from "./learning-report";
 import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
@@ -89,7 +90,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   };
 
   // the grown-ups' area locks again as soon as someone moves on from it, so the next person on the device needs the PIN
-  const inParents = ["parent", "progress-report", "my-data", "booklet", "concept"].includes(route.name);
+  const inParents = ["parent", "progress-report", "learning-report", "my-data", "booklet", "concept"].includes(route.name);
   useEffect(() => { if (!inParents) lockParents(); }, [route.name]);
   // while someone is using the area it stays open; after five minutes of nothing it closes and goes back to Me
   useEffect(() => {
@@ -170,6 +171,8 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     return <Ctx.Provider value={ctx}><Certificate stage={route.stage} /></Ctx.Provider>;
   if (route.name === "progress-report")
     return <Ctx.Provider value={ctx}>{parentUnlocked() ? <ProgressReport /> : <ParentGate onPass={() => setRoute({ name: "progress-report" })} onCancel={() => setRoute({ name: "me" })} />}</Ctx.Provider>;
+  if (route.name === "learning-report")
+    return <Ctx.Provider value={ctx}>{parentUnlocked() ? <Shell tab="me"><LearningReport /></Shell> : <ParentGate onPass={() => setRoute({ name: "learning-report" })} onCancel={() => setRoute({ name: "me" })} />}</Ctx.Provider>;
   if (route.name === "my-data")
     return <Ctx.Provider value={ctx}>{parentUnlocked() ? <MyDataRoute /> : <ParentGate onPass={() => setRoute({ name: "my-data" })} onCancel={() => setRoute({ name: "me" })} />}</Ctx.Provider>;
   if (route.name === "checkup")

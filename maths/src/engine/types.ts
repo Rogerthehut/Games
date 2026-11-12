@@ -100,6 +100,8 @@ export interface Question {
   hint: string;
   /** Worked solution, one step per entry, same $maths$ syntax. */
   solution: string[];
+  /** The seed it was made from, so the same question can be made again (for the grown-ups' report). */
+  seed?: number;
   /** The answer as it should be shown, with $maths$. */
   shown: string;
   wrong?: Misconception[];

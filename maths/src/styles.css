@@ -3141,7 +3141,8 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .journey-key-fold .journey-key h2 { display: none; }
 
 /* "Back" on the public pages */
-.page-back { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 4px; }
+.page-back, a.page-back[href] { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; width: fit-content; margin: 8px 0 4px; background-image: none; text-decoration: none; color: var(--ink); }
+a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: none; }
 
 /* older learners: the youngest portraits, restyled until their own art is added */
 .learner-avatar.avatar-older { border-radius: 16%; box-shadow: 0 0 0 1.5px #3a334a2e, 0 2px 5px #201a331e; }
@@ -3259,3 +3260,45 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 
 /* A heading focused by the app after moving to a new screen (so a screen reader starts at the top) is not a control: it shouldn't be boxed. */
 [tabindex="-1"]:focus, [tabindex="-1"]:focus-visible { outline: none; }
+
+/* the grown-ups' learning report */
+.lr-print { margin-left: auto; white-space: nowrap; }
+.lr-periods { margin: 8px 0; }
+.lr-dates { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.lr-dates label { display: grid; gap: 4px; font-weight: 700; font-size: .85rem; }
+.lr-topic { padding: 0 16px 14px; }
+.lr-topic > summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; list-style: none; padding: 14px 0; }
+.lr-topic > summary::-webkit-details-marker, .lr-topic > summary::marker { content: ""; font-size: 0; }
+.lr-topic[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.lr-topic-name { display: grid; }
+.lr-counts { display: flex; flex-wrap: wrap; gap: 6px; }
+.lr-badge { padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 800; }
+.lr-badge.bad { background: var(--warn-soft); } .lr-badge.ok { background: var(--good-soft); } .lr-badge.skip { background: var(--hint-soft); }
+.lr-topic h3 { margin: 16px 0 6px; font-size: 1rem; }
+.lr-examples { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.lr-example { padding: 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.lr-example p { margin: 4px 0; }
+.lr-q { font-family: var(--font-display); font-weight: 650; font-size: 1.15rem; }
+.lr-reasons { list-style: none; padding: 0; display: grid; gap: 8px; }
+.lr-reasons li { padding: 8px 10px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); }
+.lr-source { display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px; font-size: .72rem; font-weight: 800; background: var(--accent-soft); }
+.lr-source.general { background: var(--hint-soft); }
+.lr-method { margin: 8px 0; padding: 10px 12px; border-radius: 6px 6px 14px 6px; background: color-mix(in srgb, #f6e0a0 38%, var(--surface)); border: 1px solid color-mix(in srgb, #f6e0a0 60%, transparent); }
+.lr-method ol { margin: 6px 0 0; padding-left: 1.2rem; display: grid; gap: .3rem; }
+.lr-actions { flex-wrap: wrap; }
+@media print {
+  body.printing-report * { visibility: hidden; }
+  body.printing-report .learning-report, body.printing-report .learning-report * { visibility: visible; }
+  body.printing-report .learning-report { position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
+  body.printing-report .lr-print, body.printing-report .lr-periods, body.printing-report .lr-dates, body.printing-report .lr-actions, body.printing-report .parent-head .icon-btn { display: none; }
+  body.printing-report .lr-topic { break-inside: avoid-page; box-shadow: none; }
+}
+.guide-read { margin: 2px 0 6px; }
+@media print { body.printing-guide .guide-read { display: none; } }
+.skills-find { grid-column: 1 / -1; }
+.skills-find input { width: 100%; box-sizing: border-box; min-height: 46px; padding: 8px 14px; font: inherit; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; }
+
+/* the human subscribe page for the blog feed */
+.feed-copy { display: flex; gap: 8px; align-items: stretch; margin: 8px 0 12px; }
+.feed-url { flex: 1; min-width: 0; padding: 10px 14px; font: inherit; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; }
+.subscribe-list { margin-bottom: 8px; }

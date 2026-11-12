@@ -12,6 +12,7 @@ export type Route =
   | { name: "booklet" }
   | { name: "tour" }
   | { name: "child-guide" }
+  | { name: "learning-report" }
   | { name: "concept"; id: string }
   | { name: "time-lesson" }
   | { name: "angles-lesson" }

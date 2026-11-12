@@ -9,6 +9,7 @@ Contact: hello@yourquarter.co.uk
 ## What quarter covers
 - [What quarter covers](https://yourquarter.co.uk/curriculum/index.html): every maths topic, year by year, and the STEM lab
 - [The STEM lab](https://yourquarter.co.uk/curriculum/stem.html): computing, data science, AI and machine learning, and quantum ideas
+- Learning report for parents: the questions a child got wrong in any period, the likely reasons, methods to try together and matching study guides and lessons, plus a check-up plan that targets the gaps and repeat check-ups to see progress.
 - [Full site guide for assistants](https://yourquarter.co.uk/llms-full.txt): every topic with a one-line description
 
 ## Blog and reading

@@ -48,6 +48,22 @@ export const PARENT_GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: "report", icon: "target", title: "The learning report: where they're struggling",
+    text: ["This is the quickest way to see exactly what your child finds hard, and what to do about it. Open it from the Progress tab (\"Where your child is struggling\")."],
+    steps: [
+      "Choose a period: the last 7, 14, 30 or 90 days, or your own dates.",
+      "Look at the topics, with the most to work on first. Open one to see the exact questions: what your child answered, and the right answer.",
+      "Read why it may be happening. Some reasons come from their answers, such as a place-value slip or adding when the question needed multiplying. Others are common for that kind of topic.",
+      "Try the methods and questions to ask together. Show the steps to work through one question side by side.",
+      "Use the buttons to practise the topic, take the lesson, or read the matching study guide.",
+    ],
+    tips: [
+      "The reasons are likely explanations from the pattern of answers. They're not a diagnosis, and you know your child best.",
+      "Print the report to share with a tutor or teacher.",
+      "Run the check-up again every few weeks, and watch the topics move from tricky to secure.",
+    ],
+  },
+  {
     id: "progress", icon: "list", title: "Reading the progress tab",
     tips: [
       "Last 7 days: sessions, minutes, questions and the share right.",
@@ -55,6 +71,7 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Could use some help: topics worth a chat, with prompts to start one.",
       "Mistakes worth talking about: slips that have happened more than once.",
       "Progress report: a printable summary to share with a tutor or teacher, and a spreadsheet (CSV).",
+      "Topics, explained: every topic with how it is going. Use the search box to find one, with * and ? as wildcards, and small spelling slips are fine.",
     ],
   },
   {

@@ -136,8 +136,9 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
           <h2 id="how">How it <em>works</em></h2>
           <ol class="l-steps">
             <li><span class="l-num" aria-hidden="true">01</span><div><h3>A short check-up</h3><p>A few questions find the starting point and any gaps, so practice isn’t too easy or too hard.</p></div></li>
-            <li><span class="l-num" aria-hidden="true">02</span><div><h3>Little and often</h3><p>Ten-minute sessions with worked explanations, hints and a skills map. No timers, apart from the clearly labelled timed paper.</p></div></li>
-            <li><span class="l-num" aria-hidden="true">03</span><div><h3>Progress you can see</h3><p>The grown-ups’ area shows what’s secure, what’s tricky, and what to talk about together.</p></div></li>
+            <li><span class="l-num" aria-hidden="true">02</span><div><h3>A plan that targets the gaps</h3><p>The check-up builds a plan of focused questions on the topics your child finds tricky. Repeat the check-up every few weeks to see how they’ve moved.</p></div></li>
+            <li><span class="l-num" aria-hidden="true">03</span><div><h3>Little and often</h3><p>Ten-minute sessions with worked explanations, hints and a skills map. No timers, apart from the clearly labelled timed paper.</p></div></li>
+            <li><span class="l-num" aria-hidden="true">04</span><div><h3>See exactly where they’re stuck</h3><p>The grown-ups’ area lists the questions your child got wrong, what they answered and why that may be happening, with methods to try together.</p></div></li>
           </ol>
         </div>
       </section>
@@ -173,6 +174,13 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
               <span class="activity-title">An optional AI tutor</span>
               <span class="activity-detail">It’s off until you turn it on. It guides and explains without just giving the answer, and you can read every conversation.</span>
               <ActivityArt kind="tutor" />
+              <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
+            </button></li>
+            <li><button type="button" class="activity-card activity-checkup" onClick={() => onStart("sign-up")}>
+              <span class="activity-label">05 / Learning report</span>
+              <span class="activity-title">Drill down into where they’re struggling</span>
+              <span class="activity-detail">Pick any week or month and see the exact questions your child got wrong, the likely reasons, and the methods to work through together, with study guides and lessons to match.</span>
+              <ActivityArt kind="checkup" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
           </ul>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { CHILD_GUIDE, PARENT_GUIDE, type GuideSection } from "../guides/content";
+import { useApp } from "./context";
 import { Icon } from "./icons";
+import { readPracticeQuestion, stopPracticeNarration } from "./practice-audio";
 
 /** The colours of the sticky notes the tips sit on, in turn. */
 const NOTE = ["yellow", "mint", "rose", "peri"] as const;
@@ -12,7 +14,24 @@ const NOTE = ["yellow", "mint", "rose", "peri"] as const;
 export function Guides({ only }: { only?: "parents" | "children" }) {
   const [which, setWhich] = useState<"parents" | "children">(only ?? "parents");
   const [printing, setPrinting] = useState(false);
+  const { profile } = useApp();
+  const [reading, setReading] = useState<string | null>(null);   // the section being read aloud
+  const canSpeak = typeof speechSynthesis !== "undefined";
   const guide = which === "parents" ? PARENT_GUIDE : CHILD_GUIDE;
+  const stop = () => { stopPracticeNarration(); setReading(null); };
+  useEffect(() => stop, []);                                      // leaving the page stops the voice
+  useEffect(() => { stop(); }, [which]);
+  // when the voice has finished, the button goes back to "Read aloud"
+  useEffect(() => {
+    if (!reading) return;
+    const id = setInterval(() => { if (!speechSynthesis.speaking && !speechSynthesis.pending) setReading(null); }, 700);
+    return () => clearInterval(id);
+  }, [reading]);
+  const read = (s: GuideSection) => {
+    if (reading === s.id) { stop(); return; }
+    stopPracticeNarration(); setReading(s.id);
+    readPracticeQuestion(spokenGuide(s), profile.narrationVoice ?? "female", (status) => { if (status === "idle" || status === "error") setReading((now) => (now === s.id ? null : now)); });
+  };
 
   // print everything open, then put the page back
   useEffect(() => {
@@ -36,16 +55,23 @@ export function Guides({ only }: { only?: "parents" | "children" }) {
       <p class="small muted">{which === "parents" ? "How quarter works, and how to get the most from it." : "Read this together, or on your own. It's short and easy to follow."}</p>
       <div class="guide-actions"><button type="button" class="btn small" onClick={() => setPrinting(true)} data-testid="guide-print"><Icon name="book" size={16} /> Print this guide</button></div>
       <div class="guide-list" data-testid="guide-list">
-        {guide.map((s, i) => <GuideBlock key={`${which}-${s.id}`} section={s} open={printing || i === 0} tone={NOTE[i % NOTE.length]} />)}
+        {guide.map((s, i) => <GuideBlock key={`${which}-${s.id}`} section={s} open={printing || i === 0} tone={NOTE[i % NOTE.length]} onRead={canSpeak ? () => read(s) : undefined} reading={reading === s.id} />)}
       </div>
     </section>
   );
 }
 
-function GuideBlock({ section, open, tone }: { section: GuideSection; open: boolean; tone: typeof NOTE[number] }) {
+/** A section as words to say: the title, then the text, the steps numbered, and the tips. */
+export function spokenGuide(s: GuideSection): string {
+  const end = (t: string) => (/[.!?]$/.test(t) ? t : `${t}.`);
+  return [end(s.title), ...(s.text ?? []).map(end), ...(s.steps ?? []).map((t, i) => `Step ${i + 1}. ${end(t)}`), ...(s.tips ?? []).map(end)].join(" ");
+}
+
+function GuideBlock({ section, open, tone, onRead, reading }: { section: GuideSection; open: boolean; tone: typeof NOTE[number]; onRead?: () => void; reading?: boolean }) {
   return (
     <details class={`guide-block tone-${tone}`} open={open}>
       <summary><span class="guide-icon" aria-hidden="true"><Icon name={section.icon} size={20} /></span>{section.title}</summary>
+      {onRead && <button type="button" class={`btn small ghost guide-read${reading ? " on" : ""}`} aria-pressed={reading} onClick={onRead} data-testid={`read-${section.id}`}><Icon name={reading ? "mute" : "speaker"} size={16} /> {reading ? "Stop reading" : "Read aloud"}</button>}
       {section.text?.map((t) => <p key={t}>{t}</p>)}
       {section.steps && <ol class="guide-steps">{section.steps.map((t) => <li key={t}>{t}</li>)}</ol>}
       {section.tips && <ul class="guide-tips">{section.tips.map((t) => <li key={t}>{t}</li>)}</ul>}

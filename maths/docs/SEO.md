@@ -42,3 +42,7 @@ The booklet PDF, the learning app and the account pages are deliberately not in 
 - Look at Search Console's Performance report monthly. Queries that show impressions but few clicks are a good source of article ideas.
 - Keep titles under 60 characters and descriptions under 160 where possible. The tests enforce hard limits.
 - When a topic is added to the app, rebuild the booklet (`npm run booklet`) so the PDF matches.
+
+## Subscribing to the blog
+
+People are sent to `blog/subscribe.html`, a readable page with reader buttons and a copy box, not to the raw feed. The feed `blog/rss.xml` is for apps; it carries an XSLT (`blog/rss.xsl`) so a browser that opens it shows a readable page. Feed discovery is unchanged: every public page still has the `<link rel="alternate" type="application/rss+xml">` tag, so readers and crawlers find the feed.

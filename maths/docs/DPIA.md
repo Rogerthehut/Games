@@ -13,6 +13,7 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 |---|---|---|
 | Parent: Clerk user id, terms version and date agreed | Our database | Link the account; prove consent |
 | Learner: nickname, school year, avatar, progress (skills, results, plan) | Our database | Run the app, show progress |
+| Learner: a record of questions got wrong or needed help with (question text, answers typed, date, seed; up to 250, 120 days) | Our database, with the learner | The grown-ups' learning report: which questions, why, how to help. Created from generated maths questions: no free text is stored. Included in the data download and removed when the learner is deleted. |
 | Subscription: Stripe customer id, plan, status, dates | Our database | Control access |
 | Parent email, sign-in method | Clerk | Sign-in |
 | Card, billing details, invoices | Stripe | Payment |

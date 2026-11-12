@@ -25,7 +25,7 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
   const visibleSkills = filterSkills(filters);
   const setListFilters = (next: SkillFilters) => {
     setFilters(next);
-    filterStart.current?.scrollIntoView({ block: "start" });
+    if (next.q === filters.q) filterStart.current?.scrollIntoView({ block: "start" }); // not on every letter typed
   };
   const pickOnMap = (id?: string) => {
     setPicked(id);

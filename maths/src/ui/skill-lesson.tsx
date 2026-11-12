@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import { check } from "../engine/check";
+import { recordWrong } from "../engine/wrong-log";
 import { buildLesson, finishLesson } from "../engine/lesson";
 import type { Question } from "../engine/types";
 import { AnswerInput, type InputState } from "./answer-input";
@@ -38,7 +39,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
   const [message, setMessage] = useState("");
   const [extra, setExtra] = useState(0);                   // guided: extra steps revealed by hints
   const [showHint, setShowHint] = useState(false);
-  const tally = useRef({ helped: false, right: 0, revisit: false, busy: 0, last: "" });
+  const tally = useRef({ helped: false, right: 0, revisit: false, busy: 0, last: "", tried: [] as string[] });
   const heading = useRef<HTMLHeadingElement>(null);
 
   const q: Question | null = screen === "model" ? lesson.model : screen === "guided" ? lesson.guided : screen === "revisit" ? lesson.revisit.q
@@ -49,6 +50,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
   useEffect(() => { update((p) => p.lastSkill === skillId ? p : { ...p, lastSkill: skillId }); }, []);
 
   const goTo = (n: number) => {
+    tally.current.tried = [];
     setAt(n); setStepsShown(0); setValues([""]); setPhase("ask"); setTries(0); setMessage(""); setExtra(0); setShowHint(false);
   };
   const finish = () => {
@@ -72,14 +74,20 @@ export function SkillLesson({ skillId }: { skillId: string }) {
         if (screen.startsWith("own")) tally.current.right++;
         if (screen === "revisit") tally.current.revisit = true;
       } else if (screen === "guided") tally.current.helped = true;
+      if (tries > 0 && screen !== "model") { const tried = [...tally.current.tried]; const cq = q; update((p) => recordWrong(p, { q: cq, outcome: "helped", tried, tags: [], notes: [], source: "lesson" })); }
       setPhase("correct"); setMessage("");
       return;
     }
     if (result.outcome === "invalid") { setMessage(result.feedback ?? "Type your answer first."); return; }
     const used = tries + 1;
+    tally.current.tried.push(values.join(" / "));
     setTries(used);
     if (screen === "guided") tally.current.helped = true;
-    if (used >= TRIES) { setPhase("reveal"); setMessage(""); return; }
+    if (used >= TRIES) {
+      const tried = [...tally.current.tried]; const cq = q;
+      if (screen !== "model") update((p) => recordWrong(p, { q: cq, outcome: "missed", tried, tags: result.tag ? [result.tag] : [], notes: result.feedback ? [result.feedback] : [], source: "lesson" }));
+      setPhase("reveal"); setMessage(""); return;
+    }
     setMessage(result.feedback ?? q.hint);
   };
 

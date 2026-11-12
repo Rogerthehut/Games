@@ -10,7 +10,7 @@ import content from "../src/parents/content.json";
 /** The public study pages: one for each idea in the library, and an index. They are plain HTML, so people and search engines can read them. */
 const SITE = "https://yourquarter.co.uk";
 const skillNames = Object.fromEntries(Object.keys(SKILL_BY_ID).map((id) => [id, SKILL_BY_ID[id].name]));
-const slash = `<span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup class="wordmark-tm">™</sup></span>`;
+const slash = `<span class="wordmark" role="img" aria-label="quarter"><span aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter</span><sup class="wordmark-tm" aria-hidden="true">™</sup></span>`;
 const link = (href: string, label: string) => `<a class="legal-link" href="${escapeHtml(href)}"${/^https?:/.test(href) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${escapeHtml(label)}</a>`;
 
 function shell(opts: { title: string; description: string; path: string; body: string; jsonLd: object; styles: string }) {

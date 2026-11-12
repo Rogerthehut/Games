@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import { withBarChartHelp } from "../curriculum/expansion";
 import { check, type Result } from "../engine/check";
+import { recordWrong } from "../engine/wrong-log";
 import { DAY, addPoints, levelOf, recordAnswer, recordMistake, skillName, type Pick, type Profile } from "../engine/progress";
 import { mulberry32 } from "../engine/rng";
 import type { Question } from "../engine/types";
@@ -28,9 +29,9 @@ type Phase = "intro" | "ask" | "correct" | "reveal" | "done";
 function makeQuestion(profile: Profile, skillId: string, avoid: Set<string>, seed: number, level?: number): Question {
   const skill = SKILL_BY_ID[skillId];
   const lv = level ?? levelOf(profile.skills[skillId]);
-  let q = skill.generate(mulberry32(seed), lv);
-  for (let i = 1; i < 8 && avoid.has(q.prompt); i++) q = skill.generate(mulberry32(seed + i * 7919), lv);
-  return q;
+  let used = seed, q = skill.generate(mulberry32(used), lv);
+  for (let i = 1; i < 8 && avoid.has(q.prompt); i++) { used = seed + i * 7919; q = skill.generate(mulberry32(used), lv); }
+  return { ...q, seed: used }; // the seed lets the grown-ups' report make this question again
 }
 
 const dueText = (due: number, now: number) => {
@@ -76,6 +77,8 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     giveUps: saved?.tally.giveUps ?? 0, bounces: saved?.tally.bounces ?? 0,
   });
   const startedAt = useMemo(() => saved?.startedAt ?? Date.now(), [saved]);
+  // what was typed on each wrong try of the question on screen, for the grown-ups' learning report
+  const misses = useRef<{ tried: string[]; tags: string[]; notes: string[] }>({ tried: [], tags: [], notes: [] });
   const restoring = useRef(!!saved);
   useEffect(() => {
     if (saved) update((p) => ({ ...p, practiceDraft: undefined }));
@@ -106,6 +109,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
       setQ(nq);
       setPhase("ask");
     }
+    misses.current = { tried: [], tags: [], notes: [] };
     setValues([""]); setResult(null); setLastChecked(""); setAttempts(0); setHinted(false); setShowHint(false); setStepsShown(0); setShowTutor(false); setShowHelp(false);
     t.shownAt = Date.now();
   }, [idx]);
@@ -114,6 +118,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     const t = tally.current;
     const nq = makeQuestion(profile, plan[idx].skillId, t.seenPrompts, Date.now() + idx * 31, 1);
     t.seenPrompts.add(nq.prompt);
+    misses.current = { tried: [], tags: [], notes: [] };
     setQ(nq); setPhase("ask"); setValues([""]); setResult(null); setStepsShown(0); t.shownAt = Date.now();
   };
 
@@ -133,9 +138,11 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     if (kind !== "wrong") t.correct++;
     const pts = kind === "right" ? 10 : kind === "helped" ? 7 : 4;
     t.points += pts;
+    const m = misses.current, tried = [...m.tried], tags = [...m.tags], notes = [...m.notes];
     update((p) => {
       let n = recordAnswer(p, q.skill, kind);
       if (mistake?.tag && mistake.feedback) n = recordMistake(n, mistake.tag, q.skill, mistake.feedback);
+      if (kind === "wrong" || tried.length > 0) n = recordWrong(n, { q, outcome: kind === "wrong" ? (tried.length ? "missed" : "gave-up") : "helped", tried, tags, notes, source: "practice" });
       return addPoints(n, pts);
     });
   };
@@ -158,6 +165,9 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
       setResult(res); setPhase("correct");
       return;
     }
+    misses.current.tried.push(values.join(" / "));
+    if (res.tag) misses.current.tags.push(res.tag);
+    if (res.feedback) misses.current.notes.push(res.feedback);
     setAttempts(attempts + 1);
     if (attempts === 0) { if (!res.feedback) setHinted(true); setResult(res); return; }
     settle("wrong", res);

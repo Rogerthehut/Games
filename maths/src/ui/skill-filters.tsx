@@ -2,14 +2,24 @@ import type { ComponentChildren } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { ALL_SKILLS, STAGE_LABEL, STRANDS } from "../curriculum";
 import { STAGE_ORDER } from "../engine/activity";
-import type { Stage, Strand } from "../engine/types";
+import type { Skill, Stage, Strand } from "../engine/types";
+import { makeSearchIndex } from "../engine/search";
 
-export type SkillFilters = { stage?: Stage; topic?: Strand };
+export type SkillFilters = { stage?: Stage; topic?: Strand; /** words to find: * and ? work as wildcards, and small spelling slips are fine */ q?: string };
 
 export const topicLabel = (topic: Strand) => topic === "Ratio" ? "Ratio and proportion" : topic === "Reasoning" ? "Reasoning (11+)" : topic;
 
-export function filterSkills({ stage, topic }: SkillFilters) {
-  return ALL_SKILLS.filter((skill) => skill.strand !== "STEM" && (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
+// the same matching as the search across the app: wildcards, spelling slips, "year 6" and "ks2"
+let finder: ReturnType<typeof makeSearchIndex<{ title: string; keywords: string; year: number; stage: Stage; skill: Skill }>> | undefined;
+const find = (q: string) => (finder ??= makeSearchIndex(ALL_SKILLS.filter((s) => s.strand !== "STEM").map((skill) => ({
+  title: skill.name, year: skill.year, stage: skill.stage, skill,
+  keywords: `${skill.blurb} ${skill.strand} ${topicLabel(skill.strand)} ${skill.stage} ${STAGE_LABEL[skill.stage]} year ${skill.year} y${skill.year}`,
+}))))(q).map((r) => r.skill);
+
+/** The skills that match the filters. With words to find, they come best match first; otherwise in curriculum order. */
+export function filterSkills({ stage, topic, q }: SkillFilters) {
+  const pool = q?.trim() ? find(q) : ALL_SKILLS.filter((skill) => skill.strand !== "STEM");
+  return pool.filter((skill) => (!stage || skill.stage === stage) && (!topic || skill.strand === topic));
 }
 
 /** True while the person is scrolling down the list, so the filter panel can fade out of the way and come back when they scroll up. */
@@ -41,6 +51,11 @@ export function SkillFilterControls({ filters, onChange, count, children }: {
   const { ref, faded } = useFadeOnScroll();
   return (
     <div ref={ref} class={`skills-filter${children ? " has-view" : ""}${faded ? " faded" : ""}`} role="group" aria-label="Filter skills">
+      <label class="skills-find">
+        Find a topic
+        <input type="search" autoComplete="off" maxLength={80} placeholder="Try fractions, frac*, angles or Year 6" value={filters.q ?? ""} data-testid="topic-search"
+          onInput={(event) => onChange({ ...filters, q: event.currentTarget.value })} />
+      </label>
       <label>
         Stage
         <select value={filters.stage ?? ""} onChange={(event) => {
@@ -64,7 +79,7 @@ export function SkillFilterControls({ filters, onChange, count, children }: {
       {children && <div class="skills-filter-view">{children}</div>}
       <div class="skills-filter-summary">
         <span class="small muted" role="status">{count} {count === 1 ? "skill" : "skills"}</span>
-        <button type="button" class="btn ghost small" disabled={!filters.stage && !filters.topic} onClick={() => onChange({})}>Clear filters</button>
+        <button type="button" class="btn ghost small" disabled={!filters.stage && !filters.topic && !filters.q} onClick={() => onChange({})}>Clear filters</button>
       </div>
     </div>
   );

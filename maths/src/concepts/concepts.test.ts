@@ -91,6 +91,9 @@ describe("the public study pages", () => {
       expect(p.html, p.path).not.toMatch(/NaN|undefined|\[object/);
     }
   });
+  it("have the same wordmark markup as the app, so the ™ sits right", () => {
+    for (const p of pages) expect(p.html, p.path).toMatch(/<span class="wordmark" role="img" aria-label="quarter"><span aria-hidden="true">qua<svg[\s\S]*?<\/svg>ter<\/span><sup class="wordmark-tm" aria-hidden="true">™<\/sup><\/span>/);
+  });
   it("are kept out of search engines: not in the sitemap, marked noindex", () => {
     const sitemap = sitemapXml();
     for (const p of pages) {

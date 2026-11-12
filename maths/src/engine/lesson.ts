@@ -25,10 +25,10 @@ const hash = (s: string) => { let h = 2166136261; for (const c of s) h = Math.im
 
 function distinct(skillId: string, level: number, seed: number, used: Set<string>): Question {
   const skill = SKILL_BY_ID[skillId];
-  let q = skill.generate(mulberry32(seed), level);
-  for (let i = 1; i < 12 && used.has(q.prompt); i++) q = skill.generate(mulberry32(seed + i * 7919), level);
+  let at = seed, q = skill.generate(mulberry32(at), level);
+  for (let i = 1; i < 12 && used.has(q.prompt); i++) { at = seed + i * 7919; q = skill.generate(mulberry32(at), level); }
   used.add(q.prompt);
-  return q;
+  return { ...q, seed: at };
 }
 
 export function buildLesson(skillId: string): Lesson {

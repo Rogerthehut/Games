@@ -4,6 +4,8 @@ import { Icon } from "./icons";
 import { ColumnSheetTool, FractionWallTool, HundredSquareTool, NumberLineTool, PaperInstrument, type Placement } from "./working-sheets";
 
 export type ToolId = "counters" | "abacus" | "paper" | "numberline" | "hundred" | "wall" | "column";
+export const TOOL_NAMES: Record<ToolId, string> = { counters: "Count with beans", abacus: "Count with abacus", paper: "Work it out (paper)", numberline: "Number line", hundred: "Hundred square", wall: "Fraction wall", column: "Column method" };
+
 /** The tool that suits a topic, opened first in the working-out panel. */
 export function suggestedTool(skillId: string, strand: string, year: number): ToolId {
   if (/^(add-sub|mult-written|division|long-division|multiply-three|add-sub-money|multiply-divide-money)$/.test(skillId)) return "column";

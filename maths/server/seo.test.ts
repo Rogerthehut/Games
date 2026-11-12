@@ -29,7 +29,7 @@ describe("search and sharing set-up", () => {
 });
 
 import { existsSync } from "node:fs";
-import { SITE, llmsFull, rssXml, sitePages } from "../scripts/site-pages";
+import { SITE, llmsFull, rssXml, rssXsl, sitePages } from "../scripts/site-pages";
 import { POSTS } from "../src/blog/posts";
 
 describe("the public pages (blog, reading list, what quarter covers)", () => {
@@ -54,9 +54,19 @@ describe("the public pages (blog, reading list, what quarter covers)", () => {
     const known = new Set([...pages.map((p) => p.path), "index.html", "parents.html", "faqs.html", "11-plus-maths.html", "key-stage-2-maths.html", "maths-practice-at-home.html", "learn/index.html"]);
     for (const p of pages) for (const m of p.html.matchAll(/<a [^>]*href="([^"]+)"/g)) {
       const href = m[1].split("#")[0];
-      if (!href || /^(https?:|mailto:)/.test(href) || href.startsWith("./") || href.startsWith("?")) continue;
+      if (!href || /^(https?:|mailto:|feed:)/.test(href) || href.startsWith("./") || href.startsWith("?")) continue;
       expect(known.has(href) || href.startsWith("learn/") || href === "blog/rss.xml" || existsSync(`public/${href}`), `${p.path} -> ${href}`).toBe(true);
     }
+  });
+  it("send people to a readable subscribe page, not the raw feed", () => {
+    const index = pages.find((x) => x.path === "blog/index.html")!.html, sub = pages.find((x) => x.path === "blog/subscribe.html")!.html;
+    expect(index).toContain('href="blog/subscribe.html"');
+    expect(index).not.toMatch(/<a [^>]*href="blog\/rss\.xml"[^>]*>Subscribe/);
+    for (const reader of ["Feedly", "Inoreader", "NewsBlur", "The Old Reader"]) expect(sub).toContain(reader);
+    expect(sub).toContain(`value="${SITE}/blog/rss.xml"`);
+    expect(sub).toContain("data-copy");
+    expect(rssXml()).toContain('<?xml-stylesheet type="text/xsl" href="rss.xsl"?>');
+    expect(rssXsl()).toContain("blog/subscribe.html");
   });
   it("publish every article in a valid feed", () => {
     const rss = rssXml();

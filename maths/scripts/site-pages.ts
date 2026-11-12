@@ -20,7 +20,7 @@ export const SITE = "https://yourquarter.co.uk";
 export const CONTENT_DATE = "2026-11-11";
 const SITE_TITLE = "quarter";
 
-const slash = `<span class="wordmark" aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter</span><sup class="wordmark-tm" aria-hidden="true">™</sup>`;
+const slash = `<span class="wordmark" role="img" aria-label="quarter"><span aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter</span><sup class="wordmark-tm" aria-hidden="true">™</sup></span>`;
 const a = (href: string, label: string, extra = "") => `<a class="legal-link" href="${escapeHtml(href)}"${/^https?:/.test(href) && !/target=/.test(extra) ? ' target="_blank" rel="noopener noreferrer"' : ""}${extra}>${escapeHtml(label)}</a>`;
 const longDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 const rfc822 = (iso: string) => new Date(`${iso}T09:00:00Z`).toUTCString();
@@ -97,7 +97,7 @@ function blogPages(styles: string) {
     title: "The quarter blog", path: "blog/index.html", styles,
     description: "Practical, friendly articles for parents on maths practice at home, times tables, the 11+, confidence, STEM and AI.",
     jsonLd: [{ "@type": "Blog", url: `${SITE}/blog/index.html`, name: "The quarter blog", inLanguage: "en-GB", publisher, blogPost: sorted.map((p) => ({ "@type": "BlogPosting", headline: p.title, url: `${SITE}/${postPath(p)}`, datePublished: p.date })) }, crumbs([{ name: "Blog", path: "blog/index.html" }])],
-    body: `<p class="muted">Practical ideas for helping children with maths and STEM at home. ${a("blog/rss.xml", "Subscribe with RSS")}.</p>
+    body: `<p class="muted">Practical ideas for helping children with maths and STEM at home. ${a("blog/subscribe.html", "Subscribe with RSS")}.</p>
 <ul class="rows sitemap-links">${sorted.map((p) => `<li><a class="row" href="${postPath(p)}"><span>${escapeHtml(p.title)}<small>${longDate(p.date)} · ${escapeHtml(p.description)}</small></span></a></li>`).join("")}</ul>
 <p>${a("reading/index.html", "Reading list: articles from education organisations")}</p>`,
   });
@@ -109,13 +109,63 @@ function blogPages(styles: string) {
 ${blocksToHtml(p.body)}
 <section aria-labelledby="more"><h2 id="more">Go further</h2><ul>${p.related.map((r) => `<li>${a(r.path, r.label)}</li>`).join("")}<li>${a("./", "Try quarter")}</li></ul></section>`,
   }));
-  return [{ path: "blog/index.html", html: index }, ...POSTS.map((p, i) => ({ path: postPath(p), html: posts[i] }))];
+  return [{ path: "blog/index.html", html: index }, { path: "blog/subscribe.html", html: subscribePage(styles) }, ...POSTS.map((p, i) => ({ path: postPath(p), html: posts[i] }))];
+}
+
+// ------------------------------------------------------------------ subscribing, for people (the feed itself is for apps)
+const FEED = `${SITE}/blog/rss.xml`;
+const READERS: { name: string; blurb: string; href: string }[] = [
+  { name: "Feedly", blurb: "Follow in Feedly", href: `https://feedly.com/i/subscription/feed/${encodeURIComponent(FEED)}` },
+  { name: "Inoreader", blurb: "Follow in Inoreader", href: `https://www.inoreader.com/?add_feed=${encodeURIComponent(FEED)}` },
+  { name: "NewsBlur", blurb: "Follow in NewsBlur", href: `https://www.newsblur.com/?url=${encodeURIComponent(FEED)}` },
+  { name: "The Old Reader", blurb: "Follow in The Old Reader", href: `https://theoldreader.com/feeds/subscribe?url=${encodeURIComponent(FEED)}` },
+];
+
+function subscribePage(styles: string) {
+  return shell({
+    title: "Subscribe to the quarter blog", path: "blog/subscribe.html", styles, back: { href: "blog/index.html", label: "The blog" },
+    description: "Follow the quarter blog in your feed reader, or copy the feed address.",
+    jsonLd: [{ "@type": "WebPage", url: `${SITE}/blog/subscribe.html`, name: "Subscribe to the quarter blog", inLanguage: "en-GB", publisher }, crumbs([{ name: "Blog", path: "blog/index.html" }, { name: "Subscribe", path: "blog/subscribe.html" }])],
+    body: `<p class="muted">Get new articles as they're published, in a feed reader you choose. There's no email and no account with us. Pick a reader below, or copy the feed address into any reader you already use.</p>
+<h2>Follow in a reader</h2>
+<ul class="rows sitemap-links subscribe-list">
+${READERS.map((r) => `<li><a class="row" href="${escapeHtml(r.href)}" target="_blank" rel="noopener noreferrer"><span>${escapeHtml(r.name)}<small>${escapeHtml(r.blurb)}</small></span></a></li>`).join("\n")}
+<li><a class="row" href="feed:${FEED}"><span>Open in your feed app<small>For apps on your device that handle feed links</small></span></a></li>
+</ul>
+<h2>Or copy the feed address</h2>
+<div class="feed-copy"><input id="feed-url" class="feed-url" type="text" readonly value="${FEED}" aria-label="Feed address" onfocus="this.select()"><button type="button" class="btn" data-copy="${FEED}" data-done="Copied">Copy</button></div>
+<p class="small muted">New to feeds? An RSS reader is an app or website that collects articles from the sites you follow, so you don't have to visit each one. Paste the address above into a reader's "add feed" box.</p>
+<p class="small muted">${a("blog/rss.xml", "View the raw feed")} (for apps and developers).</p>
+<script src="./copy-feed.js" defer></script>`,
+  });
+}
+
+/** A stylesheet so that opening the feed itself in a browser shows a readable page that points to the subscribe page, not raw XML. */
+export function rssXsl() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method="html" encoding="UTF-8" indent="yes"/>
+<xsl:template match="/rss/channel">
+<html lang="en-GB"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title><xsl:value-of select="title"/> (feed)</title>
+<style>body{font:16px/1.55 system-ui,sans-serif;background:#f8f4e8;color:#1e2038;margin:0}main{max-width:720px;margin:0 auto;padding:32px 20px}h1{font-size:1.8rem;margin:.2em 0}.box{background:#fffdf6;border:1px solid #e4d9bd;border-radius:14px;padding:16px 18px;margin:18px 0}a{color:#1e2038}.btn{display:inline-block;padding:10px 18px;border-radius:999px;border:2px solid #e4d9bd;background:#fff;text-decoration:none;font-weight:700}li{margin:.7em 0}small{color:#5c5f78}</style></head>
+<body><main>
+<p><small>This is a feed: a page for feed readers and apps.</small></p>
+<h1><xsl:value-of select="title"/></h1>
+<p><xsl:value-of select="description"/></p>
+<div class="box"><p><strong>Want new articles delivered to you?</strong> Choose a reader on the subscribe page, or copy this page's address into one.</p><p><a class="btn" href="${SITE}/blog/subscribe.html">Subscribe</a> <a class="btn" href="${SITE}/blog/index.html">Read the blog</a></p></div>
+<h2>Latest articles</h2>
+<ul><xsl:for-each select="item"><li><a href="{link}"><xsl:value-of select="title"/></a><br/><small><xsl:value-of select="pubDate"/> · <xsl:value-of select="description"/></small></li></xsl:for-each></ul>
+</main></body></html>
+</xsl:template>
+</xsl:stylesheet>
+`;
 }
 
 export function rssXml() {
   const sorted = [...POSTS].sort((x, y) => y.date.localeCompare(x.date));
   const x = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="rss.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
 <title>The quarter blog</title>
@@ -236,8 +286,8 @@ export function llmsFull() {
 
 // ------------------------------------------------------------------ the plugin
 export function siteContent(): Plugin {
-  const types: Record<string, string> = { xml: "application/xml; charset=utf-8", txt: "text/plain; charset=utf-8", html: "text/html; charset=utf-8" };
-  const extras = () => ({ "blog/rss.xml": rssXml(), "sitemap.xml": sitemapXml(), "llms-full.txt": llmsFull() });
+  const types: Record<string, string> = { xml: "application/xml; charset=utf-8", xsl: "text/xsl; charset=utf-8", txt: "text/plain; charset=utf-8", html: "text/html; charset=utf-8" };
+  const extras = () => ({ "blog/rss.xml": rssXml(), "blog/rss.xsl": rssXsl(), "sitemap.xml": sitemapXml(), "llms-full.txt": llmsFull() });
   return {
     name: "quarter-site-content",
     configureServer(server) {
