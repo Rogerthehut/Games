@@ -1,3 +1,4 @@
+import { printPage } from "../native/bridge";
 import { useEffect, useState } from "preact/hooks";
 import { useRemembered } from "./memory";
 import { CHILD_GUIDE, PARENT_GUIDE, type GuideSection } from "../guides/content";
@@ -41,7 +42,7 @@ export function Guides({ only }: { only?: "parents" | "children" }) {
     document.body.classList.add("printing-guide");
     const done = () => { document.body.classList.remove("printing-guide"); setPrinting(false); };
     addEventListener("afterprint", done, { once: true });
-    const t = setTimeout(() => window.print(), 80);
+    const t = setTimeout(() => printPage(), 80);
     return () => { clearTimeout(t); removeEventListener("afterprint", done); document.body.classList.remove("printing-guide"); };
   }, [printing]);
 

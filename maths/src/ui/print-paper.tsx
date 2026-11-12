@@ -1,3 +1,4 @@
+import { printPage } from "../native/bridge";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { PAPERS, type PaperKind } from "../engine/mock";
 import { PRINTABLE, buildPrintPaper, clampNumber, fieldsOf, randomPaperNumber, unitOf } from "../engine/print-paper";
@@ -27,7 +28,7 @@ export function PrintPaper({ kind: first, number: firstNumber }: { kind: PaperKi
     document.body.classList.add(`printing-${printing}`);
     const done = () => { document.body.classList.remove(`printing-${printing}`); setPrinting(null); };
     addEventListener("afterprint", done, { once: true });
-    const t = setTimeout(() => window.print(), 80);
+    const t = setTimeout(() => printPage(), 80);
     return () => { clearTimeout(t); removeEventListener("afterprint", done); document.body.classList.remove(`printing-${printing}`); };
   }, [printing]);
 

@@ -8,6 +8,10 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Groundwork for the iPhone and iPad app
+- **`src/native/bridge.ts`:** a small link between the web app and the app shell (an Expo project in `/mobile`, in progress). In the app, printing and saving files are handed to the phone (print sheet, share sheet), because a web view can't do either; in a browser nothing changes. Printing, the progress CSV, the data export, the curriculum booklet and the printable papers all go through it. Tests: `src/native/bridge.test.ts`.
+- **`/mobile`:** the Expo project is started (dependencies chosen to match Expo SDK 58). The shell itself, the iPad settings and the build notes come next. iPad and tablet layout is the priority.
+
 ## Optional PINs for children
 - **Parents' area, Settings:** make, change or turn off a 4 to 6 digit PIN for the learner you're looking at. From Year 7 a parent can also let the child change their own.
 - **Switching asks for it:** choosing a child who has a PIN on Me shows a PIN pad. A wrong PIN is refused, with five tries then a growing wait (the same slow-down as the parent PIN). A grown-up who has already opened the Parents' area isn't asked.

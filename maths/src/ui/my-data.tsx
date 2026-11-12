@@ -1,3 +1,4 @@
+import { printPage, saveFile } from "../native/bridge";
 import { useEffect, useState } from "preact/hooks";
 import { describeExport, STATUS_PLAIN, type MyData } from "../engine/my-data";
 import { CubeMark, Wordmark } from "./wordmark";
@@ -6,11 +7,7 @@ import { Icon } from "./icons";
 const fmt = (t: number | null) => (t ? new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Not yet");
 const today = () => new Date().toISOString().slice(0, 10);
 
-function save(name: string, type: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type }));
-  const a = document.createElement("a"); a.href = url; a.download = name; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+const save = (name: string, type: string, text: string) => void saveFile(name, text, type);
 
 /**
  * Everything quarter holds for the account, written for a person to read, with a button to save it as a PDF or print it.
@@ -27,7 +24,7 @@ export function MyDataPage({ load, email, onBack }: { load(): Promise<unknown>; 
     document.title = `quarter-information-${today()}`;
     const restore = () => { document.title = before; removeEventListener("afterprint", restore); };
     addEventListener("afterprint", restore);
-    print();
+    printPage();
   };
 
   return (

@@ -1,3 +1,4 @@
+import { printPage } from "../native/bridge";
 import { STAGE_LABEL } from "../curriculum";
 import { canTakePathwayTest, nextStage } from "../engine/pathway";
 import type { Stage } from "../engine/types";
@@ -42,7 +43,7 @@ export function Certificate({ stage }: { stage: Stage }) {
             <p class="small muted">A quarter learning milestone.</p>
           </article>
           <div class="actions certificate-actions">
-            <button class="btn primary" onClick={() => window.print()}>Print or save as PDF</button>
+            <button class="btn primary" onClick={() => printPage()}>Print or save as PDF</button>
             {next && <button class="btn" onClick={() => go({ name: "map", stage: next })}>Explore {STAGE_LABEL[next]}</button>}
             <button class="btn ghost" onClick={() => go({ name: "me" })}>Back to Me</button>
           </div>

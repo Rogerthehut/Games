@@ -1,3 +1,4 @@
+import { printPage } from "../native/bridge";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { useRemembered } from "./memory";
 import { buildLearningReport, diagnoseAttempt, lastDays, PERIODS, type Example, type Period, type TopicFinding } from "../engine/learning-report";
@@ -53,7 +54,7 @@ export function LearningReport() {
     document.body.classList.add("printing-report");
     const done = () => { document.body.classList.remove("printing-report"); setPrinting(false); };
     addEventListener("afterprint", done, { once: true });
-    const t = setTimeout(() => window.print(), 80);
+    const t = setTimeout(() => printPage(), 80);
     return () => { clearTimeout(t); removeEventListener("afterprint", done); document.body.classList.remove("printing-report"); };
   }, [printing]);
 

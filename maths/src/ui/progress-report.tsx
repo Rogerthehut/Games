@@ -1,3 +1,4 @@
+import { printPage, saveFile } from "../native/bridge";
 import { useMemo, useState } from "preact/hooks";
 import { buildProgressReport, type Range, reportCsv, reportFileName, STATUS_ORDER, STATUS_WORDS, type ProgressReportData } from "../engine/progress-report";
 import type { Profile } from "../engine/progress";
@@ -13,10 +14,7 @@ const pctText = (n: number | null) => (n === null ? "–" : `${n}%`);
 
 export function downloadProgressCsv(profile: Profile, range?: Range | null) {
   const r = buildProgressReport(profile, Date.now(), range);
-  const url = URL.createObjectURL(new Blob(["﻿", reportCsv(r)], { type: "text/csv;charset=utf-8" }));
-  const a = document.createElement("a");
-  a.href = url; a.download = reportFileName(r, "csv"); a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  void saveFile(reportFileName(r, "csv"), "﻿" + reportCsv(r), "text/csv;charset=utf-8");
 }
 
 /** Opens the print dialog with a sensible file name, so "Save as PDF" gives quarter-progress-name-date.pdf. */
@@ -25,7 +23,7 @@ function printReport(r: ProgressReportData) {
   document.title = reportFileName(r, "pdf").replace(/\.pdf$/, "");
   const restore = () => { document.title = before; removeEventListener("afterprint", restore); };
   addEventListener("afterprint", restore);
-  print();
+  printPage();
 }
 
 function Weeks({ weeks, unit }: { weeks: ProgressReportData["weeks"]; unit: "day" | "week" }) {

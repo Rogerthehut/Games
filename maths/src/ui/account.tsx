@@ -1,3 +1,4 @@
+import { saveFile } from "../native/bridge";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { clearAllPins } from "./pin";
 import { AccountApi, AccountError, NO_BILLING, type BillingInfo, type Plan } from "../account/api";
@@ -188,9 +189,7 @@ export function AccountGate() {
     sendFeedback: (f) => api.current!.sendFeedback(f),
     manageBilling: async () => { location.assign(await api.current!.portal()); },
     downloadBooklet: async () => {
-      const blob = await api.current!.booklet(), url = URL.createObjectURL(blob), link = document.createElement("a");
-      link.href = url; link.download = "quarter-curriculum.pdf"; document.body.appendChild(link); link.click(); link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      await saveFile("quarter-curriculum.pdf", await api.current!.booklet(), "application/pdf");
     },
     deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearAllPins(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
   };
