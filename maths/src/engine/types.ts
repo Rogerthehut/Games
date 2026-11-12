@@ -51,6 +51,12 @@ export type Figure =
   | { type: "number-line"; min: number; max: number; points: { v: number; tone: "red" | "blue" | "new"; label?: string }[]; alt: string }
   | { type: "neuron"; inputs: number[]; weights: number[]; bias?: number; alt: string }
   | { type: "bars"; items: { label: string; value: number }[]; yLabel: string; alt: string }
+  /** A small table: a header row and rows of cells (the first cell of each row is a row heading). */
+  | { type: "table"; head: string[]; rows: (string | number)[][]; alt: string }
+  /** Boxes joined by arrows, top to bottom: an input, steps and an output. `repeat` draws a loop bracket round the steps from `from` to `to`. */
+  | { type: "flow"; steps: { text: string; kind?: "in" | "out" | "step" }[]; repeat?: { from: number; to: number; label: string }; alt: string }
+  /** The alphabet in two rows with each letter's position (A = 0), for codes and ciphers. */
+  | { type: "alphabet"; note?: string; alt: string }
   /** A board with a piece the learner moves by tap, drag, arrow keys or buttons. The piece's place becomes their answer. */
   | { type: "board"; mode: "line" | "grid"; size: number; start: [number, number]; steps: string[]; ask: "x" | "y" | "dist"; alt: string }
   /** A protractor over an angle, to read its size. `from` is the side the first arm points to. */

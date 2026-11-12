@@ -12,6 +12,10 @@ import { num } from "./ks2";
 const bin = (n: number, bits = 0) => n.toString(2).padStart(bits, "0");
 const distinct = <T,>(make: () => T, ok: (t: T) => boolean, tries = 200): T => { let t = make(); for (let i = 0; i < tries && !ok(t); i++) t = make(); return t; };
 
+type Flow = Extract<NonNullable<import("../engine/types").Question["figure"]>, { type: "flow" }>;
+const flow = (steps: Flow["steps"], alt: string, repeat?: Flow["repeat"]): Flow => ({ type: "flow", steps, repeat, alt });
+const table = (head: string[], rows: (string | number)[][], alt: string) => ({ type: "table" as const, head, rows, alt });
+
 export const stemSkills: Skill[] = [
   // ============================================================ Key Stage 2
   num({
@@ -35,11 +39,11 @@ export const stemSkills: Skill[] = [
     talkAbout: "Why is writing 'repeat 10 times' better than writing the instruction ten times?",
   }, (r, l) => {
     const k = int(r, 3, 6), n = int(r, 2, 5);
-    if (l === 1) return { prompt: `A program says: repeat ${k} times: move forward ${n} squares. How many squares does the robot move in total?`, value: k * n, hint: "Multiply the number of repeats by the squares in each repeat.", solution: [`${k} × ${n} = ${k * n}.`] };
+    if (l === 1) return { figure: flow([{ text: `move forward ${n}` }], `A loop: move forward ${n} squares, repeated ${k} times.`, { from: 0, to: 0, label: `× ${k}` }), prompt: `A program says: repeat ${k} times: move forward ${n} squares. How many squares does the robot move in total?`, value: k * n, hint: "Multiply the number of repeats by the squares in each repeat.", solution: [`${k} × ${n} = ${k * n}.`] };
     const m = int(r, 1, n - 1);
-    if (l === 2) return { prompt: `A program says: repeat ${k} times: move forward ${n}, then back ${m}. How far is the robot from where it started at the end?`, value: k * (n - m), hint: "Find how far it gets forwards in one go, then repeat.", solution: [`One repeat: ${n} − ${m} = ${n - m} forwards.`, `${k} × ${n - m} = ${k * (n - m)}.`] };
+    if (l === 2) return { figure: flow([{ text: `forward ${n}` }, { text: `back ${m}` }], `A loop: forward ${n}, then back ${m}, repeated ${k} times.`, { from: 0, to: 1, label: `× ${k}` }), prompt: `A program says: repeat ${k} times: move forward ${n}, then back ${m}. How far is the robot from where it started at the end?`, value: k * (n - m), hint: "Find how far it gets forwards in one go, then repeat.", solution: [`One repeat: ${n} − ${m} = ${n - m} forwards.`, `${k} × ${n - m} = ${k * (n - m)}.`] };
     const a = int(r, 2, 4), b = int(r, 2, 3), c = int(r, 1, 3);
-    return { prompt: `A program says: repeat ${a} times: (clap ${b} times, then stamp ${c} time${c > 1 ? "s" : ""}). How many claps and stamps are there altogether?`, value: a * (b + c), hint: "Count the actions in one repeat, then multiply.", solution: [`One repeat has ${b} + ${c} = ${b + c} actions.`, `${a} × ${b + c} = ${a * (b + c)}.`] };
+    return { figure: flow([{ text: `clap ${b} times` }, { text: `stamp ${c} time${c > 1 ? "s" : ""}` }], `A loop: clap ${b} times, then stamp ${c} time${c > 1 ? "s" : ""}, repeated ${a} times.`, { from: 0, to: 1, label: `× ${a}` }), prompt: `A program says: repeat ${a} times: (clap ${b} times, then stamp ${c} time${c > 1 ? "s" : ""}). How many claps and stamps are there altogether?`, value: a * (b + c), hint: "Count the actions in one repeat, then multiply.", solution: [`One repeat has ${b} + ${c} = ${b + c} actions.`, `${a} × ${b + c} = ${a * (b + c)}.`] };
   }),
   num({
     id: "stem-input-output", name: "Inputs, processes and outputs", stage: "KS2", year: 4, strand: "STEM", prereqs: [],
@@ -49,9 +53,9 @@ export const stemSkills: Skill[] = [
     talkAbout: "If you know the output, how can you work out the input?",
   }, (r, l) => {
     const a = int(r, 2, 6), b = int(r, 1, 9), n = int(r, 2, 9);
-    if (l === 1) return { prompt: `A program takes a number, adds ${b}, and shows the answer. The input is ${n}. What is the output?`, value: n + b, hint: "Do what the program says to the input.", solution: [`${n} + ${b} = ${n + b}.`] };
-    if (l === 2) return { prompt: `A program takes a number, multiplies it by ${a}, then adds ${b}. The input is ${n}. What is the output?`, value: n * a + b, hint: "Do the steps in order: multiply first, then add.", solution: [`${n} × ${a} = ${n * a}.`, `${n * a} + ${b} = ${n * a + b}.`] };
-    return { prompt: `A program takes a number, multiplies it by ${a}, then adds ${b}. The output is ${n * a + b}. What was the input?`, value: n, hint: "Work backwards: undo the last step first.", solution: [`Undo adding ${b}: ${n * a + b} − ${b} = ${n * a}.`, `Undo multiplying by ${a}: ${n * a} ÷ ${a} = ${n}.`] };
+    if (l === 1) return { figure: flow([{ text: `Input: ${n}`, kind: "in" }, { text: `add ${b}` }, { text: "Output: ?", kind: "out" }], `A program: input ${n}, add ${b}, output unknown.`), prompt: `A program takes a number, adds ${b}, and shows the answer. The input is ${n}. What is the output?`, value: n + b, hint: "Do what the program says to the input.", solution: [`${n} + ${b} = ${n + b}.`] };
+    if (l === 2) return { figure: flow([{ text: `Input: ${n}`, kind: "in" }, { text: `multiply by ${a}` }, { text: `add ${b}` }, { text: "Output: ?", kind: "out" }], `A program: input ${n}, multiply by ${a}, add ${b}, output unknown.`), prompt: `A program takes a number, multiplies it by ${a}, then adds ${b}. The input is ${n}. What is the output?`, value: n * a + b, hint: "Do the steps in order: multiply first, then add.", solution: [`${n} × ${a} = ${n * a}.`, `${n * a} + ${b} = ${n * a + b}.`] };
+    return { figure: flow([{ text: "Input: ?", kind: "in" }, { text: `multiply by ${a}` }, { text: `add ${b}` }, { text: `Output: ${n * a + b}`, kind: "out" }], `A program: input unknown, multiply by ${a}, add ${b}, output ${n * a + b}.`), prompt: `A program takes a number, multiplies it by ${a}, then adds ${b}. The output is ${n * a + b}. What was the input?`, value: n, hint: "Work backwards: undo the last step first.", solution: [`Undo adding ${b}: ${n * a + b} − ${b} = ${n * a}.`, `Undo multiplying by ${a}: ${n * a} ÷ ${a} = ${n}.`] };
   }),
   num({
     id: "stem-sorting", name: "Sorting step by step", stage: "KS2", year: 4, strand: "STEM", prereqs: [],
@@ -76,6 +80,13 @@ export const stemSkills: Skill[] = [
     parentNote: "Debugging is a real skill: read the instructions slowly, predict what will happen, then check. Everybody's programs have bugs, and finding them is part of the fun.",
     talkAbout: "How would you test a program to find out where the bug is?",
   }, (r, l) => {
+    const codes: string[][] = [
+      ["for i from 1 to 4:", "    print i"],
+      ["repeat 3 times:", "    step"],
+      ["repeat 10 times:", "    say Hello"],
+      ["x = input", "x = x + 5", "print x"],
+      ["if points > 8:", "    print \"You win!\""],
+    ];
     const sets: [string, string, string[], string][] = [
       ["A program should print the numbers 1 to 5, but it prints 1, 2, 3, 4. What is the bug?", "The loop stops one number too early", ["The loop starts at 5", "The program prints letters", "The numbers are printed in a circle"], "The last number is missing, so the loop ends too soon."],
       ["A robot should walk to the door, 4 steps away, but it only does 'repeat 3 times: step'. What is the fix?", "Change 3 to 4", ["Change 'step' to 'jump'", "Add 'repeat 3 times' again", "Remove the loop"], "It needs 4 steps, so the loop must repeat 4 times."],
@@ -83,8 +94,8 @@ export const stemSkills: Skill[] = [
       ["A program adds 5 to a number, but should double it. Which change fixes it?", "Change 'add 5' to 'multiply by 2'", ["Change 'add 5' to 'add 2'", "Add another 5", "Take away the number"], "Doubling means multiplying by 2."],
       ["A game should let the player win at 10 points, but the player wins at 9. Which is the most likely bug?", "The test says 'more than 8' instead of 'at least 10'", ["The game has no sound", "The points are shown in red", "The player has too many lives"], "The condition for winning is wrong by one."],
     ];
-    const [q, right, others, why] = pick(r, l === 1 ? sets.slice(0, 3) : sets);
-    return { prompt: q, right, others, hint: "Compare what should happen with what does happen.", solution: [why] };
+    const at = int(r, 0, l === 1 ? 2 : sets.length - 1), [q, right, others, why] = sets[at];
+    return { figure: { type: "code", lines: codes[at], alt: `The program: ${codes[at].join("; ").replace(/\s+/g, " ")}.` }, prompt: q, right, others, hint: "Compare what should happen with what does happen.", solution: [why] };
   }),
   num({
     id: "stem-data-detective", name: "Data detective", stage: "KS2", year: 5, strand: "STEM", prereqs: ["read-tables"],
@@ -116,9 +127,10 @@ export const stemSkills: Skill[] = [
       { name: "size", yes: "is big", no: "is small" }, { name: "wings", yes: "has wings", no: "has no wings" },
     ];
     const [f1, f2] = shuffle(r, feats), noise = ["the day it was collected", "the shape of the label"];
-    const group = (yes: boolean) => Array.from({ length: 3 }, () => (l === 1 ? (yes ? f1.yes : f1.no) : `${yes ? f1.yes : f1.no}, ${r() < 0.5 ? f2.yes : f2.no}`)).map((x) => `(${x})`).join(" ");
+    const cells = (yes: boolean) => Array.from({ length: 3 }, () => (l === 1 ? (yes ? f1.yes : f1.no) : `${yes ? f1.yes : f1.no}, ${r() < 0.5 ? f2.yes : f2.no}`));
+    const ga = cells(true), gb = cells(false), group = (xs: string[]) => xs.map((x) => `(${x})`).join(" ");
     const opts = l === 1 ? [f2.name, ...noise] : [f2.name, ...noise.slice(0, 1), feats.find((f) => f !== f1 && f !== f2)!.name];
-    return { prompt: `A computer is shown examples of two groups. Group A: ${group(true)}. Group B: ${group(false)}. Which feature should the computer look at to tell the groups apart?`, right: f1.name, others: opts.slice(0, 3), hint: "Which feature is always the same inside each group, but different between the two groups?", solution: [`In Group A every example ${f1.yes}. In Group B every example ${f1.no}.`, `So the feature that separates them is ${f1.name}.`] };
+    return { figure: table(["", "Example 1", "Example 2", "Example 3"], [["Group A", ...ga], ["Group B", ...gb]], `A table of examples. Group A: ${ga.join("; ")}. Group B: ${gb.join("; ")}.`), prompt: `A computer is shown examples of two groups. Group A: ${group(ga)}. Group B: ${group(gb)}. Which feature should the computer look at to tell the groups apart?`, right: f1.name, others: opts.slice(0, 3), hint: "Which feature is always the same inside each group, but different between the two groups?", solution: [`In Group A every example ${f1.yes}. In Group B every example ${f1.no}.`, `So the feature that separates them is ${f1.name}.`] };
   }),
 
   // ============================================================ Key Stage 3
@@ -130,7 +142,7 @@ export const stemSkills: Skill[] = [
     talkAbout: "Why do computers use only 0 and 1?",
   }, (r, l) => {
     if (l === 1) { const n = int(r, 9, 255), b = bin(n); return { figure: { type: "bits", bits: b, alt: `The binary number ${b}, with place values over each digit.` }, prompt: `What is the binary number ${b} in ordinary (denary) numbers?`, value: n, hint: "Write the place values 128, 64, 32, 16, 8, 4, 2, 1 under the digits and add up the ones.", solution: [`Add the place values under each 1.`, `${b} = ${n}.`] }; }
-    if (l === 2) { const n = int(r, 8, 200); return { prompt: `Write ${n} in binary. Type the 0s and 1s with no spaces.`, value: Number(bin(n)), shown: bin(n), hint: "Find the biggest place value that fits, write a 1, take it away, and carry on.", solution: [`${n} in binary is ${bin(n)}.`] }; }
+    if (l === 2) { const n = int(r, 8, 200); return { figure: { type: "bits", bits: "00000000", alt: "Eight empty binary boxes with the place values 128, 64, 32, 16, 8, 4, 2 and 1 over them." }, prompt: `Write ${n} in binary. Type the 0s and 1s with no spaces.`, value: Number(bin(n)), shown: bin(n), hint: "Find the biggest place value that fits, write a 1, take it away, and carry on.", solution: [`${n} in binary is ${bin(n)}.`] }; }
     const a = int(r, 3, 14), b = int(r, 2, 14);
     return { prompt: `Add the binary numbers ${bin(a)} and ${bin(b)}. Type the answer in binary.`, value: Number(bin(a + b)), shown: bin(a + b), hint: "Change both to denary, add, then change back. Or add column by column: 1 + 1 = 10 in binary.", solution: [`${bin(a)} = ${a} and ${bin(b)} = ${b}.`, `${a} + ${b} = ${a + b}.`, `${a + b} in binary is ${bin(a + b)}.`] };
   }),
@@ -144,7 +156,7 @@ export const stemSkills: Skill[] = [
     const L = "0123456789ABCDEF";
     if (l === 1) { const d = int(r, 10, 15); const right = String(d); return { prompt: `In hexadecimal, what does the digit ${L[d]} stand for?`, right, others: [d - 1, d + 1, d + 5].map(String).filter((x) => x !== right), hint: "A is 10, B is 11, and so on up to F, which is 15.", solution: [`A=10, B=11, C=12, D=13, E=14, F=15.`, `${L[d]} = ${d}.`] }; }
     const h = int(r, 1, 15), lo = int(r, 0, 15), v = h * 16 + lo;
-    if (l === 2) return { prompt: `What is the hex number ${L[h]}${L[lo]} in ordinary (denary) numbers?`, right: String(v), others: [v + 16, v - 1, lo * 16 + h, v + 10].map(String).filter((x) => x !== String(v)).slice(0, 3), hint: "The first digit is worth 16 each. Add the second digit.", solution: [`${L[h]} = ${h}, so ${h} × 16 = ${h * 16}.`, `${h * 16} + ${lo} = ${v}.`] };
+    if (l === 2) return { figure: table(["16s", "1s"], [[L[h], L[lo]]], `The hex number ${L[h]}${L[lo]}: ${L[h]} in the 16s place and ${L[lo]} in the 1s place.`), prompt: `What is the hex number ${L[h]}${L[lo]} in ordinary (denary) numbers?`, right: String(v), others: [v + 16, v - 1, lo * 16 + h, v + 10].map(String).filter((x) => x !== String(v)).slice(0, 3), hint: "The first digit is worth 16 each. Add the second digit.", solution: [`${L[h]} = ${h}, so ${h} × 16 = ${h * 16}.`, `${h * 16} + ${lo} = ${v}.`] };
     const right = `${L[h]}${L[lo]}`;
     return { prompt: `Which hex number is ${v} in ordinary numbers?`, right, others: [`${L[lo]}${L[h]}`, `${L[Math.min(15, h + 1)]}${L[lo]}`, `${L[h]}${L[(lo + 1) % 16]}`].filter((x) => x !== right), hint: "Divide by 16 for the first digit. The remainder is the second digit.", solution: [`${v} ÷ 16 = ${h} remainder ${lo}.`, `${h} is ${L[h]} and ${lo} is ${L[lo]}, so it is ${right}.`] };
   }),
@@ -173,7 +185,7 @@ export const stemSkills: Skill[] = [
     if (l === 1) { const op = pick(r, ["AND", "OR"]); expr = `A ${op} B`; ans = op === "AND" ? A && B : A || B; }
     else if (l === 2) { const op = pick(r, ["AND", "OR"]); expr = `NOT A ${op} B`; ans = op === "AND" ? !A && B : !A || B; }
     else { expr = `(A OR B) AND NOT C`; ans = (A || B) && !C; }
-    return { prompt: `A is ${t(A)}, B is ${t(B)}${l === 3 ? `, C is ${t(C)}` : ""}. What is ${expr}?`, right: t(ans), others: [t(!ans)], hint: l === 3 ? "Do the brackets first, then NOT, then AND." : "Remember: AND needs both True, OR needs at least one True, NOT flips it.", solution: [l === 3 ? `(${t(A)} OR ${t(B)}) = ${t(A || B)}, and NOT ${t(C)} = ${t(!C)}.` : `Work it out step by step.`, `The answer is ${t(ans)}.`] };
+    return { figure: table(l === 3 ? ["A", "B", "C"] : ["A", "B"], [l === 3 ? [t(A), t(B), t(C)] : [t(A), t(B)]], `The values: A is ${t(A)}, B is ${t(B)}${l === 3 ? `, C is ${t(C)}` : ""}.`), prompt: `A is ${t(A)}, B is ${t(B)}${l === 3 ? `, C is ${t(C)}` : ""}. What is ${expr}?`, right: t(ans), others: [t(!ans)], hint: l === 3 ? "Do the brackets first, then NOT, then AND." : "Remember: AND needs both True, OR needs at least one True, NOT flips it.", solution: [l === 3 ? `(${t(A)} OR ${t(B)}) = ${t(A || B)}, and NOT ${t(C)} = ${t(!C)}.` : `Work it out step by step.`, `The answer is ${t(ans)}.`] };
   }),
   choiceSkill({
     id: "stem-data-types", name: "Data types", stage: "KS3", year: 7, strand: "STEM", prereqs: [],
@@ -187,7 +199,7 @@ export const stemSkills: Skill[] = [
       [["-8", "integer"], ["0.5", "float (decimal)"], ["\"7\"", "string (text)"], ["False", "Boolean"], ["\"True\"", "string (text)"]],
     ];
     const [val, right] = pick(r, pools[l === 1 ? 0 : 1]);
-    return { prompt: `What data type is the value ${val}?`, right, others: ["integer", "float (decimal)", "string (text)", "Boolean"].filter((x) => x !== right), hint: l === 1 ? "Is it a whole number, a decimal, words or a True/False?" : "Quote marks make something a string, even if it looks like a number.", solution: [`${val} is a ${right}.`] };
+    return { figure: { type: "code", lines: [`x = ${val}`], alt: `The code: x equals ${val}.` }, prompt: `What data type is the value ${val}?`, right, others: ["integer", "float (decimal)", "string (text)", "Boolean"].filter((x) => x !== right), hint: l === 1 ? "Is it a whole number, a decimal, words or a True/False?" : "Quote marks make something a string, even if it looks like a number.", solution: [`${val} is a ${right}.`] };
   }),
   num({
     id: "stem-outliers", name: "Odd one out in data", stage: "KS3", year: 8, strand: "STEM", prereqs: ["averages"],
@@ -199,9 +211,10 @@ export const stemSkills: Skill[] = [
     const base = Array.from({ length: 4 }, () => int(r, 8, 16)); base[3] += (4 - (base.reduce((a, b) => a + b, 0) % 4)) % 4;
     const bs = base.reduce((a, b) => a + b, 0), o = distinct(() => int(r, 40, 90), (v) => (bs + v) % 5 === 0);
     const data = shuffle(r, [...base, o]), meanWith = (bs + o) / 5, meanWithout = bs / 4;
-    if (l === 1) return { prompt: `A class timed how long (in seconds) it took to run a lap: ${data.join(", ")}. Which value is the outlier?`, value: o, hint: "Look for the number that is far away from all the others.", solution: [`Most values are between ${Math.min(...base)} and ${Math.max(...base)}.`, `${o} is far bigger, so it's the outlier.`] };
-    if (l === 2) return { prompt: `The lap times (in seconds) are ${data.join(", ")}. What is the mean?`, value: meanWith, hint: "Add them all up and divide by how many there are.", solution: [`The total is ${bs + o}.`, `${bs + o} ÷ 5 = ${meanWith}.`] };
-    return { prompt: `The lap times (in seconds) are ${data.join(", ")}. What is the mean if the outlier ${o} is removed?`, value: meanWithout, hint: "Leave out the outlier, add up the rest and divide by 4.", solution: [`Without ${o}, the total is ${bs}.`, `${bs} ÷ 4 = ${meanWithout}.`] };
+    const dots = { type: "number-line" as const, min: 0, max: Math.ceil((o + 1) / 10) * 10, points: data.map((v) => ({ v, tone: "blue" as const })), alt: `A number line with a dot at each lap time: ${data.join(", ")} seconds.` };
+    if (l === 1) return { figure: dots, prompt: `A class timed how long (in seconds) it took to run a lap: ${data.join(", ")}. Which value is the outlier?`, value: o, hint: "Look for the number that is far away from all the others.", solution: [`Most values are between ${Math.min(...base)} and ${Math.max(...base)}.`, `${o} is far bigger, so it's the outlier.`] };
+    if (l === 2) return { figure: dots, prompt: `The lap times (in seconds) are ${data.join(", ")}. What is the mean?`, value: meanWith, hint: "Add them all up and divide by how many there are.", solution: [`The total is ${bs + o}.`, `${bs + o} ÷ 5 = ${meanWith}.`] };
+    return { figure: dots, prompt: `The lap times (in seconds) are ${data.join(", ")}. What is the mean if the outlier ${o} is removed?`, value: meanWithout, hint: "Leave out the outlier, add up the rest and divide by 4.", solution: [`Without ${o}, the total is ${bs}.`, `${bs} ÷ 4 = ${meanWithout}.`] };
   }),
   choiceSkill({
     id: "stem-bias", name: "Is the data fair?", stage: "KS3", year: 9, strand: "STEM", prereqs: ["stem-ai-features"],
@@ -264,10 +277,10 @@ export const stemSkills: Skill[] = [
     talkAbout: "Why shouldn't we test a model on the examples it learned from?",
   }, (r, l) => {
     const total = pick(r, [20, 50, 100, 200]), right = Math.round((int(r, 6, 19) / 20) * total);
-    if (l === 1) return { prompt: `A model is tested on ${total} new pictures and gets ${right} right. What is its accuracy as a percentage?`, value: (right / total) * 100, unit: "%", hint: "Divide right answers by the total, then multiply by 100.", solution: [`${right} ÷ ${total} × 100 = ${(right / total) * 100}.`] };
+    if (l === 1) return { figure: { type: "pie", slices: [{ label: "Right", value: right }, { label: "Wrong", value: total - right }], alt: `A pie chart of ${total} test pictures: ${right} right and ${total - right} wrong.` }, prompt: `A model is tested on ${total} new pictures and gets ${right} right. What is its accuracy as a percentage?`, value: (right / total) * 100, unit: "%", hint: "Divide right answers by the total, then multiply by 100.", solution: [`${right} ÷ ${total} × 100 = ${(right / total) * 100}.`] };
     if (l === 2) return { prompt: `A model is tested on ${total} new pictures and has an accuracy of ${(right / total) * 100}%. How many did it get wrong?`, value: total - right, hint: "Find how many it got right, then take that from the total.", solution: [`Right: ${(right / total) * 100}% of ${total} = ${right}.`, `${total} − ${right} = ${total - right}.`] };
     const tp = int(r, 20, 40), tn = int(r, 30, 50), fp = int(r, 2, 6), fn = 100 - tp - tn - fp;
-    return { prompt: `A model that spots spam is tested on 100 emails. It correctly spots ${tp} spam emails, correctly lets ${tn} good emails through, wrongly flags ${fp} good emails as spam and misses ${fn} spam emails. What is its accuracy as a percentage?`, value: tp + tn, unit: "%", hint: "Add the ones it got right (both kinds), out of 100.", solution: [`Right: ${tp} + ${tn} = ${tp + tn}.`, `${tp + tn} out of 100 is ${tp + tn}%.`] };
+    return { figure: table(["", "Really spam", "Really good"], [["Model said spam", tp, fp], ["Model said good", fn, tn]], `A table of 100 emails. Said spam and really spam: ${tp}. Said spam but really good: ${fp}. Said good but really spam: ${fn}. Said good and really good: ${tn}.`), prompt: `A model that spots spam is tested on 100 emails. It correctly spots ${tp} spam emails, correctly lets ${tn} good emails through, wrongly flags ${fp} good emails as spam and misses ${fn} spam emails. What is its accuracy as a percentage?`, value: tp + tn, unit: "%", hint: "Add the ones it got right (both kinds), out of 100.", solution: [`Right: ${tp} + ${tn} = ${tp + tn}.`, `${tp + tn} out of 100 is ${tp + tn}%.`] };
   }),
 
   // ============================================================ Key Stage 4
@@ -279,8 +292,10 @@ export const stemSkills: Skill[] = [
     talkAbout: "Why does binary search only work on a sorted list?",
   }, (r, l) => {
     const k = int(r, 3, 6), n = 2 ** k - 1;
-    if (l === 1) return { prompt: `A sorted list has ${n} items. You check the middle item first. Which position is the middle? (Position 1 is the first item.)`, value: (n + 1) / 2, hint: "The middle of the list is half way along.", solution: [`(${n} + 1) ÷ 2 = ${(n + 1) / 2}.`] };
-    if (l === 2) return { prompt: `After one check in binary search, half of a ${n}-item list is thrown away. About how many items are left, at most?`, value: (n - 1) / 2, hint: "The middle item was checked, and one half of the rest remains.", solution: [`Take away the middle item: ${n - 1} left, split into two halves of ${(n - 1) / 2}.`, `At most ${(n - 1) / 2} items remain.`] };
+    const items = n <= 15 ? Array.from({ length: n }, (_, i) => (i + 1) * 3) : null;
+    const listFig = items ? { type: "list-boxes" as const, items, alt: `A sorted list of ${n} numbers: ${items.join(", ")}.` } : undefined;
+    if (l === 1) return { figure: listFig, prompt: `A sorted list has ${n} items. You check the middle item first. Which position is the middle? (Position 1 is the first item.)`, value: (n + 1) / 2, hint: "The middle of the list is half way along.", solution: [`(${n} + 1) ÷ 2 = ${(n + 1) / 2}.`] };
+    if (l === 2) return { figure: listFig, prompt: `After one check in binary search, half of a ${n}-item list is thrown away. About how many items are left, at most?`, value: (n - 1) / 2, hint: "The middle item was checked, and one half of the rest remains.", solution: [`Take away the middle item: ${n - 1} left, split into two halves of ${(n - 1) / 2}.`, `At most ${(n - 1) / 2} items remain.`] };
     const m = pick(r, [20, 50, 100, 500, 1000]);
     return { prompt: `What is the greatest number of checks binary search needs to find an item in a sorted list of ${m} items? (Keep halving until 1 item is left.)`, value: Math.floor(Math.log2(m)) + 1, hint: "How many times can you halve the list before you reach 1? Then add 1 for the last check.", solution: [`Halving ${m} again and again: it takes ${Math.floor(Math.log2(m))} halvings to get to about 1.`, `So at most ${Math.floor(Math.log2(m)) + 1} checks.`] };
   }),
@@ -292,8 +307,9 @@ export const stemSkills: Skill[] = [
     talkAbout: "Which would you rather use on a list with a million items: one that takes n steps, or one that takes n × n?",
   }, (r, l) => {
     const n = pick(r, [10, 20, 50, 100]);
-    if (l === 1) return { prompt: `An algorithm checks each item in a list once. How many checks does it make for a list of ${n} items?`, value: n, hint: "Once per item.", solution: [`${n} items, one check each: ${n}.`] };
-    if (l === 2) return { prompt: `An algorithm compares every item with every item (including itself) in a list of ${n} items. How many comparisons is that?`, value: n * n, hint: "Each of the n items is compared with all n items.", solution: [`${n} × ${n} = ${n * n}.`] };
+    const xs = [0, 1, 2, 3, 4, 5, 6], grow = { type: "function-graph" as const, xMin: 0, xMax: 6, yMin: 0, yMax: 36, xStep: 1, yStep: 12, curves: [{ pts: xs.map((x) => [x, x] as [number, number]), label: "n" }, { pts: xs.map((x) => [x, x * x] as [number, number]), label: "n × n" }], alt: "A graph comparing two ways the work grows as the number of items n goes from 0 to 6. The line n rises steadily. The curve n times n rises much faster." };
+    if (l === 1) return { figure: grow, prompt: `An algorithm checks each item in a list once. How many checks does it make for a list of ${n} items?`, value: n, hint: "Once per item.", solution: [`${n} items, one check each: ${n}.`] };
+    if (l === 2) return { figure: grow, prompt: `An algorithm compares every item with every item (including itself) in a list of ${n} items. How many comparisons is that?`, value: n * n, hint: "Each of the n items is compared with all n items.", solution: [`${n} × ${n} = ${n * n}.`] };
     const p = pick(r, [2, 3]);
     return { prompt: `An algorithm takes $n^${p}$ steps for $n$ items. How many times more steps does it take if the number of items is doubled?`, value: 2 ** p, hint: `Replace n with 2n, and see what happens to $n^${p}$.`, solution: [`$(2n)^${p} = 2^${p} \\times n^${p} = ${2 ** p} \\times n^${p}$.`, `So it takes ${2 ** p} times as many steps.`] };
   }),
@@ -305,9 +321,9 @@ export const stemSkills: Skill[] = [
     talkAbout: "Why does a bigger picture take more storage?",
   }, (r, l) => {
     if (l === 1) { const b = int(r, 2, 20) * 8; return { prompt: `How many bytes is ${b} bits? (8 bits make 1 byte.) Type the number.`, value: b / 8, hint: "Divide the bits by 8.", solution: [`${b} ÷ 8 = ${b / 8}.`] }; }
-    if (l === 2) { const w = pick(r, [8, 16, 32]), h = pick(r, [8, 16]), bpp = pick(r, [1, 8, 24]); return { prompt: `A black-and-white style picture is ${w} pixels wide and ${h} pixels tall, with ${bpp} bit${bpp > 1 ? "s" : ""} per pixel. How many bits does it need?`, value: w * h * bpp, hint: "Multiply the width, the height and the bits per pixel.", solution: [`${w} × ${h} = ${w * h} pixels.`, `${w * h} × ${bpp} = ${w * h * bpp} bits.`] }; }
+    if (l === 2) { const w = pick(r, [8, 16, 32]), h = pick(r, [8, 16]), bpp = pick(r, [1, 8, 24]); return { figure: table(["Width", "Height", "Bits per pixel"], [[`${w} pixels`, `${h} pixels`, bpp]], `A picture ${w} pixels wide, ${h} pixels tall, ${bpp} bits per pixel.`), prompt: `A black-and-white style picture is ${w} pixels wide and ${h} pixels tall, with ${bpp} bit${bpp > 1 ? "s" : ""} per pixel. How many bits does it need?`, value: w * h * bpp, hint: "Multiply the width, the height and the bits per pixel.", solution: [`${w} × ${h} = ${w * h} pixels.`, `${w * h} × ${bpp} = ${w * h * bpp} bits.`] }; }
     const w = pick(r, [8, 16, 32, 64]), h = pick(r, [8, 16, 32]), bpp = pick(r, [8, 16, 24]);
-    return { prompt: `An image is ${w} pixels wide and ${h} pixels tall, with ${bpp} bits per pixel. How many bytes of storage does it need? Type the number.`, value: (w * h * bpp) / 8, hint: "Work out the bits first, then divide by 8.", solution: [`${w} × ${h} × ${bpp} = ${w * h * bpp} bits.`, `${w * h * bpp} ÷ 8 = ${(w * h * bpp) / 8} bytes.`] };
+    return { figure: table(["Width", "Height", "Bits per pixel"], [[`${w} pixels`, `${h} pixels`, bpp]], `An image ${w} pixels wide, ${h} pixels tall, ${bpp} bits per pixel.`), prompt: `An image is ${w} pixels wide and ${h} pixels tall, with ${bpp} bits per pixel. How many bytes of storage does it need? Type the number.`, value: (w * h * bpp) / 8, hint: "Work out the bits first, then divide by 8.", solution: [`${w} × ${h} × ${bpp} = ${w * h * bpp} bits.`, `${w * h * bpp} ÷ 8 = ${(w * h * bpp) / 8} bytes.`] };
   }),
   num({
     id: "stem-gradient-descent", name: "Learning by going downhill", stage: "KS5", year: 12, strand: "STEM", prereqs: ["differentiate"],
@@ -317,11 +333,12 @@ export const stemSkills: Skill[] = [
     talkAbout: "What would happen if the step (learning rate) was far too big?",
   }, (r, l) => {
     const a = int(r, 2, 8), d = pick(r, [2, 4, 6, 8]), w = a + d;
-    if (l === 1) return { prompt: `A model's loss is $(w - ${a})^2$. Its gradient is $2(w - ${a})$. What is the gradient when $w = ${w}$?`, value: 2 * d, hint: "Put the value of w into 2(w − a).", solution: [`2 × (${w} − ${a}) = 2 × ${d} = ${2 * d}.`] };
+    const bowl = { type: "function-graph" as const, xMin: 0, xMax: 16, yMin: 0, yMax: 80, xStep: 2, yStep: 20, curves: [{ pts: Array.from({ length: 33 }, (_, i) => [i / 2, ((i / 2) - a) ** 2] as [number, number]), label: "loss" }], marks: [{ x: w, y: d * d, label: "w" }], alt: `A bowl-shaped graph of the loss (w − ${a}) squared, with its lowest point at w = ${a}. The model starts at w = ${w}, up the side of the bowl.` };
+    if (l === 1) return { figure: bowl, prompt: `A model's loss is $(w - ${a})^2$. Its gradient is $2(w - ${a})$. What is the gradient when $w = ${w}$?`, value: 2 * d, hint: "Put the value of w into 2(w − a).", solution: [`2 × (${w} − ${a}) = 2 × ${d} = ${2 * d}.`] };
     const eta = pick(r, [0.1, 0.25, 0.5]);
-    if (l === 2) return { prompt: `The loss is $(w - ${a})^2$ with gradient $2(w - ${a})$. At $w = ${w}$ the learning rate is ${eta}. What is the new value of $w$ after one step, where new w = w − learning rate × gradient?`, value: round(w - eta * 2 * d, 4), hint: "Find the gradient, multiply by the learning rate, and take it away from w.", solution: [`Gradient: 2 × ${d} = ${2 * d}.`, `Step: ${eta} × ${2 * d} = ${round(eta * 2 * d, 4)}.`, `New w = ${w} − ${round(eta * 2 * d, 4)} = ${round(w - eta * 2 * d, 4)}.`] };
+    if (l === 2) return { figure: bowl, prompt: `The loss is $(w - ${a})^2$ with gradient $2(w - ${a})$. At $w = ${w}$ the learning rate is ${eta}. What is the new value of $w$ after one step, where new w = w − learning rate × gradient?`, value: round(w - eta * 2 * d, 4), hint: "Find the gradient, multiply by the learning rate, and take it away from w.", solution: [`Gradient: 2 × ${d} = ${2 * d}.`, `Step: ${eta} × ${2 * d} = ${round(eta * 2 * d, 4)}.`, `New w = ${w} − ${round(eta * 2 * d, 4)} = ${round(w - eta * 2 * d, 4)}.`] };
     const w1 = w - 0.5 * 2 * d, d1 = w1 - a;
-    return { prompt: `The loss is $(w - ${a})^2$ with gradient $2(w - ${a})$, and the learning rate is 0.5. Starting at $w = ${w}$, take two steps. What is $w$ after the second step?`, value: round(w1 - 0.5 * 2 * d1, 4), hint: "Do one step, then use the new w for the next step.", solution: [`Step 1: gradient ${2 * d}, new w = ${w} − ${d} = ${w1}.`, `Step 2: gradient ${2 * d1}, new w = ${w1} − ${d1} = ${round(w1 - d1, 4)}.`] };
+    return { figure: bowl, prompt: `The loss is $(w - ${a})^2$ with gradient $2(w - ${a})$, and the learning rate is 0.5. Starting at $w = ${w}$, take two steps. What is $w$ after the second step?`, value: round(w1 - 0.5 * 2 * d1, 4), hint: "Do one step, then use the new w for the next step.", solution: [`Step 1: gradient ${2 * d}, new w = ${w} − ${d} = ${w1}.`, `Step 2: gradient ${2 * d1}, new w = ${w1} − ${d1} = ${round(w1 - d1, 4)}.`] };
   }),
   num({
     id: "stem-spam", name: "Probability and the spam filter", stage: "KS4", year: 11, strand: "STEM", prereqs: ["pct-amount"],
@@ -332,12 +349,12 @@ export const stemSkills: Skill[] = [
   }, (r, l) => {
     const pairs: [number, number][] = [[3, 1], [1, 1], [4, 1], [9, 1], [1, 3], [3, 2], [7, 3]];
     const [a0, b0] = pick(r, pairs), m = int(r, 2, 8), a = a0 * m, b = b0 * m, pct = (a / (a + b)) * 100;
-    if (l === 1) return { prompt: `Of emails containing the word "prize", ${a} are spam and ${b} are not. What percentage of emails containing "prize" are spam?`, value: pct, unit: "%", hint: "Spam divided by all emails with the word, times 100.", solution: [`Total with the word: ${a} + ${b} = ${a + b}.`, `${a} ÷ ${a + b} × 100 = ${pct}.`] };
-    if (l === 2) { const spamTotal = a + int(r, 10, 60), goodTotal = b + int(r, 100, 400); return { prompt: `A filter looked at ${spamTotal} spam emails and ${goodTotal} good emails. The word "prize" appeared in ${a} of the spam emails and ${b} of the good emails. Of all the emails containing "prize", what percentage are spam?`, value: pct, unit: "%", hint: "Only emails containing the word count. Ignore the totals.", solution: [`Emails with "prize": ${a} + ${b} = ${a + b}.`, `${a} ÷ ${a + b} × 100 = ${pct}.`] }; }
+    if (l === 1) return { figure: table(["", "Spam", "Not spam"], [['Contain "prize"', a, b]], `Emails containing "prize": ${a} spam and ${b} not spam.`), prompt: `Of emails containing the word "prize", ${a} are spam and ${b} are not. What percentage of emails containing "prize" are spam?`, value: pct, unit: "%", hint: "Spam divided by all emails with the word, times 100.", solution: [`Total with the word: ${a} + ${b} = ${a + b}.`, `${a} ÷ ${a + b} × 100 = ${pct}.`] };
+    if (l === 2) { const spamTotal = a + int(r, 10, 60), goodTotal = b + int(r, 100, 400); return { figure: table(["", "Spam", "Good"], [["All emails", spamTotal, goodTotal], ['With "prize"', a, b]], `Counts of spam and good emails: ${spamTotal} and ${goodTotal} in total, with the word "prize" in ${a} spam and ${b} good.`), prompt: `A filter looked at ${spamTotal} spam emails and ${goodTotal} good emails. The word "prize" appeared in ${a} of the spam emails and ${b} of the good emails. Of all the emails containing "prize", what percentage are spam?`, value: pct, unit: "%", hint: "Only emails containing the word count. Ignore the totals.", solution: [`Emails with "prize": ${a} + ${b} = ${a + b}.`, `${a} ÷ ${a + b} × 100 = ${pct}.`] }; }
     const N = 1000, combos: { S: number; w: number; h: number; pct: number }[] = [];
     for (const S of [0.1, 0.2, 0.5]) for (const w of [0.4, 0.5, 0.6, 0.8]) for (const h of [0.05, 0.1, 0.2, 0.25]) { const sp = N * S * w, gd = N * (1 - S) * h, p = (sp / (sp + gd)) * 100; if (Math.abs(p - Math.round(p)) < 1e-9) combos.push({ S, w, h, pct: Math.round(p) }); }
     const c = pick(r, combos), sp = N * c.S * c.w, gd = N * (1 - c.S) * c.h;
-    return { prompt: `Out of ${N} emails, ${N * c.S} are spam. The word "free" appears in ${Math.round(c.w * 100)}% of spam emails and in ${Math.round(c.h * 100)}% of good emails. Of all emails containing "free", what percentage are spam?`, value: c.pct, unit: "%", hint: `Count how many spam emails and how many good emails contain "free". Then divide spam by the total.`, solution: [`Spam with "free": ${N * c.S} × ${c.w} = ${sp}.`, `Good with "free": ${N * (1 - c.S)} × ${c.h} = ${gd}.`, `${sp} ÷ ${sp + gd} × 100 = ${c.pct}.`] };
+    return { figure: table(["", "Spam", "Good"], [[`Out of ${N}`, N * c.S, N * (1 - c.S)], ['Have "free"', `${Math.round(c.w * 100)}%`, `${Math.round(c.h * 100)}%`]], `Of ${N} emails, ${N * c.S} are spam. "free" appears in ${Math.round(c.w * 100)}% of spam and ${Math.round(c.h * 100)}% of good emails.`), prompt: `Out of ${N} emails, ${N * c.S} are spam. The word "free" appears in ${Math.round(c.w * 100)}% of spam emails and in ${Math.round(c.h * 100)}% of good emails. Of all emails containing "free", what percentage are spam?`, value: c.pct, unit: "%", hint: `Count how many spam emails and how many good emails contain "free". Then divide spam by the total.`, solution: [`Spam with "free": ${N * c.S} × ${c.w} = ${sp}.`, `Good with "free": ${N * (1 - c.S)} × ${c.h} = ${gd}.`, `${sp} ÷ ${sp + gd} × 100 = ${c.pct}.`] };
   }),
   choiceSkill({
     id: "stem-caesar", name: "Secret codes: Caesar cipher", stage: "KS4", year: 10, strand: "STEM", prereqs: ["stem-binary"],
@@ -347,10 +364,11 @@ export const stemSkills: Skill[] = [
     talkAbout: "Why is a Caesar cipher easy to crack?",
   }, (r, l) => {
     const L = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", k = int(r, 1, 7);
-    if (l === 1) { const i = int(r, 0, 18); const right = L[i + k]; return { prompt: `Encrypt the letter ${L[i]} with a Caesar shift of ${k}.`, right, others: [L[i + k + 1], L[i + k - 1], L[(i + 2 * k) % 26]].filter((x) => x !== right), hint: `Count ${k} letters forward in the alphabet.`, solution: [`${L[i]} moves ${k} places on to ${right}.`] }; }
-    if (l === 2) { const i = int(r, k, 25); const c = L[i], right = L[i - k]; return { prompt: `A message was encrypted with a Caesar shift of ${k}. One letter in the secret message is ${c}. What was the original letter?`, right, others: [L[(i + k) % 26], L[Math.max(0, i - k - 1)], L[Math.min(25, i - k + 1)]].filter((x) => x !== right), hint: `To decrypt, go back ${k} letters.`, solution: [`Go back ${k} from ${c}: ${right}.`] }; }
+    const alpha = { type: "alphabet" as const, note: `Shift: ${k}`, alt: `The alphabet with each letter's position, A = 0 to Z = 25. The shift is ${k}.` };
+    if (l === 1) { const i = int(r, 0, 18); const right = L[i + k]; return { figure: alpha, prompt: `Encrypt the letter ${L[i]} with a Caesar shift of ${k}.`, right, others: [L[i + k + 1], L[i + k - 1], L[(i + 2 * k) % 26]].filter((x) => x !== right), hint: `Count ${k} letters forward in the alphabet.`, solution: [`${L[i]} moves ${k} places on to ${right}.`] }; }
+    if (l === 2) { const i = int(r, k, 25); const c = L[i], right = L[i - k]; return { figure: alpha, prompt: `A message was encrypted with a Caesar shift of ${k}. One letter in the secret message is ${c}. What was the original letter?`, right, others: [L[(i + k) % 26], L[Math.max(0, i - k - 1)], L[Math.min(25, i - k + 1)]].filter((x) => x !== right), hint: `To decrypt, go back ${k} letters.`, solution: [`Go back ${k} from ${c}: ${right}.`] }; }
     const i = int(r, 20, 25), right = L[(i + k) % 26];
-    return { prompt: `Encrypt the letter ${L[i]} with a shift of ${k}. Remember the alphabet wraps from Z back to A. (Position of A = 0, so the new position is (${i} + ${k}) mod 26.)`, right, others: [L[(i + k + 1) % 26], L[(i + k - 1) % 26], L[Math.min(25, i + k)]].filter((x) => x !== right), hint: "If you go past Z, carry on from A.", solution: [`${i} + ${k} = ${i + k}. After taking away 26 if needed: ${(i + k) % 26}.`, `Position ${(i + k) % 26} is ${right}.`] };
+    return { figure: alpha, prompt: `Encrypt the letter ${L[i]} with a shift of ${k}. Remember the alphabet wraps from Z back to A. (Position of A = 0, so the new position is (${i} + ${k}) mod 26.)`, right, others: [L[(i + k + 1) % 26], L[(i + k - 1) % 26], L[Math.min(25, i + k)]].filter((x) => x !== right), hint: "If you go past Z, carry on from A.", solution: [`${i} + ${k} = ${i + k}. After taking away 26 if needed: ${(i + k) % 26}.`, `Position ${(i + k) % 26} is ${right}.`] };
   }),
   choiceSkill({
     id: "stem-quantum-ideas", name: "Quantum ideas", stage: "KS4", year: 11, strand: "STEM", prereqs: [],

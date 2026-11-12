@@ -61,6 +61,9 @@ export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called w
   if (fig.type === "number-line") return <NumberLineFigure {...fig} />;
   if (fig.type === "neuron") return <NeuronFigure {...fig} />;
   if (fig.type === "bars") return <BarsFigure {...fig} />;
+  if (fig.type === "table") return <TableFigure {...fig} />;
+  if (fig.type === "flow") return <FlowFigure {...fig} />;
+  if (fig.type === "alphabet") return <AlphabetFigure {...fig} />;
   if (fig.type === "histogram") return <HistogramFigure {...fig} />;
   if (fig.type === "square-grid") return <SquareGridFigure {...fig} />;
   if (fig.type === "solid") return <SolidFigure {...fig} />;
@@ -423,10 +426,12 @@ function ListBoxesFigure({ items, alt }: Of<"list-boxes">) {
 
 function NumberLineFigure({ min, max, points, alt }: Of<"number-line">) {
   const L = 20, R = 280, X = (v: number) => r2(L + ((v - min) / (max - min)) * (R - L)), tone = { red: "#f6a0bc", blue: "#c1c5ee", new: "#fff" };
+  // up to about 21 marks at one apiece; a longer line is marked every 2, 5, 10... so the numbers don't run together
+  const step = [1, 2, 5, 10, 20, 50].find((k) => (max - min) / k <= (max >= 30 ? 12 : 21)) ?? 100;
   return (
     <svg class="figure figure-wide" viewBox="0 0 300 110" role="img" aria-label={alt}>
       <line x1={L} y1="62" x2={R} y2="62" stroke="currentColor" stroke-width="2.5" />
-      {Array.from({ length: max - min + 1 }, (_, i) => min + i).map((v) => <g key={v}><line x1={X(v)} y1="56" x2={X(v)} y2="68" stroke="currentColor" stroke-width="1.5" /><text x={X(v)} y="88" text-anchor="middle" class="fig-label" font-size="10">{v}</text></g>)}
+      {Array.from({ length: Math.floor((max - min) / step) + 1 }, (_, i) => min + i * step).map((v) => <g key={v}><line x1={X(v)} y1="56" x2={X(v)} y2="68" stroke="currentColor" stroke-width="1.5" /><text x={X(v)} y="88" text-anchor="middle" class="fig-label" font-size="10">{v}</text></g>)}
       {points.map((p, i) => <g key={i}><circle cx={X(p.v)} cy="62" r="9" fill={tone[p.tone]} stroke="currentColor" stroke-width="2.5" />{p.tone === "new" && <text x={X(p.v)} y="66" text-anchor="middle" class="fig-label" font-size="12">?</text>}{p.label && <text x={X(p.v)} y="40" text-anchor="middle" class="fig-label" font-size="12">{p.label}</text>}</g>)}
     </svg>
   );
@@ -451,6 +456,54 @@ function BarsFigure({ items, yLabel, alt }: Of<"bars">) {
       {[0, top / 2, top].map((v) => <g key={v}><line x1={L} x2={R} y1={Y(v)} y2={Y(v)} stroke="currentColor" opacity={v === 0 ? .8 : .15} /><text x={L - 6} y={Y(v) + 4} text-anchor="end" class="fig-label" font-size="11">{v}</text></g>)}
       {items.map((it, i) => <g key={i}><rect x={L + i * w + w * 0.18} y={Y(it.value)} width={w * 0.64} height={B - Y(it.value)} rx="4" fill="#c1c5ee" fill-opacity=".8" stroke="currentColor" stroke-width="2" /><text x={L + i * w + w / 2} y={B + 16} text-anchor="middle" class="fig-label" font-size="11">{it.label}</text></g>)}
       <text x="8" y="14" class="fig-label" font-size="11" opacity=".75">{yLabel}</text>
+    </svg>
+  );
+}
+
+function TableFigure({ head, rows, alt }: Of<"table">) {
+  return (
+    <figure class="table-figure">
+      <table aria-label={alt}>
+        <thead><tr>{head.map((h, i) => <th key={i} scope="col">{h}</th>)}</tr></thead>
+        <tbody>{rows.map((row, i) => <tr key={i}>{row.map((c, j) => (j === 0 && head[0] === "" ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>))}</tr>)}</tbody>
+      </table>
+    </figure>
+  );
+}
+
+function FlowFigure({ steps, repeat, alt }: Of<"flow">) {
+  const W = 300, bw = 190, bh = 38, gap = 20, x0 = repeat ? 40 : (W - bw) / 2, H = steps.length * bh + (steps.length - 1) * gap + 16;
+  const top = (i: number) => 8 + i * (bh + gap);
+  return (
+    <svg class="figure figure-wide" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
+      <defs><marker id="flow-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor" /></marker></defs>
+      {steps.map((st, i) => (
+        <g key={i}>
+          <rect x={x0} y={top(i)} width={bw} height={bh} rx={st.kind === "step" || !st.kind ? 8 : 19} fill={st.kind === "in" ? "#84d8ba" : st.kind === "out" ? "#f6a0bc" : "#c1c5ee"} fill-opacity=".7" stroke="currentColor" stroke-width="2" />
+          <text x={x0 + bw / 2} y={top(i) + bh / 2 + 5} text-anchor="middle" class="fig-label" font-size="14">{st.text}</text>
+          {i > 0 && <line x1={x0 + bw / 2} y1={top(i - 1) + bh + 1} x2={x0 + bw / 2} y2={top(i) - 2} stroke="currentColor" stroke-width="2" marker-end="url(#flow-head)" />}
+        </g>
+      ))}
+      {repeat && (() => {
+        const y1 = top(repeat.from) - 4, y2 = top(repeat.to) + bh + 4, x = x0 + bw + 14;
+        return <g><path d={`M${x0 + bw + 4} ${y1} H${x} V${y2} H${x0 + bw + 4}`} fill="none" stroke="currentColor" stroke-width="2" /><text x={x + 8} y={(y1 + y2) / 2 + 5} class="fig-label" font-size="13" font-weight="700">{repeat.label}</text></g>;
+      })()}
+    </svg>
+  );
+}
+
+function AlphabetFigure({ note, alt }: Of<"alphabet">) {
+  const L = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", w = 21;
+  return (
+    <svg class="figure figure-wide" viewBox="0 0 300 140" role="img" aria-label={alt}>
+      {[0, 1].map((row) => L.slice(row * 13, row * 13 + 13).split("").map((c, i) => (
+        <g key={c}>
+          <rect x={12 + i * w} y={10 + row * 58} width={w - 2} height="26" rx="4" fill="#c1c5ee" fill-opacity=".6" stroke="currentColor" stroke-width="1.5" />
+          <text x={12 + i * w + (w - 2) / 2} y={28 + row * 58} text-anchor="middle" class="fig-label" font-size="14" font-weight="700">{c}</text>
+          <text x={12 + i * w + (w - 2) / 2} y={49 + row * 58} text-anchor="middle" class="fig-label" font-size="10" opacity=".75">{row * 13 + i}</text>
+        </g>
+      )))}
+      {note && <text x="150" y="134" text-anchor="middle" class="fig-label" font-size="12">{note}</text>}
     </svg>
   );
 }

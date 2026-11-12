@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## STEM lab: pictures for 15 more topics
+Loops, inputs and outputs, debugging, how computers learn from examples, binary (writing a number), hexadecimal, AND/OR/NOT, data types, outliers, accuracy, binary search, how work grows, storage, gradient descent, the spam filter and the Caesar cipher now show a picture with the question. Three new picture types: **table**, **flow** (boxes and arrows, with a repeat bracket for loops) and **alphabet** (letters with their positions). The others reuse the code, list, number-line, pie and graph pictures. The number line now spaces its numbers out on longer lines. Every picture has a spoken description, checked by `stem.test.ts`. Still text-only: bias, the quantum topics and the neural-network layer (these are concept questions or need a new kind of drawing).
+
 ## Fix: Today no longer offers topics far above the learner's year
 A Year 4 learner was shown "Binomial expansion coefficients" (Year 13). A strong check-up marks many earlier topics as already known, which unlocks later ones, and the picker only *preferred* topics near the learner's year, with no limit. Now new topics on Today, and the study plan, come from at most the learner's year plus two (plus one with no check-up result), whatever the check-up says (`reachYear` in `src/engine/progress.ts`). Reviews, grown-up focus topics and the Skills map are unaffected, so a learner can still choose to go ahead. Test: `progress.test.ts` ("topics offered are close to the learner's year").
 

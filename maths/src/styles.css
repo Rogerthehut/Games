@@ -3418,3 +3418,10 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .tt-speed-line { stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
 .tt-speed-dot { fill: var(--accent); }
 .tt-winner { font-size: 1.05rem; }
+
+/* STEM picture tables */
+.table-figure { margin: 12px 0; overflow-x: auto; }
+.table-figure table { border-collapse: separate; border-spacing: 0; margin-inline: auto; font-size: 1rem; }
+.table-figure th, .table-figure td { padding: 8px 14px; text-align: center; border: 1.5px solid var(--line); background: var(--surface); font-weight: 600; }
+.table-figure thead th { background: color-mix(in srgb, #c1c5ee 55%, var(--surface)); }
+.table-figure tbody th { text-align: left; background: color-mix(in srgb, #c1c5ee 30%, var(--surface)); }
