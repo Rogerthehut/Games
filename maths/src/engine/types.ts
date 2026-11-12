@@ -62,6 +62,10 @@ export type Figure =
   | { type: "bar-model"; rows: { label?: string; segments: { label: string; size?: number; tone?: "a" | "b" | "c" | "none" }[]; note?: string }[]; alt: string }
   /** A grid for multiplying fractions: `rows` by `cols` cells, the first `shadeRows` rows and first `shadeCols` columns shaded, and where they overlap darker. */
   | { type: "fraction-grid"; rows: number; cols: number; shadeRows: number; shadeCols: number; alt: string }
+  /** A probability tree for two independent events: each event's chance, and what each of the four outcomes comes to. */
+  | { type: "tree"; first: { name: string; p: number }; second: { name: string; p: number }; alt: string }
+  /** A formula triangle (such as speed, distance and time): `find` is the corner to cover up, and `values` fills in what is known. */
+  | { type: "formula-triangle"; top: string; left: string; right: string; find: "top" | "left" | "right"; values: Partial<Record<"top" | "left" | "right", string>>; alt: string }
   /** Rows of dots for multiplying; `group` splits the columns into groups of that many. */
   | { type: "array"; rows: number; cols: number; group?: number; alt: string }
   /** Long division by chunking: the amounts taken away, each with how many lots of the divisor it is. */

@@ -11,6 +11,7 @@ import { dec, fmt, thin, clean, numbers, val, sequenceLine, type Built, type Bui
 import { FRACTION_BUILDERS } from "./worked-fractions";
 import { MORE_BUILDERS } from "./worked-more";
 import { SECONDARY_BUILDERS } from "./worked-secondary";
+import { ALGEBRA_BUILDERS } from "./worked-algebra";
 
 // ---------------------------------------------------------------------------------------------- place value
 const placeValueBuilder: Builder = (q) => {
@@ -183,7 +184,7 @@ const chunkingBuilder: Builder = (q) => {
 };
 
 const BUILDERS: Record<string, Builder> = {
-  ...FRACTION_BUILDERS, ...MORE_BUILDERS, ...SECONDARY_BUILDERS,
+  ...FRACTION_BUILDERS, ...MORE_BUILDERS, ...SECONDARY_BUILDERS, ...ALGEBRA_BUILDERS,
   "place-value": placeValueBuilder, "place-value-millions": placeValueBuilder, "large-numbers": (q) => (/[×÷]/.test(clean(q.prompt)) ? shiftBuilder(q) : placeValueBuilder(q)),
   "divide-10-100": shiftBuilder, hundredths: decimalNumberBuilder, thousandths: decimalNumberBuilder,
   rounding: roundingBuilder, "count-steps": countingBuilder, "count-steps-more": countingBuilder, "count-through-zero": (q) => (temperatureBuilder(q) ?? countingBuilder(q)),

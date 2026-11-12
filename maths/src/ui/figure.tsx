@@ -69,6 +69,8 @@ export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called w
   if (fig.type === "jump-line") return <JumpLineFigure {...fig} />;
   if (fig.type === "bar-model") return <BarModelFigure {...fig} />;
   if (fig.type === "array") return <ArrayFigure {...fig} />;
+  if (fig.type === "tree") return <TreeFigure {...fig} />;
+  if (fig.type === "formula-triangle") return <FormulaTriangleFigure {...fig} />;
   if (fig.type === "fraction-grid") return <FractionGridFigure {...fig} />;
   if (fig.type === "chunking") return <ChunkingFigure {...fig} />;
   if (fig.type === "pictogram") return <PictogramFigure {...fig} />;
@@ -588,6 +590,45 @@ function FractionGridFigure({ rows, cols, shadeRows, shadeCols, alt }: Of<"fract
         const a = r < shadeRows, b = c < shadeCols;
         return <rect key={`${r}-${c}`} x={10 + c * cell} y={10 + r * cell} width={cell} height={cell} fill={a && b ? "#c2410c" : a ? "#c1c5ee" : b ? "#84d8ba" : "transparent"} fill-opacity={a && b ? 0.7 : 0.75} stroke="currentColor" stroke-width="1.5" />;
       }))}
+    </svg>
+  );
+}
+
+/** A probability tree for two independent events: the events are A and B, with a key underneath saying what they are. */
+function TreeFigure({ first, second, alt }: Of<"tree">) {
+  const q1 = Math.round((1 - first.p) * 1e6) / 1e6, q2 = Math.round((1 - second.p) * 1e6) / 1e6, f = (n: number) => String(Math.round(n * 1e6) / 1e6);
+  const short = (t: string) => (t.length > 34 ? `${t.slice(0, 33)}…` : t);
+  return (
+    <svg class="figure figure-wide tree" viewBox="0 0 300 216" role="img" aria-label={alt}>
+      <circle cx="12" cy="96" r="4" fill="currentColor" />
+      {[[first.p, "A", 52], [q1, "not A", 140]].map(([p, w, y], i) => (
+        <g key={i}><line x1="12" y1="96" x2="84" y2={y as number} stroke="currentColor" stroke-width="2" /><text x="26" y={(y as number) + (i ? 24 : -14)} class="fig-label" font-size="11" font-weight="800" fill="#c2410c">{f(p as number)}</text><text x="88" y={(y as number) + 4} class="fig-label" font-size="12" font-weight="800">{w}</text></g>
+      ))}
+      {[[first.p, second.p, "A and B", 34, 52], [first.p, q2, "A, not B", 70, 52], [q1, second.p, "not A, B", 122, 140], [q1, q2, "not A, not B", 158, 140]].map(([p1, p2, name, y, y1], i) => (
+        <g key={i}>
+          <line x1="134" y1={y1 as number} x2="176" y2={y as number} stroke="currentColor" stroke-width="2" />
+          <text x="142" y={(y as number) + ((y as number) > (y1 as number) ? 14 : -3)} class="fig-label" font-size="10" font-weight="800" fill="#c2410c">{f(i % 2 ? q2 : second.p)}</text>
+          <text x="182" y={(y as number) + 4} class="fig-label" font-size="10.5" font-weight="700">{name}</text>
+          <text x="296" y={(y as number) + 4} text-anchor="end" class="fig-label" font-size="11" font-weight="800" fill="#166534">{f((p1 as number) * (p2 as number))}</text>
+        </g>
+      ))}
+      <text x="150" y="194" text-anchor="middle" class="fig-label" font-size="9" opacity=".8">A: {short(first.name)}</text>
+      <text x="150" y="207" text-anchor="middle" class="fig-label" font-size="9" opacity=".8">B: {short(second.name)}</text>
+    </svg>
+  );
+}
+
+/** A formula triangle with one corner to cover up. */
+function FormulaTriangleFigure({ top, left, right, find, values, alt }: Of<"formula-triangle">) {
+  const cell = (k: "top" | "left" | "right", x: number, y: number, label: string) => (
+    <g key={k}><text x={x} y={y} text-anchor="middle" class="fig-label" font-size="26" font-weight="800" fill={find === k ? "#c2410c" : "currentColor"}>{find === k ? "?" : label}</text>{values[k] && find !== k && <text x={x} y={y + 18} text-anchor="middle" class="fig-label" font-size="12" font-weight="700">{values[k]}</text>}{find === k && <text x={x} y={y + 18} text-anchor="middle" class="fig-label" font-size="11" font-weight="700" fill="#c2410c">{label}</text>}</g>
+  );
+  return (
+    <svg class="figure formula-triangle" viewBox="0 0 220 170" style={{ maxWidth: "260px" }} role="img" aria-label={alt}>
+      <polygon points="110,10 210,160 10,160" fill="#c1c5ee" fill-opacity=".55" stroke="currentColor" stroke-width="3" stroke-linejoin="round" />
+      <line x1="48" y1="100" x2="172" y2="100" stroke="currentColor" stroke-width="3" />
+      <line x1="110" y1="100" x2="110" y2="160" stroke="currentColor" stroke-width="3" />
+      {cell("top", 110, 76, top)}{cell("left", 62, 138, left)}{cell("right", 158, 138, right)}
     </svg>
   );
 }
