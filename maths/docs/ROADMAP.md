@@ -105,7 +105,7 @@ Still to do: a teacher's review of the methods and reasons wording, and per-topi
 
 ## 11+ track: what is left
 
-Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, and wrong answers logged into the learning report. Still to do, and waiting on official sources: the test provider and parts for BCP, Calderdale, Lancashire, Liverpool, Reading, Redbridge and Westmorland, and a per-school grammar table. Run `npm run fetch:11plus` from a machine with normal internet access (the Replit shell works), commit `docs/research/11plus/`, and the details can be filled in with quotes, a source link and a checked date, as for the other areas (`src/parents/admissions.json`, checked by `src/parents/admissions.test.ts`).
+Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, wrong answers logged into the learning report, and test details recorded for all 33 areas except Lancashire (the council pages don't cover selection). Most are marked reported, and Redbridge is disputed, so they're worth confirming with the schools. Still to do: a per-school grammar table, which needs more official sources, and Lancashire.
 
 ## Times tables challenge (built)
 

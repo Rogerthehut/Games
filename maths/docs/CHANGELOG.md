@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## 11+ test details for six more areas
+- BCP, Calderdale, Liverpool, Reading, Redbridge and Westmorland now show what's known about the entrance test (provider, parts, how to register), each with its source and the date checked. Where a school's page doesn't name the provider it says so, and Redbridge is marked disputed because its sources disagree. Lancashire is still unrecorded.
+
 ## Practice paper results, and 11+ research helper
 - Practice paper and check-up questions now carry their seed, so a missed one can be asked again exactly. The paper result has a **What to work on** card: the topics missed most, average seconds a question, and a Fix this button for each.
 - `npm run fetch:11plus` collects the official school and council pages for the seven 11+ areas with no test recorded (BCP, Calderdale, Lancashire, Liverpool, Reading, Redbridge, Westmorland) into `docs/research/11plus/`, so the details can be filled in with quotes and sources. Those sites were not reachable from the build environment, so nothing was filled from memory.
