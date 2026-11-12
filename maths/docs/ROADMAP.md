@@ -103,6 +103,10 @@ Built on top of it: a **Fix this** practice set (the exact questions again, then
 
 Still to do: a teacher's review of the methods and reasons wording, and per-topic (not just per-family) methods for the biggest topics.
 
+## 11+ track: what is left
+
+Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, and wrong answers logged into the learning report. Still to do, and waiting on official sources: the test provider and parts for BCP, Calderdale, Lancashire, Liverpool, Reading, Redbridge and Westmorland, and a per-school grammar table. Run `npm run fetch:11plus` from a machine with normal internet access (the Replit shell works), commit `docs/research/11plus/`, and the details can be filled in with quotes, a source link and a checked date, as for the other areas (`src/parents/admissions.json`, checked by `src/parents/admissions.test.ts`).
+
 ## Times tables challenge (built)
 
 Timed challenges on the times tables page, for fun and to make revision stick. Two modes: a **60-second blitz** (most right) and a **25-question race** (fastest, with 3 seconds added for each wrong answer), each on **My tables** or **All tables** (the fair one to compare). Every learner keeps personal bests and their recent rounds. A **Scoreboard** shows a learner's own results and a **family board** across every learner on the same account, so brothers and sisters can compete; it shows nicknames, avatars and best scores only. A grown-up can hide a learner from the board (Parents' area, Settings). Answers still feed the facts grid, so rounds make the facts quicker. The wording is always about beating your own best, and a slow round is never shown as a low score. Code: `src/engine/tables-challenge.ts`, `src/ui/tables-challenge.tsx`; check: `npm run e2e:challenge`.

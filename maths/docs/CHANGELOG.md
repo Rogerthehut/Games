@@ -2,6 +2,10 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Practice paper results, and 11+ research helper
+- Practice paper and check-up questions now carry their seed, so a missed one can be asked again exactly. The paper result has a **What to work on** card: the topics missed most, average seconds a question, and a Fix this button for each.
+- `npm run fetch:11plus` collects the official school and council pages for the seven 11+ areas with no test recorded (BCP, Calderdale, Lancashire, Liverpool, Reading, Redbridge, Westmorland) into `docs/research/11plus/`, so the details can be filled in with quotes and sources. Those sites were not reachable from the build environment, so nothing was filled from memory.
+
 ## Labels on icon buttons
 The two help icons on Me now show what they are: instantly on mouse hover and keyboard focus, and on a touch screen when pressed and held (the label fades after a moment, and releasing doesn't open anything). Screen readers always had the label. The reusable `TipButton` (`src/ui/tip.tsx`) is there for other icon-only buttons. Check: `npm run e2e:guides`.
 

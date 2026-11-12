@@ -5,7 +5,7 @@ import { check } from "../engine/check";
 import { PAPERS, buildMock, type MockItem, type PaperKind } from "../engine/mock";
 import { awardPathwayCertificate, buildPathwayTest, canTakePathwayTest, pathwayPassMark, pathwayTestName } from "../engine/pathway";
 import { addPoints, recordAnswer, recordMistake, type MockRecord } from "../engine/progress";
-import { recordWrongOnce } from "../engine/wrong-log";
+import { fixPlan, recordWrongOnce, wrongLogOf } from "../engine/wrong-log";
 import { mulberry32 } from "../engine/rng";
 import type { Stage, Strand } from "../engine/types";
 import { AnswerInput } from "./answer-input";
@@ -31,7 +31,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
     const rng = mulberry32(seed);
     const items: { skillId: string; level: number; section?: string }[] = pathway ? buildPathwayTest(pathway, rng) : buildMock(rng, kind);
     return {
-      questions: items.map((item, index) => SKILL_BY_ID[item.skillId].generate(mulberry32(seed + index * 7919), item.level)),
+      questions: items.map((item, index) => ({ ...SKILL_BY_ID[item.skillId].generate(mulberry32(seed + index * 7919), item.level), seed: seed + index * 7919 })), // the seed lets a missed question be asked again
       sections: pathway ? undefined : (items as MockItem[]).map((item) => item.section),
     };
   }, [pathway, saved, kind]);
@@ -213,6 +213,27 @@ export function Mock({ pathway }: { pathway?: Stage }) {
             </ul>
           </div>
         )}
+        {missed.length > 0 && (() => {
+          const bySkill = new Map<string, number>();
+          for (const t of missed) bySkill.set(t.q.skill, (bySkill.get(t.q.skill) ?? 0) + 1);
+          const worst = [...bySkill].sort((a, b) => b[1] - a[1]).slice(0, 4);
+          const pace = taken.length && rec ? Math.round(rec.seconds / taken.length) : null;
+          return (
+            <div class="card" data-testid="paper-work-on">
+              <h2>What to work on</h2>
+              <p class="small muted">The topics you missed most, with practice on the exact questions.{pace ? ` You averaged ${pace} seconds a question.` : ""}</p>
+              <ul class="finding-list">
+                {worst.map(([id, n]) => (
+                  <li key={id}>
+                    <p><strong>{SKILL_BY_ID[id].name}</strong> <span class="muted small">· {n} missed</span></p>
+                    <button class="btn small" onClick={() => go({ name: "practice", plan: fixPlan(wrongLogOf(profile), id) }, { name: "home" })} data-testid={`paper-fix-${id}`}>Fix this</button>
+                  </li>
+                ))}
+              </ul>
+              <p class="small muted">Parents can see every missed question, and why, in the Parents' area under the learning report.</p>
+            </div>
+          );
+        })()}
         <div class="card">
           <h2>{missed.length ? `Review: ${missed.length} to learn from` : "No mistakes to review"}</h2>
           <ul class="finding-list">
