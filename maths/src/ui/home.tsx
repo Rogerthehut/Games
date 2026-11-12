@@ -1,4 +1,5 @@
 import { useMemo } from "preact/hooks";
+import { buildRefresher, canRefresh, refresherTopics } from "../engine/refresher";
 import { DAY, buildSession, currentStreak, practiceDaysThisWeek, skillName } from "../engine/progress";
 import { mulberry32 } from "../engine/rng";
 import { currentWeek, planFocus } from "../engine/plan";
@@ -18,6 +19,7 @@ const topicRest = (names: string[]) => (names.length > 1 ? `plus ${names.slice(1
 export function Home() {
   const { profile, go } = useApp();
   const wide = useWide();
+  const refresherCount = canRefresh(profile) ? refresherTopics(profile).length : 0;
   const now = Date.now();
   // The grown-up's focus topics and this week's plan topics both steer today's session.
   const steer = useMemo(() => ({ ...profile, focus: [...new Set([...profile.focus, ...planFocus(profile, now)])] }), [profile]);
@@ -106,6 +108,12 @@ export function Home() {
           </div>
         </section>
       ) : null}
+
+      {refresherCount > 0 && (
+        <ul class="rows refresher-row">
+          <li><button class="row" onClick={() => go({ name: "practice", plan: buildRefresher(profile, Date.now(), mulberry32(Date.now())) })} data-testid="start-refresher"><Icon name="target" /><span>Quick-fire refresher<small>10 questions from the {refresherCount} topics you practised this week</small></span><Icon name="chevron" size={18} /></button></li>
+        </ul>
+      )}
 
       {week?.kind === "mock" && (
         <ul class="rows">

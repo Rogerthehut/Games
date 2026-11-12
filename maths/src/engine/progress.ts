@@ -103,6 +103,8 @@ export interface Profile {
   anglesLesson?: { step: number; degrees: number; longDoor: boolean; answer: string; checked: boolean };
   timeLesson?: { step: number; answer: string; example?: number };
   groupsLesson?: { step: number; answer: string; groups: number[]; places: number[] };
+  /** When the learner last started a quick-fire refresher. */
+  lastRefresher?: number;
   /** When each worked-example lesson was last finished, by topic. */
   lessons?: Record<string, number>;
   fractionsLesson?: number;
@@ -195,7 +197,7 @@ export function addPoints(p: Profile, n: number): Profile {
 export const isUnlocked = (p: Profile, s: Skill) => s.prereqs.every((id) => (p.skills[id]?.box ?? 0) >= 2);
 
 /** Why a skill is next in line. */
-export type Reason = "review" | "focus" | "continue" | "next";
+export type Reason = "review" | "focus" | "continue" | "next" | "refresher";
 
 export interface Pick { skillId: string; reason: Reason }
 

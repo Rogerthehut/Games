@@ -16,6 +16,7 @@
     "e2e:taps": "tsx scripts/tap-e2e.ts",
     "ks2-coverage": "tsx scripts/ks2-coverage.ts",
     "e2e:lesson": "tsx scripts/lesson-e2e.ts",
+    "e2e:refresher": "tsx scripts/refresher-e2e.ts",
     "e2e:grownup": "tsx scripts/grownup-e2e.ts",
     "ops:stats": "tsx scripts/ops.ts stats",
     "ops:feedback": "tsx scripts/ops.ts feedback",

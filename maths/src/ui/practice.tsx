@@ -176,6 +176,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     advanced.current = idx;
     if (idx + 1 >= total) {
       if (!tally.current.logged) { tally.current.points += 10; update((p) => addPoints(p, 10)); } // finishing bonus
+      if (plan[0]?.reason === "refresher") update((p) => ({ ...p, lastRefresher: Date.now() }));
       logSession(); setPhase("done"); setIdx(total);
     } else setIdx(idx + 1);
   };
@@ -389,6 +390,7 @@ function Summary({ plan, points, answered, correct, giveUps, bounces }: { plan: 
         <div class="milestone-banner">
           <h1>{voice.finished(profile.name, skin, answered ? correct / answered : 1)}</h1>
           <p class="finish-score"><strong>{correct}</strong> of {answered} right <span>· +{points} points</span></p>
+          {plan[0]?.reason === "refresher" && <p class="small">Revision done. The tricky ones will come back sooner, and the secure ones a little later.</p>}
         </div>
         <ul class="stars" aria-label="Effort stars">
           {stars.map((st, i) => (

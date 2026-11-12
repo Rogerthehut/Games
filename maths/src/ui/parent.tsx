@@ -1,5 +1,7 @@
 import { useRef, useState } from "preact/hooks";
 import { ALL_SKILLS, SKILLS, STAGE_LABEL } from "../curriculum";
+import { buildRefresher, canRefresh, refresherTopics } from "../engine/refresher";
+import { mulberry32 } from "../engine/rng";
 import { DAY, TUTOR_LOG_DAYS, skillName, statusOf, weekStats, type Profile, type SkillState } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
 import { useTutorAvailable } from "./tutor";
@@ -82,6 +84,14 @@ export function Parent() {
               <button class="btn primary" onClick={() => go({ name: "progress-report" })} data-testid="open-progress-report">Open the report</button>
               <button class="btn" onClick={() => downloadProgressCsv(profile)} data-testid="download-progress-csv">Spreadsheet (CSV)</button>
             </div>
+          </section>
+
+          <section class="card" aria-labelledby="refresher-card">
+            <h2 id="refresher-card">Weekly refresher</h2>
+            {canRefresh(profile)
+              ? <p>{profile.name} practised {refresherTopics(profile).length} topics this week. A quick-fire set of 10 questions revises them before moving on, and the tricky ones come back sooner.</p>
+              : <p class="muted">A refresher becomes available once {profile.name} has practised at least three topics in a week.</p>}
+            <div class="actions"><button class="btn primary" disabled={!canRefresh(profile)} onClick={() => go({ name: "practice", plan: buildRefresher(profile, Date.now(), mulberry32(Date.now())) })} data-testid="parent-refresher">Start a refresher</button></div>
           </section>
 
           <section class="card">

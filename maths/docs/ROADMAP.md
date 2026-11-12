@@ -75,9 +75,11 @@ The table groups statutory outcomes by year and strand. Existing generators some
 
 Source [DfE mathematics programmes of study](https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study).
 
-## Weekly refresher (requested)
+## Weekly refresher (built)
 
-A parent or child can start a "refresher" after a few days of use: a quick-fire revision test drawn from the topics practised in the last week (or since the last refresher), before moving on to new topics. Needs: a "Refresher" entry on Today and in the Parents' area; a mixed set from the topics actually practised, weighted to the ones that were wobbly; a short timed or untimed run; a result that feeds back into progress and the plan (wobbly topics come back sooner). Builds on the existing mock/pathway runner and the plan's revision weeks.
+A quick-fire revision set, started from a "Quick-fire refresher" row on Today or from "Weekly refresher" in the Parents' area. It appears once a learner has practised at least three topics in the last seven days (or since their last refresher). It asks 10 questions drawn from those topics: every topic at least once, with more of the wobbly ones, and never the same topic twice in a row. It runs as ordinary practice, so each answer updates progress and the review schedule: shaky topics come back sooner, secure ones later. Finishing records the date, so it isn't offered again straight away. Code: `src/engine/refresher.ts`; check: `npm run e2e:refresher`.
+
+Possible later: a timed "beat your best" version, a choice of 5, 10 or 20 questions, and a refresher on one stage or strand.
 
 ## Worked-example lessons (built)
 
