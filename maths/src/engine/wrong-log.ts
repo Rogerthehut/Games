@@ -26,7 +26,7 @@ export interface WrongEntry {
   /** The seed the question was made from, with its level. Missing for older entries. */
   seed?: number;
   /** Where it came from. */
-  source: "practice" | "lesson";
+  source: "practice" | "lesson" | "paper" | "check-up";
 }
 
 export const WRONG_LOG_MAX = 250;
@@ -55,4 +55,26 @@ export function recordWrong(p: Profile, input: WrongInput, now = Date.now()): Pr
     seed: input.q.seed, source: input.source,
   };
   return { ...p, wrongLog: [...log, entry].slice(-WRONG_LOG_MAX) };
+}
+
+/**
+ * A "fix this" practice set for one topic: the exact questions that went wrong (up to four, most recent first) asked again, then
+ * fresh questions at the same level, so a child can show they've got it. Questions without a seed (from check-ups) can't be asked
+ * again, so only the fresh ones are used for those.
+ */
+export function fixPlan(entries: WrongEntry[], skillId: string): import("./progress").Pick[] {
+  const mine = entries.filter((e) => e.skill === skillId).sort((a, b) => b.at - a.at);
+  const retries = mine.filter((e) => e.seed !== undefined).filter((e, i, all) => all.findIndex((x) => x.prompt === e.prompt) === i).slice(0, 4);
+  const level = Math.max(1, ...mine.map((e) => e.level));
+  const fresh = Math.max(4, 8 - retries.length);
+  return [
+    ...retries.map((e) => ({ skillId, reason: "fix" as const, seed: e.seed, level: e.level })),
+    ...Array.from({ length: fresh }, () => ({ skillId, reason: "fix" as const, level })),
+  ];
+}
+
+/** For a question answered once, with no second try (papers and check-ups): a blank answer counts as skipped. */
+export function recordWrongOnce(p: Profile, q: Question, inputs: string[], source: WrongEntry["source"], tag?: string, message?: string, now = Date.now()): Profile {
+  const tried = inputs.filter((s) => s.trim());
+  return recordWrong(p, { q, outcome: tried.length ? "missed" : "gave-up", tried: tried.length ? [inputs.join(" / ")] : [], tags: tag ? [tag] : [], notes: message ? [message] : [], source }, now);
 }

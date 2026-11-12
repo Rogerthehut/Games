@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
-import { buildLearningReport, lastDays, PERIODS, type Example, type Period, type TopicFinding } from "../engine/learning-report";
+import { buildLearningReport, diagnoseAttempt, lastDays, PERIODS, type Example, type Period, type TopicFinding } from "../engine/learning-report";
+import { fixPlan, wrongLogOf } from "../engine/wrong-log";
+import { STATUS_LABEL_PARENT } from "./labels";
 import { STAGE_LABEL } from "../curriculum";
 import { SKILL_BY_ID } from "../curriculum";
+import { familyFor } from "../engine/help-methods";
 import { useAccount } from "./account-context";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
@@ -89,6 +92,14 @@ export function LearningReport() {
         )}
       </section>
 
+      {report.improving.length > 0 && (
+        <section class="card lr-improving" aria-labelledby="lr-better" data-testid="lr-improving">
+          <h2 id="lr-better">Looking better</h2>
+          <p class="small muted">These had wrong answers before, and none in {period.label}, while {profile.name} kept practising them.</p>
+          <ul>{report.improving.map((i) => <li key={i.skillId}><strong>{i.name}</strong>: {i.before === 1 ? "1 wrong answer" : `${i.before} wrong answers`} before, none now. {STATUS_LABEL_PARENT[i.status]}.</li>)}</ul>
+        </section>
+      )}
+
       {report.topics.map((t, i) => <TopicBlock key={t.skillId} topic={t} open={printing || i === 0} go={go} />)}
     </div>
   );
@@ -99,6 +110,7 @@ function TopicBlock({ topic: t, open, go }: { topic: TopicFinding; open: boolean
   const back = { name: "learning-report" as const };
   const tool = t.family.tool ?? suggestedTool(t.skillId, t.strand, profile.year);
   const practise = () => go({ name: "practice", plan: Array.from({ length: 6 }, () => ({ skillId: t.skillId, reason: "focus" as const })) }, back);
+  const fix = () => go({ name: "practice", plan: fixPlan(wrongLogOf(profile), t.skillId) }, back);
   return (
     <details class="card lr-topic" open={open} data-testid={`topic-${t.skillId}`}>
       <summary>
@@ -109,6 +121,12 @@ function TopicBlock({ topic: t, open, go }: { topic: TopicFinding; open: boolean
           {t.gaveUp > 0 && <span class="lr-badge skip">{t.gaveUp} skipped</span>}
         </span>
       </summary>
+
+      <div class="lr-trend" data-testid={`trend-${t.skillId}`}>
+        <span><b>{t.total}</b> wrong {t.total === 1 ? "answer" : "answers"} now{t.previous > 0 || t.total > 0 ? <>, <b>{t.previous}</b> in the same time before{t.previous > t.total ? " (getting better)" : t.previous < t.total ? " (more this time)" : ""}</> : null}</span>
+        <span>Now: <b>{STATUS_LABEL_PARENT[t.status]}</b></span>
+        {t.fix && <span>Fix practice: <b>{t.fix.sets} {t.fix.sets === 1 ? "set" : "sets"}</b>, latest {t.fix.last.right} of {t.fix.last.total} right</span>}
+      </div>
 
       <h3>The questions</h3>
       <ol class="lr-examples">{t.examples.map((x) => <ExampleView key={x.entry.at} example={x} />)}</ol>
@@ -131,7 +149,8 @@ function TopicBlock({ topic: t, open, go }: { topic: TopicFinding; open: boolean
 
       <h3>Study together</h3>
       <div class="actions lr-actions">
-        <button class="btn primary" onClick={practise} data-testid={`practise-${t.skillId}`}>Practise this topic</button>
+        <button class="btn primary" onClick={fix} data-testid={`fix-${t.skillId}`}>Fix this: practise these questions again</button>
+        <button class="btn" onClick={practise} data-testid={`practise-${t.skillId}`}>Practise this topic</button>
         {t.hasLesson && <button class="btn" onClick={() => go({ name: "lesson", skill: t.skillId }, back)}>Learn this (lesson)</button>}
         {t.studyGuides.map((g) => <button class="btn" key={g.id} onClick={() => go({ name: "concept", id: g.id }, back)}>Study guide: {g.title}</button>)}
       </div>
@@ -142,12 +161,44 @@ function TopicBlock({ topic: t, open, go }: { topic: TopicFinding; open: boolean
   );
 }
 
+const SOURCE_TEXT: Record<string, string> = { lesson: " · in a lesson", paper: " · in a practice paper or test", "check-up": " · in the check-up" };
+
+/** A parent's script for working through one question with their child, a step at a time. */
+function WalkThrough({ example: { entry, question } }: { example: Example & { question: NonNullable<Example["question"]> } }) {
+  const { profile, go } = useApp();
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [shown, setShown] = useState(0);
+  const family = familyFor(entry.skill);
+  const found = entry.tried.map((t) => diagnoseAttempt(entry, t)).find(Boolean);
+  const similar = () => go({ name: "practice", plan: [{ skillId: entry.skill, reason: "fix" as const, level: entry.level }, { skillId: entry.skill, reason: "fix" as const, level: entry.level }] }, { name: "learning-report" });
+  if (!open) return <button class="btn small" onClick={() => { setOpen(true); setStep(0); setShown(0); }} data-testid="walk-start">Work through this together</button>;
+  const steps: { title: string; body: preact.ComponentChildren }[] = [
+    { title: "1. Read it together", body: <p>Read the question aloud. Ask {profile.name} to say what it's asking in their own words. Don't help yet.</p> },
+    { title: "2. Let them try again", body: <><p>Ask: “{family.ask[0]}” Let them have another go, with a working-out tool if they want one.</p>{question.hint && <p class="small muted">If they're stuck, a hint: <Maths text={question.hint} /></p>}</> },
+    { title: "3. Find where it slipped", body: <><p>{profile.name} answered <strong>{entry.tried.filter(Boolean).join(", ") || "nothing"}</strong>. The right answer is <strong><Maths text={question.shown} /></strong>.</p><p>{found ? <>It looks like they {found.reason}. Ask: “How did you get that?”</> : <>Ask: “Talk me through what you did first.” The first step they got wrong is the one to work on.</>}</p></> },
+    { title: "4. Work it through, a step at a time", body: <><ol class="steps">{question.solution.slice(0, shown + 1).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>{shown + 1 < question.solution.length && <button class="btn small ghost" onClick={() => setShown(shown + 1)}>Show the next step</button>}</> },
+    { title: "5. Now they teach you", body: <><p>Ask {profile.name} to explain it back to you, step by step, as if you're the one who's stuck. Then try one like it.</p><button class="btn small primary" onClick={similar} data-testid="walk-similar">Try two like this</button></> },
+  ];
+  const s = steps[step];
+  return (
+    <div class="lr-walk" role="region" aria-label="Work through this together" data-testid="walk">
+      <p class="lr-walk-title"><strong>{s.title}</strong> <span class="small muted">({step + 1} of {steps.length})</span></p>
+      {s.body}
+      <div class="actions">
+        <button class="btn small ghost" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</button>
+        {step < steps.length - 1 ? <button class="btn small primary" onClick={() => setStep(step + 1)} data-testid="walk-next">Next</button> : <button class="btn small" onClick={() => setOpen(false)}>Done</button>}
+      </div>
+    </div>
+  );
+}
+
 function ExampleView({ example: { entry, question } }: { example: Example }) {
   const [steps, setSteps] = useState(false);
   const outcomeText = entry.outcome === "missed" ? "Didn't get it" : entry.outcome === "helped" ? "Got it on the second go" : "Skipped to the steps";
   return (
     <li class="lr-example">
-      <p class="lr-when small muted">{dateText(entry.at)} · {outcomeText}{entry.source === "lesson" ? " · in a lesson" : ""}</p>
+      <p class="lr-when small muted">{dateText(entry.at)} · {outcomeText}{SOURCE_TEXT[entry.source] ?? ""}</p>
       <p class="lr-q"><Maths text={question?.prompt ?? entry.prompt} /></p>
       {question?.figure && <FigureView fig={question.figure} locked />}
       <p class="lr-answers">
@@ -155,6 +206,7 @@ function ExampleView({ example: { entry, question } }: { example: Example }) {
         <span>Right answer: <strong><Maths text={question?.shown ?? entry.shown} /></strong></span>
       </p>
       {entry.notes.length > 0 && <p class="small lr-note"><Maths text={entry.notes[0]} /></p>}
+      {question && <WalkThrough example={{ entry, question }} />}
       {question && question.solution.length > 0 && (
         <div>
           <button class="btn small ghost" onClick={() => setSteps(!steps)} aria-expanded={steps}>{steps ? "Hide the steps" : "Show the steps to work through together"}</button>

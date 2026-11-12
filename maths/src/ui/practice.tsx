@@ -79,6 +79,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
   const startedAt = useMemo(() => saved?.startedAt ?? Date.now(), [saved]);
   // what was typed on each wrong try of the question on screen, for the grown-ups' learning report
   const misses = useRef<{ tried: string[]; tags: string[]; notes: string[] }>({ tried: [], tags: [], notes: [] });
+  const fixTally = useRef<Record<string, { right: number; total: number }>>({});   // how a "fix this" set went, by topic
   const restoring = useRef(!!saved);
   useEffect(() => {
     if (saved) update((p) => ({ ...p, practiceDraft: undefined }));
@@ -99,7 +100,13 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     const t = tally.current;
     const isNew = !st || (st.seen === 0 && !st.assumed);
     const seed = Date.now() + idx * 104729;
-    if (isNew && !t.introduced.has(skillId)) {
+    const pick = plan[idx];
+    if (pick.reason === "fix") {
+      // a "fix this" set: the exact question again if it has a seed, otherwise a fresh one at the level that went wrong
+      const exact = pick.seed !== undefined ? { ...SKILL_BY_ID[skillId].generate(mulberry32(pick.seed), pick.level ?? 1), seed: pick.seed } : makeQuestion(profile, skillId, t.seenPrompts, seed, pick.level);
+      t.seenPrompts.add(exact.prompt);
+      setQ(exact); setPhase("ask");
+    } else if (isNew && !t.introduced.has(skillId)) {
       t.introduced.add(skillId);
       setQ(makeQuestion(profile, skillId, t.seenPrompts, seed, 1));
       setPhase("intro");
@@ -127,7 +134,8 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     if (t.logged || t.answered === 0) return;
     t.logged = true;
     const minutes = Math.max(1, Math.round(t.activeMs / 60000));
-    update((p) => ({ ...p, sessions: [...p.sessions, { at: startedAt, minutes, answered: t.answered, correct: t.correct, skills: [...t.skills] }] }));
+    const fixed = Object.entries(fixTally.current).map(([skill, v]) => ({ skill, at: Date.now(), ...v }));
+    update((p) => ({ ...p, sessions: [...p.sessions, { at: startedAt, minutes, answered: t.answered, correct: t.correct, skills: [...t.skills] }], ...(fixed.length ? { fixes: [...(p.fixes ?? []), ...fixed].slice(-60) } : {}) }));
   };
 
   const settle = (kind: "right" | "helped" | "wrong", mistake?: Result) => {
@@ -138,6 +146,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     if (kind !== "wrong") t.correct++;
     const pts = kind === "right" ? 10 : kind === "helped" ? 7 : 4;
     t.points += pts;
+    if (plan[idx]?.reason === "fix") { const f = fixTally.current[q.skill] ?? { right: 0, total: 0 }; fixTally.current[q.skill] = { right: f.right + (kind === "wrong" ? 0 : 1), total: f.total + 1 }; }
     const m = misses.current, tried = [...m.tried], tags = [...m.tags], notes = [...m.notes];
     update((p) => {
       let n = recordAnswer(p, q.skill, kind);
@@ -402,6 +411,7 @@ function Summary({ plan, points, answered, correct, giveUps, bounces }: { plan: 
         <div class="milestone-banner">
           <h1>{voice.finished(profile.name, skin, answered ? correct / answered : 1)}</h1>
           <p class="finish-score"><strong>{correct}</strong> of {answered} right <span>· +{points} points</span></p>
+          {plan[0]?.reason === "fix" && <p class="small">Fix practice done: {correct} of {answered} right. The learning report shows how this topic is going.</p>}
           {plan[0]?.reason === "refresher" && <p class="small">Revision done. The tricky ones will come back sooner, and the secure ones a little later.</p>}
         </div>
         <ul class="stars" aria-label="Effort stars">

@@ -105,6 +105,8 @@ export interface Profile {
   groupsLesson?: { step: number; answer: string; groups: number[]; places: number[] };
   /** The questions the learner got wrong or needed help with, newest last, for the grown-ups' learning report (see wrong-log.ts). */
   wrongLog?: import("./wrong-log").WrongEntry[];
+  /** How "fix this" practice went, by topic, so the learning report can show a problem getting better (see learning-report.ts). */
+  fixes?: { skill: string; at: number; right: number; total: number }[];
   /** When the learner last started a quick-fire refresher. */
   lastRefresher?: number;
   /** When each worked-example lesson was last finished, by topic. */
@@ -199,9 +201,10 @@ export function addPoints(p: Profile, n: number): Profile {
 export const isUnlocked = (p: Profile, s: Skill) => s.prereqs.every((id) => (p.skills[id]?.box ?? 0) >= 2);
 
 /** Why a skill is next in line. */
-export type Reason = "review" | "focus" | "continue" | "next" | "refresher";
+export type Reason = "review" | "focus" | "continue" | "next" | "refresher" | "fix";
 
-export interface Pick { skillId: string; reason: Reason }
+/** One question in a practice set. With a seed it is asked again exactly as before (a "fix this" retry); otherwise it is made fresh, at `level` if given. */
+export interface Pick { skillId: string; reason: Reason; seed?: number; level?: number }
 
 /** Pick up to three skills worth practising right now: due reviews, grown-up focus, then the frontier. */
 export function pickSkills(p: Profile, now: number, rng: Rng, max = 3): Pick[] {

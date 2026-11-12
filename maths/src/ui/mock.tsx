@@ -5,6 +5,7 @@ import { check } from "../engine/check";
 import { PAPERS, buildMock, type MockItem, type PaperKind } from "../engine/mock";
 import { awardPathwayCertificate, buildPathwayTest, canTakePathwayTest, pathwayPassMark, pathwayTestName } from "../engine/pathway";
 import { addPoints, recordAnswer, recordMistake, type MockRecord } from "../engine/progress";
+import { recordWrongOnce } from "../engine/wrong-log";
 import { mulberry32 } from "../engine/rng";
 import type { Stage, Strand } from "../engine/types";
 import { AnswerInput } from "./answer-input";
@@ -78,7 +79,9 @@ export function Mock({ pathway }: { pathway?: Stage }) {
       update((p) => {
         const pathwayDrafts = { ...p.pathwayDrafts };
         delete pathwayDrafts[pathway];
-        return awardPathwayCertificate({ ...p, pathwayDrafts }, pathway, score, all.length, at);
+        let n: typeof p = { ...p, pathwayDrafts };
+        for (const t of all) if (!t.correct) n = recordWrongOnce(n, t.q, t.inputs, "paper", t.tag, t.message, at);
+        return awardPathwayCertificate(n, pathway, score, all.length, at);
       });
       setPhase("done");
       return;
@@ -107,6 +110,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
       for (const t of attempted) {
         n = recordAnswer(n, t.q.skill, t.correct ? "right" : "wrong");
         if (!t.correct && t.tag && t.message) n = recordMistake(n, t.tag, t.q.skill, t.message);
+        if (!t.correct) n = recordWrongOnce(n, t.q, t.inputs, "paper", t.tag, t.message);
       }
       n = addPoints(n, 20 + rec.score);
       return { ...n, mocks: [...(n.mocks ?? []), rec], sessions: [...n.sessions, { at: startedAt.current, minutes: Math.max(1, Math.round(seconds / 60)), answered: attempted.length, correct: rec.score, skills: [...new Set(attempted.map((t) => t.q.skill))] }] };

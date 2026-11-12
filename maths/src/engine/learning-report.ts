@@ -3,7 +3,7 @@ import { SKILL_BY_ID } from "../curriculum";
 import { familyFor, type HelpFamily } from "./help-methods";
 import { hasLesson } from "./lesson";
 import { mulberry32 } from "./rng";
-import { statusOf, type Profile } from "./progress";
+import { statusOf, type Profile, type Status } from "./progress";
 import type { Question } from "./types";
 import { wrongLogOf, type WrongEntry } from "./wrong-log";
 
@@ -59,8 +59,16 @@ export interface TopicFinding {
   hasLesson: boolean;
   /** Earlier topics this builds on that aren't secure yet. */
   shaky: { id: string; name: string }[];
+  /** How many questions were wrong in the same length of time just before this period, to show it getting better or worse. */
+  previous: number;
+  /** Where the topic stands now. */
+  status: Status;
+  /** "Fix this" practice done on it: how many sets, and how the latest went. */
+  fix: { sets: number; last: { right: number; total: number; at: number } } | null;
 }
-export interface LearningReport { period: Period; totals: { questions: number; missed: number; helped: number; gaveUp: number; topics: number }; topics: TopicFinding[]; secureNow: string[] }
+/** A topic that had wrong answers before this period and none in it, while still being practised: a problem getting better. */
+export interface Improving { skillId: string; name: string; before: number; status: Status }
+export interface LearningReport { period: Period; totals: { questions: number; missed: number; helped: number; gaveUp: number; topics: number }; topics: TopicFinding[]; improving: Improving[]; secureNow: string[] }
 
 /** Makes the question again from its seed, if it still matches what was asked, so the report can show its picture and steps. */
 export function regenerate(e: WrongEntry): Question | null {
@@ -75,7 +83,10 @@ export function regenerate(e: WrongEntry): Question | null {
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 export function buildLearningReport(p: Profile, period: Period): LearningReport {
-  const inPeriod = wrongLogOf(p).filter((e) => e.at >= period.from && e.at <= period.to && SKILL_BY_ID[e.skill]);
+  const log = wrongLogOf(p).filter((e) => SKILL_BY_ID[e.skill]);
+  const inPeriod = log.filter((e) => e.at >= period.from && e.at <= period.to);
+  const length = period.to - period.from;
+  const before = (skill: string) => log.filter((e) => e.skill === skill && e.at >= period.from - length && e.at < period.from).length;
   const by = new Map<string, WrongEntry[]>();
   for (const e of inPeriod) by.set(e.skill, [...(by.get(e.skill) ?? []), e]);
   const topics: TopicFinding[] = [];
@@ -106,9 +117,22 @@ export function buildLearningReport(p: Profile, period: Period): LearningReport 
       skillId, name: skill.name, year: skill.year, strand: skill.strand, missed, helped, gaveUp, total: entries.length, lastAt: Math.max(...entries.map((e) => e.at)),
       score: missed * 3 + gaveUp * 2 + helped, examples: distinct.slice(0, 4).map((entry) => ({ entry, question: regenerate(entry) })),
       reasons: reasons.slice(0, 5), family, studyGuides: guides, hasLesson: hasLesson(skillId), shaky,
+      previous: before(skillId), status: statusOf(p.skills[skillId]), fix: fixSummary(p, skillId),
     });
   }
   topics.sort((a, b) => b.score - a.score || b.lastAt - a.lastAt);
+  const improving: Improving[] = [...new Set(log.filter((e) => e.at >= period.from - length && e.at < period.from).map((e) => e.skill))]
+    .filter((id) => !by.has(id) && (p.skills[id]?.last ?? 0) >= period.from)
+    .map((id) => ({ skillId: id, name: SKILL_BY_ID[id].name, before: before(id), status: statusOf(p.skills[id]) }))
+    .sort((a, b) => b.before - a.before);
   const secureNow = topics.filter((t) => statusOf(p.skills[t.skillId]) === "secure").map((t) => t.name);
-  return { period, totals: { questions: inPeriod.length, missed: topics.reduce((s, t) => s + t.missed, 0), helped: topics.reduce((s, t) => s + t.helped, 0), gaveUp: topics.reduce((s, t) => s + t.gaveUp, 0), topics: topics.length }, topics, secureNow };
+  return { period, totals: { questions: inPeriod.length, missed: topics.reduce((s, t) => s + t.missed, 0), helped: topics.reduce((s, t) => s + t.helped, 0), gaveUp: topics.reduce((s, t) => s + t.gaveUp, 0), topics: topics.length }, topics, improving, secureNow };
+}
+
+/** How "fix this" practice on a topic has gone. */
+export function fixSummary(p: Profile, skillId: string): TopicFinding["fix"] {
+  const mine = (p.fixes ?? []).filter((f) => f.skill === skillId);
+  if (!mine.length) return null;
+  const { right, total, at } = mine[mine.length - 1];
+  return { sets: mine.length, last: { right, total, at } };
 }

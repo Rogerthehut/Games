@@ -99,7 +99,9 @@ Still to do: tools for secondary topics (graph paper with plotting, a calculator
 
 The Parents' area shows exactly which questions the child got wrong in a chosen period (7, 14, 30, 90 days or custom dates), what they answered, likely reasons, methods to work through together, things to ask, the matching working-out tool, and links to practise, the lesson and study guides. Reasons are drawn from the answers (recognised mistakes, off-by-one, place-value, wrong-operation and similar slips, skipped questions, shaky prerequisites) plus common reasons for the kind of topic, and are labelled as likely, not a diagnosis. Code: `src/engine/wrong-log.ts`, `learning-report.ts`, `help-methods.ts`, `src/ui/learning-report.tsx`; check: `npm run e2e:report`.
 
-Still to do: a teacher's review of the methods and reasons wording, per-topic (not just per-family) methods for the biggest topics, logging wrong answers from practice papers and check-ups too, and a "work through together" mode that walks a parent through a question one prompt at a time.
+Built on top of it: a **Fix this** practice set (the exact questions again, then fresh ones), **then and now** trends with a "Looking better" list, logging from check-ups, practice papers and pathway tests, and a **work through this together** script for each question.
+
+Still to do: a teacher's review of the methods and reasons wording, and per-topic (not just per-family) methods for the biggest topics.
 
 ## Times tables challenge (built)
 

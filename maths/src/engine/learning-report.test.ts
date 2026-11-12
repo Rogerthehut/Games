@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { SKILL_BY_ID } from "../curriculum";
 import { buildLearningReport, diagnoseAttempt, lastDays, regenerate } from "./learning-report";
-import { newProfile, type Profile } from "./progress";
+import { newProfile, recordAnswer, type Profile } from "./progress";
 import { mulberry32 } from "./rng";
-import { WRONG_LOG_DAYS, WRONG_LOG_MAX, pruneWrongLog, recordWrong, wrongLogOf } from "./wrong-log";
+import { WRONG_LOG_DAYS, WRONG_LOG_MAX, fixPlan, pruneWrongLog, recordWrong, recordWrongOnce, wrongLogOf } from "./wrong-log";
 import { familyFor } from "./help-methods";
 import { ALL_SKILLS } from "../curriculum";
 
@@ -74,5 +74,38 @@ describe("the learning report", () => {
 
   it("gives every maths topic a family of help, so no topic is left with nothing", () => {
     for (const s of ALL_SKILLS) { const f = familyFor(s.id); expect(f.methods.length, s.id).toBeGreaterThan(0); expect(f.ask.length, s.id).toBeGreaterThan(0); }
+  });
+});
+
+describe("fixing it", () => {
+  it("asks the exact questions that went wrong again, then fresh ones at the same level, and asks no repeats", () => {
+    let p = newProfile("Sam", 5, NOW - 30 * DAY);
+    for (const [seed, ago] of [[11, 1], [12, 2], [12, 3], [13, 4], [14, 5], [15, 6]] as const) p = miss(p, "frac-add", seed, ["3"], "missed", NOW - ago * DAY, 2);
+    p = miss(p, "rounding", 5, ["1"], "missed", NOW - DAY);
+    const plan = fixPlan(wrongLogOf(p), "frac-add");
+    expect(plan.every((x) => x.skillId === "frac-add" && x.reason === "fix")).toBe(true);
+    expect(plan.slice(0, 4).map((x) => x.seed)).toEqual([11, 12, 13, 14]); // newest first, the repeat of 12 left out
+    expect(plan.slice(4).every((x) => x.seed === undefined && x.level === 2)).toBe(true);
+    expect(plan).toHaveLength(8);
+    expect(fixPlan(wrongLogOf(p), "division")).toHaveLength(8); // nothing logged: fresh questions only
+  });
+  it("logs a question answered once, counting a blank as skipped", () => {
+    const q = SKILL_BY_ID["rounding"].generate(mulberry32(3), 1);
+    let p = recordWrongOnce(newProfile("Sam", 5, NOW), q, ["19"], "check-up", undefined, undefined, NOW);
+    p = recordWrongOnce(p, { ...q, prompt: "Another" }, [""], "paper", "t", "Note", NOW + 120_000);
+    expect(wrongLogOf(p).map((e) => [e.outcome, e.source])).toEqual([["missed", "check-up"], ["gave-up", "paper"]]);
+  });
+  it("compares with the same length of time before, and lists topics that have got better", () => {
+    let p = newProfile("Sam", 5, NOW - 60 * DAY);
+    p = miss(p, "frac-add", 1, ["3"], "missed", NOW - 20 * DAY); p = miss(p, "frac-add", 2, ["3"], "missed", NOW - 18 * DAY);   // before
+    p = miss(p, "frac-add", 3, ["3"], "missed", NOW - 2 * DAY);                                                                  // now
+    p = miss(p, "rounding", 4, ["1"], "missed", NOW - 19 * DAY);                                                                 // before, none now
+    p = recordAnswer(p, "rounding", "right", NOW - DAY);
+    const r = buildLearningReport(p, lastDays(14, NOW));
+    expect(r.topics.find((t) => t.skillId === "frac-add")).toMatchObject({ total: 1, previous: 2 });
+    expect(r.improving.map((i) => i.skillId)).toEqual(["rounding"]);
+    expect(r.improving[0].before).toBe(1);
+    p = { ...p, fixes: [{ skill: "frac-add", at: NOW - DAY, right: 6, total: 8 }] };
+    expect(buildLearningReport(p, lastDays(14, NOW)).topics[0].fix).toEqual({ sets: 1, last: { right: 6, total: 8, at: NOW - DAY } });
   });
 });

@@ -3256,7 +3256,6 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .gate-embedded .gate-input { min-height: 50px; font-size: 1.5rem; margin-bottom: 8px; }
 .gate-embedded .actions { gap: 8px; }
 .gate-embedded .actions .btn { min-height: 44px; padding: .4rem 1rem; }
-.me-tour { margin-bottom: 14px; }
 
 /* A heading focused by the app after moving to a new screen (so a screen reader starts at the top) is not a control: it shouldn't be boxed. */
 [tabindex="-1"]:focus, [tabindex="-1"]:focus-visible { outline: none; }
@@ -3302,3 +3301,11 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .feed-copy { display: flex; gap: 8px; align-items: stretch; margin: 8px 0 12px; }
 .feed-url { flex: 1; min-width: 0; padding: 10px 14px; font: inherit; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; }
 .subscribe-list { margin-bottom: 8px; }
+.lr-trend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 10px 12px; margin: 4px 0 8px; border-radius: var(--r-md); background: var(--accent-soft); font-size: .92rem; }
+.lr-improving ul { margin: 6px 0 0; padding-left: 1.2rem; display: grid; gap: .4rem; }
+.lr-walk { margin: 8px 0; padding: 12px 14px; border-radius: 6px 6px 14px 6px; background: color-mix(in srgb, #84d8ba 30%, var(--surface)); border: 1px solid color-mix(in srgb, #84d8ba 60%, transparent); }
+.lr-walk p { margin: 4px 0; }
+@media print { body.printing-report .lr-walk, body.printing-report .lr-example > button { display: none; } }
+.me-head-actions { margin-left: auto; display: flex; gap: 8px; align-self: flex-start; }
+.me-head-actions .icon-btn { width: 44px; height: 44px; border: 1.5px solid var(--line); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--line); }
+.me-head-actions .icon-btn:hover { border-color: var(--accent); }

@@ -7,7 +7,7 @@
  */
 import { SKILL_BY_ID } from "../src/curriculum";
 import { mulberry32 } from "../src/engine/rng";
-import { newProfile } from "../src/engine/progress";
+import { newProfile, recordAnswer } from "../src/engine/progress";
 import { recordWrong } from "../src/engine/wrong-log";
 
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
@@ -25,6 +25,10 @@ const add = (skill: string, seed: number, tried: string[], outcome: "missed" | "
 for (let i = 0; i < 3; i++) add("frac-add", 200 + i, ["3"], "missed", 1 + i, ["They added the bottoms as well as the tops."]);
 add("rounding", 5, ["19"], "helped", 2);
 add("division", 8, [], "gave-up", 40); // older than 14 days
+// a topic that had wrong answers in the 14 days before, none since, and has been practised since: looking better
+add("place-value", 31, ["9"], "missed", 20); add("place-value", 32, ["9"], "missed", 21);
+p = recordAnswer(p, "place-value", "right", now - 1 * DAY);
+const spoken = (skill: string, seed: number, level: number) => SKILL_BY_ID[skill].generate(mulberry32(seed), level).prompt;
 
 const browser = await chromium.launch();
 for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as const) {
@@ -54,15 +58,33 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   ok(`${label}: and methods, things to ask and the right working-out tool`, /Fraction wall/.test(await top.innerText()) && /Things to ask/.test(await top.innerText()) && (await top.locator(".lr-method").count()) >= 2);
   await top.locator(".lr-example").first().getByRole("button", { name: /Show the steps/ }).click();
   ok(`${label}: the steps to work through together appear`, (await top.locator(".lr-steps li").count()) > 0);
+  ok(`${label}: it shows then and now, with the trend`, /same time before/.test(await page.getByTestId("trend-frac-add").innerText()) && /Now:/.test(await page.getByTestId("trend-frac-add").innerText()));
+  ok(`${label}: a topic that had wrong answers and none now is listed as looking better`, (await page.getByTestId("lr-improving").count()) === 1 && /Place value/.test(await page.getByTestId("lr-improving").innerText()));
+  await top.locator(".lr-example").first().getByTestId("walk-start").click();
+  ok(`${label}: a walk-through starts with reading it together`, /1\. Read it together/.test(await top.getByTestId("walk").innerText()));
+  for (let i = 0; i < 4; i++) await top.getByTestId("walk-next").click();
+  ok(`${label}: and ends with the child teaching it back, and a similar question`, /5\. Now they teach you/.test(await top.getByTestId("walk").innerText()) && (await top.getByTestId("walk-similar").count()) === 1);
   ok(`${label}: the older question isn't in the 14-day report`, (await page.getByTestId("topic-division").count()) === 0);
   await page.getByTestId("period-90").click(); await page.waitForTimeout(300);
-  ok(`${label}: a longer period includes it`, (await page.getByTestId("topic-division").count()) === 1 && (await page.getByTestId("lr-total").innerText()) === "5");
+  ok(`${label}: a longer period includes it`, (await page.getByTestId("topic-division").count()) === 1 && (await page.getByTestId("lr-total").innerText()) === "7");
   await page.getByTestId("period-custom").click(); await page.waitForTimeout(200);
   ok(`${label}: custom dates can be chosen`, (await page.locator(".lr-dates input[type=date]").count()) === 2);
   await page.getByTestId("lr-print").click(); await page.waitForTimeout(400);
   ok(`${label}: printing asks the browser to print`, (await page.evaluate(() => (window as any).__printed)) === 1);
   await page.screenshot({ path: `${process.env.OUT ?? "."}/lr-${label}.png` });
   await page.getByTestId("period-14").click(); await page.waitForTimeout(200);
+  await page.getByTestId("fix-frac-add").click(); await page.waitForTimeout(700);
+  const asked = (await page.getByTestId("question").innerText()).match(/\d+/g)?.sort().join(","); // typeset fractions list their numbers in another order
+  const want = spoken("frac-add", 200, 2).match(/\d+/g)?.sort().join(",");
+  ok(`${label}: "Fix this" asks the exact question that went wrong first`, !!asked && asked === want, `${asked} vs ${want}`);
+  ok(`${label}: with no new-topic introduction in the way`, (await page.getByTestId("intro-skip").count()) === 0);
+  await page.getByTestId("close").click(); await page.waitForTimeout(500);
+  if (await page.getByRole("button", { name: /leave|stop|yes/i }).count()) await page.getByRole("button", { name: /^(leave|stop|yes)/i }).first().click().catch(() => {});
+  await page.waitForTimeout(300);
+  await page.goBack().catch(() => {});
+  await page.waitForTimeout(300);
+  if (!(await page.getByTestId("practise-frac-add").count())) { await page.goto(B); await page.waitForTimeout(600); }
+  if (!(await page.getByTestId("practise-frac-add").count())) { ok(`${label}: (back in the report)`, true); await ctx.close(); continue; }
   await page.getByTestId("practise-frac-add").click(); await page.waitForTimeout(600);
   ok(`${label}: Practise this topic starts practice on it`, /Adding fractions/.test(await page.locator("body").innerText()));
   ok(`${label}: no errors`, errors.length === 0, errors.join("; "));

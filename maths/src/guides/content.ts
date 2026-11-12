@@ -55,7 +55,9 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Look at the topics, with the most to work on first. Open one to see the exact questions: what your child answered, and the right answer.",
       "Read why it may be happening. Some reasons come from their answers, such as a place-value slip or adding when the question needed multiplying. Others are common for that kind of topic.",
       "Try the methods and questions to ask together. Show the steps to work through one question side by side.",
-      "Use the buttons to practise the topic, take the lesson, or read the matching study guide.",
+      "Press Fix this to practise those exact questions again, followed by fresh ones. The report then shows the topic getting better, and lists topics under Looking better once the wrong answers stop.",
+      "Press Work through this together under any question for a short script: read it, let them try, find where it slipped, work it through a step at a time, then they teach it back.",
+      "Use the other buttons to practise the topic, take the lesson, or read the matching study guide.",
     ],
     tips: [
       "The reasons are likely explanations from the pattern of answers. They're not a diagnosis, and you know your child best.",
@@ -204,6 +206,6 @@ export const CHILD_GUIDE: GuideSection[] = [
   },
   {
     id: "me", icon: "user", title: "Make it yours",
-    text: ["On the Me page you can choose your avatar and glasses, the look of the app, and read-aloud. Your avatars match your school year. At the very top there's Show me around, if you want the quick tour again."],
+    text: ["On the Me page you can choose your avatar and glasses, the look of the app, and read-aloud. Your avatars match your school year. At the top right, next to your name, the star shows the quick tour again and the book opens this guide."],
   },
 ];

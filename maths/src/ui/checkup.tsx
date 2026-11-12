@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
+import { recordWrongOnce } from "../engine/wrong-log";
 import { check } from "../engine/check";
 import { TEST_LENGTH, applyBaseline, applyResponse, nextItem, replay, summarise } from "../engine/diagnostic";
 import { mulberry32 } from "../engine/rng";
@@ -59,9 +60,10 @@ export function Checkup() {
     go({ name: "report" });
   }
 
-  const record = (correct: boolean) => {
+  const record = (correct: boolean, typed: string[] = [], tag?: string, message?: string) => {
     if (!q) return;
     const resp = { skillId: q.skill, level, correct, ms: Date.now() - shownAt.current };
+    if (!correct) update((p) => recordWrongOnce(p, q, typed, "check-up", tag, message));
     const next = applyResponse(state, resp);
     setState(next);
     update((p) => ({ ...p, diag: { startedAt: p.diag?.startedAt ?? Date.now(), responses: [...(p.diag?.responses ?? []), resp] } }));
@@ -81,7 +83,7 @@ export function Checkup() {
     if (!q) return;
     const res = check(q, values);
     if (res.outcome === "invalid") { setNote(res.feedback ?? "Type an answer, or tap Not sure."); return; }
-    record(res.outcome === "correct" || res.outcome === "almost"); // presentation isn't what this test measures
+    record(res.outcome === "correct" || res.outcome === "almost", values, res.tag, res.feedback); // presentation isn't what this test measures
   };
 
   if (!started) {

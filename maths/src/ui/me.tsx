@@ -64,12 +64,11 @@ export function Me() {
           <p class="muted">Year {profile.year}{last ? ` · working at ${yearLabel(last.theta)}` : ""}</p>
           <SyncChip />
         </div>
+        <div class="me-head-actions" role="group" aria-label="Help">
+          <button type="button" class="icon-btn" onClick={() => go({ name: "tour" })} aria-label="Show me around" title="Show me around" data-testid="replay-tour"><Icon name="star" size={22} /></button>
+          <button type="button" class="icon-btn" onClick={() => go({ name: "child-guide" })} aria-label="How quarter works" title="How quarter works" data-testid="open-child-guide"><Icon name="book" size={22} /></button>
+        </div>
       </header>
-
-      <ul class="rows me-tour">
-        <li><button class="row" onClick={() => go({ name: "tour" })} data-testid="replay-tour"><Icon name="star" /><span>Show me around<small>A quick tour of quarter</small></span><Icon name="chevron" size={18} /></button></li>
-        <li><button class="row" onClick={() => go({ name: "child-guide" })} data-testid="open-child-guide"><Icon name="book" /><span>How quarter works<small>A short guide for learners</small></span><Icon name="chevron" size={18} /></button></li>
-      </ul>
 
       <dl class="stat-row">
         <div><dt><Icon name="star" size={18} /> Day streak</dt><dd>{streak}</dd></div>

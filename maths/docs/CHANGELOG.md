@@ -2,6 +2,14 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Learning report: Fix this, then and now, walk-through
+- **Fix this:** one button per topic asks the exact questions that went wrong again (from their seeds), then fresh ones at the same level. How it went is saved (`fixes`) and shown as "Fix practice: 2 sets, latest 6 of 8 right".
+- **Then and now:** each topic compares wrong answers with the same length of time before, and shows where the topic stands now. A "Looking better" list shows topics that had wrong answers before and none now.
+- **Wider logging:** wrong answers in the check-up, practice papers and pathway tests are logged too, with where they came from.
+- **Work through this together:** a five-step script under each question: read it, let them try, find where it slipped, work it through, they teach it back.
+- **Me page:** "Show me around" and "How quarter works" are now two small icon buttons beside the avatar and name, not two large rows.
+Checks: `npm run e2e:report`, `src/engine/learning-report.test.ts`.
+
 ## Weekly parent email
 An opt-in weekly email (Resend): days practised, questions and accuracy, which topics were tricky and why, and a next step, linking to the learning report. Only sent if the child practised, at most one every 6 days, with one-click unsubscribe. The address is looked up from Clerk when sending and never stored. New table `email_prefs` (migration 0005). A scheduler calls `/api/internal/digest`. Setup: `docs/EMAIL.md`. Privacy notice and DPIA updated. Check: `server/email.test.ts`.
 
