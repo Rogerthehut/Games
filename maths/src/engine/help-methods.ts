@@ -1,4 +1,5 @@
 import type { ToolId } from "../ui/working-out";
+import { TOPIC_HELP } from "./topic-help";
 
 /**
  * How a grown-up can help with a topic: the usual reasons children struggle with it, the methods taught in school, what to say, and which
@@ -153,4 +154,10 @@ const GENERAL: HelpFamily = {
   ask: ["What is the question asking?", "What do you already know?", "What is the first step?"], tool: "paper",
 };
 
-export const familyFor = (skillId: string): HelpFamily => FAMILIES.find((f) => f.test.test(skillId)) ?? GENERAL;
+/** Help for a topic: its own written advice where there is some, falling back to the general advice for its kind of topic. */
+export const familyFor = (skillId: string): HelpFamily => {
+  const base = FAMILIES.find((f) => f.test.test(skillId)) ?? GENERAL;
+  const own = TOPIC_HELP[skillId];
+  if (!own) return base;
+  return { ...base, id: skillId, name: own.name, why: [...own.why, ...base.why], methods: [own.method, ...base.methods], ask: [...own.ask, ...base.ask.filter((a) => !own.ask.includes(a))] };
+};
