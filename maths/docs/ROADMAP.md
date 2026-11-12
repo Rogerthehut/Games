@@ -105,7 +105,7 @@ Still to do: a teacher's review of the methods and reasons wording, and per-topi
 
 ## 11+ track: what is left
 
-Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, wrong answers logged into the learning report, and test details recorded for all 33 areas except Lancashire (the council pages don't cover selection). Most are marked reported, and Redbridge is disputed, so they're worth confirming with the schools. The per-school table is built (see the changelog) and holds the schools whose pages have been read. Still to do: add more schools. Run `npm run fetch:11plus -- --all` from Replit, commit `docs/research/11plus/`, and the details can be filled in from the quoted pages. Lancashire is still unrecorded.
+Done: practice papers with part and topic breakdowns, a "What to work on" card with Fix this buttons, wrong answers logged into the learning report, and test details recorded for all 33 areas except Lancashire (the council pages don't cover selection). Most are marked reported, and Redbridge is disputed, so they're worth confirming with the schools. The per-school table is built (see the changelog) and holds the schools whose pages have been read. Every area's pages have been read (`docs/research/11plus/`). Still to do: re-check dates each autumn, and add any school whose own page gives more than its area note. Lancashire is still unrecorded.
 
 ## Times tables challenge (built)
 

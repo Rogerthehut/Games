@@ -133,6 +133,17 @@
           "path": "https://wearebsg.uk/school-information/admissions/"
         },
         "checked": "2026-11-12"
+      },
+      {
+        "name": "Bournemouth School",
+        "type": "Boys",
+        "test": "Entrance test (provider not stated)",
+        "note": "Boys sit the school's entrance test early in Year 6, typically in September, and parents register directly with the school before the end of Year 5. The page doesn't name the provider or the papers.",
+        "source": {
+          "label": "Bournemouth School admissions and 11+",
+          "path": "https://bournemouth-school.bcpschools.co.uk/admissions/"
+        },
+        "checked": "2026-11-12"
       }
     ]
   },
@@ -162,7 +173,29 @@
         "path": "https://www.bromley.gov.uk/downloads/file/3972/secondary-education-in-bromley-2027-2028"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Newstead Wood School",
+        "test": "Not stated on this page",
+        "note": "For 2027 entry, registration ran from 1 May to midnight on 30 June 2026. The council's note gives dates only, so check the school for the test itself.",
+        "source": {
+          "label": "Bromley grammar school test information",
+          "path": "https://bromleyeducationmatters.uk/Article/182532"
+        },
+        "checked": "2026-11-12"
+      },
+      {
+        "name": "St Olave's Grammar School",
+        "test": "Not stated on this page",
+        "note": "For 2027 entry, registration ran from 8 June to midday on 29 June 2026. The council's note gives dates only, so check the school for the test itself.",
+        "source": {
+          "label": "Bromley grammar school test information",
+          "path": "https://bromleyeducationmatters.uk/Article/182532"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "buckinghamshire",
@@ -285,7 +318,24 @@
         "path": "https://questassessments.com/parent-guidance-consortium/colyton-11-plus"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Colyton Grammar School",
+        "test": "Quest Assessments",
+        "parts": [
+          "English",
+          "Mathematics",
+          "Writing"
+        ],
+        "note": "Three paper assessments on one day: English (40 minutes, 50 questions), Mathematics (40 minutes, 60 questions) and Writing (20 minutes, one prompt). Registration and test dates are still to be confirmed.",
+        "source": {
+          "label": "Colyton Grammar School familiarisation from the test provider",
+          "path": "https://questassessments.com/parent-guidance-consortium/colyton-11-plus"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "enfield",
@@ -368,7 +418,23 @@
         "path": "https://csse.org.uk/?view=schools"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Essex and Southend CSSE grammar schools",
+        "test": "CSSE 11+ examination",
+        "parts": [
+          "English",
+          "Mathematics"
+        ],
+        "note": "Candidates sit two tests: English (60 minutes, with 10 minutes' extra reading time) and Mathematics (60 minutes). Since September 2024 (2025 entry) the English paper has no Applied Reasoning questions. Dates for 2028 entry will be published by Easter 2027. The CSSE office only runs the exam: apply to the schools through your council.",
+        "source": {
+          "label": "Consortium of Selective Schools in Essex",
+          "path": "https://csse.org.uk/?view=schools"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "gloucestershire",
@@ -424,7 +490,23 @@
         "path": "https://www.swhertsschools.org.uk/familiarisation-papers/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "South West Hertfordshire consortium schools",
+        "test": "GL Assessment",
+        "parts": [
+          "Verbal reasoning",
+          "Mathematics"
+        ],
+        "note": "GL Assessment provides the Verbal Reasoning and Mathematics tests. Registration for September 2027 entry ran from 1 April to 5 June 2026, with no late registrations. The consortium is seven partially selective schools, including Watford Grammar School for Boys and for Girls, Parmiters, Queens, Rickmansworth and St Clement Danes.",
+        "source": {
+          "label": "South West Herts Schools Consortium",
+          "path": "https://www.swhertsschools.org.uk/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "kent",
@@ -660,7 +742,25 @@
         "path": "https://www.northyorks.gov.uk/education-and-learning/school-admissions/selective-schools"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Ripon Grammar School",
+        "test": "GL Assessment",
+        "parts": [
+          "English",
+          "Verbal reasoning",
+          "Non-verbal reasoning",
+          "Mathematics"
+        ],
+        "note": "From September 2026 there are two multiple-choice papers. Verbal Skills has English (25 minutes, 26 questions, reading comprehension, spelling and grammar to the end of Year 5) and Verbal Reasoning (20 minutes, 32 questions). Non-Verbal Reasoning with Mathematics has two reasoning sections of 20 questions (10 minutes each) and about 25 maths questions (25 minutes, content to the end of Year 5).",
+        "source": {
+          "label": "North Yorkshire Council selective school admissions",
+          "path": "https://www.northyorks.gov.uk/education-and-learning/school-admissions/selective-schools"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "northern-ireland",
@@ -844,7 +944,23 @@
         "path": "https://www.stjosephstrentvale.com/admissions/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "St Joseph's College, Stoke-on-Trent",
+        "test": "Standardised multiple-choice test",
+        "parts": [
+          "Verbal reasoning",
+          "Non-verbal reasoning"
+        ],
+        "note": "Two computer-based multiple-choice papers: Verbal Reasoning (50 minutes) and Non-Verbal Reasoning (40 minutes). For 2027 entry the test was on 15, 16 and 17 September 2026, and parents had to apply by 2 September 2026.",
+        "source": {
+          "label": "St Joseph’s College admissions",
+          "path": "https://www.stjosephstrentvale.com/admissions/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "sutton",
@@ -900,7 +1016,23 @@
         "path": "https://www.churstongrammar.com/admissions-process"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Churston Ferrers Grammar School",
+        "test": "GL Assessment",
+        "parts": [
+          "English",
+          "Maths"
+        ],
+        "note": "Tests English and maths, in September of Year 6. The school says a child can sit the 11+ at only one selective school in Torbay. It publishes the date each year.",
+        "source": {
+          "label": "Churston Ferrers Grammar School admissions",
+          "path": "https://www.churstongrammar.com/admissions-process"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "trafford",
@@ -928,7 +1060,24 @@
         "path": "https://www.urmstongrammar.org.uk/page/?pid=297"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Stretford Grammar School and the other four Trafford consortium grammars",
+        "test": "Consortium entrance exam",
+        "parts": [
+          "Verbal",
+          "Non-verbal",
+          "Mathematical"
+        ],
+        "note": "Stretford, Altrincham Boys, Altrincham Girls, Sale and Urmston use the same entrance exam. It is two papers of about an hour each, with verbal, non-verbal and mathematical questions. The area note above says the provider changes for 2028 entry.",
+        "source": {
+          "label": "Stretford Grammar School admissions and consortium guidance",
+          "path": "https://www.stretfordgrammar.com/page/?pid=292"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "warwickshire",
