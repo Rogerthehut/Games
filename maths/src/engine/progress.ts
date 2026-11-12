@@ -95,6 +95,9 @@ export interface MockRecord {
   bySection?: { section: string; right: number; n: number }[];
 }
 
+/** Where a half-finished lesson was left: the topic, the screen, and the running tally that finishing needs. */
+export interface LessonDraft { skillId: string; at: number; helped: boolean; right: number; revisit: boolean; savedAt: number }
+
 export interface Profile {
   lastSkill?: string;
   skillsView?: "list" | "journey";
@@ -111,6 +114,8 @@ export interface Profile {
   lastRefresher?: number;
   /** When each worked-example lesson was last finished, by topic. */
   lessons?: Record<string, number>;
+  /** A worked-example lesson that was left part-way, so it can be picked up again (see engine/lesson.ts). */
+  lessonDraft?: LessonDraft;
   fractionsLesson?: number;
   fractionsLessonHelped?: boolean;
   fractionsLessonAnswer?: string;

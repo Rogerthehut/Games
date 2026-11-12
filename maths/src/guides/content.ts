@@ -34,6 +34,7 @@ export const PARENT_GUIDE: GuideSection[] = [
     steps: [
       "Learn this: a short lesson with one worked example, one to try with help, three on their own, and a question that revisits earlier learning.",
       "Practise: mixed questions at the right level. Right answers move a topic up, and topics come back for review at spaced-out intervals.",
+      "If you leave a lesson part-way, Today shows Continue lesson, and it picks up on the same step.",
       "In a question there are two tries. After that the steps are shown, and the topic comes back later.",
     ],
   },

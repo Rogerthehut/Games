@@ -63,9 +63,17 @@ for (const [label, w, h] of [["desktop", 1280, 860], ["phone", 390, 800]] as con
   await type(lesson.independent[1]); await page.getByTestId("lesson-next").click(); await page.waitForTimeout(300);
   await type(lesson.independent[2]); await page.getByTestId("lesson-next").click(); await page.waitForTimeout(300);
 
+  // 3b. leave part-way, find "Continue lesson" on Today, and pick it up on the same screen
+  await page.getByRole("button", { name: /^Leave/ }).click(); await page.waitForTimeout(500);
+  const todayTab = page.locator("[data-testid=nav-today]:visible").first(); if (await todayTab.count()) { await todayTab.click(); await page.waitForTimeout(500); }
+  ok(`${label}: Today offers to continue the lesson`, (await page.getByTestId("continue-lesson").count()) === 1);
+  await page.getByTestId("continue-lesson").click(); await page.waitForTimeout(600);
+  ok(`${label}: and it opens on the screen it was left on, not the start`, (await page.locator("h1").innerText()) === "Remember this?", await page.locator("h1").innerText());
+
   // 4. revisit, then finish
   ok(`${label}: Remember this? comes last`, (await page.locator("h1").innerText()) === "Remember this?");
   await type(lesson.revisit.q); await page.getByTestId("lesson-next").click(); await page.waitForTimeout(400);
+  ok(`${label}: finishing clears the saved place`, !(await page.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem("mathpath.v1") ?? "{}")).includes("lessonDraft"))));
   ok(`${label}: Lesson complete`, (await page.locator("h1").innerText()) === "Lesson complete");
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("mathpath.v1") ?? "{}"));
   ok(`${label}: finishing is saved`, !!saved.profiles?.[0]?.lessons?.[SKILL]);

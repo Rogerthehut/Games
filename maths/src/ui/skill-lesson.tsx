@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import { check } from "../engine/check";
 import { recordWrong } from "../engine/wrong-log";
-import { buildLesson, finishLesson } from "../engine/lesson";
+import { LAST_SCREEN, buildLesson, finishLesson, pausedLesson } from "../engine/lesson";
 import type { Question } from "../engine/types";
 import { AnswerInput, type InputState } from "./answer-input";
 import { useApp } from "./context";
@@ -26,11 +26,12 @@ type Phase = "ask" | "correct" | "reveal";
  * do three on your own, then answer one on an earlier topic. Everything is kept in this screen; finishing records progress.
  */
 export function SkillLesson({ skillId }: { skillId: string }) {
-  const { profile, update, leave } = useApp();
+  const { profile, update, leave, go } = useApp();
   const skill = SKILL_BY_ID[skillId];
   const lesson = useMemo(() => buildLesson(skillId), [skillId]);
   const skin = resolveSkin(profile);
-  const [at, setAt] = useState(0);
+  const resumed = useMemo(() => { const d = pausedLesson(profile); return d && d.skillId === skillId ? d : null; }, []);   // picked up where it was left
+  const [at, setAt] = useState(resumed?.at ?? 0);
   const screen = SCREENS[at];
   const [stepsShown, setStepsShown] = useState(0);        // model: steps revealed so far
   const [values, setValues] = useState<string[]>([""]);
@@ -39,7 +40,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
   const [message, setMessage] = useState("");
   const [extra, setExtra] = useState(0);                   // guided: extra steps revealed by hints
   const [showHint, setShowHint] = useState(false);
-  const tally = useRef({ helped: false, right: 0, revisit: false, busy: 0, last: "", tried: [] as string[] });
+  const tally = useRef({ helped: resumed?.helped ?? false, right: resumed?.right ?? 0, revisit: resumed?.revisit ?? false, busy: 0, last: "", tried: [] as string[] });
   const heading = useRef<HTMLHeadingElement>(null);
 
   const q: Question | null = screen === "model" ? lesson.model : screen === "guided" ? lesson.guided : screen === "revisit" ? lesson.revisit.q
@@ -49,7 +50,10 @@ export function SkillLesson({ skillId }: { skillId: string }) {
   useEffect(() => { if (screen === "model" || screen === "done") heading.current?.focus({ preventScroll: true }); }, [at]);
   useEffect(() => { update((p) => p.lastSkill === skillId ? p : { ...p, lastSkill: skillId }); }, []);
 
+  // remember the step as they go, so leaving part-way (or closing the app) can be picked up again from Today
+  const save = (n: number) => update((p) => n >= LAST_SCREEN ? p : { ...p, lessonDraft: { skillId, at: n, helped: tally.current.helped, right: tally.current.right, revisit: tally.current.revisit, savedAt: Date.now() } });
   const goTo = (n: number) => {
+    save(n);
     tally.current.tried = [];
     setAt(n); setStepsShown(0); setValues([""]); setPhase("ask"); setTries(0); setMessage(""); setExtra(0); setShowHint(false);
   };
@@ -58,7 +62,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
     goTo(SCREENS.length - 1);
   };
   const next = () => (screen === "revisit" ? finish() : goTo(at + 1));
-  const close = () => leave({ name: "map", skill: skillId });
+  const close = () => (screen === "done" ? go({ name: "map", skill: skillId }) : leave({ name: "map", skill: skillId })); // Leave steps back; the end goes to Skills, wherever the lesson was opened from
 
   const answerState: InputState = phase === "correct" ? "right" : message && phase === "ask" ? "wrong" : "idle";
   const canCheck = !!q && phase === "ask" && values.some((v) => v.trim());

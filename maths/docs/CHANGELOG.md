@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Pick up a half-finished lesson
+Leaving a worked-example lesson part-way now saves the step, and Today shows **Continue lesson · topic** with the other "pick up where you left off" buttons. It opens on the same screen with the running tally kept, and finishing clears it. A saved lesson is offered for 30 days. The lesson's last screen now takes you to Skills even if you opened the lesson from Today. Checks: `src/engine/lesson.test.ts` and `npm run e2e:lesson`.
+
 ## Housekeeping: test screenshots
 The browser test scripts used to write their screenshots into the top of the repo, where eleven of them were tracked, so every run showed changes. They now write to the system's temporary folder (or `OUT` if set), those files are no longer tracked, and the top-level `*.png` pattern is ignored.
 

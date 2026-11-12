@@ -1,5 +1,5 @@
 import { SKILL_BY_ID } from "../curriculum";
-import { addPoints, recordAnswer, type Profile } from "./progress";
+import { addPoints, recordAnswer, type LessonDraft, type Profile } from "./progress";
 import { mulberry32 } from "./rng";
 import type { Question } from "./types";
 
@@ -70,5 +70,17 @@ export function finishLesson(p: Profile, lesson: Lesson, outcome: LessonOutcome,
   let next = recordAnswer(p, lesson.skillId, unaided ? "right" : "helped", now);
   if (lesson.revisit.skillId !== lesson.skillId) next = recordAnswer(next, lesson.revisit.skillId, outcome.revisitRight ? "right" : "helped", now);
   next = addPoints(next, 10 + outcome.independentRight * 2);
-  return { ...next, lessons: { ...(next.lessons ?? {}), [lesson.skillId]: now }, lastSkill: lesson.skillId };
+  const { lessonDraft: _done, ...rest } = next;                      // finished: nothing left to pick up
+  return { ...rest, lessons: { ...(next.lessons ?? {}), [lesson.skillId]: now }, lastSkill: lesson.skillId };
 }
+
+/** A lesson left part-way is offered again for a month; after that it starts afresh. */
+export const LESSON_DRAFT_DAYS = 30;
+/** The half-finished lesson to offer, or null if there isn't a usable one. */
+export function pausedLesson(p: Profile, now = Date.now()): LessonDraft | null {
+  const d = p.lessonDraft;
+  if (!d || !hasLesson(d.skillId) || d.at < 0 || d.at >= LAST_SCREEN || now - d.savedAt > LESSON_DRAFT_DAYS * 86_400_000) return null;
+  return d;
+}
+/** The screen number of the last step of a lesson (the "Lesson complete" screen). A lesson saved before this isn't resumable. */
+export const LAST_SCREEN = 6;

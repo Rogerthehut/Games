@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ALL_SKILLS } from "../curriculum";
-import { buildLesson, finishLesson, hasLesson } from "./lesson";
+import { LAST_SCREEN, LESSON_DRAFT_DAYS, buildLesson, finishLesson, hasLesson, pausedLesson } from "./lesson";
 import { newProfile, statusOf } from "./progress";
 import { isCorrect } from "./check";
 import { correctInputs } from "./answer-inputs";
@@ -42,5 +42,24 @@ describe("worked-example lessons", () => {
     const shaky = finishLesson(p, lesson, { helped: true, independentRight: 0, revisitRight: false }, now);
     expect(shaky.skills["frac-add"].wrong).toBe(0);
     expect(statusOf(shaky.skills["frac-add"])).not.toBe("new");
+  });
+});
+
+describe("a lesson left part-way", () => {
+  const draft = (over = {}) => ({ skillId: "place-value", at: 3, helped: false, right: 1, revisit: false, savedAt: Date.now(), ...over });
+  it("is offered again, and only while it is recent and not finished", () => {
+    const p = { ...newProfile("Maya", 5), lessonDraft: draft() };
+    expect(pausedLesson(p)?.at).toBe(3);
+    expect(pausedLesson({ ...p, lessonDraft: draft({ savedAt: Date.now() - (LESSON_DRAFT_DAYS + 1) * 86_400_000 }) })).toBeNull();
+    expect(pausedLesson({ ...p, lessonDraft: draft({ at: LAST_SCREEN }) })).toBeNull();
+    expect(pausedLesson({ ...p, lessonDraft: draft({ skillId: "no-such-topic" }) })).toBeNull();
+    expect(pausedLesson(newProfile("Maya", 5))).toBeNull();
+  });
+  it("is cleared when the lesson is finished", () => {
+    const lesson = buildLesson("place-value");
+    const p = { ...newProfile("Maya", 5), lessonDraft: draft() };
+    const done = finishLesson(p, lesson, { helped: false, independentRight: 3, revisitRight: true });
+    expect(done.lessonDraft).toBeUndefined();
+    expect(done.lessons?.["place-value"]).toBeGreaterThan(0);
   });
 });

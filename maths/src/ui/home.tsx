@@ -1,4 +1,5 @@
 import { useMemo } from "preact/hooks";
+import { pausedLesson } from "../engine/lesson";
 import { buildRefresher, canRefresh, refresherTopics } from "../engine/refresher";
 import { DAY, buildSession, currentStreak, practiceDaysThisWeek, skillName } from "../engine/progress";
 import { mulberry32 } from "../engine/rng";
@@ -35,8 +36,9 @@ export function Home() {
   const todayIdx = (new Date(now).getDay() + 6) % 7;
   const streak = currentStreak(profile, now);
 
+  const pausedLessonNow = pausedLesson(profile);
   const pausedAngles = !!profile.anglesLesson && profile.anglesLesson.step < 3;
-  const hasSavedActivity = pausedAngles || pausedCheckup || profile.practiceDraft || Object.keys(profile.pathwayDrafts ?? {}).length > 0
+  const hasSavedActivity = !!pausedLessonNow || pausedAngles || pausedCheckup || profile.practiceDraft || Object.keys(profile.pathwayDrafts ?? {}).length > 0
     || (profile.fractionsLesson && profile.fractionsLesson < 3) || (profile.groupsLesson && profile.groupsLesson.step < 3)
     || (profile.timeLesson && profile.timeLesson.step < 3);
   const firstPractice = !last && profile.sessions.length === 0;
@@ -106,6 +108,7 @@ export function Home() {
             {profile.groupsLesson && profile.groupsLesson.step < 3 && <button class="btn" onClick={() => go({ name: "equal-groups" })}>Continue equal groups</button>}
             {profile.timeLesson && profile.timeLesson.step < 3 && <button class="btn" onClick={() => go({ name: "time-lesson" })}>Continue telling the time</button>}
             {pausedAngles && <button class="btn" onClick={() => go({ name: "angles-lesson" })}>Continue angles lesson</button>}
+            {pausedLessonNow && <button class="btn" onClick={() => go({ name: "lesson", skill: pausedLessonNow.skillId })} data-testid="continue-lesson">Continue lesson · {skillName(pausedLessonNow.skillId)}</button>}
             {refresherCount > 0 && <button class="btn" onClick={startRefresher} data-testid="start-refresher" aria-label={`Quick-fire refresher: 10 questions from the ${refresherCount} topics you practised this week`} title={`10 questions from the ${refresherCount} topics you practised this week`}><Icon name="target" size={18} /> Quick-fire refresher</button>}
           </div>
         </section>
