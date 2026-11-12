@@ -13,7 +13,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MAX_BODY, WriteLimiter, handleAccountApi, handleStripeWebhook, isAccountRoute, type AccountDeps } from "./accounts";
+import { DEFAULT_ACCOUNT_LIMITS, MAX_BODY, WriteLimiter, handleAccountApi, handleStripeWebhook, isAccountRoute, type AccountDeps } from "./accounts";
 import { ClerkAuth, FakeAuth } from "./auth";
 import { connect, connectMemory, migrate } from "./db";
 import { AssistantLimiter } from "./assistant/policy";
@@ -66,7 +66,7 @@ if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || 
     for (const [name, ok] of [["STRIPE_WEBHOOK_SECRET", stripeCfg.webhookSecret], ["STRIPE_PRICE_MONTHLY", stripeCfg.priceMonthly], ["STRIPE_PRICE_YEARLY", stripeCfg.priceYearly]] as const) if (!ok) console.warn(`${name} is not set: payments will not work properly until it is.`);
   } else if (process.env.BILLING_FAKE === "1" && process.env.NODE_ENV !== "production") billing = new FakeGateway(Number(process.env.TRIAL_DAYS ?? 7));
   if (!billing) console.warn("Payments are off: set STRIPE_SECRET_KEY (and the price ids) to turn on the paywall.");
-  accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter(900, Date.now, counters), billing, appUrl: process.env.APP_URL };
+  accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter(900, Date.now, counters, { readsPerHour: Number(process.env.ACCOUNT_READS_PER_HOUR ?? DEFAULT_ACCOUNT_LIMITS.readsPerHour), perAddressHour: Number(process.env.ACCOUNT_REQUESTS_PER_ADDRESS_HOUR ?? DEFAULT_ACCOUNT_LIMITS.perAddressHour), bookletPerDay: Number(process.env.BOOKLET_PER_DAY ?? DEFAULT_ACCOUNT_LIMITS.bookletPerDay) }), billing, appUrl: process.env.APP_URL };
 } else {
   console.warn("Accounts are off: set DATABASE_URL and CLERK_SECRET_KEY to turn them on.");
 }
@@ -230,7 +230,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
       }
       const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "");
       const proto = TRUST_PROXY ? String(req.headers["x-forwarded-proto"] ?? "https").split(",")[0] : "http";
-      const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, humanPass: String(req.headers["x-human-pass"] ?? "") || undefined, origin: host ? `${proto}://${host}` : undefined }, accounts);
+      const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, humanPass: String(req.headers["x-human-pass"] ?? "") || undefined, origin: host ? `${proto}://${host}` : undefined, ip: clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS) }, accounts);
       if (out.file) {
         try {
           const data = await readFile(new URL(`../server/assets/${out.file.name}`, import.meta.url)); // the same path from server/ and from the built dist-server/

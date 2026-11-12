@@ -164,6 +164,13 @@ export const termsSections: Section[] = [
     ],
   },
   {
+    title: "Fair use",
+    paragraphs: [
+      `Please use quarter™ for what it is for: helping children learn maths and STEM. You must not scrape, harvest or bulk-copy its questions, explanations, study guides, pictures, curriculum booklet or other content, whether by a script, bot or any other automated means, or by copying it into another product, service or AI training set. You must not try to get around the limits on how often parts of the service can be used, or use it to build something that competes with it.`,
+      `quarter’s content belongs to ${operator} or its licensors. You may use it for your own family or class, and print or share individual papers and our free samples for that purpose. We may slow, limit or suspend access that breaks these terms, and may take further steps where we need to.`,
+    ],
+  },
+  {
     title: "Public beta",
     paragraphs: [
       "quarter is currently in public beta. It is free to use while we test and improve it, and you may notice bugs, changes or the odd pause in service. Features may be added, changed or removed as we learn what works.",

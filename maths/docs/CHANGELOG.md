@@ -8,6 +8,10 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Fair use terms and limits on reads and the booklet
+- **Terms of use:** a new "Fair use" section says scraping, bulk copying (including into another product or AI training) and getting round usage limits aren't allowed, that content belongs to the operator or its licensors, and that it can be used for your own family or class. This adds an obligation, so the terms version is now `2026-11-12`: signed-in parents are asked to agree again.
+- **Server:** the account API now also limits reads per parent (1,500 an hour), total requests per address (6,000 an hour, counted before sign-in is checked) and booklet downloads per parent (8 a day), with `429` and `Retry-After`. Settings are environment variables, documented in `docs/SECURITY.md`. Tests in `server/accounts.test.ts`.
+
 ## Marketing site: a "Try one" card
 In the empty cell beside the Learning report card on the landing page there is now an interactive card with two tabs.
 - **Try a question:** a random real question (Years 3 to 6, from 25 topics) with an answer box and a hint. A wrong answer says "not quite" and, when it matches a common slip, shows the likely reason the learning report would give. "Show me how" draws the method (column, bar model, number line, grid, bus stop) and the steps appear one by one; then "Another one" and a way in to an account.

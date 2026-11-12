@@ -144,8 +144,32 @@ describe("limits", () => {
     const codes: number[] = [];
     for (let v = 1; v <= 4; v++) codes.push((await call("fake_a", "PUT", `/api/learners/${id}`, { profile: profile(), baseVersion: v }, tight)).status);
     expect(codes).toContain(429);
-    // reading is never limited
+    // reading has its own, much higher limit
     expect((await call("fake_a", "GET", "/api/account", undefined, tight)).status).toBe(200);
+  });
+  it("slows down a client that reads far too often, with a Retry-After", async () => {
+    const tight: AccountDeps = { ...deps, limiter: new WriteLimiter(900, Date.now, undefined, { readsPerHour: 3, perAddressHour: 1000, bookletPerDay: 8 }) };
+    await agree("fake_a");
+    const codes: number[] = [];
+    for (let i = 0; i < 5; i++) codes.push((await call("fake_a", "GET", "/api/account", undefined, tight)).status);
+    expect(codes).toEqual([200, 200, 200, 429, 429]);
+    const out = await call("fake_a", "GET", "/api/account", undefined, tight);
+    expect(out.headers?.["Retry-After"]).toBe("60");
+    expect((await call("fake_b", "GET", "/api/account", undefined, tight)).status).toBe(200); // another parent is not affected
+  });
+  it("limits one address across everything, signed in or not, but not other addresses", async () => {
+    const tight: AccountDeps = { ...deps, limiter: new WriteLimiter(900, Date.now, undefined, { readsPerHour: 1000, perAddressHour: 3, bookletPerDay: 8 }) };
+    const hit = (ip: string, token: string | null) => handleAccountApi({ method: "GET", path: "/api/account", token, ip }, tight);
+    expect([(await hit("1.1.1.1", null)).status, (await hit("1.1.1.1", null)).status, (await hit("1.1.1.1", "fake_a")).status]).toEqual([401, 401, 200]);
+    expect((await hit("1.1.1.1", "fake_a")).status).toBe(429);
+    expect((await hit("2.2.2.2", "fake_a")).status).toBe(200);
+  });
+  it("limits how often the booklet can be downloaded in a day", async () => {
+    const tight: AccountDeps = { ...deps, limiter: new WriteLimiter(900, Date.now, undefined, { readsPerHour: 1000, perAddressHour: 1000, bookletPerDay: 2 }) };
+    await agree("fake_a");
+    const codes: number[] = [];
+    for (let i = 0; i < 3; i++) codes.push((await call("fake_a", "GET", "/api/account/booklet", undefined, tight)).status);
+    expect(codes).toEqual([200, 200, 429]);
   });
 });
 

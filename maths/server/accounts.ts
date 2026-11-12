@@ -6,18 +6,39 @@ import type { Repo } from "./db/repo";
 import { handleAssistant, type AssistantDeps } from "./assistant/handler";
 import { applyEvent, hasAccess, summarise, type Gateway, type Plan } from "./billing";
 
-export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown; origin?: string; humanPass?: string }
+export interface ApiRequest { method: string; path: string; token: string | null; body?: unknown; origin?: string; humanPass?: string; /** the caller's address, for the per-address limit (see WriteLimiter.allowAddress) */ ip?: string }
 export interface ApiResponse { status: number; body: unknown; headers?: Record<string, string>; /** send this file from server/assets instead of a JSON body */ file?: { name: string; type: string; downloadAs: string } }
 export interface AccountDeps { repo: Repo; auth: AuthProvider; limiter?: WriteLimiter; billing?: Gateway; appUrl?: string; assistant?: AssistantDeps; humanPassOk?: (pass: string | undefined) => boolean }
 
-/** A cap on how often one parent can write, so a stuck or hostile client cannot flood the database. */
+/** How many requests each kind of caller gets. Generous for real use (a family, or a whole school behind one address), tight for a script. */
+export interface AccountLimits { readsPerHour: number; perAddressHour: number; bookletPerDay: number }
+export const DEFAULT_ACCOUNT_LIMITS: AccountLimits = { readsPerHour: 1500, perAddressHour: 6000, bookletPerDay: 8 };
+
+/**
+ * Caps on the account API, so a stuck or hostile client cannot flood the database or scrape it: how often one parent can write, how
+ * often one parent can read, how many requests one address can make in total (signed in or not), and how often the booklet can be
+ * downloaded. Counts live in the shared counters (see counters.ts), keyed so no address or account id is stored in the clear.
+ */
 export class WriteLimiter {
-  constructor(private perHour = 900, private now: () => number = Date.now, private counters: Counters = new MemoryCounters()) {}
+  constructor(private perHour = 900, private now: () => number = Date.now, private counters: Counters = new MemoryCounters(), private limits: AccountLimits = DEFAULT_ACCOUNT_LIMITS) {}
   /** Counts a change by this parent and says whether it is within the hourly limit. */
   async allow(key: string): Promise<boolean> {
     return (await this.counters.hit(`w:${key}`, 3_600_000, this.now())) <= this.perHour;
   }
+  /** Counts a read by this parent. */
+  async allowRead(key: string): Promise<boolean> {
+    return (await this.counters.hit(`r:${key}`, 3_600_000, this.now())) <= this.limits.readsPerHour;
+  }
+  /** Counts a request from this address, whoever it says it is. */
+  async allowAddress(ip: string): Promise<boolean> {
+    return (await this.counters.hit(`a:${ip}`, 3_600_000, this.now())) <= this.limits.perAddressHour;
+  }
+  /** Counts a booklet download by this parent (a day's worth). */
+  async allowBooklet(key: string): Promise<boolean> {
+    return (await this.counters.hit(`b:${key}`, 86_400_000, this.now())) <= this.limits.bookletPerDay;
+  }
 }
+const SLOW_DOWN = (message: string) => reply(429, { error: "slow-down", message }, { "Retry-After": "60", "Cache-Control": "no-store" });
 
 export const FEEDBACK_CATEGORIES = ["bug", "idea", "question", "other"] as const;
 export const FEEDBACK_MAX = 2000;
@@ -43,12 +64,15 @@ export const isAccountRoute = (path: string) => path === "/api/account" || path.
  * The tutor chat log never reaches here (the app keeps it on the device and the server drops it if sent).
  */
 export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Promise<ApiResponse> {
+  // one address making a flood of requests, signed in or not, is slowed before anything else happens
+  if (deps.limiter && req.ip && !(await deps.limiter.allowAddress(req.ip))) return SLOW_DOWN("Too many requests from this connection. Please wait a moment.");
   const who = await deps.auth.authenticate(req.token);
   if (!who) return err(401, "signed-out", "Please sign in.");
   const parent = await deps.repo.upsertParent(who.userId);
   const consented = parent.consentVersion === TERMS_VERSION;
   const writing = req.method !== "GET";
   if (writing && deps.limiter && !(await deps.limiter.allow(parent.id))) return err(429, "slow-down", "Too many changes just now. Please wait a moment.");
+  if (!writing && deps.limiter && !(await deps.limiter.allowRead(parent.id))) return SLOW_DOWN("Too many requests just now. Please wait a moment.");
   const body = (req.body ?? {}) as Record<string, unknown>;
 
   // the account itself
@@ -91,6 +115,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   if (req.path === "/api/account/booklet" && req.method === "GET") {
     if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
     if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to download the booklet.");
+    if (deps.limiter && !(await deps.limiter.allowBooklet(parent.id))) return SLOW_DOWN("The booklet has been downloaded a few times today. Please try again tomorrow.");
     return { status: 200, body: null, file: { name: "quarter-curriculum.pdf", type: "application/pdf", downloadAs: "quarter-curriculum.pdf" } };
   }
 
