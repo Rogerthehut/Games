@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Ops page for the team (/ops), with a feedback inbox
+- A secure page for the team: feedback inbox, numbers, account lookup, audit log. Needs a parent sign-in, an allow-list (`OPS_ADMINS`) and a six-digit code emailed to the admin. Anyone else sees "not found". Setup in `docs/OPS.md`.
+- You can reply to parents who ticked "may reply": the email goes out through Resend from hello@, their address is looked up from Clerk and never stored, and the reply is kept under the feedback. A new table (`feedback_replies`, migration 0006) holds it.
+- Every view, reply and failed sign-in is audit-logged. DPIA updated. `/ops` is noindex and in `robots.txt`.
+- After pulling: restart the app so migration 0006 runs, then add `OPS_ADMINS` and `OPS_SESSION_SECRET` in Secrets.
+
 ## 11+ test details for six more areas
 - BCP, Calderdale, Liverpool, Reading, Redbridge and Westmorland now show what's known about the entrance test (provider, parts, how to register), each with its source and the date checked. Where a school's page doesn't name the provider it says so, and Redbridge is marked disputed because its sources disagree. Lancashire is still unrecorded.
 

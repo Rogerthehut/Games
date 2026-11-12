@@ -169,5 +169,6 @@ Run against a built preview (`VITE_ALLOW_LOCAL_ONLY=1 npm run build && npx vite 
 - `npm run e2e:taps`: a quick double tap on Check, Show the steps or Next counts once.
 - `npm run e2e:grownup`: the Parents' area, adding or changing a learner and the search all ask for the sum and PIN, and the area locks again on leaving. The review behind it is `docs/GROWN_UP_CONTROLS_REVIEW.md`.
 - `npm run e2e:report`, `e2e:topicsearch`: the learning report and the topic search.
+- `npm run e2e:ops`: the ops page (starts its own server and app; set `PLAYWRIGHT_MODULE` to the path of `playwright/index.js`).
 - `npm run e2e:lesson`, `e2e:refresher`, `e2e:instruments`, `e2e:tools`, `e2e:guides`, `e2e:challenge`: the worked-example lessons, the weekly refresher, the protractor and drawing questions, the working-out tools, the user guides and the times tables challenges.
 - Accounts: see the notes at the top of `scripts/accounts-e2e.mjs`.

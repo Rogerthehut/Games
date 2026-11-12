@@ -41,6 +41,38 @@ Tutor and assistant usage lives in the server logs (the lines marked `assistant`
 - **"Please delete my account."** They can do it themselves in the Parents' area, under Account. If they can't sign in, delete the sign-in user in Clerk, then ask Roger to remove the rows. A button for this is planned for the ops page.
 - **Weekly check.** `stats` shows sign-ups, trials about to end and active learners. `feedback --days 7` shows what to read and reply to.
 
-## Next steps (not built yet)
+## The ops page (`/ops`)
 
-A small ops page, behind your own sign-in only, with an inbox, account lookup and the numbers above. It needs an admin allow-list, two-step sign-in and an update to the data-protection assessment first.
+A page for the team, in the browser: the feedback inbox with replies, the numbers, account lookup and the audit log. It shows what the commands above show, and nothing about a child's name, answers or progress.
+
+### Turning it on
+
+Add these in Replit Secrets, then restart:
+
+| Secret | What it is |
+| --- | --- |
+| `OPS_ADMINS` | The email addresses allowed in, comma-separated (the address you sign in to quarter with, for example `you@example.com`) |
+| `OPS_SESSION_SECRET` | A long random string (24+ characters) used to sign the one-hour session. Keep it private |
+| `RESEND_API_KEY` | Already set for the weekly email. The sign-in code and replies are sent with it |
+
+Without all three the page stays off, and the server logs "The ops page is off".
+
+### Signing in (three checks, all on the server)
+
+1. Sign in at `/ops` with your normal quarter parent account.
+2. Your email must be on `OPS_ADMINS`. Anyone else sees the same "not found" as a page that doesn't exist.
+3. Press **Email me a code** and enter the six-digit code. It lasts 10 minutes, allows 5 tries, and you can ask for another every 30 seconds. That opens an hour-long session. **Lock** ends it sooner.
+
+Take a person off `OPS_ADMINS` and restart, and they lose access within five minutes anyway.
+
+### Replying to parents
+
+The inbox lists feedback from the last 90 days, showing only those still waiting for a reply by default. Only feedback where the parent ticked "you may reply" has a reply box. A reply is emailed from `hello@yourquarter.co.uk` (their address is looked up from Clerk at that moment and never stored), quotes their message, and is recorded under the feedback so you can see what was said. If the email fails, nothing is recorded. Parents who reply go to your hello@ mailbox (open it in Zoho Mail on the web or app); showing those replies inside the portal is a possible later step.
+
+### Audit log
+
+Every code sent, sign-in, failed code, inbox view, reply and account lookup is written to the audit log, tagged `admin:` plus part of the sign-in id, never a name or email. See it under **Audit log**, or `npm run ops -- audit`.
+
+## Next steps
+
+Showing inbound replies in the portal, and a button to delete an account for someone who can't sign in.

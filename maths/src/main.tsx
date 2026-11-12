@@ -8,6 +8,7 @@ import { accountsOn, notSetUp } from "./account/config";
 import { getInformationPage, LegalScreen, SitemapScreen } from "./ui/legal";
 import { applyTheme, getTheme } from "./ui/skin";
 import { tintScrollbars } from "./ui/scrollbars";
+import { OpsPage } from "./ui/ops-page";
 
 tintScrollbars();
 
@@ -20,4 +21,5 @@ if (page) {
   document.querySelector('link[rel="canonical"]')?.setAttribute("href", `https://yourquarter.co.uk/?info=${page}`);
 }
 document.getElementById("app")!.textContent = ""; // drop the plain-HTML summary that search engines and no-script visitors see
-render(page === "sitemap" ? <SitemapScreen /> : page ? <LegalScreen page={page} /> : notSetUp ? <NotSetUp /> : accountsOn ? <AccountGate /> : <LazyApp />, document.getElementById("app")!);
+const ops = location.pathname === "/ops";
+render(ops ? <OpsPage /> : page === "sitemap" ? <SitemapScreen /> : page ? <LegalScreen page={page} /> : notSetUp ? <NotSetUp /> : accountsOn ? <AccountGate /> : <LazyApp />, document.getElementById("app")!);
