@@ -1,6 +1,6 @@
 -- Subscriptions, kept in step with Stripe by its webhooks. No card details are ever stored here: Stripe holds those.
 -- Split statements with a line containing only "--> split".
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
   parent_id uuid PRIMARY KEY REFERENCES parents(id) ON DELETE CASCADE,
   stripe_customer_id text NOT NULL UNIQUE,
   stripe_subscription_id text,
@@ -13,7 +13,7 @@ CREATE TABLE subscriptions (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 --> split
-CREATE TABLE stripe_events (
+CREATE TABLE IF NOT EXISTS stripe_events (
   id text PRIMARY KEY,
   received_at timestamptz NOT NULL DEFAULT now()
 );
