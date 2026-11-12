@@ -8,6 +8,12 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## The AI tutor stays on maths: no helplines, no safeguarding alerts
+- If a child brings up something that isn't maths (a worry, or something personal), the tutor says it can only help with maths, suggests talking to a parent or guardian, and goes back to the maths. It no longer gives Childline or any other number, and it no longer flags the message or shows an alert in the Parents' area.
+- The parent can still read the whole chat log in the AI tutor tab (kept on the device for 30 days, clearable). Personal details are still blocked and never sent on.
+- The parents' assistant follows the same rule: no helplines, a kind suggestion to speak to someone they trust such as the child's school or GP.
+- Wording brought into line in the parent guide, the privacy notice, the DPIA, `docs/TUTOR.md` and `docs/GROWN_UP_CONTROLS_REVIEW.md`. The `wellbeing` flag no longer exists. Tests updated.
+
 ## Solutions now show the method, not just the sum again
 "Column method: 376 − 238 = 138" only restated the question. Solutions can now carry a **picture of the method worked through** (`Question.worked`, shown by `src/ui/solution.tsx` above the steps in practice, lessons, papers, the learning report and the printable mark scheme; in step-by-step lessons the picture waits until every step is showing, so it doesn't give the answer away).
 - **Adding and subtracting:** a column layout with place names (O, T, H, Th…), the carries written under the answer, and exchanges over the top number with the old digit struck through, including exchanges passed across zeros (4003 − 1865). The words are made from the same digits ("Ones: 6 is too small to take away 8, so exchange 1 ten for 10 ones. Now 16 − 8 = 8").

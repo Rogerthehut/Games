@@ -1,7 +1,7 @@
 /** Shared by the app and the tutor service. Keep it dependency-free. */
 
 export type RevealPolicy = "guide" | "after-tries";
-export type TutorFlag = "wellbeing" | "personal-info" | "off-topic" | "limit" | "unavailable";
+export type TutorFlag = "personal-info" | "off-topic" | "limit" | "unavailable";
 
 /** What the child is working on. The tutor sees this, never anything else about the child. */
 export interface TutorContext {

@@ -111,7 +111,7 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Each reply has a Read to me button that reads it aloud with the voice on the device. Nothing is recorded or sent anywhere for that.",
       "It sees the question, what your child has typed for it, and the topic and year. It never sees their nickname, avatar, progress or your details.",
       "The chat log is kept on this device only, for 30 days. You can read it or clear it in the AI tutor tab.",
-      "If your child writes something that suggests they may be upset or unsafe, the tutor replies kindly, points them to a trusted adult and Childline (0800 1111), and flags it for you in the grown-ups' area.",
+      "The tutor only helps with maths. If your child brings up something that isn't maths, it kindly suggests they talk to you or their guardian and goes back to the maths.",
     ],
   },
   {

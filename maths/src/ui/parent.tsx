@@ -43,8 +43,7 @@ export function Parent() {
   const [nameSaved, setNameSaved] = useState(false);
   const tutorUp = useTutorAvailable();
   const log = profile.tutorLog ?? [];
-  const worries = log.filter((e) => e.flag === "wellbeing" && !e.seen);
-  const flagLabel: Record<string, string> = { wellbeing: "Wellbeing", "personal-info": "Personal details", "off-topic": "Off topic", limit: "Daily limit", unavailable: "Tutor unavailable" };
+  const flagLabel: Record<string, string> = { "personal-info": "Personal details", "off-topic": "Off topic", limit: "Daily limit", unavailable: "Tutor unavailable" };
 
   const touched = ALL_SKILLS.filter((s) => (profile.skills[s.id]?.seen ?? 0) > 0);
   const byStatus = (st: string) => ALL_SKILLS.filter((s) => statusOf(profile.skills[s.id]) === st);
@@ -67,15 +66,6 @@ export function Parent() {
         <div><h1>Parents' area</h1><p class="muted">{profile.name} · Year {profile.year}</p></div>
         <button class="btn small lock-parents" onClick={() => { lockParents(); go({ name: "me" }); }} data-testid="lock-parents"><Icon name="lock" size={16} /> Lock and leave</button>
       </header>
-
-      {worries.length > 0 && (
-        <section class="card alert" role="alert" aria-labelledby="wb">
-          <h2 id="wb">Something in the AI tutor chat needs your attention</h2>
-          <p>{profile.name} wrote something that suggested they may be upset or unsafe. The tutor replied kindly, told them to speak to a trusted adult, and pointed to Childline (0800 1111, free). A gentle chat is worth having.</p>
-          <ul class="finding-list">{worries.map((e) => <li key={e.at}><span class="small muted">{new Date(e.at).toLocaleString("en-GB")}</span><p>“{e.child}”</p></li>)}</ul>
-          <button class="btn" onClick={() => update((p) => ({ ...p, tutorLog: (p.tutorLog ?? []).map((e) => (e.flag === "wellbeing" ? { ...e, seen: true } : e)) }))}>I've seen this</button>
-        </section>
-      )}
 
       <div class="seg parts" role="tablist" aria-label="Sections">
         {([["progress", "Progress"], ...(account ? [["assistant", "AI assistant"]] : []), ["tutor", "AI tutor"], ["guides", "Guides"], ["settings", "Settings"], ...(account ? [["feedback", "Feedback"]] : [])] as [Part, string][]).map(([id, label]) => (
@@ -215,7 +205,7 @@ export function Parent() {
           {log.length === 0 ? <p class="muted">Nothing yet. Every exchange shows up here, newest first.</p> : (
             <ul class="finding-list">
               {[...log].reverse().slice(0, 40).map((e) => (
-                <li key={e.at} class={e.flag === "wellbeing" ? "flagged" : ""}>
+                <li key={e.at}>
                   <div class="small muted">{new Date(e.at).toLocaleString("en-GB")} · {SKILLS.find((s) => s.id === e.skillId)?.name ?? e.skillId}{e.flag && <> · <span class="badge">{flagLabel[e.flag] ?? e.flag}</span></>}</div>
                   <p><strong>Child:</strong> {e.child}</p>
                   <p><strong>Tutor:</strong> <Maths text={e.tutor} /></p>

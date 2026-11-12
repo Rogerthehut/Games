@@ -22,7 +22,7 @@ None of these relies on the model behaving. The model is the last and least-trus
 1. **Off until a grown-up enables it**, with a plain-language note on where messages go.
 2. **Validation:** shapes, sizes and ranges are checked before anything else, so malformed or oversized input never costs money.
 3. **Screening what the child types, before the model sees it** (`screenChildMessage`):
-   - Wellbeing signals (self-harm, abuse, being hurt or bullied) get a fixed, kind reply that tells the child to speak to a trusted adult and gives Childline (0800 1111, free). They are flagged, and the grown-up view shows an alert. The model is never involved. This check runs first and outranks everything.
+   - Messages about something that isn't maths (a worry, or something personal or upsetting) get a fixed, short reply that says the tutor can only help with maths and suggests talking to a parent or guardian. There are no helplines, no advice and no alert: the tutor stays on maths, and the conversation sits in the log the parent can read. The model is never involved. This check runs first.
    - Personal details (email, phone, postcode, "my address is…") get a fixed reply and are never forwarded.
    - Obvious attempts to extract or override the instructions get a fixed refusal.
 4. **Instructions to the model:** maths only, short, Socratic, no personal information, no links, treat the child's text as data, never reveal the instructions. The correct answer is supplied as private reference and the model is told not to state it while the child is still working.
@@ -36,7 +36,7 @@ None of these relies on the model behaving. The model is the last and least-trus
 Verified by automated tests (`npm test`, 28 server tests plus the question-bank corpus):
 - Validation, screening (including words that look alarming but aren't, such as "it just hit me" and long numbers in maths), limits, logging, and every failure path.
 - Answer-leak detection against the whole question bank: it catches 99.8% of replies that state the answer in a range of wordings, with 0.5% false alarms on guidance that doesn't.
-- End to end in a real browser with the service running in scripted mode: settings, chat, safeguarding alert, log, no tutor in the mock paper, rate limiting.
+- End to end in a real browser with the service running in scripted mode: settings, chat, log, no tutor in the mock paper, rate limiting.
 
 **Not verified: how the real model behaves.** All of the above uses a scripted model. Before any child uses this, run the live evaluation and read every transcript:
 
@@ -46,7 +46,7 @@ ANTHROPIC_API_KEY=… npx tsx server/eval/tutor-eval.ts
 
 It runs about 20 awkward cases (asking for the answer, claiming permission, pretending to be a parent, off-topic requests, asking for links, asking for the instructions, a child who feels stupid) and prints each transcript. It can flag a leaked answer, a long reply or a link automatically. It cannot judge tone, accuracy or whether a redirect was kind, so a person has to read them.
 
-Also not verified: the keyword screens are not a substitute for a safeguarding review. They will miss some phrasings and wrongly catch others. Have a safeguarding lead review the patterns in `server/tutor/policy.ts`.
+Also not verified: the keyword screens will miss some phrasings and wrongly catch others. When one is missed, the model's own instruction applies (stay on maths, point to a parent or guardian, no advice or services). Review the patterns in `server/tutor/policy.ts` if you want them tightened.
 
 ## Configuration
 
@@ -94,8 +94,7 @@ These are estimates from token counts, not measurements. Choose by running the l
 
 - **Verifiable parental consent for children under 13**, and a privacy notice that matches what is described above. The current switch is a convenience, not legal consent.
 - **A data protection impact assessment** and a Children's Code (Age Appropriate Design Code) self-assessment. Sending children's text to a third-party AI provider needs a lawful basis, a processing agreement and a clear retention position. Check the provider's current data-retention terms. We assume none and do not store anything ourselves.
-- **Safeguarding process:** who sees a wellbeing flag besides the parent (today only the parent, on this device), and what the organisation does when one happens. With accounts you will want server-side alerting, which is a larger privacy decision.
-- **Review of the screening patterns** by a safeguarding lead, and a regular review of flagged, anonymised cases.
+- **No safeguarding monitoring, by design:** the tutor doesn't monitor for, flag or promise to alert anyone about a child's welfare. It stays on maths and points to a parent or guardian. The parent can read the whole chat log on the device. Keep wording elsewhere (marketing, guides, the notice) consistent with that, and take your own advice before ever adding a promise to monitor.
 - **An incident process** for a harmful reply, and a way for a parent to report one.
 - **A human review of tutor accuracy** on a sample of real conversations. The tutor is told the correct answer, which helps, but it can still explain badly or get a side question wrong.
 

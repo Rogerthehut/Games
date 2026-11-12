@@ -90,7 +90,7 @@ export function privacySections(native: boolean): Section[] {
       paragraphs: [
         "The AI tutor is off by default and only appears when a grown-up turns it on in the Parents’ area. When a message is sent, the tutor service receives the message, recent chat, the school year and the maths question and answers tried. It uses a random browser ID and an IP address to limit how often it is used. It does not receive the learner’s nickname or account details.",
         "The service checks messages, then may pass the chat and maths question to an AI provider to write a reply. We ask providers not to keep or train on these messages. Keep names, addresses and other personal details out of messages. The tutor can make mistakes.",
-        "AI tutor conversations are kept only in the browser on the device used, for a grown-up to read or clear. They are not saved to the account, and the tutor service is designed to record counts and safety flags, not message text. If a message suggests a child may be upset or unsafe, the tutor replies kindly, points to a trusted adult and Childline, and shows a note in the Parents’ area.",
+        "AI tutor conversations are kept only in the browser on the device used, for a grown-up to read or clear. They are not saved to the account, and the tutor service is designed to record counts, not message text. The tutor only helps with maths: if a child brings up something else, it suggests they talk to a parent or guardian and goes back to the maths.",
       ],
     }]),
     {

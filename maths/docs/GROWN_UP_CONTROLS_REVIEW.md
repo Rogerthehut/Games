@@ -29,7 +29,7 @@ A multiplication a young child can't do quickly, then the parent's own 6 or 8 di
 - **Who receives it:** the tutor service, then the AI provider chosen in the server settings, with the provider's data collection switched off where the provider allows it. This needs a data processing agreement and a line in the privacy notice naming the provider.
 - **Server logs:** only the kind of event (ok, blocked, refused, limit, error), a flag, the time taken and the model name. No message text, no question, no ids. The same holds for the parents' assistant.
 - **Stored on the device:** the chat log, in the browser. It never goes to the server (the server drops it if sent) and it isn't in the account data export. A grown-up can read it, clear it, or let it expire after 30 days.
-- **Safeguarding:** messages that suggest a child may be upset or unsafe get a kind reply pointing to a trusted adult and Childline, and raise an alert in the Parents' area until it's marked seen.
+- **Staying on maths:** if a child brings up something that isn't maths, the tutor kindly suggests they talk to a parent or guardian and goes back to the maths. It doesn't give helplines or advice, and it doesn't flag or alert anyone. The parent can read the whole chat log (kept on the device for 30 days).
 
 ## Limits, stated plainly
 

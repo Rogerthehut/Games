@@ -65,10 +65,10 @@ export interface Goal {
 }
 
 /** One exchange with the AI tutor, kept on the device for the grown-up to read. */
-/** Tutor chats stay on the device for 30 days, apart from a worrying message a grown-up hasn't seen yet. */
+/** Tutor chats stay on the device for 30 days. */
 export const TUTOR_LOG_DAYS = 30;
 export const pruneTutorLog = (log: TutorLogEntry[], now = Date.now()): TutorLogEntry[] =>
-  log.filter((e) => now - e.at < TUTOR_LOG_DAYS * DAY || (e.flag === "wellbeing" && !e.seen)).slice(-300);
+  log.filter((e) => now - e.at < TUTOR_LOG_DAYS * DAY).slice(-300);
 
 export interface TutorLogEntry {
   at: number;
