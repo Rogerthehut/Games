@@ -23,7 +23,7 @@ export const legalPages = Object.keys(legalTitles) as LegalPage[];
 export type FooterGroup = { heading: string; links: { label: string; href: string }[] };
 /** Footer link groups, shared by the app and the generated parent pages. */
 /** Where people can review quarter. It is a plain link: nothing from Trustpilot is loaded on our pages. */
-export const trustpilot = { label: "Review quarter on Trustpilot", href: "https://uk.trustpilot.com/review/yourquarter.co.uk" } as const;
+export const trustpilot = { label: "Leave us a review on Trustpilot", href: "https://uk.trustpilot.com/review/yourquarter.co.uk" } as const;
 /** Said under the wordmark in the page footer. */
 export const footerTagline = "Maths and STEM practice for Years 3 to 13, starting where your child is.";
 export function footerGroups(parents: { hub: { path: string; title: string }; faq: { path: string } }): FooterGroup[] {
@@ -81,7 +81,7 @@ export function privacySections(native: boolean): Section[] {
         "Cloudflare provides a quick check (Turnstile) that you are a person, before the AI tutor or assistant can be used. It looks at your browser and connection to tell people from automated scripts. quarter does not use it to track you.",
         "Resend sends the optional weekly progress email, if you turn it on in the Parents’ area. It receives your email address and the text of that email, which includes your child’s nickname and a short summary of their week. It may process them outside the UK. You can turn the email off at any time, and every email has an unsubscribe link.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
-        "Sentry receives a short report if quarter crashes, so we can fix it. A report has the type of error and a short message, where in our code it happened, and the browser and device software version, plus the page path without anything after a question mark. It has no names, nicknames, email addresses, answers or anything typed into quarter, and we ask Sentry not to store IP addresses. Reports are stored in Europe (EU) and deleted after 90 days.",
+        "Sentry receives a short report if quarter crashes, so we can fix it. A report has the type of error and a short message, where in our code it happened, and the browser and device software version, plus the page path without anything after a question mark and the country it was sent from. It has no names, nicknames, email addresses, answers or anything typed into quarter, and we ask Sentry not to store IP addresses. Reports are stored in Europe (EU) and deleted after 30 days.",
         "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
         "Clerk, Cloudflare, Sentry and the AI provider used by the optional AI tutor and the assistant may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
       ],
