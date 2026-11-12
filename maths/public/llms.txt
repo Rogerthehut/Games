@@ -9,6 +9,9 @@ Contact: hello@yourquarter.co.uk
 ## What quarter covers
 - [What quarter covers](https://yourquarter.co.uk/curriculum/index.html): every maths topic, year by year, and the STEM lab
 - [The STEM lab](https://yourquarter.co.uk/curriculum/stem.html): computing, data science, AI and machine learning, and quantum ideas
+- Practice for the 11+: practice papers (quick, or timed like published real tests), and a finder for local tests. Maths and reasoning only; no English papers
+- Times tables: a facts grid, 60-second and 25-question timed challenges, personal bests and a family scoreboard
+- Optional weekly progress email for parents, with one-click unsubscribe
 - Learning report for parents: the questions a child got wrong in any period, the likely reasons, methods to try together and matching study guides and lessons, plus a check-up plan that targets the gaps and repeat check-ups to see progress.
 - [Full site guide for assistants](https://yourquarter.co.uk/llms-full.txt): every topic with a one-line description
 

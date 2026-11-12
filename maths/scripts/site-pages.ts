@@ -1,3 +1,4 @@
+import admissions from "../src/parents/admissions.json";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { Plugin } from "vite";
@@ -17,7 +18,7 @@ import content from "../src/parents/content.json";
  */
 export const SITE = "https://yourquarter.co.uk";
 /** When the public pages were last reviewed. Update it when the content changes in a way worth telling crawlers about. */
-export const CONTENT_DATE = "2026-11-11";
+export const CONTENT_DATE = "2026-11-12";
 const SITE_TITLE = "quarter";
 
 const slash = `<span class="wordmark" role="img" aria-label="quarter"><span aria-hidden="true">qua<svg class="wordmark-slash" viewBox="0 0 14 20" focusable="false"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter</span><sup class="wordmark-tm" aria-hidden="true">™</sup></span>`;
@@ -278,6 +279,13 @@ export function llmsFull() {
   for (const t of THEMES) { lines.push(`### ${t.label}`); for (const s of STEM_SKILLS.filter((x) => themeOf(x) === t.id)) lines.push(`- ${plainText(s.name)} (Year ${s.year}): ${plainText(s.blurb)}`); lines.push(""); }
   lines.push("", "## Blog", "");
   for (const p of [...POSTS].sort((x, y) => y.date.localeCompare(x.date))) lines.push(`- [${p.title}](${SITE}/${postPath(p)}) (${p.date}): ${p.description}`);
+  lines.push("", "## 11+ entrance tests by area (England and Northern Ireland)", "", `What is known about who sets each test and what it covers, with how sure we are (confirmed, reported or disputed) and a link to the source. Test providers and dates change each year, so always check the school's own page. Full finder: ${SITE}/11-plus-maths.html`, "");
+  for (const a of admissions as { area: string; test?: { provider: string; status: string; note: string; parts?: string[]; checked: string; source?: { path: string } }; schools?: { name: string; test: string; note: string; parts?: string[]; source: { path: string } }[] }[]) {
+    const t = a.test;
+    lines.push(`### ${a.area}`, t ? `- Test: ${t.provider} (${t.status}, checked ${t.checked}). ${t.note}${t.parts?.length ? ` Covers: ${t.parts.join(", ")}.` : ""}${t.source ? ` Source: ${t.source.path}` : ""}` : "- Test: check the school and council pages (not recorded).");
+    for (const sc of a.schools ?? []) lines.push(`- ${sc.name}: ${sc.test}. ${sc.note}${sc.parts?.length ? ` Covers: ${sc.parts.join(", ")}.` : ""} Source: ${sc.source.path}`);
+    lines.push("");
+  }
   lines.push("", `Feed: ${SITE}/blog/rss.xml`, "", "## Parent guides", "");
   for (const g of [content.hub, content.faq, ...content.guides]) lines.push(`- [${g.title}](${SITE}/${g.path}): ${g.description}`);
   lines.push("");

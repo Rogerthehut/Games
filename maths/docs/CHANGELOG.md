@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Search and AI findability refresh
+- Sitemap dates moved to today, so crawlers see the changed 11+ page. `/llms-full.txt` now includes the 11+ test notes for every area and the per-school entries, each with its source and confidence. `llms.txt` and the home page's structured data (feature list) now mention the learning report, timed papers, times tables challenges and the weekly email. `/ops` is in `robots.txt` and sends `noindex`. Icons, favicons and the manifest were checked and need no change.
+
 ## Practice papers timed like real tests
 The practice paper screen now has two groups: **Quick practice** (the three short papers) and **Timed like a real test**: Quest-style maths (60 questions, 40 minutes, as Colyton's Quest paper), Ripon-style reasoning and maths (40 non-verbal reasoning questions then about 25 maths, 45 minutes), Maths in 50 minutes (as Bournemouth School for Girls' GL paper) and Maths in 60 minutes (as the Essex CSSE paper). Each says what its timing is based on. The questions are quarter's own and, where a school doesn't publish a question count, the number is ours. Maths and reasoning only: there are no English papers. Results, Fix this and the progress report work as before.
 
