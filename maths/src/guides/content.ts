@@ -76,7 +76,7 @@ export const PARENT_GUIDE: GuideSection[] = [
   },
   {
     id: "gate", icon: "lock", title: "The grown-ups' area and your PIN",
-    text: ["Your child can't wander in by accident: it asks a multiplication sum, then your own 6 or 8 digit PIN. It stays open while you're using it, and locks again after five minutes of nothing being touched, or as soon as you tap Lock and leave. Adding a learner or changing the school year asks the same way. Your child stays signed in to the main app throughout, so they can carry on with their work."],
+    text: ["Find it at the bottom of the left-hand panel: a small padlock labelled Parents' area (on a phone, it's a row at the bottom of the Me page). Tap it and the sum and PIN open right there, then it takes you in. Your child can't wander in by accident: it asks a multiplication sum, then your own 6 or 8 digit PIN. It stays open while you're using it, and locks again after five minutes of nothing being touched, or as soon as you tap Lock and leave. Adding a learner or changing the school year asks the same way. Your child stays signed in to the main app throughout, so they can carry on with their work."],
     tips: [
       "Forgotten your PIN? Sign out and sign in again to reset it.",
       "The lock is there to stop accidental taps, not to defeat a determined teenager. On a shared computer, use separate browser profiles.",
@@ -186,6 +186,6 @@ export const CHILD_GUIDE: GuideSection[] = [
   },
   {
     id: "me", icon: "user", title: "Make it yours",
-    text: ["On the Me page you can choose your avatar and glasses, the look of the app, and read-aloud. Your avatars match your school year."],
+    text: ["On the Me page you can choose your avatar and glasses, the look of the app, and read-aloud. Your avatars match your school year. At the very top there's Show me around, if you want the quick tour again."],
   },
 ];

@@ -112,7 +112,7 @@ details[open] > summary::before { transform: rotate(90deg); }
 @media (min-width: 900px) {
   .app { display: grid; grid-template-columns: 264px minmax(0, 1fr); }
   .tabbar { display: none; }
-  .rail { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100dvh; padding: 28px 16px 20px; background: var(--surface); border-right: 1px solid var(--line); }
+  .rail { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; padding: 28px 16px 20px; background: var(--surface); border-right: 1px solid var(--line); }
   .rail .brand { display: flex; align-items: center; gap: 10px; border: 0; background: none; color: var(--accent); font-size: 1.25rem; cursor: pointer; padding: 6px 12px 22px; text-align: left; }
   .rail-nav { display: grid; gap: 4px; }
   .rail .nav-item { flex-direction: row; justify-content: flex-start; gap: 14px; font-size: 1rem; padding: 12px 14px; min-height: 50px; color: var(--ink); }
@@ -3239,3 +3239,20 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .tt-who { display: grid; min-width: 0; }
 .tt-who small { font-size: .75rem; }
 .tt-pts { font: 800 1.05rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+
+/* the Parents' area padlock in the left-hand panel */
+.rail-parents { position: relative; margin-top: 6px; }
+.rail-lock { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0; border-radius: var(--r-md); background: none; color: var(--muted); font: 700 .86rem/1 var(--font-body); cursor: pointer; text-align: left; }
+.rail-lock span { flex: 1; }
+.rail-lock:hover { background: color-mix(in srgb, var(--line) 50%, transparent); color: var(--ink); }
+.rail-lock[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
+.rail-lock-chev { transition: transform var(--dur-2) var(--ease-out); }
+.rail-parents.open .rail-lock-chev { transform: rotate(-90deg); }
+.rail-gate { position: absolute; left: -4px; right: -4px; bottom: calc(100% + 8px); z-index: 30; max-height: calc(100dvh - 90px); overflow-y: auto; border-radius: var(--r-md); border: 1px solid var(--line); box-shadow: var(--workbook-shadow, 0 8px 24px #20143a30); background: var(--surface); animation: pop var(--dur-2) var(--ease-spring) both; }
+.gate-embedded { max-width: none; padding: 14px 12px; border-radius: var(--r-md); }
+.gate-embedded h2 { margin: 0 0 6px; font-size: 1.05rem; }
+.gate-embedded .gate-sum { font-size: 1.7rem; margin-bottom: 6px; }
+.gate-embedded .gate-input { min-height: 50px; font-size: 1.5rem; margin-bottom: 8px; }
+.gate-embedded .actions { gap: 8px; }
+.gate-embedded .actions .btn { min-height: 44px; padding: .4rem 1rem; }
+.me-tour { margin-bottom: 14px; }

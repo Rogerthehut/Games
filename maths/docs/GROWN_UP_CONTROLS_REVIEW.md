@@ -8,7 +8,7 @@ A multiplication a young child can't do quickly, then the parent's own 6 or 8 di
 
 | Area | Gated? |
 | --- | --- |
-| Parents' area (progress, AI assistant, tutor settings and chat log, settings, feedback, subscription, account, booklet card) | Yes |
+| Parents' area, opened from the padlock at the bottom of the left-hand panel (on a phone, a row at the bottom of Me), with the sum and PIN opening in place (progress, AI assistant, tutor settings and chat log, settings, feedback, subscription, account, booklet card) | Yes |
 | Progress report, My information (download and delete) | Yes (each checks the gate on its own) |
 | Adding a learner or changing the school year (from Me) | **Yes, since this review** |
 | Search results that lead to the Parents' area | Yes (the route itself is gated) |

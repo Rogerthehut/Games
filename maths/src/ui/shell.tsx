@@ -6,6 +6,7 @@ import { useApp } from "./context";
 import { Icon } from "./icons";
 import { primaryNav, type Tab } from "./navigation";
 import { Avatar } from "./avatar";
+import { RailParents } from "./rail-parents";
 import { SearchDialog } from "./search";
 
 import { CubeMark, Wordmark } from "./wordmark";
@@ -92,6 +93,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
           <Avatar choice={profile.avatar} year={profile.year} size={36} />
           <span><ProfileHi /><strong>{profile.name}</strong><small>Year {profile.year}</small></span>
         </button>
+        <RailParents tab={tab} />
       </aside>
       <header class="mobile-wordmark">
         {brand()}

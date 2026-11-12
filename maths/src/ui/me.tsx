@@ -7,6 +7,7 @@ import { yearLabel } from "../engine/diagnostic";
 import { useApp } from "./context";
 import { SyncChip } from "./account-section";
 import { ParentGate, parentUnlocked } from "./gate";
+import { useWide } from "./tables-note";
 import { Icon } from "./icons";
 import { Avatar, avatarVariants } from "./avatar";
 import { readPracticeQuestion, stopPracticeNarration, type NarrationStatus, type NarrationVoice } from "./practice-audio";
@@ -47,6 +48,7 @@ export function Me() {
     setBrowseRole(null);
     return stopPracticeNarration;
   }, [profile.id]);
+  const wide = useWide(); // with the left-hand panel showing, the Parents' area lives there
   const [gate, setGate] = useState<false | "parent" | "add">(false);
   const [theme, setTheme] = useState<ThemeChoice>(getTheme());
   const last = profile.baselines[profile.baselines.length - 1];
@@ -63,6 +65,11 @@ export function Me() {
           <SyncChip />
         </div>
       </header>
+
+      <ul class="rows me-tour">
+        <li><button class="row" onClick={() => go({ name: "tour" })} data-testid="replay-tour"><Icon name="star" /><span>Show me around<small>A quick tour of quarter</small></span><Icon name="chevron" size={18} /></button></li>
+        <li><button class="row" onClick={() => go({ name: "child-guide" })} data-testid="open-child-guide"><Icon name="book" /><span>How quarter works<small>A short guide for learners</small></span><Icon name="chevron" size={18} /></button></li>
+      </ul>
 
       <dl class="stat-row">
         <div><dt><Icon name="star" size={18} /> Day streak</dt><dd>{streak}</dd></div>
@@ -161,11 +168,11 @@ export function Me() {
         </p>
       </section>
 
-      <ul class="rows">
-        <li><button class="row" onClick={() => go({ name: "child-guide" })} data-testid="open-child-guide"><Icon name="book" /><span>How quarter works<small>A short guide for learners</small></span><Icon name="chevron" size={18} /></button></li>
-        <li><button class="row" onClick={() => go({ name: "tour" })} data-testid="replay-tour"><Icon name="star" /><span>Show me around<small>A quick tour of quarter</small></span><Icon name="chevron" size={18} /></button></li>
-        <li><button class="row" onClick={() => (parentUnlocked() ? go({ name: "parent" }) : setGate("parent"))} data-testid="open-parents"><Icon name="lock" /><span>Parents' area</span><Icon name="chevron" size={18} /></button></li>
-      </ul>
+      {!wide && (
+        <ul class="rows">
+          <li><button class="row" onClick={() => (parentUnlocked() ? go({ name: "parent" }) : setGate("parent"))} data-testid="open-parents"><Icon name="lock" /><span>Parents' area</span><Icon name="chevron" size={18} /></button></li>
+        </ul>
+      )}
 
       {gate && <ParentGate onCancel={() => setGate(false)} onPass={() => { const to = gate === "add" ? { name: "onboard" as const } : { name: "parent" as const }; setGate(false); go(to); }} />}
     </div>

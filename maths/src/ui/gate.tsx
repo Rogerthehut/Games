@@ -1,3 +1,4 @@
+import type { ComponentChildren } from "preact";
 import { useMemo, useState } from "preact/hooks";
 import { useAccount } from "./account-context";
 import { applyKey, Keypad, useDigitKeys } from "./answer-input";
@@ -33,7 +34,7 @@ export function PinPad({ value, onChange, label, testId, onEnter }: { value: str
  * A grown-up check in front of the parents' area: a sum a young child can't do quickly, then the parent's own 6 or 8 digit PIN.
  * The first time, the parent makes the PIN. Signing out and back in clears it, which is how a forgotten PIN is reset.
  */
-export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel: () => void }) {
+export function ParentGate({ onPass, onCancel, embedded = false }: { onPass: () => void; onCancel: () => void; /** shown in place (in the left panel), not as a pop-up over the page */ embedded?: boolean }) {
   const account = useAccount();
   const key = account?.userId || "local";
   const [step, setStep] = useState<"sum" | "pin">("sum");
@@ -73,9 +74,11 @@ export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel:
   useDigitKeys((k) => setText((t) => digitsOnly(applyKey(t, k, t.length, t.length).text)), { enabled: step === "sum", onEnter: () => { if (text) submitSum(); }, onEscape: onCancel });
   useDigitKeys(() => {}, { enabled: step === "pin", onEscape: onCancel });
 
-  return (
-    <div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="gate-h">
-      <div class="gate">
+  const frame = (children: ComponentChildren) => embedded
+    ? <div class="gate gate-embedded" role="region" aria-labelledby="gate-h">{children}</div>
+    : <div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="gate-h"><div class="gate">{children}</div></div>;
+  return frame(
+    <>
         <h2 id="gate-h">Parents' area</h2>
         {step === "sum" ? (
           <>
@@ -109,7 +112,6 @@ export function ParentGate({ onPass, onCancel }: { onPass: () => void; onCancel:
             {!making && <p class="small"><button class="linkish" onClick={() => setForgot(true)} data-testid="pin-forgot">Forgot your PIN?</button></p>}
           </>
         )}
-      </div>
-    </div>
+    </>,
   );
 }

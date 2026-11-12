@@ -21,7 +21,7 @@
     "e2e:tools": "tsx scripts/tools-e2e.ts",
     "e2e:guides": "tsx scripts/guides-e2e.ts",
     "e2e:challenge": "tsx scripts/tables-challenge-e2e.ts",
-    "e2e:grownup": "tsx scripts/grownup-e2e.ts",
+    "e2e:grownup": "tsx scripts/grownup-e2e.ts && VIEW=phone tsx scripts/grownup-e2e.ts",
     "ops:stats": "tsx scripts/ops.ts stats",
     "ops:feedback": "tsx scripts/ops.ts feedback",
     "ops:audit": "tsx scripts/ops.ts audit",

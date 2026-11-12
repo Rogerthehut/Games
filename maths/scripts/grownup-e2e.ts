@@ -15,7 +15,8 @@ const ok = (name: string, cond: boolean, extra = "") => { results.push(cond); co
 
 const p0 = newProfile("Maya", 6, Date.now() - 86_400_000 * 5); p0.toured = true;
 const browser = await chromium.launch();
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+const phone = process.env.VIEW === "phone";
+const ctx = await browser.newContext({ viewport: phone ? { width: 390, height: 800 } : { width: 1280, height: 860 } });
 await ctx.addInitScript((s: string) => { try { if (!localStorage.getItem("mathpath.v1")) localStorage.setItem("mathpath.v1", s); } catch { /* private mode */ } }, JSON.stringify({ version: 1, profiles: [p0], activeId: p0.id }));
 const page = await ctx.newPage(); page.setDefaultTimeout(8000);
 const errors: string[] = []; page.on("pageerror", (e: Error) => errors.push(e.message));
@@ -23,6 +24,12 @@ await page.goto(B); await page.waitForTimeout(800);
 await page.getByRole("button", { name: /^Continue/ }).click({ timeout: 1500 }).catch(() => {});
 await page.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
 
+// on a wide screen the Parents' area is the padlock at the bottom of the left-hand panel; on a phone it is a row on Me
+const openParents = async () => {
+  const rail = page.locator("[data-testid=rail-parents]:visible");
+  if (await rail.count()) await rail.click(); else await page.getByTestId("open-parents").click();
+  await page.waitForTimeout(300);
+};
 const toMe = async () => { const t = page.locator("[data-testid=nav-me]:visible").first(); if (await t.count()) await t.click(); else await page.locator(".rail-me").click(); await page.waitForTimeout(400); };
 const gateUp = async () => (await page.getByTestId("gate-input").count()) === 1;
 const tap = async (digits: string) => { for (const d of digits) await page.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); };
@@ -35,8 +42,10 @@ const pin = async () => {
 
 // 1. the Parents' area asks for the sum, then a PIN
 await toMe();
-await page.getByTestId("open-parents").click(); await page.waitForTimeout(300);
+await openParents();
 ok("the Parents' area asks for a sum first", await gateUp());
+if (!phone) ok("on a wide screen the sum and PIN open in the left-hand panel", (await page.locator(".rail .gate-embedded").count()) === 1 && (await page.locator(".gate-backdrop").count()) === 0);
+if (phone) ok("on a phone the Parents' row sits on Me, below the tour", (await page.getByTestId("open-parents").count()) === 1);
 await solveSum(); await pin();
 ok("with the sum and PIN, the Parents' area opens", /Parents' area/.test(await page.locator("body").innerText()) && !(await gateUp()));
 
@@ -44,12 +53,12 @@ await page.screenshot({ path: `${process.env.OUT ?? "."}/gu-after-pin.png` });
 // 2a. the Lock and leave button locks it at once and goes back to Me
 await page.getByTestId("lock-parents").click(); await page.waitForTimeout(500);
 ok("Lock and leave goes back to Me", /Choose your avatar|Who.s learning/i.test(await page.locator("body").innerText()));
-await page.getByTestId("open-parents").click(); await page.waitForTimeout(300);
+await openParents();
 ok("and the area is locked again", await gateUp());
 await solveSum(); await pin();
 // 2. leaving it locks it again
 await page.locator(`button[aria-label="Back to Me"]`).click(); await page.waitForTimeout(500);
-await page.getByTestId("open-parents").click(); await page.waitForTimeout(300);
+await openParents();
 ok("after leaving, the Parents' area is locked again", await gateUp());
 await page.keyboard.press("Escape"); await page.waitForTimeout(300);
 if (await gateUp()) await page.getByRole("button", { name: /cancel|close|not now/i }).first().click().catch(() => {});

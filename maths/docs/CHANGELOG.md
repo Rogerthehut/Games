@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Left-hand panel padlock, and Me reorder
+The Parents' area is now a collapsed padlock at the bottom of the left-hand panel; tapping it opens the sum and PIN in place and then goes into the Parents' area in the main panel. On a phone it stays as a row on Me. "Show me around" and the children's guide moved to the top of Me. Docs: user guides, GROWN_UP_CONTROLS_REVIEW. Check: `npm run e2e:grownup` (desktop and phone).
+
 ## Times tables challenges
 60-second blitz and 25-question race, personal bests, a scoreboard and a family board for learners on the same account (can be hidden per learner by a grown-up). Docs: ROADMAP, user guides. Check: `npm run e2e:challenge`.
 
