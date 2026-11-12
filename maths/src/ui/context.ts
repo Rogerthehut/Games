@@ -1,3 +1,4 @@
+import type { PaperKind } from "../engine/mock";
 import type { Stage, Strand } from "../engine/types";
 import { createContext } from "preact";
 import { useContext } from "preact/hooks";
@@ -23,6 +24,7 @@ export type Route =
   | { name: "me"; section?: "who" | "avatar" | "look" | "sound" }
   | { name: "checkup" }
   | { name: "mock" }
+  | { name: "print-paper"; kind?: PaperKind; number?: number }
   | { name: "pathway-test"; stage: Stage }
   | { name: "certificate"; stage: Stage }
   | { name: "report" }

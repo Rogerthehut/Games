@@ -205,7 +205,7 @@ function curriculumPages(styles: string) {
     body: `<p class="muted">${mathsSkills.length} maths topics from Year 3 to A-level, following the National Curriculum for England, plus ${STEM_SKILLS.length} STEM lab topics. Pick a year to see what's covered.</p>
 <ul class="rows sitemap-links">${years.map((y) => { const n = mathsSkills.filter((s) => s.year === y).length; const st = mathsSkills.find((s) => s.year === y)?.stage ?? "KS2"; return `<li><a class="row" href="${yearPath(y)}"><span>Year ${y} maths<small>${NAME[st]} · ${ageOf(y)} · ${n} topics</small></span></a></li>`; }).join("")}
 <li><a class="row" href="curriculum/stem.html"><span>The STEM lab<small>Computing, data science, AI and quantum ideas · Years 3 to 13 · ${STEM_SKILLS.length} topics</small></span></a></li></ul>
-<p>${a("curriculum/booklet.html", "Free curriculum booklet sample")} · ${a("11-plus-maths.html", "Getting started with 11+ maths")}</p>`,
+<p>${a("curriculum/booklet.html", "Free curriculum booklet sample")} · ${a("curriculum/practice-paper.html", "Free printable practice paper")} · ${a("11-plus-maths.html", "Getting started with 11+ maths")}</p>`,
   });
   const yearPages = years.map((y) => {
     const skills = mathsSkills.filter((s) => s.year === y).sort((p, q) => STRANDS.indexOf(p.strand) - STRANDS.indexOf(q.strand) || p.name.localeCompare(q.name));
@@ -240,7 +240,18 @@ ${THEMES.map((t) => `<section><h2>${escapeHtml(t.label)}</h2><p class="muted">${
 <p>You get it with a quarter account: sign in at ${a("./", "yourquarter.co.uk")}, open the Parents' area, then Settings, and choose Read online or Download PDF.</p></section>
 <p>${a("curriculum/index.html", "Browse every topic on this site")} · ${a(content.faq.path, "FAQs")}</p>`,
   });
-  return [{ path: "curriculum/index.html", html: hub }, ...years.map((y, i) => ({ path: yearPath(y), html: yearPages[i] })), { path: "curriculum/stem.html", html: stem }, { path: "curriculum/booklet.html", html: bookletPage }];
+  const paperPage = shell({
+    title: "Free printable practice paper", path: "curriculum/practice-paper.html", styles, back: { href: "curriculum/index.html", label: "What quarter covers" },
+    description: "Download a free 11+ style maths practice paper to print on A4: 20 questions, with an answer sheet and a mark scheme that shows the steps.",
+    jsonLd: [{ "@type": "WebPage", url: `${SITE}/curriculum/practice-paper.html`, name: "Free printable practice paper", inLanguage: "en-GB", publisher }, crumbs([{ name: "What quarter covers", path: "curriculum/index.html" }, { name: "Free practice paper", path: "curriculum/practice-paper.html" }])],
+    body: `<p class="muted">A 20-question maths paper in the style of the 11+, ready to print on A4. It comes with an answer sheet and a mark scheme that shows the steps, so you can see where a mistake crept in.</p>
+<p><a class="btn primary" href="quarter-sample-practice-paper.pdf" download>Download the free sample paper (PDF)</a></p>
+<div class="booklet-previews"><figure><img src="practice-paper-sample.png" width="828" height="1171" alt="The first page of the sample practice paper: name, date and mark boxes, then numbered maths questions each with working space and an answer line" loading="lazy"><figcaption>The first page of the paper</figcaption></figure></div>
+<section><h2>With a quarter account</h2><ul><li>Every paper has a number, so you can print it again, or give the same one to a brother or sister.</li><li>Choose from the 20-question maths paper and the longer Quest-style, 50-minute and 60-minute maths papers.</li><li>Print the paper and its answers and mark scheme separately, so the answers can be kept for the marker.</li><li>Or do the same papers on screen, timed, with every miss explained.</li></ul>
+<p>Sign in at ${a("./", "yourquarter.co.uk")} and open the Parents' area, or choose Take a practice paper.</p></section>
+<p class="muted">The questions are quarter's own and written in a general 11+ style. Real tests vary in length, order and which parts they include, so check your school's own guidance. ${a("11-plus-maths.html", "Getting started with 11+ maths")}</p>`,
+  });
+  return [{ path: "curriculum/index.html", html: hub }, ...years.map((y, i) => ({ path: yearPath(y), html: yearPages[i] })), { path: "curriculum/stem.html", html: stem }, { path: "curriculum/booklet.html", html: bookletPage }, { path: "curriculum/practice-paper.html", html: paperPage }];
 }
 
 export function sitePages(styles: string): { path: string; html: string }[] {
@@ -255,7 +266,7 @@ export function sitemapEntries(): { path: string; lastmod: string }[] {
     e(content.hub.path), e(content.faq.path), ...content.guides.map((g) => e(g.path)),
     e("blog/index.html", [...POSTS].sort((x, y) => y.date.localeCompare(x.date))[0].date), ...POSTS.map((p) => e(postPath(p), p.date)),
     e("reading/index.html", readingList.updated || CONTENT_DATE),
-    e("curriculum/index.html"), ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => e(yearPath(y))), e("curriculum/stem.html"), e("curriculum/booklet.html"),
+    e("curriculum/index.html"), ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => e(yearPath(y))), e("curriculum/stem.html"), e("curriculum/booklet.html"), e("curriculum/practice-paper.html"),
   ];
 }
 export const sitemapXml = () => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries().map((x) => `  <url>\n    <loc>${SITE}/${x.path}</loc>\n    <lastmod>${x.lastmod}</lastmod>\n  </url>`).join("\n")}\n</urlset>\n`;
@@ -273,7 +284,7 @@ export function llmsFull() {
   }
   lines.push(`## The STEM lab: ${SITE}/curriculum/stem.html`, "");
   for (const t of THEMES) { lines.push(`### ${t.label}`); for (const s of STEM_SKILLS.filter((x) => themeOf(x) === t.id)) lines.push(`- ${plainText(s.name)} (Year ${s.year}): ${plainText(s.blurb)}`); lines.push(""); }
-  lines.push("", "## Blog", "");
+  lines.push("", `## Free printable practice paper: ${SITE}/curriculum/practice-paper.html`, "", "A 20-question 11+ style maths paper to print on A4, with an answer sheet and a mark scheme that shows the steps. Parents with an account can print more papers, each with its own number.", "", "## Blog", "");
   for (const p of [...POSTS].sort((x, y) => y.date.localeCompare(x.date))) lines.push(`- [${p.title}](${SITE}/${postPath(p)}) (${p.date}): ${p.description}`);
   lines.push("", "## 11+ entrance tests by area (England and Northern Ireland)", "", `What is known about who sets each test and what it covers, with how sure we are (confirmed, reported or disputed) and a link to the source. Test providers and dates change each year, so always check the school's own page. Full finder: ${SITE}/11-plus-maths.html`, "");
   for (const a of admissions as { area: string; test?: { provider: string; status: string; note: string; parts?: string[]; checked: string; source?: { path: string } }; schools?: { name: string; test: string; note: string; parts?: string[]; source: { path: string } }[] }[]) {

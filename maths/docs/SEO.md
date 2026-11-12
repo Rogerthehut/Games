@@ -9,6 +9,7 @@ Everything public is plain HTML, generated at build time from the same data the 
 | Home page title, description, share image, structured data (Organization, WebSite, WebApplication) | `index.html` |
 | Parent guides and FAQs | `scripts/parent-pages.ts`, `src/parents/content.json` |
 | Study guides (`/learn/`), kept out of search on purpose: `noindex`, not in the sitemap or llms files, not linked from public pages | `scripts/concept-pages.ts`, `src/concepts/library.ts` |
+| Free practice paper page (`/curriculum/practice-paper.html`) and its PDF (`/quarter-sample-practice-paper.pdf`) with a first-page picture, rebuilt with `npm run paper-sample` | `src/ui/print-paper.tsx`, `scripts/build-paper-sample.ts` |
 | Free booklet sample page (`/curriculum/booklet.html`) and its PDF (`/quarter-curriculum-sample.pdf`), rebuilt with `npm run booklet` | `src/booklet/model.ts`, `scripts/build-booklet.ts` |
 | What quarter covers (`/curriculum/`: one page per year, plus the STEM lab) | `scripts/site-pages.ts`, built from the curriculum |
 | Blog (`/blog/`) and its RSS feed (`/blog/rss.xml`) | `src/blog/posts.ts`, `scripts/site-pages.ts` |
@@ -43,6 +44,7 @@ The booklet PDF, the learning app and the account pages are deliberately not in 
 - Look at Search Console's Performance report monthly. Queries that show impressions but few clicks are a good source of article ideas.
 - Keep titles under 60 characters and descriptions under 160 where possible. The tests enforce hard limits.
 - When a topic is added to the app, rebuild the booklet (`npm run booklet`) so the PDF matches.
+- If the print layout of a paper changes (`src/ui/print-paper.tsx`, the `.pp-` styles) or the maths questions change a lot, rebuild the sample paper (`npm run paper-sample`).
 
 ## Subscribing to the blog
 

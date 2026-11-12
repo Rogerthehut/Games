@@ -7,3 +7,4 @@ dist-server
 # screenshots from the browser test scripts, when OUT is not set
 /*.png
 .e2e-out/
+scripts/.paper-sample/

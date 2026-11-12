@@ -27,6 +27,7 @@ import { Certificate } from "./certificate";
 import { ProgressReport } from "./progress-report";
 import { MyDataRoute } from "./my-data-route";
 import { Mock } from "./mock";
+import { PrintPaper } from "./print-paper";
 import { PlanView } from "./planview";
 import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
 import { Shell } from "./shell";
@@ -111,7 +112,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   // The place is written down at the moment they leave (before the old screen is taken away and the page shrinks), and when the app is closed.
   const cameBack = useRef(false);
   const routeNow = useRef(route); routeNow.current = route;
-  const noSpot = ["practice", "mock", "pathway-test", "lesson", "checkup", "onboard", "tour", "certificate", "map"];
+  const noSpot = ["practice", "mock", "print-paper", "pathway-test", "lesson", "checkup", "onboard", "tour", "certificate", "map"];
   const spot = (r: Route) => `${store.activeId ?? "device"}:scroll.${r.name}`;
   const lastSeen = useRef(0); // the latest scroll position seen, for when the page is being closed and can no longer be measured
   const saveSpot = () => { const r = routeNow.current; if (!noSpot.includes(r.name)) remember(spot(r), scrollNow()); };
@@ -193,6 +194,8 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   if (route.name === "tour") return <Ctx.Provider value={ctx}><Tour name={profile.name} onDone={() => { ctx.update((p) => ({ ...p, toured: true })); ctx.go({ name: "me" }); }} /></Ctx.Provider>;
   if (route.name === "mock")
     return <Ctx.Provider value={ctx}><Mock /></Ctx.Provider>;
+  if (route.name === "print-paper")
+    return <Ctx.Provider value={ctx}><PrintPaper kind={route.kind ?? "maths"} number={route.number} /></Ctx.Provider>;
   if (route.name === "pathway-test")
     return <Ctx.Provider value={ctx}><Mock key={route.stage} pathway={route.stage} /></Ctx.Provider>;
   if (route.name === "certificate")

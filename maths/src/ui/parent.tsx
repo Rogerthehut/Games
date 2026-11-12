@@ -257,6 +257,11 @@ export function Parent() {
 
           <PinSettings />
           <BookletSection />
+          <section class="card" data-testid="papers-section" aria-labelledby="papers-title">
+            <h2 id="papers-title">Practice papers to print</h2>
+            <p>Maths papers in the style of the 11+, ready to print on A4, with an answer sheet and a mark scheme with the steps. Every paper has a number, so you can print it again or give the same one to a brother or sister.</p>
+            <div class="actions"><button class="btn primary" onClick={() => go({ name: "print-paper" }, { name: "parent" })} data-testid="papers-open">Choose a paper</button></div>
+          </section>
           {account && <WeeklyEmailSection />}
           {account && <SubscriptionSection />}
           {account && <AccountSection />}

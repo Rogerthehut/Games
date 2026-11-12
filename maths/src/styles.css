@@ -2586,6 +2586,8 @@ html:has(.quarter-search[open]),
 
 @page { size: A4; margin: 14mm; }
 @media print {
+  .pp-answers { break-before: page; }
+  .pp-sheet { box-shadow: none; }
   html, body { background: #fff !important; }
   .pr-toolbar, .pr-hint { display: none !important; }
   .pr-page { max-width: none; padding: 0; }
@@ -3425,3 +3427,43 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .table-figure th, .table-figure td { padding: 8px 14px; text-align: center; border: 1.5px solid var(--line); background: var(--surface); font-weight: 600; }
 .table-figure thead th { background: color-mix(in srgb, #c1c5ee 55%, var(--surface)); }
 .table-figure tbody th { text-align: left; background: color-mix(in srgb, #c1c5ee 30%, var(--surface)); }
+
+/* printable practice papers */
+.pp { max-width: 860px; margin: 0 auto; padding: 16px; display: grid; gap: 18px; }
+.pp-toolbar { display: grid; gap: 12px; }
+.pp-number { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pp-number input { width: 6.5rem; min-height: 44px; padding: 6px 12px; font: inherit; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; }
+.pp-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pp-sheet { background: #fff; color: #111; border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; font-size: 1.02rem; }
+.pp-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 12px; }
+.pp-brand { font-family: var(--font-display, inherit); letter-spacing: -.02em; }
+.pp-what { font-weight: 700; }
+.pp-box { border: 1.5px solid #111; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; }
+.pp-box p { margin: 6px 0; }
+.pp-line { display: inline-block; width: 11rem; max-width: 55%; border-bottom: 1.5px solid #111; height: 1.1em; vertical-align: baseline; margin: 0 6px; }
+.pp-line.short { width: 4.5rem; }
+.pp-questions, .pp-key, .pp-scheme { list-style: none; margin: 0; padding: 0; }
+.pp-q { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #bbb; break-inside: avoid; }
+.pp-questions.roomy .pp-q { min-height: 7.5rem; }
+.pp-n { font-weight: 800; min-width: 2.2em; }
+.pp-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pp-text { margin: 0 0 6px; }
+.pp-fig { max-width: 300px; }
+.pp-fig .figure, .pp-fig svg { max-width: 100%; height: auto; }
+.pp-answer { margin-top: auto; padding-top: 14px; text-align: right; display: flex; gap: 16px; justify-content: flex-end; flex-wrap: wrap; }
+.pp-end { text-align: center; font-weight: 800; margin-top: 14px; }
+.pp-key { columns: 3 160px; column-gap: 24px; }
+.pp-key li { padding: 3px 0; break-inside: avoid; }
+.pp-s { padding: 8px 0; border-bottom: 1px dashed #bbb; break-inside: avoid; }
+.pp-s p { margin: 2px 0; }
+.pp-s ul { margin: 4px 0 0; padding-left: 1.2rem; }
+.pp-topic { color: #555; }
+@page { size: A4; margin: 14mm; }
+@media print {
+  body.printing-paper *, body.printing-answers * { visibility: hidden; }
+  body.printing-paper .pp-paper, body.printing-paper .pp-paper * { visibility: visible; }
+  body.printing-answers .pp-answers, body.printing-answers .pp-answers * { visibility: visible; }
+  body.printing-paper .pp-answers, body.printing-answers .pp-paper { display: none; }
+  body.printing-paper .pp-paper, body.printing-answers .pp-answers { position: absolute; left: 0; top: 0; width: 100%; border: 0; padding: 0; font-size: 11.5pt; }
+  .pp-toolbar { display: none !important; }
+}

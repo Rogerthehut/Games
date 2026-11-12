@@ -6,6 +6,7 @@ import { PAPERS, buildMock, type MockItem, type PaperKind } from "../engine/mock
 import { awardPathwayCertificate, buildPathwayTest, canTakePathwayTest, pathwayPassMark, pathwayTestName } from "../engine/pathway";
 import { addPoints, recordAnswer, recordMistake, type MockRecord } from "../engine/progress";
 import { fixPlan, recordWrongOnce, wrongLogOf } from "../engine/wrong-log";
+import { isPrintable } from "../engine/print-paper";
 import { mulberry32 } from "../engine/rng";
 import type { Stage, Strand } from "../engine/types";
 import { AnswerInput } from "./answer-input";
@@ -177,6 +178,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
           </ul>
           <p class="small muted">Written in a general 11+ style. Real tests vary in length, order and which parts they include, so check your school's own guidance.</p>
           <button class="btn primary big" onClick={start} data-testid="mock-start">Start <Icon name="arrow" size={20} /></button>
+          {isPrintable(kind) && <button class="btn" onClick={() => go({ name: "print-paper", kind }, { name: "mock" })} data-testid="mock-print">Print this paper instead</button>}
           <button class="linkish" onClick={() => leave({ name: "plan" })}>Not now</button>
         </div>
       </main>

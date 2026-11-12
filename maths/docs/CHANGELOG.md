@@ -8,6 +8,14 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Printable practice papers
+- **Print a paper:** "Print this paper instead" on the practice paper screen, and a "Practice papers to print" card in the Parents' area. The 20-question maths paper and the Quest-style, 50-minute and 60-minute maths papers can be printed on A4, with name, date and mark boxes, working space and an answer line (`src/ui/print-paper.tsx`).
+- **Answers kept separate:** "Print the paper" and "Print answers and mark scheme" print different pages, so the answers can be kept back. The mark scheme gives each answer with the steps and the topic.
+- **Paper numbers:** every paper has a number (1 to 9999) made into the same questions every time, so you can reprint it or give it to a brother or sister. "A different paper" picks a new number.
+- **Written answers only:** the reasoning papers are multiple choice with drawn pictures, so they stay on screen.
+- **Free sample:** `/curriculum/practice-paper.html` with a downloadable PDF of paper no. 101 and its mark scheme, in the sitemap and `llms` files. Rebuild with `npm run paper-sample`.
+- Tests: `src/engine/print-paper.test.ts`, `npm run e2e:print-paper` (phone and desktop; checks what prints).
+
 ## STEM lab: pictures for 15 more topics
 Loops, inputs and outputs, debugging, how computers learn from examples, binary (writing a number), hexadecimal, AND/OR/NOT, data types, outliers, accuracy, binary search, how work grows, storage, gradient descent, the spam filter and the Caesar cipher now show a picture with the question. Three new picture types: **table**, **flow** (boxes and arrows, with a repeat bracket for loops) and **alphabet** (letters with their positions). The others reuse the code, list, number-line, pie and graph pictures. The number line now spaces its numbers out on longer lines. Every picture has a spoken description, checked by `stem.test.ts`. Still text-only: bias, the quantum topics and the neural-network layer (these are concept questions or need a new kind of drawing).
 

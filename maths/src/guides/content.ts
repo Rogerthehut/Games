@@ -91,6 +91,7 @@ export const PARENT_GUIDE: GuideSection[] = [
     tips: [
       "Check-up: finds a starting point and any gaps. Another one after about six weeks shows progress.",
       "Practice papers: timed papers for the 11+ route, in the plan. Choose a short quick paper, or one timed like a real test (such as 40 minutes for 60 questions). The questions are quarter's own, so they're for practising pace and stamina, and there are no English papers.",
+      "Printing a paper: on the practice paper screen, choose Print this paper instead (or Practice papers to print in the Parents' area). You get a paper to print on A4 with room to work, and a separate answer sheet and mark scheme with the steps. Every paper has a number, so the same number always makes the same paper. Only the written-answer maths papers can be printed.",
       "Pathway tests: a short test at the end of a stage (Key Stage 2, 3, GCSE, A-level). Passing earns a certificate you can print.",
     ],
   },

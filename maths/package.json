@@ -11,6 +11,8 @@
     "test": "vitest run",
     "server": "node --enable-source-maps dist-server/index.mjs",
     "booklet": "tsx scripts/build-booklet.ts",
+    "paper-sample": "tsx scripts/build-paper-sample.ts",
+    "e2e:print-paper": "tsx scripts/print-paper-e2e.ts",
     "ops": "tsx scripts/ops.ts",
     "e2e:pathway": "tsx scripts/pathway-e2e.ts",
     "e2e:taps": "tsx scripts/tap-e2e.ts",
