@@ -7,6 +7,7 @@ import { Welcome } from "./welcome";
 import { Home } from "./home";
 import { SkillMap } from "./skillmap";
 import { FractionsLesson } from "./fractions-lesson";
+import { SkillLesson } from "./skill-lesson";
 import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
@@ -163,6 +164,9 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     return <Ctx.Provider value={ctx}><Checkup /></Ctx.Provider>;
   if (route.name === "practice")
     return <Ctx.Provider value={ctx}><Practice plan={route.plan} resume={route.resume} /></Ctx.Provider>;
+
+  if (route.name === "lesson")
+    return <Ctx.Provider value={ctx}><SkillLesson key={route.skill} skillId={route.skill} /></Ctx.Provider>;
 
   if (route.name === "fractions-lesson")
     return <Ctx.Provider value={ctx}><FractionsLesson /></Ctx.Provider>;

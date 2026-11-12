@@ -79,6 +79,12 @@ Source [DfE mathematics programmes of study](https://www.gov.uk/government/publi
 
 A parent or child can start a "refresher" after a few days of use: a quick-fire revision test drawn from the topics practised in the last week (or since the last refresher), before moving on to new topics. Needs: a "Refresher" entry on Today and in the Parents' area; a mixed set from the topics actually practised, weighted to the ones that were wobbly; a short timed or untimed run; a result that feeds back into progress and the plan (wobbly topics come back sooner). Builds on the existing mock/pathway runner and the plan's revision weeks.
 
+## Worked-example lessons (built)
+
+A reusable lesson format that runs on any maths topic with worked solutions (about 180 topics, 75 of the 108 in Key Stage 2; the four hand-built lessons keep their own screens). Five steps: **Learn** (one question worked through, a step at a time), **Try with help** (the first steps are given, or the hint when the solution is a single step), **Try on your own** (three questions, two tries each, then the steps), **Remember this?** (one question on a prerequisite topic, so earlier learning is revisited) and a finish that records progress, points and the date. Questions come from fixed seeds, so a lesson is the same each time. Code: `src/engine/lesson.ts`, `src/ui/skill-lesson.tsx`; check: `npm run e2e:lesson`.
+
+Still to do: a teacher's review of the lesson wording per topic, hand-written "key idea" lines where the topic's blurb isn't enough, and lessons for reasoning papers and the STEM lab (which have their own formats).
+
 ## Teaching and writing standards
 
 - **Key Stage 2.** Show the idea using familiar objects or pictures where they help. Link the picture to the symbols. Model one example, guide a second, then remove the prompts for an independent problem. Return to the idea later in a different context.

@@ -3,6 +3,7 @@ import { isUnlocked, skillName, statusOf } from "../engine/progress";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useApp, type Route } from "./context";
 import { Journey } from "./journey";
+import { hasLesson } from "../engine/lesson";
 import { resolveSkin } from "./skin";
 import { STATUS_LABEL } from "./labels";
 import { activePathwayStage } from "../engine/pathway";
@@ -107,6 +108,7 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
                           {s.id === "elapsed-time" && <button class="btn small" onClick={() => go({ name: "time-lesson" }, backToSkill)}>{profile.timeLesson && profile.timeLesson.step < 3 ? "Continue telling the time" : "Learn to tell the time"}</button>}
                           {s.id === "angles-basic" && <button class="btn small" onClick={() => go({ name: "angles-lesson" }, backToSkill)}>{profile.anglesLesson && profile.anglesLesson.step < 3 ? "Continue angles lesson" : "Learn about angles"}</button>}
                           {s.id === "frac-equiv" && <button class="btn small" onClick={() => go({ name: "fractions-lesson" }, backToSkill)}>{profile.fractionsLesson === 1 || profile.fractionsLesson === 2 ? "Continue lesson" : "Learn this"}</button>}
+                          {hasLesson(s.id) && <button class="btn small" onClick={() => go({ name: "lesson", skill: s.id }, backToSkill)} data-testid={`lesson-${s.id}`}>{profile.lessons?.[s.id] ? "Lesson again" : "Learn this"}</button>}
                           <button class="btn small" onClick={() => go({ name: "practice", plan: Array.from({ length: 9 }, () => ({ skillId: s.id, reason: "continue" as const })) }, backToSkill)}>
                             Practise
                           </button>

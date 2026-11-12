@@ -15,6 +15,7 @@ export type Route =
   | { name: "time-lesson" }
   | { name: "angles-lesson" }
   | { name: "fractions-lesson" }
+  | { name: "lesson"; skill: string }
   | { name: "parent" }
   | { name: "plan"; week?: number }
   | { name: "me"; section?: "who" | "avatar" | "look" | "sound" }

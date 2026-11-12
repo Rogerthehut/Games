@@ -103,6 +103,8 @@ export interface Profile {
   anglesLesson?: { step: number; degrees: number; longDoor: boolean; answer: string; checked: boolean };
   timeLesson?: { step: number; answer: string; example?: number };
   groupsLesson?: { step: number; answer: string; groups: number[]; places: number[] };
+  /** When each worked-example lesson was last finished, by topic. */
+  lessons?: Record<string, number>;
   fractionsLesson?: number;
   fractionsLessonHelped?: boolean;
   fractionsLessonAnswer?: string;

@@ -5,6 +5,7 @@ import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { SECURE_BOX, isUnlocked, statusOf } from "../engine/progress";
 import { useApp } from "./context";
 import { Avatar } from "./avatar";
+import { hasLesson } from "../engine/lesson";
 import { STATUS_LABEL } from "./labels";
 import { activePathwayStage, canTakePathwayTest } from "../engine/pathway";
 import { PathwayFinish } from "./certificate";
@@ -126,6 +127,7 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
             {sel.id === "elapsed-time" && <button class="btn" onClick={() => go({ name: "time-lesson" }, { name: "map", view: "journey", skill: sel.id })}>{profile.timeLesson && profile.timeLesson.step < 3 ? "Continue telling the time" : "Learn to tell the time"}</button>}
             {sel.id === "angles-basic" && <button class="btn" onClick={() => go({ name: "angles-lesson" }, { name: "map", view: "journey", skill: sel.id })}>{profile.anglesLesson && profile.anglesLesson.step < 3 ? "Continue angles lesson" : "Learn about angles"}</button>}
             {sel.id === "frac-equiv" && <button class="btn" onClick={() => go({ name: "fractions-lesson" }, { name: "map", view: "journey", skill: sel.id })}>{profile.fractionsLesson === 1 || profile.fractionsLesson === 2 ? "Continue lesson" : "Learn this"}</button>}
+            {hasLesson(sel.id) && <button class="btn" onClick={() => go({ name: "lesson", skill: sel.id }, { name: "map", view: "journey", skill: sel.id })} data-testid="lesson-open">{profile.lessons?.[sel.id] ? "Lesson again" : "Learn this"}</button>}
             <button class="btn primary" onClick={() => go({ name: "practice", plan: Array.from({ length: 9 }, () => ({ skillId: sel.id, reason: "continue" as const })) }, { name: "map", view: "journey", skill: sel.id })}>Practise</button>
             <button class="btn" onClick={() => setPicked(undefined)}>Close</button>
           </div>
