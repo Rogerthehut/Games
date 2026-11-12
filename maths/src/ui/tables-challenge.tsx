@@ -10,6 +10,7 @@ import { Avatar } from "./avatar";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 import { Sparkles } from "./pip";
+import { WeekBoard } from "./tables-progress";
 
 const SCOPES: { id: ChallengeScope; label: string; blurb: string }[] = [
   { id: "mine", label: "My tables", blurb: "The tables you're working on" },
@@ -192,6 +193,8 @@ export function Scoreboard({ onBack }: { onBack: () => void }) {
         {alone && <p class="small muted">Other learners on this account will appear here, so brothers and sisters can compete.</p>}
         <p class="small muted">Only best scores are shown. A grown-up can choose who appears in the Parents' area.</p>
       </section>
+
+      <WeekBoard />
 
       <section class="tt-card" aria-labelledby="tt-recent">
         <h2 id="tt-recent">My recent rounds</h2>

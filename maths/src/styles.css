@@ -3404,3 +3404,17 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .tutor-read { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: 700 .85rem/1 var(--font-body); cursor: pointer; }
 .tutor-read.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 @media (pointer: coarse) { .tutor-read { min-height: 44px; } }
+
+/* times tables: speed colours, streak and speed chart, weekly winner */
+.sp-fast { background: color-mix(in srgb, var(--good) 42%, var(--surface)); border-color: color-mix(in srgb, var(--good) 70%, transparent); font-weight: 850; }
+.sp-mid { background: color-mix(in srgb, var(--warn, #e0a100) 30%, var(--surface)); border-color: color-mix(in srgb, var(--warn, #e0a100) 60%, transparent); }
+.sp-slow { background: color-mix(in srgb, var(--bad, #d9534f) 28%, var(--surface)); border-color: color-mix(in srgb, var(--bad, #d9534f) 55%, transparent); }
+.sp-none { background: var(--surface-2, var(--surface)); border-color: var(--line); color: var(--muted); }
+.tt-streak-line { font-size: 1.05rem; }
+.tt-streak-line strong { font-size: 1.6rem; }
+.tt-speed { width: 100%; max-width: 420px; height: auto; }
+.tt-speed-goal { stroke: var(--line); stroke-dasharray: 4 4; }
+.tt-speed-note { fill: var(--muted); font-size: 9px; }
+.tt-speed-line { stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+.tt-speed-dot { fill: var(--accent); }
+.tt-winner { font-size: 1.05rem; }

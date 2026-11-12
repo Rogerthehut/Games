@@ -24,6 +24,21 @@ export interface TablesState {
   challenges?: ChallengeState;
   /** Whether this learner shows on the family board. Missing means yes. */
   showOnBoard?: boolean;
+  /** One entry per day with any tables answers, oldest first, for streaks, the speed chart and the weekly winner (see tables-progress.ts). */
+  days?: DayLog[];
+}
+/** What was answered on one day: `d` is the local date (YYYY-MM-DD), `n` answers, `r` right, `ms` the average time of the right ones. */
+export interface DayLog { d: string; n: number; r: number; ms: number }
+export const DAYS_KEPT = 120;
+/** The local date as YYYY-MM-DD. */
+export const dayKey = (now: number): string => { const t = new Date(now); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
+/** Adds one answer to the day log. */
+export function logDay(days: DayLog[] | undefined, correct: boolean, took: number, now: number): DayLog[] {
+  const d = dayKey(now), list = days ?? [], last = list[list.length - 1];
+  const cur: DayLog = last && last.d === d ? { ...last } : { d, n: 0, r: 0, ms: 0 };
+  cur.n++;
+  if (correct) { cur.ms = cur.r ? Math.round((cur.ms * cur.r + took) / (cur.r + 1)) : took; cur.r++; }
+  return [...(last && last.d === d ? list.slice(0, -1) : list), cur].slice(-DAYS_KEPT);
 }
 
 export const MIN_TABLE = 2, MAX_TABLE = 12;
@@ -71,7 +86,7 @@ export function recordFact(p: Profile, a: number, b: number, correct: boolean, m
     st.ms = prev.ms ? Math.round(prev.ms * 1.2) : 0;
     st.d = now;
   }
-  return { ...p, tables: { ...t, facts: { ...t.facts, [key]: st } } };
+  return { ...p, tables: { ...t, facts: { ...t.facts, [key]: st }, days: logDay(t.days, correct, Math.min(12_000, Math.max(200, ms)), now) } };
 }
 
 export interface TableQ { a: number; b: number; op: "×" | "÷"; /** What to type. */ answer: number; prompt: string }

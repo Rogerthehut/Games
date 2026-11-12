@@ -5,6 +5,7 @@ import {
   ALL_TABLES, CHECK_LENGTH, CHECK_SECONDS, MAX_TABLE, STATUS_WORDS, TRICKS, checkQuestions, factKey, factStatus, pickRound, recordFact, summarise, tablesOf,
   type FactStatus, type TableQ,
 } from "../engine/tables";
+import { StreakCard } from "./tables-progress";
 import { Keypad, applyKey, useDigitKeys } from "./answer-input";
 import { useApp } from "./context";
 import { Icon } from "./icons";
@@ -42,6 +43,7 @@ function Hub({ onLearn, onRound, onCheck, onChallenge, onBoard, onBack }: { onLe
   const { profile, update } = useApp();
   const t = tablesOf(profile), s = useMemo(() => summarise(profile), [profile]);
   const last = t.checks[t.checks.length - 1];
+  const [speed, setSpeed] = useState(false);
   const toggle = (n: number) => update((p) => { const cur = tablesOf(p), on = cur.active.includes(n); const active = on ? cur.active.filter((x) => x !== n) : [...cur.active, n].sort((a, b) => a - b); return { ...p, tables: { ...cur, active: active.length ? active : cur.active } }; });
   return (
     <div class="tt-wrap">
@@ -51,6 +53,9 @@ function Hub({ onLearn, onRound, onCheck, onChallenge, onBoard, onBack }: { onLe
       <h1>Times tables</h1>
       <p class="tt-lead"><strong>{s.counts.quick}</strong> of {s.total} facts are quick and secure. Every fact you answer quickly turns green.</p>
 
+      <div class="tt-actions">
+        <button type="button" class={`btn${speed ? " primary" : ""}`} aria-pressed={speed} onClick={() => setSpeed(!speed)} data-testid="tables-speed">{speed ? "Show how well I know them" : "Show how quickly I answer"}</button>
+      </div>
       <div class="tt-grid-wrap">
         <table class="tt-grid" aria-label="Every times table fact from 2 × 2 to 12 × 12, coloured by how well you know it">
           <thead><tr><th scope="col"><span class="sr">Times</span><span aria-hidden="true">×</span></th>{ALL_TABLES.map((n) => <th scope="col" key={n}>{n}</th>)}</tr></thead>
@@ -59,17 +64,24 @@ function Hub({ onLearn, onRound, onCheck, onChallenge, onBoard, onBack }: { onLe
               <tr key={a}>
                 <th scope="row">{a}</th>
                 {ALL_TABLES.map((b) => {
-                  const st = factStatus(t.facts[factKey(a, b)]);
-                  return <td key={b} class={`tt-cell st-${st}`} aria-label={`${a} times ${b} is ${a * b}. ${WORD[st]}.`}>{a * b}</td>;
+                  const f = t.facts[factKey(a, b)], st = factStatus(f);
+                  const sp = !f?.ms ? "none" : f.ms <= 3000 ? "fast" : f.ms <= 6000 ? "mid" : "slow";
+                  return <td key={b} class={`tt-cell ${speed ? `sp-${sp}` : `st-${st}`}`} aria-label={speed ? `${a} times ${b} is ${a * b}. ${f?.ms ? `Usually takes ${(f.ms / 1000).toFixed(1)} seconds.` : "Not answered yet."}` : `${a} times ${b} is ${a * b}. ${WORD[st]}.`}>{a * b}</td>;
                 })}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <ul class="tt-key" aria-label="Key">
-        {(["new", "learning", "slow", "quick"] as FactStatus[]).map((k) => <li key={k}><i class={`tt-swatch st-${k}`} />{WORD[k]} <span class="tt-n">{s.counts[k]}</span></li>)}
-      </ul>
+      {speed ? (
+        <ul class="tt-key" aria-label="Key"><li><i class="tt-swatch sp-fast" />Quick (3s or less)</li><li><i class="tt-swatch sp-mid" />A bit slower</li><li><i class="tt-swatch sp-slow" />Slow (over 6s)</li><li><i class="tt-swatch sp-none" />Not answered yet</li></ul>
+      ) : (
+        <ul class="tt-key" aria-label="Key">
+          {(["new", "learning", "slow", "quick"] as FactStatus[]).map((k) => <li key={k}><i class={`tt-swatch st-${k}`} />{WORD[k]} <span class="tt-n">{s.counts[k]}</span></li>)}
+        </ul>
+      )}
+
+      <StreakCard />
 
       <section class="tt-card" aria-labelledby="tt-mine">
         <h2 id="tt-mine">Tables I'm working on</h2>

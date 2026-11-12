@@ -8,6 +8,12 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Times tables: streaks, speed and a weekly winner
+- **My streak and speed** card on the tables page: days in a row (today not yet done doesn't break it), and a 14-day chart of how long right answers took.
+- **Show how quickly I answer** button recolours the grid by recall time (3s or less, up to 6s, slower, not answered yet).
+- **This week's winner** on the scoreboard: most right answers since Monday, ties share the win, nobody wins with none, and learners who've hidden themselves from the board stay hidden.
+- Stored as a small per-day log (date, answers, right, average time; last 120 days) in the learner's tables data, so it syncs like the rest. Tests: `src/engine/tables-progress.test.ts`, `npm run e2e:tables-progress`.
+
 ## Learning report: help written for each topic
 69 topics that used to get only generic advice (bearings, gradients, compound interest, the chain rule and so on) now have their own usual reasons, a step-by-step method and questions to ask, shown first in the report. These are a draft for a maths teacher to check: see `docs/TEACHER_REVIEW.md`. Test: `src/engine/topic-help.test.ts` (no topic falls back to the general advice).
 
