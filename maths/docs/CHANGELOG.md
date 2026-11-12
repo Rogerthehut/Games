@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Worked method pictures for 34 more topics (batches 1 and 2)
+Solutions now draw the method for: place value (charts with the decimal point), rounding and negative numbers and temperatures (number lines with hops), counting in steps, large numbers, dividing by 10 and 100, hundredths and thousandths, decimals (columns with the point, and bars for × and ÷), money and measure sums (columns with £ and pence), money change (counting on), time and timetables (a time line), long division (by chunking), fractions (equivalent, ordering, adding and subtracting, of an amount, mixed numbers, times a whole number, dividing: bar models; multiplying: a grid), fractions to decimals and percentages, percentages of an amount, ratio sharing, two numbers with a difference, scaling recipes (a table), times tables (an array of dots) and pictograms. New picture types: number line with hops, bar model, fraction grid, array, chunking and pictogram; the column sum now takes decimals, £ and any number of rows. They are added after a question is made (`src/curriculum/worked-skills.ts`, `worked-fractions.ts`), read from its wording and answer, and `worked-skills.test.ts` checks hundreds of questions per topic against the question's own answer. Still to do: the rest of Years 3 to 9 and the secondary topics (see task 40).
+
 ## Public beta tab has a shadow
 The "Public beta" tab under the wordmark now has a soft shadow beneath it, so it sits above the page like a tab on a folder.
 

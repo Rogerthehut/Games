@@ -69,6 +69,7 @@ export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called w
   if (fig.type === "jump-line") return <JumpLineFigure {...fig} />;
   if (fig.type === "bar-model") return <BarModelFigure {...fig} />;
   if (fig.type === "array") return <ArrayFigure {...fig} />;
+  if (fig.type === "fraction-grid") return <FractionGridFigure {...fig} />;
   if (fig.type === "chunking") return <ChunkingFigure {...fig} />;
   if (fig.type === "pictogram") return <PictogramFigure {...fig} />;
   if (fig.type === "histogram") return <HistogramFigure {...fig} />;
@@ -574,6 +575,19 @@ function BarModelFigure({ rows, alt }: Of<"bar-model">) {
           </g>
         );
       })}
+    </svg>
+  );
+}
+
+/** A grid for multiplying fractions: one fraction shades rows, the other columns, and the overlap is the answer. */
+function FractionGridFigure({ rows, cols, shadeRows, shadeCols, alt }: Of<"fraction-grid">) {
+  const cell = Math.min(34, Math.floor(240 / Math.max(rows, cols))), W = cols * cell + 20, H = rows * cell + 20;
+  return (
+    <svg class="figure fraction-grid" viewBox={`0 0 ${W} ${H}`} style={{ maxWidth: `${Math.min(300, W * 1.5)}px` }} role="img" aria-label={alt}>
+      {Array.from({ length: rows }, (_, r) => Array.from({ length: cols }, (_, c) => {
+        const a = r < shadeRows, b = c < shadeCols;
+        return <rect key={`${r}-${c}`} x={10 + c * cell} y={10 + r * cell} width={cell} height={cell} fill={a && b ? "#c2410c" : a ? "#c1c5ee" : b ? "#84d8ba" : "transparent"} fill-opacity={a && b ? 0.7 : 0.75} stroke="currentColor" stroke-width="1.5" />;
+      }))}
     </svg>
   );
 }

@@ -5,7 +5,7 @@ import type { Figure, Question } from "../engine/types";
 import { hasWorkedBuilder } from "./worked-skills";
 
 const many = (id: string, per = 60) => [1, 2, 3].flatMap((level) => Array.from({ length: per }, (_, i) => SKILL_BY_ID[id].generate(mulberry32(7000 + i * 13 + level), level)));
-const ids = ["place-value", "place-value-millions", "large-numbers", "divide-10-100", "hundredths", "thousandths", "rounding", "count-steps", "count-steps-more", "count-through-zero", "negative-numbers", "elapsed-time", "timetables", "money-change", "add-sub-money", "decimals", "measure-add", "long-division"];
+const ids = ["place-value", "place-value-millions", "large-numbers", "divide-10-100", "hundredths", "thousandths", "rounding", "count-steps", "count-steps-more", "count-through-zero", "negative-numbers", "elapsed-time", "timetables", "money-change", "add-sub-money", "decimals", "measure-add", "long-division", "frac-equiv", "fraction-order", "frac-same-denom", "frac-amount", "frac-add", "mixed-numbers", "frac-times-whole", "frac-multiply", "frac-divide", "fdp-convert", "pct-amount", "ratio-share", "two-unknowns", "scale-recipes", "times-tables", "pictograms"];
 const type = <T extends Figure["type"]>(q: Question, _t: T) => q.worked as Extract<Figure, { type: T }>;
 const value = (q: Question) => (q.answer.kind === "number" ? q.answer.value : NaN);
 
@@ -19,7 +19,7 @@ describe("worked pictures (number, money, time)", () => {
       expect(alt.length, id).toBeGreaterThan(15); expect(alt, id).not.toMatch(/\$|\\/);
     }
     // forms of question with no useful picture are listed here on purpose; everything else must be covered
-    const allowed = /Zara's trip|buses|digit|What digit|Write this|How many tens|How many thousandths/;
+    const allowed = /Zara's trip|buses|digit|What digit|Write this|How many tens|How many thousandths|multiply to make|Find the missing number: \$\\frac/;
     expect(missing.filter((m) => !allowed.test(m.split(": ")[1])), missing.slice(0, 5).join("\n")).toEqual([]);
   });
   it("long division: the chunks add up and the remainder is right", () => {

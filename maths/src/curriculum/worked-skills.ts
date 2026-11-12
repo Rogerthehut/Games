@@ -1,4 +1,4 @@
-import type { Figure, Question } from "../engine/types";
+import type { Question } from "../engine/types";
 import { chunkWork, columnManyWork, columnWork, jumpLine, placeChart } from "../engine/worked";
 
 /**
@@ -7,15 +7,8 @@ import { chunkWork, columnManyWork, columnWork, jumpLine, placeChart } from "../
  * question's own wording and answer; if it can't make sense of a question it returns nothing and the question stays as it was. The
  * tests check every builder against the question's own answer, so a picture can't disagree with it.
  */
-interface Built { figure: Figure; steps?: string[] }
-type Builder = (q: Question) => Built | null;
-
-const clean = (t: string) => t.replace(/\\,|\\;|\\ | | /g, "").replace(/(\d),(?=\d{3}\b)/g, "$1").replace(/(\d) (?=\d{3}\b)/g, "$1").replace(/[−–]/g, "-").replace(/\$/g, "");
-const numbers = (t: string): number[] => (clean(t).match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
-const val = (q: Question): number | null => (q.answer.kind === "number" ? q.answer.value : null);
-const fmt = (n: number) => String(n);
-const thin = (n: number) => String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-const dec = (n: number) => String(Math.round(n * 1e6) / 1e6);
+import { dec, fmt, thin, clean, numbers, val, type Built, type Builder } from "./worked-utils";
+import { FRACTION_BUILDERS } from "./worked-fractions";
 
 // ---------------------------------------------------------------------------------------------- place value
 const placeValueBuilder: Builder = (q) => {
@@ -193,6 +186,7 @@ const chunkingBuilder: Builder = (q) => {
 };
 
 const BUILDERS: Record<string, Builder> = {
+  ...FRACTION_BUILDERS,
   "place-value": placeValueBuilder, "place-value-millions": placeValueBuilder, "large-numbers": (q) => (/[×÷]/.test(clean(q.prompt)) ? shiftBuilder(q) : placeValueBuilder(q)),
   "divide-10-100": shiftBuilder, hundredths: decimalNumberBuilder, thousandths: decimalNumberBuilder,
   rounding: roundingBuilder, "count-steps": countingBuilder, "count-steps-more": countingBuilder, "count-through-zero": (q) => (temperatureBuilder(q) ?? countingBuilder(q)),
