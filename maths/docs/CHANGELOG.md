@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Public beta tab has a shadow
+The "Public beta" tab under the wordmark now has a soft shadow beneath it, so it sits above the page like a tab on a folder.
+
 ## The AI tutor stays on maths: no helplines, no safeguarding alerts
 - If a child brings up something that isn't maths (a worry, or something personal), the tutor says it can only help with maths, suggests talking to a parent or guardian, and goes back to the maths. It no longer gives Childline or any other number, and it no longer flags the message or shows an alert in the Parents' area.
 - The parent can still read the whole chat log in the AI tutor tab (kept on the device for 30 days, clearable). Personal details are still blocked and never sent on.

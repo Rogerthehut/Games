@@ -1,3 +1,4 @@
+import { addWorkedPicture } from "./worked-skills";
 import type { Question, Skill, Strand } from "../engine/types";
 import { eq } from "../engine/poly";
 import { numberSkills } from "./number";
@@ -73,7 +74,7 @@ function withAnswerFormat(q: Question): Question {
 }
 
 const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills, ...ks2Skills, ...ks2UpperSkills, ...moneySkills, ...secondarySkills, ...ks3Skills, ...ks4Skills, ...ks5Skills, ...secondPassSkills, ...ks2GapSkills, ...ks2InstrumentSkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
-const prepared = (s: Skill): Skill => ({ ...s, generate: (r, l) => withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l))) });
+const prepared = (s: Skill): Skill => ({ ...s, generate: (r, l) => addWorkedPicture(withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l)))) });
 /** The maths curriculum. The check-up, pathway tests, plans and daily practice all work from this list. */
 export const SKILLS: Skill[] = raw.map(prepared);
 /** Verbal reasoning, non-verbal reasoning and problem solving, for the 11+. Practised from the Skills page, not part of the maths pathway. */

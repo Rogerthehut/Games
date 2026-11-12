@@ -54,7 +54,18 @@ export type Figure =
   /** A small table: a header row and rows of cells (the first cell of each row is a row heading). */
   | { type: "table"; head: string[]; rows: (string | number)[][]; alt: string }
   /** A sum worked in columns. `carries` (addition) are written under the answer; `exchanges` (subtraction) over the top digit, which is struck through. One entry per column, left to right. */
-  | { type: "column-sum"; op: "+" | "-"; top: string; bottom: string; result: string; carries: string[]; exchanges: ({ was: string; now: string } | null)[]; alt: string }
+  | { type: "column-sum"; op: "+" | "-"; top: string; bottom: string; result: string; carries: string[]; exchanges: ({ was: string; now: string } | null)[]; alt: string;
+      /** For money and measures: digits after the decimal point, and a symbol shown before the numbers (such as £). The strings above are the digits with no point. */ dp?: number; prefix?: string; /** further numbers added, shown under `bottom` */ more?: string[] }
+  /** A number line with hops drawn over it: counting on, rounding, negative numbers, time and money change. Ticks are every `step`; `marks` are labelled dots. */
+  | { type: "jump-line"; min: number; max: number; step: number; tickLabels?: Record<number, string>; marks: { v: number; label?: string; tone?: "start" | "end" | "mid" }[]; jumps: { from: number; to: number; label: string }[]; alt: string }
+  /** Bars split into parts: fractions, ratio, percentages and part-whole word problems. A segment's `size` sets its width (equal by default). `tone` "none" is unshaded. */
+  | { type: "bar-model"; rows: { label?: string; segments: { label: string; size?: number; tone?: "a" | "b" | "c" | "none" }[]; note?: string }[]; alt: string }
+  /** Rows of dots for multiplying; `group` splits the columns into groups of that many. */
+  | { type: "array"; rows: number; cols: number; group?: number; alt: string }
+  /** Long division by chunking: the amounts taken away, each with how many lots of the divisor it is. */
+  | { type: "chunking"; divisor: number; dividend: number; chunks: { times: number; amount: number; left: number }[]; quotient: number; remainder: number; alt: string }
+  /** A pictogram: one row per label, with `full` symbols and an optional half one. */
+  | { type: "pictogram"; rows: { label: string; full: number; half?: boolean }[]; per: number; symbol: string; alt: string }
   /** Short division: the dividend under the bus stop, the answer above it and the carried remainders. */
   | { type: "bus-stop"; divisor: number; digits: string; quotient: string; carries: string[]; remainder: number; alt: string }
   /** Boxes joined by arrows, top to bottom: an input, steps and an output. `repeat` draws a loop bracket round the steps from `from` to `to`. */

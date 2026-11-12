@@ -66,6 +66,11 @@ export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called w
   if (fig.type === "alphabet") return <AlphabetFigure {...fig} />;
   if (fig.type === "column-sum") return <ColumnSumFigure {...fig} />;
   if (fig.type === "bus-stop") return <BusStopFigure {...fig} />;
+  if (fig.type === "jump-line") return <JumpLineFigure {...fig} />;
+  if (fig.type === "bar-model") return <BarModelFigure {...fig} />;
+  if (fig.type === "array") return <ArrayFigure {...fig} />;
+  if (fig.type === "chunking") return <ChunkingFigure {...fig} />;
+  if (fig.type === "pictogram") return <PictogramFigure {...fig} />;
   if (fig.type === "histogram") return <HistogramFigure {...fig} />;
   if (fig.type === "square-grid") return <SquareGridFigure {...fig} />;
   if (fig.type === "solid") return <SolidFigure {...fig} />;
@@ -465,7 +470,7 @@ function BarsFigure({ items, yLabel, alt }: Of<"bars">) {
 function TableFigure({ head, rows, alt }: Of<"table">) {
   return (
     <figure class="table-figure">
-      <table aria-label={alt}>
+      <table aria-label={alt} class={head.length > 6 ? "dense" : undefined}>
         <thead><tr>{head.map((h, i) => <th key={i} scope="col">{h}</th>)}</tr></thead>
         <tbody>{rows.map((row, i) => <tr key={i}>{row.map((c, j) => (j === 0 && (head[0] === "" || head[0] === "×") ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>))}</tr>)}</tbody>
       </table>
@@ -495,32 +500,131 @@ function FlowFigure({ steps, repeat, alt }: Of<"flow">) {
 }
 
 /** A sum worked in columns, with the place names over the columns, carries under the answer and exchanges over the top number. */
-function ColumnSumFigure({ op, top, bottom, result, carries, exchanges, alt }: Of<"column-sum">) {
+function ColumnSumFigure({ op, top, bottom, result, carries, exchanges, alt, dp, prefix, more }: Of<"column-sum">) {
   const N = carries.length, w = 38, x0 = 66, W = x0 + N * w + 14;
   const cx = (i: number) => x0 + i * w + w / 2;
   const pad = (s: string) => s.padStart(N, " ");
-  const T = pad(top), B = pad(bottom), R = pad(result);
-  const heads = ["M", "HTh", "TTh", "Th", "H", "T", "O"].slice(-N);
+  const rowsList = [top, bottom, ...(more ?? [])].map(pad), n = rowsList.length;
+  const R = pad(result);
+  const heads = ["TM", "M", "HTh", "TTh", "Th", "H", "T", "O"].slice(-(N - (dp ?? 0)));
+  const dpHeads = (prefix === "£" ? ["10p", "1p"] : ["t", "h", "th"]).slice(0, dp ?? 0);
+  const allHeads = [...heads, ...dpHeads];
   const hasEx = exchanges.some(Boolean), hasCarry = carries.some(Boolean);
   const up = hasEx ? 0 : 34; // no exchange row, so no gap above the top number
-  const yEx = 46, yTop = 86 - up, yBot = 124 - up, yLine = 136 - up, yRes = 172 - up, yCar = 198 - up, H = (hasCarry ? 212 : 188) - up;
+  const yEx = 46, yTop = 86 - up, rowGap = 38, yLast = yTop + (n - 1) * rowGap, yLine = yLast + 12, yRes = yLine + 36, yCar = yRes + 26, H = (hasCarry ? yCar + 14 : yRes + 16);
+  const yAt = (i: number) => yTop + i * rowGap;
   return (
     <svg class="figure figure-wide column-sum" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
-      {heads.map((h, i) => <text key={i} x={cx(i)} y="16" text-anchor="middle" class="fig-label" font-size="11" opacity=".6">{h}</text>)}
+      {allHeads.map((h, i) => <text key={i} x={cx(i)} y="16" text-anchor="middle" class="fig-label" font-size="11" opacity=".6">{h}</text>)}
       {Array.from({ length: N }, (_, i) => i).map((i) => (
         <g key={i}>
           {exchanges[i] && <text x={cx(i)} y={yEx} text-anchor="middle" class="fig-label" font-size={exchanges[i]!.now.length > 1 ? 15 : 19} font-weight="800" fill="#c2410c">{exchanges[i]!.now}</text>}
-          {T[i] !== " " && <text x={cx(i)} y={yTop} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{T[i]}</text>}
-          {exchanges[i] && T[i] !== " " && <line x1={cx(i) - 10} y1={yTop - 7} x2={cx(i) + 10} y2={yTop - 7} stroke="#c2410c" stroke-width="2.5" />}
-          {B[i] !== " " && <text x={cx(i)} y={yBot} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{B[i]}</text>}
+          {rowsList.map((row, k) => row[i] !== " " && <text key={k} x={cx(i)} y={yAt(k)} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{row[i]}</text>)}
+          {exchanges[i] && rowsList[0][i] !== " " && <line x1={cx(i) - 10} y1={yTop - 7} x2={cx(i) + 10} y2={yTop - 7} stroke="#c2410c" stroke-width="2.5" />}
           {R[i] !== " " && <text x={cx(i)} y={yRes} text-anchor="middle" class="fig-label" font-size="26" font-weight="800" fill="#166534">{R[i]}</text>}
           {carries[i] && <text x={cx(i)} y={yCar} text-anchor="middle" class="fig-label" font-size="16" font-weight="800" fill="#c2410c">{carries[i]}</text>}
         </g>
       ))}
-      <text x="38" y={yBot} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{op === "+" ? "+" : "−"}</text>
+      <text x="38" y={yAt(n - 1)} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{op === "+" ? "+" : "−"}</text>
+      {dp ? [...rowsList.map((_, k) => yAt(k)), yRes].map((yy, k) => <text key={k} x={x0 + (N - dp) * w} y={yy} text-anchor="middle" class="fig-label" font-size="26" font-weight="800">.</text>) : null}
+      {prefix && [...rowsList.map((r, k) => ({ y: yAt(k), r })), { y: yRes, r: R }].map((row, k) => { const first = row.r.search(/\S/); return first < 0 ? null : <text key={k} x={cx(first) - 22} y={row.y} text-anchor="middle" class="fig-label" font-size="22" font-weight="700">{prefix}</text>; })}
       <line x1="22" y1={yLine} x2={W - 8} y2={yLine} stroke="currentColor" stroke-width="3" />
       {hasEx && <text x="4" y={yEx} class="fig-label" font-size="8" opacity=".7">exchange</text>}
       {hasCarry && <text x="4" y={yCar} class="fig-label" font-size="8" opacity=".7">carry</text>}
+    </svg>
+  );
+}
+
+const TONE = { a: "#c1c5ee", b: "#84d8ba", c: "#f6a0bc", none: "transparent" } as const;
+
+/** A number line with hops over it. */
+function JumpLineFigure({ min, max, step, tickLabels, marks, jumps, alt }: Of<"jump-line">) {
+  const L = 22, R = 278, X = (v: number) => r2(L + ((v - min) / (max - min)) * (R - L)), y = 96;
+  const ticks: number[] = []; for (let v = min; v <= max + 1e-9; v += step) ticks.push(Math.round(v * 1e6) / 1e6);
+  const every = Math.max(1, Math.ceil(ticks.length / 11)), name = (v: number) => tickLabels?.[v] ?? String(v).replace("-", "−");
+  return (
+    <svg class="figure figure-wide jump-line" viewBox="0 0 300 140" role="img" aria-label={alt}>
+      <defs><marker id="jl-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c2410c" /></marker></defs>
+      <line x1={L - 6} y1={y} x2={R + 6} y2={y} stroke="currentColor" stroke-width="2.5" />
+      {ticks.map((v, i) => <g key={v}><line x1={X(v)} y1={y - 6} x2={X(v)} y2={y + 6} stroke="currentColor" stroke-width="1.5" />{(tickLabels ? tickLabels[v] !== undefined : i % every === 0) && <text x={X(v)} y={y + 22} text-anchor="middle" class="fig-label" font-size="10">{name(v)}</text>}</g>)}
+      {jumps.map((j, i) => {
+        const a = X(j.from), b = X(j.to), mid = (a + b) / 2, lift = Math.min(60, 26 + Math.abs(b - a) * 0.12), top = y - 8 - lift;
+        return <g key={i}><path d={`M${a} ${y - 8} Q${mid} ${top} ${b} ${y - 8}`} fill="none" stroke="#c2410c" stroke-width="2" marker-end="url(#jl-head)" /><text x={mid} y={top + 10} text-anchor="middle" class="fig-label" font-size="11" font-weight="800" fill="#c2410c">{j.label}</text></g>;
+      })}
+      {marks.map((m, i) => <g key={i}><circle cx={X(m.v)} cy={y} r="7" fill={m.tone === "end" ? "#84d8ba" : m.tone === "mid" ? "#fff" : "#f6a0bc"} stroke="currentColor" stroke-width="2.2" />{m.label && tickLabels?.[m.v] === undefined && <text x={X(m.v)} y={y + 38} text-anchor="middle" class="fig-label" font-size="11" font-weight="800">{m.label}</text>}</g>)}
+    </svg>
+  );
+}
+
+/** Bars split into parts. */
+function BarModelFigure({ rows, alt }: Of<"bar-model">) {
+  const W = 280, x0 = 10, rowH = 52, H = rows.length * rowH + 8;
+  return (
+    <svg class="figure figure-wide bar-model" viewBox={`0 0 300 ${H}`} role="img" aria-label={alt}>
+      {rows.map((row, ri) => {
+        const total = row.segments.reduce((t, sg) => t + (sg.size ?? 1), 0), top = 6 + ri * rowH; let x = x0;
+        return (
+          <g key={ri}>
+            {row.label && <text x={x0} y={top + 10} class="fig-label" font-size="11" font-weight="800">{row.label}</text>}
+            {row.segments.map((sg, si) => {
+              const w = ((sg.size ?? 1) / total) * W, cx = x; x += w;
+              return <g key={si}><rect x={cx} y={top + 16} width={w} height="30" fill={TONE[sg.tone ?? "a"]} fill-opacity=".75" stroke="currentColor" stroke-width="2" /><text x={cx + w / 2} y={top + 36} text-anchor="middle" class="fig-label" font-size={w < 26 ? 9 : 12} font-weight="700">{sg.label}</text></g>;
+            })}
+            {row.note && <text x={x0 + W} y={top + 10} text-anchor="end" class="fig-label" font-size="11" font-weight="800" fill="#c2410c">{row.note}</text>}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** Rows of dots. */
+function ArrayFigure({ rows, cols, group, alt }: Of<"array">) {
+  const gap = 22, g = group && group > 0 ? group : cols, groups = Math.ceil(cols / g), sep = 12;
+  const W = cols * gap + (groups - 1) * sep + 20, H = rows * gap + 16;
+  return (
+    <svg class="figure array" viewBox={`0 0 ${W} ${H}`} style={{ maxWidth: `${Math.min(300, W * 1.4)}px` }} role="img" aria-label={alt}>
+      {Array.from({ length: rows }, (_, r) => Array.from({ length: cols }, (_, c) => <circle key={`${r}-${c}`} cx={10 + c * gap + Math.floor(c / g) * sep + gap / 2} cy={8 + r * gap + gap / 2} r="7" fill={Math.floor(c / g) % 2 ? "#84d8ba" : "#c1c5ee"} stroke="currentColor" stroke-width="1.5" />))}
+    </svg>
+  );
+}
+
+/** Long division by chunking, written as a column of take-aways. */
+function ChunkingFigure({ divisor, dividend, chunks, quotient, remainder, alt }: Of<"chunking">) {
+  const lh = 24, H = 40 + chunks.length * lh * 2 + 30;
+  return (
+    <svg class="figure figure-wide chunking" viewBox={`0 0 300 ${H}`} role="img" aria-label={alt}>
+      <text x="96" y="24" text-anchor="end" class="fig-label" font-size="17" font-weight="800">{dividend}</text>
+      <text x="40" y="24" text-anchor="middle" class="fig-label" font-size="15" opacity=".8">{divisor} ÷</text>
+      {chunks.map((c, i) => {
+        const y = 44 + i * lh * 2;
+        return (
+          <g key={i}>
+            <text x="96" y={y + 4} text-anchor="end" class="fig-label" font-size="15">− {c.amount}</text>
+            <text x="106" y={y + 4} class="fig-label" font-size="12" font-weight="800" fill="#c2410c">{c.times} × {divisor}</text>
+            <line x1="40" y1={y + 10} x2="98" y2={y + 10} stroke="currentColor" stroke-width="1.5" />
+            <text x="96" y={y + 28} text-anchor="end" class="fig-label" font-size="17" font-weight="800">{c.left}</text>
+          </g>
+        );
+      })}
+      <text x="106" y={H - 8} class="fig-label" font-size="13" font-weight="800" fill="#166534">{chunks.map((c) => c.times).join(" + ")} = {quotient}{remainder ? `, remainder ${remainder}` : ""}</text>
+    </svg>
+  );
+}
+
+/** A pictogram. */
+function PictogramFigure({ rows, per, symbol, alt }: Of<"pictogram">) {
+  const label = 70, gap = 24, H = rows.length * 30 + 38;
+  return (
+    <svg class="figure figure-wide pictogram" viewBox={`0 0 300 ${H}`} role="img" aria-label={alt}>
+      {rows.map((r, i) => (
+        <g key={i}>
+          <text x="6" y={26 + i * 30} class="fig-label" font-size="12" font-weight="700">{r.label}</text>
+          {Array.from({ length: r.full }, (_, k) => <text key={k} x={label + k * gap} y={28 + i * 30} font-size="20">{symbol}</text>)}
+          {r.half && <g><clipPath id={`half-${i}`}><rect x={label + r.full * gap} y={8 + i * 30} width="11" height="26" /></clipPath><text x={label + r.full * gap} y={28 + i * 30} font-size="20" clip-path={`url(#half-${i})`}>{symbol}</text></g>}
+        </g>
+      ))}
+      <text x="6" y={H - 8} class="fig-label" font-size="11" font-weight="800" fill="#c2410c">Key: {symbol} = {per}</text>
     </svg>
   );
 }

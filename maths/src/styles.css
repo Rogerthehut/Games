@@ -3331,7 +3331,7 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .tip-wrap .icon-btn { -webkit-touch-callout: none; user-select: none; }
 
 /* The "Public beta" lip: hangs from the bottom edge of the header under the wordmark, like a page tab */
-.l-beta-tab { position: absolute; top: 100%; left: calc(clamp(38px, 3.4vw, 52px) + clamp(8px, 1vw, 14px)); z-index: 1; padding: 2px 12px 3px; background: var(--l-cream); border: 1px solid rgba(18,21,34,.08); border-top: 0; border-radius: 0 0 10px 10px; font: 800 .68rem/1.2 "Figtree Variable", system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--l-ink); white-space: nowrap; margin-top: 1px; }
+.l-beta-tab { position: absolute; top: 100%; left: calc(clamp(38px, 3.4vw, 52px) + clamp(8px, 1vw, 14px)); z-index: 1; padding: 2px 12px 3px; background: var(--l-cream); border: 1px solid rgba(18,21,34,.08); border-top: 0; border-radius: 0 0 10px 10px; font: 800 .68rem/1.2 "Figtree Variable", system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--l-ink); white-space: nowrap; margin-top: 1px; box-shadow: 0 7px 10px -5px rgba(18,21,34,.30), 0 2px 3px rgba(18,21,34,.14), inset 0 -1px 0 rgba(18,21,34,.06); /* a soft shadow beneath, so the tab sits above the page like a tab on a folder */ }
 /* iOS Safari redraws a blurred sticky bar on every toolbar collapse, which looks like it wobbles: keep it opaque and on its own layer on touch screens */
 @media (max-width: 900px), (hover: none) {
   .l-nav { background: var(--l-cream); -webkit-backdrop-filter: none; backdrop-filter: none; transform: translateZ(0); will-change: transform; }
@@ -3479,3 +3479,6 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .worked .column-sum { max-width: 270px; }
 .worked .bus-stop { max-width: 300px; }
 .table-figure table[aria-label] th:first-child { white-space: nowrap; }
+
+.table-figure table.dense th, .table-figure table.dense td { padding: 6px 7px; font-size: .95rem; }
+.table-figure td.blank { border-color: transparent; background: transparent; }
