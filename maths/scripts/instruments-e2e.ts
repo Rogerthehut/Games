@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/instruments-e2e.ts
  */
 import { newProfile } from "../src/engine/progress";
+import { tmpdir } from "node:os";
 
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -51,7 +52,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   ok(`${label}: the buttons reach ${target}°`, now === target, `got ${now}`);
   await page.getByTestId("check").click(); await page.waitForTimeout(400);
   ok(`${label}: the angle is accepted`, (await page.locator(".fb.good").count()) === 1);
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/instr-angle-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/instr-angle-${label}.png` });
   await leave();
 
   // draw a rectangle by dragging, then check a wrong one first
@@ -71,7 +72,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   if (await page.locator(".fb.bad").count()) await page.getByTestId("check").click().catch(() => {});
   await page.waitForTimeout(400);
   ok(`${label}: the right rectangle is accepted`, (await page.locator(".fb.good").count()) === 1);
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/instr-shape-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/instr-shape-${label}.png` });
   ok(`${label}: no errors`, errors.length === 0, errors.join("; "));
   await ctx.close();
 }

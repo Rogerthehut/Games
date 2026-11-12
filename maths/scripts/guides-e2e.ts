@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/guides-e2e.ts
  */
 import { newProfile } from "../src/engine/progress";
+import { tmpdir } from "node:os";
 
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -70,7 +71,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   ok(`${label}: Print opens every section and asks the browser to print`, (await page.evaluate(() => (window as any).__printed)) === 1 && (await page.evaluate(() => (window as any).__closedAtPrint)) === 0);
   await page.waitForTimeout(300);
   ok(`${label}: and then puts the page back`, !(await page.evaluate(() => document.body.classList.contains("printing-guide"))));
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/guide-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/guide-${label}.png` });
   await page.locator("button[aria-label='Back to Me']").click(); await page.waitForTimeout(300);
   ok(`${label}: back on Me`, /Choose your avatar/i.test(await page.locator("body").innerText()));
   ok(`${label}: no errors`, errors.length === 0, errors.join("; "));

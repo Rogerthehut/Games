@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/learning-report-e2e.ts
  */
 import { SKILL_BY_ID } from "../src/curriculum";
+import { tmpdir } from "node:os";
 import { mulberry32 } from "../src/engine/rng";
 import { newProfile, recordAnswer } from "../src/engine/progress";
 import { recordWrong } from "../src/engine/wrong-log";
@@ -71,7 +72,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   ok(`${label}: custom dates can be chosen`, (await page.locator(".lr-dates input[type=date]").count()) === 2);
   await page.getByTestId("lr-print").click(); await page.waitForTimeout(400);
   ok(`${label}: printing asks the browser to print`, (await page.evaluate(() => (window as any).__printed)) === 1);
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/lr-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/lr-${label}.png` });
   await page.getByTestId("period-14").click(); await page.waitForTimeout(200);
   await page.getByTestId("fix-frac-add").click(); await page.waitForTimeout(700);
   const asked = (await page.getByTestId("question").innerText()).match(/\d+/g)?.sort().join(","); // typeset fractions list their numbers in another order

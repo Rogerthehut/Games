@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/lesson-e2e.ts
  */
 import { buildLesson } from "../src/engine/lesson";
+import { tmpdir } from "node:os";
 import { correctInputs } from "../src/engine/answer-inputs";
 import { newProfile } from "../src/engine/progress";
 
@@ -70,7 +71,7 @@ for (const [label, w, h] of [["desktop", 1280, 860], ["phone", 390, 800]] as con
   ok(`${label}: finishing is saved`, !!saved.profiles?.[0]?.lessons?.[SKILL]);
   await page.getByTestId("lesson-done").click(); await page.waitForTimeout(500);
   ok(`${label}: back on the skills list, button now says Lesson again`, /Lesson again/.test(await page.getByTestId(`lesson-${SKILL}`).innerText()));
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/lesson-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/lesson-${label}.png` });
   ok(`${label}: no errors`, errors.length === 0, errors.join("; "));
   await ctx.close();
 }

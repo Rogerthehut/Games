@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/tools-e2e.ts
  */
 import { newProfile } from "../src/engine/progress";
+import { tmpdir } from "node:os";
 
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -65,7 +66,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   await page.mouse.move(box.x + 40, box.y + 30); await page.mouse.down(); await page.mouse.move(box.x + 120, box.y + 60, { steps: 6 }); await page.mouse.up();
   const painted = await page.evaluate(() => { const c = document.querySelector("canvas.scrap-paper") as HTMLCanvasElement; const d = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; });
   ok(`${label}: a straight line is drawn`, painted > 200);
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/tools-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/tools-${label}.png` });
   ok(`${label}: no errors`, errors.length === 0, errors.join("; "));
   await ctx.close();
 }

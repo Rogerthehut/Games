@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/tables-challenge-e2e.ts
  */
 import { newProfile } from "../src/engine/progress";
+import { tmpdir } from "node:os";
 import { recordChallenge } from "../src/engine/tables-challenge";
 
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
@@ -66,7 +67,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   const names = await rows.locator(".tt-who strong").allInnerTexts();
   ok(`${label}: Leo (14) leads Maya (9)`, names[0].startsWith("Leo") && names[1].startsWith("Maya"), names.join(","));
   ok(`${label}: Maya is marked as you`, /\(you\)/.test(names[1]));
-  await page.screenshot({ path: `${process.env.OUT ?? "."}/tt-board-${label}.png` });
+  await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/tt-board-${label}.png` });
   await page.getByTestId("board-mode-race").click(); await page.clock.runFor(200);
   ok(`${label}: nobody has a race score yet, and the board says so`, (await page.getByTestId("family-board").locator("li").filter({ hasText: "Not yet" }).count()) === 2);
   await page.getByTestId("board-back").click(); await page.clock.runFor(300);

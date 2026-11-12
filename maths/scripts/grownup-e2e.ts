@@ -6,6 +6,7 @@
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/grownup-e2e.ts
  */
 import { newProfile } from "../src/engine/progress";
+import { tmpdir } from "node:os";
 
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const chromium = pw.chromium ?? pw.default.chromium;
@@ -52,7 +53,7 @@ await page.keyboard.press("Shift"); // as if a keyboard was just used, which is 
 const boxed = await page.evaluate(() => { const el = document.activeElement as HTMLElement | null; return el ? { tag: el.tagName, outline: getComputedStyle(el).outlineStyle } : null; });
 ok("the heading the app focuses on arrival has no box round it", boxed?.tag === "H1" && boxed.outline === "none", JSON.stringify(boxed));
 
-await page.screenshot({ path: `${process.env.OUT ?? "."}/gu-after-pin.png` });
+await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/gu-after-pin.png` });
 // 2a. the Lock and leave button locks it at once and goes back to Me
 await page.getByTestId("lock-parents").click(); await page.waitForTimeout(500);
 ok("Lock and leave goes back to Me", /Choose your avatar|Who.s learning/i.test(await page.locator("body").innerText()));

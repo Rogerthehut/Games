@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Housekeeping: test screenshots
+The browser test scripts used to write their screenshots into the top of the repo, where eleven of them were tracked, so every run showed changes. They now write to the system's temporary folder (or `OUT` if set), those files are no longer tracked, and the top-level `*.png` pattern is ignored.
+
 ## Faster server start
 The server is now bundled into one file at build time (`npm run build:server`, part of `npm run build`) and started with plain `node`, instead of compiling the TypeScript each time it starts. It's about 40% quicker to be ready on a fast machine and should help more on Replit's slower one, which shortens the burst of "healthcheck failed" lines at a deploy. `npm run server:dev` still runs the TypeScript directly for development and the browser tests. The booklet and the database migrations are found the same way from both. `.replit` now also stops the old process by either name.
 
