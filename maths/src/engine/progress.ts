@@ -99,6 +99,8 @@ export interface MockRecord {
 export interface LessonDraft { skillId: string; at: number; helped: boolean; right: number; revisit: boolean; savedAt: number }
 
 export interface Profile {
+  /** A grown-up has let this learner (Year 7 and up) change their own PIN. The PIN itself is kept on the device (see ui/pin.ts), never here. */
+  pinSelf?: boolean;
   lastSkill?: string;
   skillsView?: "list" | "journey";
   practiceDraft?: PracticeDraft;

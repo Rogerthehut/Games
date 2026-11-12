@@ -8,6 +8,13 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Optional PINs for children
+- **Parents' area, Settings:** make, change or turn off a 4 to 6 digit PIN for the learner you're looking at. From Year 7 a parent can also let the child change their own.
+- **Switching asks for it:** choosing a child who has a PIN on Me shows a PIN pad. A wrong PIN is refused, with five tries then a growing wait (the same slow-down as the parent PIN). A grown-up who has already opened the Parents' area isn't asked.
+- **Forgot it?** goes to "I'm a grown-up": the sum and the Parents' PIN, then **open the profile and keep the PIN** or **clear the PIN and open**.
+- **My PIN** on Me (older children, when allowed): current PIN first, then the new one twice.
+- It is a household lock, not a vault: kept on the device as a salted hash, never synced, removed with the learner or on sign-out. Private notice, DPIA, parent guide and tests updated (`src/ui/pin.test.ts`, `npm run e2e:kid-pin`).
+
 ## Two screens at once, with different children
 Two browser tabs or windows on one device can each show a different child (chosen on Me). Before, whichever screen saved last overwrote the other's progress, because every save wrote everyone's data. Now each screen picks up the other's changes to the other children straight away, keeps its own child exactly as it is, and remembers which child it was showing after a reload (kept per tab, not shared). Two screens on the *same* child still end up with whichever saved last. Signed-in accounts already save each child separately with a version check, so different devices were fine. Tests: `src/engine/storage.test.ts`, `npm run e2e:multi-screen`.
 

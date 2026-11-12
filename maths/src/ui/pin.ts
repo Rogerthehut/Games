@@ -27,12 +27,23 @@ export function pinProblem(pin: string): string | null {
   return null;
 }
 
+/** A child's PIN: 4 to 6 digits, and not something a brother or sister would guess. */
+export function kidPinProblem(pin: string): string | null {
+  if (!/^\d+$/.test(pin) || pin.length < 4 || pin.length > 6) return "Use 4 to 6 digits.";
+  if (/^(\d)\1+$/.test(pin)) return "Please don't use the same digit every time.";
+  const asc = "0123456789012345678901", desc = "9876543210987654321098";
+  if (asc.includes(pin) || desc.includes(pin)) return "Please don't use a run of digits like 1234.";
+  return null;
+}
+/** Where a child's PIN is kept, so it never mixes with the parent's. */
+export const kidKey = (profileId: string) => `child.${profileId}`;
+
 export const hasPin = (key: string) => read(key) !== null;
 export const clearPin = (key: string) => { try { localStorage.removeItem(PREFIX + key); } catch { /* nothing to remove */ } };
 export const clearAllPins = () => { try { for (const k of Object.keys(localStorage)) if (k.startsWith(PREFIX)) localStorage.removeItem(k); } catch { /* nothing to remove */ } };
 
-export async function setPin(key: string, pin: string): Promise<boolean> {
-  if (pinProblem(pin)) return false;
+export async function setPin(key: string, pin: string, problem: (pin: string) => string | null = pinProblem): Promise<boolean> {
+  if (problem(pin)) return false;
   const salt = crypto.getRandomValues(new Uint8Array(16));
   return write(key, { salt: toHex(salt), hash: await derive(pin, salt, ITER), iter: ITER, fails: 0, until: 0 });
 }

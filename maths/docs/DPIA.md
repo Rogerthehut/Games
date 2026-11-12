@@ -47,7 +47,7 @@ Contract (the service the parent asked for) and legitimate interests (security).
 | Data kept too long | Parent can delete everything (also removes the Stripe customer) or download it; retention rule below | Low |
 
 ## Other controls
-The Parents' area has a sum and a 6 or 8 digit PIN, kept on the device as a salted hash and slowed after wrong tries (a lock against a child, not a vault). The assistant is limited per parent per day, and screened for personal details and for worry about a child's safety (it signposts NSPCC, Childline and Samaritans).
+The Parents' area has a sum and a 6 or 8 digit PIN, kept on the device as a salted hash and slowed after wrong tries (a lock against a child, not a vault). A parent can also give a learner an optional 4 to 6 digit PIN, asked for when someone switches to that learner on the device: the same kind of device-only salted hash, slowed after wrong tries, cleared by a parent (sum and Parents' PIN) if forgotten. Children from Year 7 can change their own when a parent allows it. It is not synced and holds no personal data. The assistant is limited per parent per day, and screened for personal details and for worry about a child's safety (it signposts NSPCC, Childline and Samaritans).
 
 ## Retention
 Kept until the parent deletes the account. **[CONFIRM]** whether unused accounts are deleted after a set period (for example 24 months, with a warning email).

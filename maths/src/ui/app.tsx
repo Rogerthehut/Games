@@ -28,6 +28,7 @@ import { ProgressReport } from "./progress-report";
 import { MyDataRoute } from "./my-data-route";
 import { Mock } from "./mock";
 import { PrintPaper } from "./print-paper";
+import { clearPin, kidKey } from "./pin";
 import { PlanView } from "./planview";
 import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
 import { Shell } from "./shell";
@@ -186,6 +187,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     removeProfile: (id: string) => {
       bridge?.forget(id);
       forgetLearner(id);
+      clearPin(kidKey(id)); // a removed learner's PIN goes with them
       setStore((s) => {
         const profiles = s.profiles.filter((p) => p.id !== id);
         return { ...s, profiles, activeId: profiles[0]?.id ?? null };

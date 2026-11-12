@@ -123,6 +123,7 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Curriculum booklet: a designed PDF of everything quarter covers, for subscribed accounts.",
       "My information: download everything stored about your child, or delete it.",
       "Weekly email: turn it on in Settings to get a short email each week with how your child did and what was tricky. It is only sent if they practised, and every email has an unsubscribe link.",
+      "A PIN for a child (optional): in Settings in the Parents' area, make a PIN of 4 to 6 digits for the child you're looking at. After that, anyone switching to that child on this device has to type it, so brothers and sisters can't open each other's progress. From Year 7 you can also let them change their own PIN. If it's forgotten, they tap Forgot it, and a grown-up passes the sum and Parents' PIN to open their profile or clear the PIN. It's a household lock, kept on this device only, not a vault.",
       "Several children: each can use their own screen at the same time. On the Me page, choose who is using that screen. Two screens showing the same child at once isn't a good idea, as the one that saves last wins.",
       "Delete this learner removes their progress.",
     ],

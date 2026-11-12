@@ -133,6 +133,7 @@ export const cookiesSections: Section[] = [
       "If a grown-up turns on the optional AI tutor, conversations are kept in the browser on that device, and a random browser ID is saved and sent to the tutor service to limit how often it is used.",
       "Text-to-speech uses your device’s own voices.",
       "The Parents’ area PIN you choose is kept on that device only, as a scrambled code (not the PIN itself). Signing out removes it.",
+      "If you choose to give a learner a PIN, it is kept in the same way, on that device only, and can be cleared by a parent at any time.",
       "Before the AI tutor or assistant can be used, Cloudflare’s Turnstile may run a quick check in your browser. It can store a small token in your browser while it works.",
       "When you pay, you are sent to Stripe’s secure payment page, which sets its own cookies on its own address to process the payment and prevent fraud. quarter does not receive your card details.",
     ],

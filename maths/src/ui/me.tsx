@@ -8,6 +8,7 @@ import { useApp } from "./context";
 import { SyncChip } from "./account-section";
 import { TipButton } from "./tip";
 import { ParentGate, parentUnlocked } from "./gate";
+import { KidPinGate, MyPin, needsKidPin } from "./kid-pin";
 import { useWide } from "./tables-note";
 import { Icon } from "./icons";
 import { Avatar, avatarVariants } from "./avatar";
@@ -51,6 +52,7 @@ export function Me() {
   }, [profile.id]);
   const wide = useWide(); // with the left-hand panel showing, the Parents' area lives there
   const [gate, setGate] = useState<false | "parent" | "add">(false);
+  const [kidGate, setKidGate] = useState<Profile | null>(null); // the child whose PIN is being asked for before switching
   const [theme, setTheme] = useState<ThemeChoice>(getTheme());
   const last = profile.baselines[profile.baselines.length - 1];
   const secure = SKILLS.filter((s) => statusOf(profile.skills[s.id]) === "secure").length;
@@ -102,7 +104,7 @@ export function Me() {
         <ul class="rows">
           {profiles.map((p) => (
             <li key={p.id}>
-              <button class={`row ${p.id === profile.id ? "current" : ""}`} onClick={() => p.id !== profile.id && switchTo(p.id)} aria-current={p.id === profile.id ? "true" : undefined}>
+              <button class={`row ${p.id === profile.id ? "current" : ""}`} onClick={() => { if (p.id === profile.id) return; if (needsKidPin(p.id)) setKidGate(p); else switchTo(p.id); }} aria-current={p.id === profile.id ? "true" : undefined}>
                 <Avatar choice={p.avatar} year={p.year} size={32} /><span>{p.name} <small class="muted">Year {p.year}</small></span>
                 {p.id === profile.id ? <Icon name="check" size={18} /> : <Icon name="chevron" size={18} />}
               </button>
@@ -111,6 +113,7 @@ export function Me() {
           <li><button class="row add" onClick={() => (parentUnlocked() ? go({ name: "onboard" }) : setGate("add"))} data-testid="add-learner"><Icon name="plus" /><span>Add someone, or change year</span></button></li>
         </ul>
       </section>
+      <MyPin />
 
       <section aria-labelledby="avatar-h">
         <h2 id="avatar-h">Choose your avatar</h2>
@@ -174,6 +177,7 @@ export function Me() {
         </ul>
       )}
 
+      {kidGate && <KidPinGate learner={kidGate} onCancel={() => setKidGate(null)} onPass={() => { const id = kidGate.id; setKidGate(null); switchTo(id); }} />}
       {gate && <ParentGate onCancel={() => setGate(false)} onPass={() => { const to = gate === "add" ? { name: "onboard" as const } : { name: "parent" as const }; setGate(false); go(to); }} />}
     </div>
   );

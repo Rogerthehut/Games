@@ -22,6 +22,7 @@ import { Guides } from "./guides";
 import { LearningSummaryCard } from "./learning-report";
 import { tablesOf } from "../engine/tables";
 import { lockParents } from "./gate";
+import { KidPinSettings } from "./kid-pin";
 import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
@@ -256,6 +257,7 @@ export function Parent() {
           </section>
 
           <PinSettings />
+          <KidPinSettings />
           <BookletSection />
           <section class="card" data-testid="papers-section" aria-labelledby="papers-title">
             <h2 id="papers-title">Practice papers to print</h2>

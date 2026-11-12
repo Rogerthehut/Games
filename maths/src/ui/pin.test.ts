@@ -51,3 +51,31 @@ describe("the parents' area PIN", () => {
     clearAllPins(); expect(hasPin("u2")).toBe(false);
   });
 });
+
+import { kidKey, kidPinProblem } from "./pin";
+describe("a child's PIN", () => {
+  it("is 4 to 6 digits and not an easy guess", () => {
+    expect(kidPinProblem("2580")).toBeNull(); expect(kidPinProblem("258014")).toBeNull();
+    expect(kidPinProblem("123")).toMatch(/4 to 6/); expect(kidPinProblem("1234567")).toMatch(/4 to 6/); expect(kidPinProblem("12a4")).toMatch(/4 to 6/);
+    expect(kidPinProblem("7777")).toMatch(/same digit/); expect(kidPinProblem("1234")).toMatch(/run of digits/); expect(kidPinProblem("4321")).toMatch(/run of digits/);
+  });
+  it("is stored apart from the parent's, and each child has their own", async () => {
+    expect(await setPin("local", "2580")).toBe(false); // the parent's PIN still needs 6 or 8
+    expect(await setPin(kidKey("a"), "2580", kidPinProblem)).toBe(true);
+    expect(await setPin(kidKey("b"), "9137", kidPinProblem)).toBe(true);
+    expect(hasPin("local")).toBe(false);
+    expect(await checkPin(kidKey("a"), "2580")).toEqual({ ok: true });
+    expect(await checkPin(kidKey("a"), "9137")).toMatchObject({ ok: false, triesLeft: 4 });
+    expect(await checkPin(kidKey("b"), "9137")).toEqual({ ok: true });
+  });
+  it("is slowed down after wrong tries, like the parent's", async () => {
+    await setPin(kidKey("a"), "2580", kidPinProblem);
+    for (let i = 0; i < 4; i++) await checkPin(kidKey("a"), "0000", 1000);
+    expect(await checkPin(kidKey("a"), "0000", 1000)).toMatchObject({ ok: false, waitSeconds: 60 });
+  });
+  it("is cleared with clearPin, and clearAllPins takes every child's too", async () => {
+    await setPin(kidKey("a"), "2580", kidPinProblem); await setPin(kidKey("b"), "9137", kidPinProblem);
+    clearPin(kidKey("a")); expect(hasPin(kidKey("a"))).toBe(false); expect(hasPin(kidKey("b"))).toBe(true);
+    clearAllPins(); expect(hasPin(kidKey("b"))).toBe(false);
+  });
+});
