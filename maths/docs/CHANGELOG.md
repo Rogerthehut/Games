@@ -8,6 +8,13 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Marketing site: a "Try one" card
+In the empty cell beside the Learning report card on the landing page there is now an interactive card with two tabs.
+- **Try a question:** a random real question (Years 3 to 6, from 25 topics) with an answer box and a hint. A wrong answer says "not quite" and, when it matches a common slip, shows the likely reason the learning report would give. "Show me how" draws the method (column, bar model, number line, grid, bus stop) and the steps appear one by one; then "Another one" and a way in to an account.
+- **Quick-fire tables:** ten different facts from the 2 to 12 tables, six seconds each, the answer jumps on as soon as it's typed, and a bar chart of how long each took at the end.
+- **Light on the page:** the card isn't loaded until you scroll near it. The questions are made ahead of time from the real generators (`npm run try-bank` writes `src/landing/try-bank.json`; a test fails if it goes stale). Animation is transform and opacity only, pauses when the card is off screen, and is switched off for people who prefer reduced motion. Nothing is stored or sent.
+- Tests: `src/landing/landing.test.ts`; `npm run e2e:try-card` (desktop and phone; needs the app running signed out with `VITE_FAKE_AUTH=1`).
+
 ## Smaller sticky notes in the left panel, and the learner list only on phones
 - The Times tables and STEM lab notes in the left-hand panel are about a fifth smaller (and a little smaller again on shorter screens), so they leave room above the learner card and the panel no longer needs its scroll bar on desktop and iPad.
 - On tablets and desktops the "Who's learning" list is gone from the Me page, because the switcher in the left-hand panel does that job. Phones keep the list on Me.
