@@ -75,3 +75,14 @@ describe("headers on every response", () => {
     expect(b.h["Strict-Transport-Security"]).toBeUndefined();
   });
 });
+
+import { looksLive } from "./http-safety";
+describe("looksLive", () => {
+  it("treats production, Replit deployments and real keys as live", () => {
+    expect(looksLive({ NODE_ENV: "production" })).toBe(true);
+    expect(looksLive({ REPLIT_DEPLOYMENT: "1" })).toBe(true);
+    expect(looksLive({ CLERK_SECRET_KEY: "sk" })).toBe(true);
+    expect(looksLive({ STRIPE_SECRET_KEY: "sk" })).toBe(true);
+    expect(looksLive({})).toBe(false);
+  });
+});

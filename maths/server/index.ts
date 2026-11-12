@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { startMonitoring, reportError } from "./monitoring";
-import { clientIp, resolveStatic, securityHeaders } from "./http-safety";
+import { clientIp, looksLive, resolveStatic, securityHeaders } from "./http-safety";
 import { DbCounters, FallbackCounters, MemoryCounters, type Counters } from "./counters";
 import { mailerFromEnv } from "./mail";
 import { runDigestJob } from "./digest-job";
@@ -45,8 +45,9 @@ if (!HAS_KEY && process.env.TUTOR_FAKE !== "1") console.warn(`${WHICH === "openr
 // Accounts: parents sign in with Clerk and their learners' progress is kept in Postgres. Needs DATABASE_URL and CLERK_SECRET_KEY.
 // AUTH_FAKE=1 swaps Clerk for a fake sign-in (the bearer token is the user id, e.g. fake_maya) and uses an in-memory database if there is no
 // DATABASE_URL. It exists for development and is refused when NODE_ENV=production.
-const AUTH_FAKE = process.env.AUTH_FAKE === "1" && process.env.NODE_ENV !== "production";
-if (process.env.AUTH_FAKE === "1" && !AUTH_FAKE) console.warn("AUTH_FAKE is ignored in production.");
+const LIVE = looksLive(process.env);
+const AUTH_FAKE = process.env.AUTH_FAKE === "1" && !LIVE;
+if (process.env.AUTH_FAKE === "1" && !AUTH_FAKE) console.warn("AUTH_FAKE is ignored on a live deployment.");
 let accounts: AccountDeps | null = null;
 let opsDb: Db | null = null;
 // Rate limits and the AI cost caps count in the database when there is one (shared by every copy of the server, kept across restarts), else in memory.
@@ -64,7 +65,8 @@ if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || 
   if (stripeCfg) {
     billing = new StripeGateway(stripeCfg);
     for (const [name, ok] of [["STRIPE_WEBHOOK_SECRET", stripeCfg.webhookSecret], ["STRIPE_PRICE_MONTHLY", stripeCfg.priceMonthly], ["STRIPE_PRICE_YEARLY", stripeCfg.priceYearly]] as const) if (!ok) console.warn(`${name} is not set: payments will not work properly until it is.`);
-  } else if (process.env.BILLING_FAKE === "1" && process.env.NODE_ENV !== "production") billing = new FakeGateway(Number(process.env.TRIAL_DAYS ?? 7));
+  } else if (process.env.BILLING_FAKE === "1" && !LIVE) billing = new FakeGateway(Number(process.env.TRIAL_DAYS ?? 7));
+  if (billing && !billing.fake && !process.env.APP_URL) console.warn("APP_URL is not set: checkout return links will be built from the request's Host header. Set APP_URL to the site address.");
   if (!billing) console.warn("Payments are off: set STRIPE_SECRET_KEY (and the price ids) to turn on the paywall.");
   accounts = { repo: makeRepo(db), auth: AUTH_FAKE ? new FakeAuth() : new ClerkAuth(process.env.CLERK_SECRET_KEY!, parties), limiter: new WriteLimiter(900, Date.now, counters, { readsPerHour: Number(process.env.ACCOUNT_READS_PER_HOUR ?? DEFAULT_ACCOUNT_LIMITS.readsPerHour), perAddressHour: Number(process.env.ACCOUNT_REQUESTS_PER_ADDRESS_HOUR ?? DEFAULT_ACCOUNT_LIMITS.perAddressHour), bookletPerDay: Number(process.env.BOOKLET_PER_DAY ?? DEFAULT_ACCOUNT_LIMITS.bookletPerDay) }), billing, appUrl: process.env.APP_URL };
 } else {
@@ -183,6 +185,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
     const token = url.searchParams.get("t") ?? "";
     const html = (title: string, body: string) => { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" }); res.end(unsubscribePage(title, body)); };
     if (!accounts) return html("Not available", "<p>This isn't available just now.</p>");
+    if ((await counters.hit(`u:${clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS)}`, 3_600_000)) > 60) { res.writeHead(429, { "Retry-After": "60" }); return res.end(); }
     if (req.method === "POST") {
       req.resume();
       const done = await accounts.repo.unsubscribeByToken(token);

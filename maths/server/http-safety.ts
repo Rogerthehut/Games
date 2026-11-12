@@ -63,3 +63,11 @@ export function securityHeaders(req: IncomingMessage, res: ServerResponse, o: { 
   const https = o.hsts || (o.trustProxy && String(req.headers["x-forwarded-proto"] ?? "").split(",")[0].trim() === "https");
   if (https) res.setHeader("Strict-Transport-Security", "max-age=15552000; includeSubDomains");
 }
+
+/**
+ * Whether this looks like a live deployment. The development-only fakes (fake sign-in, fake payments) are refused when it does, so a stray
+ * AUTH_FAKE=1 or BILLING_FAKE=1 can never open the live site up even if NODE_ENV was not set. Any real secret key counts as a sign it is live.
+ */
+export function looksLive(env: Record<string, string | undefined>): boolean {
+  return env.NODE_ENV === "production" || !!env.REPLIT_DEPLOYMENT || !!env.CLERK_SECRET_KEY || !!env.STRIPE_SECRET_KEY;
+}

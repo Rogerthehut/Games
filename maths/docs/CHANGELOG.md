@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Endpoint and API audit
+Every server route was checked for who can call it and what it returns (table in `docs/SECURITY.md`). Nothing safety-critical was exposed. Three hardenings: the development-only fake sign-in and fake payments are now refused on anything that looks live (not just `NODE_ENV=production`), `/unsubscribe` has a per-address limit, and the server warns if payments are on without `APP_URL`.
+
 ## "See how it explains it" on the landing page
 The cell beside the Learning report card now holds a quiet, self-playing panel on graph paper that draws three worked examples step by step: taking away with an exchange (342 − 158), adding fractions (½ + ¼) and sharing with a bus stop (156 ÷ 4). Nothing to click, though there are scene dots and a pause button. It's hand-drawn SVG that moves only position and opacity, plays only while on screen, and stands still (on the finished picture) for people who prefer reduced motion. `scripts/explain-card-e2e.ts` checks it on desktop, iPad and iPhone widths.
 

@@ -55,3 +55,29 @@ What protects quarter's server, what to set, and what is still open. Reviewed 12
 - **The AI tutor and assistant** are screened, but no screen is perfect; keep the tutor off by default (it is) and review the safety notes in `docs/TUTOR.md`.
 - **Accounts:** the sign-in provider (Clerk) holds the passwords and sessions. Turn on two-step verification for your own Clerk and Resend accounts, and for the team email used for `/ops`.
 - **Backups and breach plan:** see `docs/BREACH_PLAN.md`; practise restoring a database backup once.
+
+## Endpoint audit (November 2026)
+
+Every route in `server/index.ts` was checked for who can call it and what it returns.
+
+| Route | Who can call it | Notes |
+|---|---|---|
+| `GET /api/health` | anyone | Returns only `ok` and whether the tutor has a key. No versions, paths or config. |
+| `POST /api/humans/verify` | anyone | Per-address limit (40/hour). Off when Turnstile isn't configured. |
+| `GET /api/outcode` | anyone | Per-address limit (60/hour). Input is checked against an outward-code pattern before anything is looked up; only that code is ever sent on. |
+| `POST /api/tutor` | anyone, with the human pass when Turnstile is on | No account, by design (the tutor stores nothing). Capped per device, per address and globally per day. The model prompt is built on the server; the browser can only supply the child's words and the question. |
+| `/api/account*`, `/api/learners*`, `/api/assistant`, `/api/feedback`, `/api/billing/*` | signed-in parent only | Per-address, per-parent read and write limits. Every database query is scoped to the parent id from the verified token, never an id from the request. Learners and learner ids are checked against the parent (`owned()` in `server/db/repo.ts`). |
+| `GET /api/account/booklet` | signed in, consented, subscribed | Served from `server/assets` by a fixed name, never a path from the request. 8 a day. |
+| `POST /api/stripe/webhook` | Stripe | Nothing is read before the signature is verified (`constructEvent`). 1 MB cap. |
+| `POST /api/internal/digest` | the scheduler | Needs `CRON_SECRET` (constant-time compare). Anyone else gets a plain 404. |
+| `/unsubscribe` | anyone with the emailed link | 24-byte random token; GET only shows a button, POST acts. Per-address limit added in this audit. |
+| `/api/ops/*`, `/ops` | team only | Clerk sign-in, the `OPS_ADMINS` allow-list and an emailed code; everyone else gets 404. Every view and action is audit-logged. Replies never include the parent's sign-in id. |
+| static files | anyone | Only from `dist/`; `..`, encoded and NUL paths are refused. No source maps or dotfiles are built. |
+
+Findings and what was done:
+- **Fixed:** the fake sign-in and fake payments were refused only when `NODE_ENV=production`. If that variable was ever missing on the live site, a stray `AUTH_FAKE=1` would have let anyone sign in as any user. They are now also refused when a Replit deployment, a Clerk key or a Stripe key is present (`looksLive`).
+- **Fixed:** `/unsubscribe` had no limit. It now has a per-address limit.
+- **Fixed:** the server now warns at start-up if payments are on but `APP_URL` isn't set (return links would then use the request's Host header).
+- **Still to do (yours):** the Content-Security-Policy is sent as report-only until `CSP_ENFORCE=1`. Check the live site's console, then turn it on. Set `TRUST_PROXY=1` (and `TRUSTED_PROXY_HOPS=2` behind Cloudflare) so limits see real visitor addresses, and `APP_URL`. Set `CRON_SECRET`, `OPS_SESSION_SECRET` (24+ characters) and `TURNSTILE_SECRET_KEY`.
+- **Accepted:** the tutor is open to anyone (no account). Its cost is bounded by the per-address and global caps and Turnstile; a script can still use up the global daily cap, which only pauses the tutor for that day.
+- **Nothing safety-critical is exposed:** no route returns another family's data, a secret, a stack trace or a server path; errors are generic 500s with the error name logged, never request data.
