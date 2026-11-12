@@ -1,0 +1,9 @@
+{
+  "cli": { "version": ">= 12.0.0", "appVersionSource": "remote" },
+  "build": {
+    "development": { "developmentClient": true, "distribution": "internal", "ios": { "simulator": true } },
+    "preview": { "distribution": "internal", "env": { "EXPO_PUBLIC_APP_URL": "https://yourquarter.co.uk" } },
+    "production": { "autoIncrement": true, "env": { "EXPO_PUBLIC_APP_URL": "https://yourquarter.co.uk" } }
+  },
+  "submit": { "production": { "ios": { "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID" } } }
+}

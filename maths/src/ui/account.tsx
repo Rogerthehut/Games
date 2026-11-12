@@ -1,4 +1,4 @@
-import { saveFile } from "../native/bridge";
+import { isNativeApp, saveFile } from "../native/bridge";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { clearAllPins } from "./pin";
 import { AccountApi, AccountError, NO_BILLING, type BillingInfo, type Plan } from "../account/api";
@@ -239,6 +239,14 @@ function Paywall({ billing, email, onChoose, onSignOut, onExport }: { billing: B
   };
   const [viewing, setViewing] = useState(false);
   if (viewing) return <MyDataPage load={onExport} email={email} onBack={() => setViewing(false)} />;
+  // in the iPhone and iPad app a subscription has to be bought through the App Store, not with a card on a web page
+  if (isNativeApp()) return (
+    <Shell wide>
+      <h1 data-testid="paywall-title">Subscriptions are coming to the app</h1>
+      <p class="onboard-sub">In-app subscriptions are being set up. Please check back soon.{email ? <> Signed in as {email}.</> : null}</p>
+      <button type="button" class="btn" onClick={() => void onSignOut()} data-testid="paywall-signout">Sign out</button>
+    </Shell>
+  );
   return (
     <Shell wide>
       <h1 data-testid="paywall-title">{trial ? `Start your ${billing.trialDays}\u2011day free trial` : "Subscribe to carry on"}</h1>

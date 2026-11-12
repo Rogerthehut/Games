@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "quarter",
+    "slug": "quarter",
+    "scheme": "quarter",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "backgroundColor": "#faf5ea",
+    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#faf5ea" },
+    "ios": {
+      "bundleIdentifier": "uk.co.yourquarter.app",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "requireFullScreen": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDisplayName": "quarter",
+        "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationLandscapeLeft", "UIInterfaceOrientationLandscapeRight"],
+        "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationPortrait", "UIInterfaceOrientationPortraitUpsideDown", "UIInterfaceOrientationLandscapeLeft", "UIInterfaceOrientationLandscapeRight"]
+      }
+    },
+    "android": { "package": "uk.co.yourquarter.app", "adaptiveIcon": { "foregroundImage": "./assets/icon.png", "backgroundColor": "#faf5ea" } },
+    "plugins": ["expo-web-browser"],
+    "extra": { "eas": { "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID" } }
+  }
+}

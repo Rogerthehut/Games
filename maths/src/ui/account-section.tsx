@@ -1,3 +1,4 @@
+import { isNativeApp } from "../native/bridge";
 import { useEffect, useState } from "preact/hooks";
 import type { SyncStatus } from "../account/sync";
 import { useAccount } from "./account-context";
@@ -20,7 +21,7 @@ export function SubscriptionSection() {
   const a = useAccount();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  if (!a || !a.billing.enabled) return null;
+  if (!a || !a.billing.enabled || isNativeApp()) return null; // in the app, subscriptions go through the App Store, not Stripe
   const b = a.billing;
   const what = b.cancelAtPeriodEnd
     ? `Cancelled. You keep full access until ${day(b.periodEnd ?? b.trialEnd)}.`
