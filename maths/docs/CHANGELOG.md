@@ -8,6 +8,10 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Email signature and mail set-up guide
+- A branded HTML email signature (`docs/email/signature.html`, with a plain-text version) and its logo (`public/email/quarter-signature-logo.png`, drawn by `scripts/make-email-assets.mjs`). It includes the company details the law requires on business emails.
+- `docs/EMAIL_ADDRESSES.md` explains how to forward `hello@yourquarter.co.uk` to `hello@roger-richman.com` and how to reply from that mailbox as `hello@yourquarter.co.uk` (through Resend or Zoho SMTP), then paste the signature.
+
 ## Server security pass
 - **Fixed a crash:** a single request for a folder name (for example `/assets`) made the server throw and exit. Any error in a request is now caught and answered with a plain 500, and folder addresses serve their `index.html` (so `/blog` works).
 - **Security headers on every response:** no sniffing, no framing, a referrer policy, a permissions policy, HSTS over HTTPS, and a Content-Security-Policy in report-only mode (switch it to enforcing with `CSP_ENFORCE=1` once the live site's console is quiet).
