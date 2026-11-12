@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Plugin } from "vite";
-import { companyLine, copyright, designer, footerGroups } from "../src/legal/content";
+import { footerHtml, BRAND_HTML } from "../src/legal/footer-html";
+import { footerGroups } from "../src/legal/content";
 import content from "../src/parents/content.json";
 import admissions from "../src/parents/admissions.json";
 
@@ -142,7 +143,7 @@ ${page === hub ? "" : `<p>${link({ path: hub.path, label: "All parent guides" })
 <p class="muted">${escapeHtml(page.description)}</p>
 ${body}
 ${page.path === "11-plus-maths.html" ? testFinder() : ""}
-<footer class="legal-footer"><div class="footer-groups">${groups.map((group, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(group.heading)}</h2><ul>${group.links.map((item) => `<li>${link({ path: item.href, label: item.label })}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>${designer.credit} · ${link({path:designer.href,label:designer.name})}</small></div><p class="footer-company small">${escapeHtml(companyLine)}</p></footer>
+${footerHtml(groups, (href: string, label: string) => link({ path: href, label }), BRAND_HTML)}
 </main>
 <script src="./back.js" defer></script>
 </body>

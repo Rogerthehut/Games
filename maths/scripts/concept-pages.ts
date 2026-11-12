@@ -4,7 +4,8 @@ import type { Plugin } from "vite";
 import { CONCEPTS } from "../src/concepts/library";
 import { conceptBodyHtml, conceptPath, escapeHtml, plainText } from "../src/concepts/render";
 import { SKILL_BY_ID } from "../src/curriculum";
-import { companyLine, copyright, designer, footerGroups } from "../src/legal/content";
+import { footerHtml, BRAND_HTML } from "../src/legal/footer-html";
+import { footerGroups } from "../src/legal/content";
 import content from "../src/parents/content.json";
 
 /** The public study pages: one for each idea in the library, and an index. They are plain HTML, so people and search engines can read them. */
@@ -52,7 +53,7 @@ ${opts.styles}
 <p>${link("learn/index.html", "All study guides")}</p>
 <h1>${escapeHtml(opts.title)}</h1>
 ${opts.body}
-<footer class="legal-footer"><div class="footer-groups">${groups.map((g, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(g.heading)}</h2><ul>${g.links.map((l) => `<li>${link(l.href, l.label)}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>${designer.credit} · ${link(designer.href, designer.name)}</small></div><p class="footer-company small">${escapeHtml(companyLine)}</p></footer>
+${footerHtml(groups, link, BRAND_HTML)}
 </main>
 <script src="./back.js" defer></script>
 </body>

@@ -9,7 +9,8 @@ import { blocksToHtml, escapeHtml, plainText } from "../src/concepts/render";
 import { SKILLS, STEM_SKILLS, STRANDS } from "../src/curriculum";
 import { THEMES, themeOf } from "../src/curriculum/stem-themes";
 import type { Skill } from "../src/engine/types";
-import { companyLine, copyright, designer, footerGroups, legalPages } from "../src/legal/content";
+import { footerHtml, BRAND_HTML } from "../src/legal/footer-html";
+import { footerGroups, legalPages } from "../src/legal/content";
 import content from "../src/parents/content.json";
 
 /**
@@ -78,7 +79,7 @@ ${o.styles}
 ${o.back ? `<p>${a(o.back.href, o.back.label)}</p>` : ""}
 <h1>${escapeHtml(o.title)}</h1>
 ${o.body}
-<footer class="legal-footer"><div class="footer-groups">${groups.map((g, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${escapeHtml(g.heading)}</h2><ul>${g.links.map((l) => `<li>${a(l.href, l.label)}</li>`).join("")}</ul></nav>`).join("")}</div><div class="footer-credit"><img class="cube-mark" src="./icon.svg" alt=""><small>${copyright}</small><small>${designer.credit} · ${a(designer.href, designer.name)}</small></div><p class="footer-company small">${escapeHtml(companyLine)}</p></footer>
+${footerHtml(groups, a, BRAND_HTML)}
 </main>
 <script src="./back.js" defer></script>
 </body>

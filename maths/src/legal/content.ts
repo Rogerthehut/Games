@@ -22,17 +22,21 @@ export type LegalPage = keyof typeof legalTitles;
 export const legalPages = Object.keys(legalTitles) as LegalPage[];
 export type FooterGroup = { heading: string; links: { label: string; href: string }[] };
 /** Footer link groups, shared by the app and the generated parent pages. */
+/** Said under the wordmark in the page footer. */
+export const footerTagline = "Maths and STEM practice for Years 3 to 13, starting where your child is.";
 export function footerGroups(parents: { hub: { path: string; title: string }; faq: { path: string } }): FooterGroup[] {
   return [
     { heading: "For parents", links: [
       { label: parents.hub.title, href: parents.hub.path },
       { label: "FAQs", href: parents.faq.path },
       { label: "Find your local 11+ test", href: "11-plus-maths.html#test-finder" },
+    ] },
+    { heading: "Explore", links: [
       { label: "What quarter covers", href: "curriculum/index.html" },
       { label: "Blog", href: "blog/index.html" },
       { label: "Reading list", href: "reading/index.html" },
     ] },
-    { heading: "About quarter", links: [
+    { heading: "Legal", links: [
       ...legalPages.map((key) => ({ label: legalTitles[key], href: `./?info=${key}` })),
       { label: "Sitemap", href: "./?info=sitemap" },
     ] },

@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Footer redesign
+The page footer on the landing page, the legal pages and every static page (parent guides, FAQs, curriculum, blog, reading list, study guides) now uses its width: the logo, a short line and the email address on the left; three link columns (For parents, Explore, Legal) beside them; and a slim bar underneath with the copyright, company line, RSS feed and credit. Rows sit closer together with a mouse and keep full 44px targets on touch. It switches to a stacked layout based on the footer's own width, so it stays tidy in a narrow column or on a phone. The small cards in the Parents' area and the sign-in screens keep the compact footer. The static pages draw it from `src/legal/footer-html.ts` and the app from `LegalFooter full`, so the two stay the same (`src/legal/footer-html.test.ts`). The screen audit found the small print too small at first (10px) and it's now 13px.
+
 ## Crash reporting with Sentry (off until set up)
 Browser and server crash reports go to Sentry (EU region) when `VITE_SENTRY_DSN` and `SENTRY_DSN` are set, and nowhere otherwise. Locked down: errors only, no session replay, no tracing, no breadcrumbs, no user, no cookies or browser storage, query strings and typed text never sent, server error messages dropped, noise filtered. A scrubber shared by both sides (`src/monitoring/scrub.ts`) is tested. The privacy notice, cookies page, licences and DPIA now mention it. Setup, including Sentry's IP-address and retention settings, is in `docs/MONITORING.md`.
 

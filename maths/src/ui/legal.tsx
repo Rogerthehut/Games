@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { companyLine, contactEmail, cookiesSections, copyright, footerGroups, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
+import { companyLine, contactEmail, cookiesSections, copyright, footerGroups, footerTagline, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
 import { Icon } from "./icons";
 import { primaryNav, tabHref } from "./navigation";
@@ -23,17 +23,44 @@ export function getInformationPage(search: string): LegalPage | "sitemap" | unde
   return page === "sitemap" ? page : legalPages.find((entry) => entry === page);
 }
 
-export function LegalFooter() {
+/**
+ * The footer. `full` is the page footer (landing, legal and static pages): the brand and a short line on the left, the link columns, and a slim
+ * bar for the copyright, company line, feed, email and credit. Without it, a compact version for use inside cards and the sign-in screens.
+ * The static pages draw the same thing from src/legal/footer-html.ts.
+ */
+export function LegalFooter({ full }: { full?: boolean }) {
+  const groups = (
+    <div class="footer-groups">
+      {footerGroups(parentContent).map((group, i) => (
+        <nav key={group.heading} aria-labelledby={`footer-h${i}`}>
+          <h2 id={`footer-h${i}`}>{group.heading}</h2>
+          <ul>{group.links.map((link) => <li key={link.href}><a class="legal-link" href={link.href}>{link.label}</a></li>)}</ul>
+        </nav>
+      ))}
+    </div>
+  );
+  if (full) return (
+    <footer class="legal-footer full">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
+          <p class="footer-tagline">{footerTagline}</p>
+          <p class="footer-contact"><a class="legal-link" href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+        </div>
+        {groups}
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal"><small>{copyright}</small><small class="footer-company">{companyLine}</small></div>
+        <div class="footer-meta">
+          <a class="legal-link" href="blog/rss.xml">RSS feed</a>
+          <small>{designer.credit} · <a class="legal-link" href={designer.href} target="_blank" rel="noopener noreferrer">{designer.name}</a></small>
+        </div>
+      </div>
+    </footer>
+  );
   return (
     <footer class="legal-footer">
-      <div class="footer-groups">
-        {footerGroups(parentContent).map((group, i) => (
-          <nav key={group.heading} aria-labelledby={`footer-h${i}`}>
-            <h2 id={`footer-h${i}`}>{group.heading}</h2>
-            <ul>{group.links.map((link) => <li key={link.href}><a class="legal-link" href={link.href}>{link.label}</a></li>)}</ul>
-          </nav>
-        ))}
-      </div>
+      {groups}
       <div class="footer-credit">
         <CubeMark />
         <small>{copyright}</small>
@@ -93,7 +120,7 @@ export function SitemapScreen() {
           </ul>
         </section>
       </nav>
-      <LegalFooter />
+      <LegalFooter full />
     </main>
   );
 }
@@ -139,7 +166,7 @@ export function LegalScreen({ page }: { page: LegalPage }) {
       {page === "terms" && <p><a class="legal-link" href={legalHref("licences")}>Read the third-party licences</a></p>}
       {page === "licences" && <p><a class="legal-link" href="./third-party-licences.txt">Read the full licence notices (plain text)</a></p>}
       {page === "privacy" && <p><a class="legal-link" href={icoComplaints} target="_blank" rel="noopener noreferrer">Make a privacy complaint to the ICO</a></p>}
-      <LegalFooter />
+      <LegalFooter full />
     </main>
   );
 }

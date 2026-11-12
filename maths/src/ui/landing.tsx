@@ -214,7 +214,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         </div>
       </section>
 
-      <div class="l-foot"><div class="l-wrap"><LegalFooter /></div></div>
+      <div class="l-foot"><div class="l-wrap"><LegalFooter full /></div></div>
     </main>
   );
 }
