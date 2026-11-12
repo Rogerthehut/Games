@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Practice papers timed like real tests
+The practice paper screen now has two groups: **Quick practice** (the three short papers) and **Timed like a real test**: Quest-style maths (60 questions, 40 minutes, as Colyton's Quest paper), Ripon-style reasoning and maths (40 non-verbal reasoning questions then about 25 maths, 45 minutes), Maths in 50 minutes (as Bournemouth School for Girls' GL paper) and Maths in 60 minutes (as the Essex CSSE paper). Each says what its timing is based on. The questions are quarter's own and, where a school doesn't publish a question count, the number is ours. Maths and reasoning only: there are no English papers. Results, Fix this and the progress report work as before.
+
 ## Full screen audit
 Ran the screen audit on 18 sizes (phones from 280px, landscape phones, four portrait and four landscape tablets, laptops to a 2560-wide ultrawide), 43 screens each. The one finding was the Parents' area padlock in the left rail being 36px tall on tablets; it's now at least 44px. Everything else came back clean on every size.
 

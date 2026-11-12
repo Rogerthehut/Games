@@ -104,3 +104,32 @@ describe("plans with reasoning", () => {
     expect(orderSkills(profile(), "11plus").every((id) => SKILLS.some((s) => s.id === id))).toBe(true);
   });
 });
+
+describe("papers timed like real tests", () => {
+  const TEST_PAPERS = (Object.keys(PAPERS) as PaperKind[]).filter((k) => PAPERS[k].group === "test");
+  it("each says what its timing is based on, and its total matches its parts", () => {
+    expect(TEST_PAPERS.length).toBeGreaterThanOrEqual(4);
+    for (const k of TEST_PAPERS) {
+      expect(PAPERS[k].basis?.length, k).toBeGreaterThan(20);
+      expect(PAPERS[k].total, k).toBe(PAPERS[k].parts.reduce((n, [, c]) => n + c, 0));
+    }
+  });
+  it("match the published figures they cite", () => {
+    expect(PAPERS["quest-maths"]).toMatchObject({ total: 60, seconds: 40 * 60 });
+    expect(PAPERS.ripon).toMatchObject({ total: 65, seconds: 45 * 60 });
+    expect(PAPERS["maths-50"].seconds).toBe(50 * 60);
+    expect(PAPERS["maths-60"].seconds).toBe(60 * 60);
+  });
+  it("build the right questions in the right order, with maths skills used at most twice", () => {
+    for (const k of TEST_PAPERS) for (let seed = 1; seed <= 20; seed++) {
+      const items = buildMock(mulberry32(seed), k);
+      expect(items, k).toHaveLength(PAPERS[k].total);
+      const counts: Record<string, number> = {};
+      for (const it of items) if (it.section === "Maths") counts[it.skillId] = (counts[it.skillId] ?? 0) + 1;
+      expect(Math.max(0, ...Object.values(counts)), k).toBeLessThanOrEqual(2);
+    }
+    const ripon = buildMock(mulberry32(3), "ripon");
+    expect(ripon.slice(0, 40).every((i) => i.section === "Non-verbal reasoning")).toBe(true);
+    expect(ripon.slice(40).every((i) => i.section === "Maths")).toBe(true);
+  });
+});

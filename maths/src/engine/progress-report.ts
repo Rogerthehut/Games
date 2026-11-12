@@ -1,3 +1,4 @@
+import { PAPERS } from "./mock";
 import { ALL_SKILLS, SKILL_BY_ID, STAGE_LABEL, STRANDS } from "../curriculum";
 import { BAND_TEXT, yearLabel } from "./diagnostic";
 import { DAY, statusOf, type BaselineRecord, type MockRecord, type Profile, type Status } from "./progress";
@@ -92,7 +93,7 @@ export function buildProgressReport(p: Profile, now = Date.now(), range?: Range 
     .map((s) => ({ id: s.id, name: s.name, right: s.right, wrong: s.wrong, accuracy: s.accuracy ?? 0, ask: SKILL_BY_ID[s.id]?.talkAbout ?? "", explain: SKILL_BY_ID[s.id]?.parentNote ?? "" }));
 
   const mock = (m: MockRecord) => ({
-    at: m.at, paper: m.paper === "reasoning" ? "Reasoning" : m.paper === "both" ? "Maths and reasoning" : "Maths", score: m.score, total: m.total, minutes: Math.round(m.seconds / 60),
+    at: m.at, paper: m.paper ? PAPERS[m.paper]?.title ?? "Maths" : "Maths", score: m.score, total: m.total, minutes: Math.round(m.seconds / 60),
     bySection: (m.bySection ?? []).map((x) => `${x.section} ${x.right}/${x.n}`).join(", "),
   });
 

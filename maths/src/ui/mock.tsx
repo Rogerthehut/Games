@@ -157,19 +157,22 @@ export function Mock({ pathway }: { pathway?: Stage }) {
         <div class="splash-in">
           <div class="pip-slot"><Pip pose="think" size={110} /></div>
           <h1>Practice paper</h1>
-          <fieldset class="options paper-choice">
-            <legend class="field-label">Which paper?</legend>
-            {(Object.keys(PAPERS) as PaperKind[]).map((k) => (
-              <label key={k} class={`option ${kind === k ? "on" : ""}`}>
-                <input type="radio" name="paper" checked={kind === k} onChange={() => setKind(k)} data-testid={`paper-${k}`} />
-                <span><strong>{PAPERS[k].title}</strong><br /><span class="small muted">{PAPERS[k].blurb}</span></span>
-              </label>
-            ))}
-          </fieldset>
+          {(["quick", "test"] as const).map((group) => (
+            <fieldset key={group} class="options paper-choice">
+              <legend class="field-label">{group === "quick" ? "Quick practice" : "Timed like a real test"}</legend>
+              {(Object.keys(PAPERS) as PaperKind[]).filter((k) => PAPERS[k].group === group).map((k) => (
+                <label key={k} class={`option ${kind === k ? "on" : ""}`}>
+                  <input type="radio" name="paper" checked={kind === k} onChange={() => setKind(k)} data-testid={`paper-${k}`} />
+                  <span><strong>{PAPERS[k].title}</strong><br /><span class="small muted">{PAPERS[k].blurb}</span></span>
+                </label>
+              ))}
+            </fieldset>
+          ))}
+          {format.basis && <p class="small muted" data-testid="paper-basis">Timed like: {format.basis} The questions are quarter's own, so use it to practise pace and stamina.</p>}
           <ul class="tips">
             <li>The paper ends when the timer reaches zero. Any unfinished questions will count as blank.</li>
             <li>No hints, and no marks until the end.</li>
-            {kind !== "maths" && <li>Reasoning questions are multiple choice. Tap an answer (or press 1 to 5), then Next.</li>}
+            {format.parts.some(([part]) => part !== "Maths") && <li>Reasoning questions are multiple choice. Tap an answer (or press 1 to 5), then Next.</li>}
             <li>Then you'll see every miss, with the steps.</li>
           </ul>
           <p class="small muted">Written in a general 11+ style. Real tests vary in length, order and which parts they include, so check your school's own guidance.</p>
@@ -271,7 +274,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
         right={pathway ? undefined : <ExamTimer seconds={left} total={format.seconds} />}
       />
       <div class="qbody" key={idx}>
-        <p class="q-topic">Question {idx + 1} of {total}{sections?.[idx] && kind !== "maths" ? ` · ${sections[idx]}` : ""}</p>
+        <p class="q-topic">Question {idx + 1} of {total}{sections?.[idx] && format.parts.some(([part]) => part !== "Maths") ? ` · ${sections[idx]}` : ""}</p>
         <div class="question-desk">
           <div class="question-main">
             <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>

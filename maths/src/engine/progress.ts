@@ -90,7 +90,7 @@ export interface MockRecord {
   limitSeconds: number;
   byStrand: { strand: Strand; right: number; n: number }[];
   /** Which paper it was. Older records are maths papers. */
-  paper?: "maths" | "reasoning" | "both";
+  paper?: "maths" | "reasoning" | "both" | "quest-maths" | "ripon" | "maths-50" | "maths-60";
   /** Results by part of the paper, when the paper had parts. */
   bySection?: { section: string; right: number; n: number }[];
 }
