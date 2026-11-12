@@ -62,6 +62,14 @@ export const feedback = pgTable("feedback", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const feedbackReplies = pgTable("feedback_replies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  feedbackId: uuid("feedback_id").notNull().references(() => feedback.id, { onDelete: "cascade" }),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  actor: text("actor").notNull(),
+  message: text("message").notNull(),
+});
+
 export const opsAudit = pgTable("ops_audit", {
   id: uuid("id").primaryKey().defaultRandom(),
   at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),

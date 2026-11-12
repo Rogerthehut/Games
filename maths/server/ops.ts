@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import type { Db } from "./db";
 import { schema } from "./db";
 
@@ -74,12 +74,14 @@ export async function accountByClerkId(db: Db, clerkUserId: string): Promise<Acc
   };
 }
 
-export interface FeedbackRow { at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; clerkUserId: string }
+export interface FeedbackRow { id: string; at: string; replies: { at: string; actor: string; message: string }[]; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; clerkUserId: string }
 export async function feedbackList(db: Db, o: { days?: number; category?: string; replyable?: boolean; limit?: number; now?: Date } = {}): Promise<FeedbackRow[]> {
   const { feedback, parents } = schema, now = o.now ?? new Date();
   const where = [o.days ? gte(feedback.createdAt, new Date(now.getTime() - o.days * DAY)) : undefined, o.category ? eq(feedback.category, o.category) : undefined, o.replyable ? eq(feedback.mayReply, true) : undefined].filter((w) => w !== undefined);
   const rows = await db.select({ f: feedback, clerk: parents.clerkUserId }).from(feedback).innerJoin(parents, eq(parents.id, feedback.parentId)).where(where.length ? and(...where) : undefined).orderBy(desc(feedback.createdAt)).limit(Math.min(o.limit ?? 100, 500));
-  return rows.map(({ f, clerk }) => ({ at: f.createdAt.toISOString(), category: f.category, rating: f.rating, context: f.context, message: f.message, mayReply: f.mayReply, clerkUserId: clerk }));
+  const ids = rows.map((r) => r.f.id);
+  const replies = ids.length ? await db.select().from(schema.feedbackReplies).where(inArray(schema.feedbackReplies.feedbackId, ids)).orderBy(schema.feedbackReplies.at) : [];
+  return rows.map(({ f, clerk }) => ({ id: f.id, replies: replies.filter((r) => r.feedbackId === f.id).map((r) => ({ at: r.at.toISOString(), actor: r.actor, message: r.message })), at: f.createdAt.toISOString(), category: f.category, rating: f.rating, context: f.context, message: f.message, mayReply: f.mayReply, clerkUserId: clerk }));
 }
 
 /** Writes down that someone looked at an account. The target is the internal id, never an email address. */
@@ -112,4 +114,14 @@ export function formatAccount(a: AccountSummary, email?: string): string {
     `    learners ${a.learners.count}${a.learners.years.length ? ` (years ${a.learners.years.join(", ")})` : ""} · last active ${d(a.learners.lastActive)}`,
     `    feedback sent ${a.feedbackCount}`,
   ].join("\n");
+}
+
+/** One piece of feedback with the parent's sign-in id, for sending a reply. Null if it doesn't exist. */
+export async function feedbackById(db: Db, id: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const [row] = await db.select({ f: schema.feedback, clerk: schema.parents.clerkUserId }).from(schema.feedback).innerJoin(schema.parents, eq(schema.parents.id, schema.feedback.parentId)).where(eq(schema.feedback.id, id));
+  return row ? { id: row.f.id, message: row.f.message, category: row.f.category, mayReply: row.f.mayReply, clerkUserId: row.clerk } : null;
+}
+export async function addReply(db: Db, feedbackId: string, actor: string, message: string): Promise<void> {
+  await db.insert(schema.feedbackReplies).values({ feedbackId, actor: actor.slice(0, 80), message });
 }
