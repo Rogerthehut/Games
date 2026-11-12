@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Skills map starts at the learner's year
+On the journey map the avatar now waits at the first topic of the learner's own school year that isn't secure yet (a Year 6 learner starts in Year 6), and the page scrolls there when the map opens, including after the year is changed in the Parents' area. Nothing is locked: the map still runs both ways, so a child or parent can scroll back to an earlier year or ahead to a later one. The coloured part of the trail still shows how far they've really got.
+
 ## Landing page header
 - "Public beta" is now a small tab hanging from the header under the wordmark, instead of sitting in the line of text under it (where it collided on a phone).
 - On touch screens the sticky header is opaque and on its own layer, so it no longer shimmers or wobbles as Safari's toolbar collapses while scrolling.

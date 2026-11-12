@@ -113,7 +113,11 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
   const current = skills.findIndex((s) => s.stage === (stage ?? skills[skills.length - 1].stage) && (profile.skills[s.id]?.box ?? 0) < SECURE_BOX && !profile.skills[s.id]?.assumed && isUnlocked(profile, s));
   const reached = current === -1 ? skills.length - 1 : current;
   const sel = picked ? skills.find((s) => s.id === picked) : undefined;
-  const avatarStop = sel ? skills.indexOf(sel) : current;
+  // the avatar waits at the first topic of the learner's own school year that isn't secure yet. The map still runs both ways: nothing stops
+  // them going back to an earlier year or on to a later one, and the trail's coloured part still shows how far they have really got
+  const start = skills.findIndex((s) => s.year >= profile.year && (profile.skills[s.id]?.box ?? 0) < SECURE_BOX && !profile.skills[s.id]?.assumed);
+  const home = start === -1 ? current : start;
+  const avatarStop = sel ? skills.indexOf(sel) : home;
   const selStatus = sel ? statusOf(profile.skills[sel.id]) : "new";
 
   const skillSheet = (
@@ -158,7 +162,7 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
           {skills.map((s, i) => {
             const st = statusOf(profile.skills[s.id]);
             const { newYear, newStage } = pos[i];
-            const here = i === current;
+            const here = i === home;
             const avatarOnLeft = pos[i].x >= width / 2;
             return (
               <div key={s.id}>

@@ -174,7 +174,7 @@ export const CHILD_GUIDE: GuideSection[] = [
   },
   {
     id: "map", icon: "route", title: "The skills map",
-    text: ["Each stop is a topic. The symbol shows what kind of maths it is: + numbers, : ratio, x algebra, cm measuring, △ shapes, % data and charts, ∫ calculus. A green tick means you know it well."],
+    text: ["Each stop is a topic. The symbol shows what kind of maths it is: + numbers, : ratio, x algebra, cm measuring, △ shapes, % data and charts, ∫ calculus. A green tick means you know it well. Your avatar waits at the first topic in your own school year, and the map opens there. You can scroll back to an earlier year or on to a later one whenever you like."],
   },
   {
     id: "draw", icon: "pencil", title: "Angles and drawing",
