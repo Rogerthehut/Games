@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Today: "Pick up where you left off" pills
+The pills are left-aligned and wrap onto a second line when the label is long (for example "Continue practice · Adding and subtracting" on a phone), at the same size as the others, instead of centring.
+
 ## The iPhone and iPad app: the shell
 `/mobile` is now a working Expo project (see `docs/MOBILE.md`): the site in a web view, full screen on iPad in every orientation and Split View, with printing (AirPrint), saving files through the share sheet, other websites in a browser sheet, mail and phone links, haptics and an offline screen. Link and message rules are tested (`cd mobile && npm test`), and the iOS bundle builds. In the app the web side hides card payments (Apple requires in-app subscriptions through the App Store, which is the next step, with RevenueCat) and Google sign-in (Google blocks it in embedded web views). **Not yet seen running on a device.** Needs your Apple Developer account, a bundle id and an Expo project id to build (`docs/MOBILE.md`).
 

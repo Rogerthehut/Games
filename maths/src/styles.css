@@ -2072,6 +2072,9 @@ a.legal-home[href] {
 .saved-activities h2 { margin: 0; }
 .saved-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .saved-actions .btn svg { vertical-align: -3px; margin-right: 4px; }
+/* the "pick up where you left off" pills: text on the left, wrapping onto a second line when it is long, at the same size as the others */
+.saved-actions .btn { justify-content: flex-start; text-align: left; line-height: 1.25; font-size: 1rem; max-width: 100%; padding-block: .55rem; }
+@media (max-width: 560px) { .saved-actions .btn { white-space: normal; } }
 @media (width >= 900px) {
   .content:has(.activity-section) { max-width: 1640px; padding: clamp(48px, 4vw, 76px) clamp(32px, 4vw, 76px) 80px; }
   .activity-heading { display: grid; justify-content: start; gap: 20px; margin-bottom: clamp(38px, 4vw, 68px); }
