@@ -64,7 +64,7 @@ export const PARENT_GUIDE: GuideSection[] = [
   },
   {
     id: "gate", title: "The grown-ups' area and your PIN",
-    text: ["Your child can't wander in by accident: it asks a multiplication sum, then your own 6 or 8 digit PIN. It locks again as soon as you leave it. Adding a learner or changing the school year asks the same way."],
+    text: ["Your child can't wander in by accident: it asks a multiplication sum, then your own 6 or 8 digit PIN. It stays open while you're using it, and locks again after five minutes of nothing being touched, or as soon as you tap Lock and leave. Adding a learner or changing the school year asks the same way. Your child stays signed in to the main app throughout, so they can carry on with their work."],
     tips: [
       "Forgotten your PIN? Sign out and sign in again to reset it.",
       "The lock is there to stop accidental taps, not to defeat a determined teenager. On a shared computer, use separate browser profiles.",

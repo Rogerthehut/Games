@@ -3,12 +3,18 @@ import { useAccount } from "./account-context";
 import { applyKey, Keypad, useDigitKeys } from "./answer-input";
 import { checkPin, hasPin, pinProblem, setPin } from "./pin";
 
+/** The grown-ups' area stays open while someone is using it, and locks after this long with nothing touched. */
+export const PARENT_IDLE_MS = 5 * 60_000;
 let unlockedUntil = 0;
-/** Unlocked for ten minutes after the sum and PIN. Held in memory only. */
+/** Unlocked after the sum and PIN, and kept open by activity. Held in memory only. */
 export const parentUnlocked = () => Date.now() < unlockedUntil;
 /** Locks the grown-ups' area again, for example when a child moves on from it. */
 export const lockParents = () => { unlockedUntil = 0; };
-const unlock = () => { unlockedUntil = Date.now() + 10 * 60_000; };
+/** Called on any tap, key or scroll in the grown-ups' area: pushes the lock back, but never reopens a locked area. */
+export const keepParentsOpen = () => { if (parentUnlocked()) unlockedUntil = Date.now() + PARENT_IDLE_MS; };
+/** Opens the area after the sum and PIN have been passed. */
+export const unlockParents = () => { unlockedUntil = Date.now() + PARENT_IDLE_MS; };
+const unlock = unlockParents;
 const digitsOnly = (t: string) => t.replace(/[^\d]/g, "");
 
 /** A PIN field with the on-screen keypad. Shows dots, never the digits. */

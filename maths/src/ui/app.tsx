@@ -29,7 +29,7 @@ import { applySkin, applyTheme, getTheme, resolveSkin } from "./skin";
 import { Shell } from "./shell";
 import { primaryNav, tabHref, tabRoute, type Tab } from "./navigation";
 import { Me } from "./me";
-import { ParentGate, lockParents, parentUnlocked } from "./gate";
+import { ParentGate, keepParentsOpen, lockParents, parentUnlocked } from "./gate";
 import type { AccountBridge } from "./account-context";
 import type { RemoteLearner } from "../account/sync";
 
@@ -88,7 +88,17 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   };
 
   // the grown-ups' area locks again as soon as someone moves on from it, so the next person on the device needs the PIN
-  useEffect(() => { if (!["parent", "progress-report", "my-data", "booklet", "concept"].includes(route.name)) lockParents(); }, [route.name]);
+  const inParents = ["parent", "progress-report", "my-data", "booklet", "concept"].includes(route.name);
+  useEffect(() => { if (!inParents) lockParents(); }, [route.name]);
+  // while someone is using the area it stays open; after five minutes of nothing it closes and goes back to Me
+  useEffect(() => {
+    if (!inParents) return;
+    const touch = () => keepParentsOpen();
+    const events = ["pointerdown", "keydown", "scroll", "touchstart"] as const;
+    events.forEach((e) => addEventListener(e, touch, { passive: true, capture: true }));
+    const check = setInterval(() => { if (!parentUnlocked()) setRoute({ name: "me" }); }, 10_000);
+    return () => { events.forEach((e) => removeEventListener(e, touch, { capture: true })); clearInterval(check); };
+  }, [inParents]);
 
   useEffect(() => {
     if (showWelcome) return;

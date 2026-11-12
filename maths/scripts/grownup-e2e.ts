@@ -41,6 +41,12 @@ await solveSum(); await pin();
 ok("with the sum and PIN, the Parents' area opens", /Parents' area/.test(await page.locator("body").innerText()) && !(await gateUp()));
 
 await page.screenshot({ path: `${process.env.OUT ?? "."}/gu-after-pin.png` });
+// 2a. the Lock and leave button locks it at once and goes back to Me
+await page.getByTestId("lock-parents").click(); await page.waitForTimeout(500);
+ok("Lock and leave goes back to Me", /Choose your avatar|Who.s learning/i.test(await page.locator("body").innerText()));
+await page.getByTestId("open-parents").click(); await page.waitForTimeout(300);
+ok("and the area is locked again", await gateUp());
+await solveSum(); await pin();
 // 2. leaving it locks it again
 await page.locator(`button[aria-label="Back to Me"]`).click(); await page.waitForTimeout(500);
 await page.getByTestId("open-parents").click(); await page.waitForTimeout(300);

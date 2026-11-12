@@ -18,6 +18,7 @@ import { ParentAssistant } from "./assistant";
 import { conceptsForSkill } from "../concepts";
 import { FeedbackSection } from "./feedback";
 import { Guides } from "./guides";
+import { lockParents } from "./gate";
 import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
@@ -59,6 +60,7 @@ export function Parent() {
       <header class="parent-head">
         <button class="icon-btn" onClick={() => go({ name: "me" })} aria-label="Back to Me"><Icon name="back" size={22} /></button>
         <div><h1>Parents' area</h1><p class="muted">{profile.name} · Year {profile.year}</p></div>
+        <button class="btn small lock-parents" onClick={() => { lockParents(); go({ name: "me" }); }} data-testid="lock-parents"><Icon name="lock" size={16} /> Lock and leave</button>
       </header>
 
       {worries.length > 0 && (

@@ -41,5 +41,5 @@ A multiplication a young child can't do quickly, then the parent's own 6 or 8 di
 ## Still to decide
 
 - Name the AI provider and the data-collection setting in the privacy notice, and record the processing agreement.
-- Decide whether the ten minute window should be shorter, or end after a period of inactivity, not only on leaving.
+- Decided: the area stays open while it is being used and locks after five minutes of inactivity (and still on leaving). A "Lock and leave" button in the area locks it at once and goes back to Me, without signing the child out of the app.
 - Add this review's points to the DPIA, with the fixes above under "measures taken".
