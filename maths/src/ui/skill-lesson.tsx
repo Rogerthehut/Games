@@ -1,3 +1,4 @@
+import { Solution } from "./solution";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import { check } from "../engine/check";
@@ -111,7 +112,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
             <p class="q-lead">Here's one worked through.</p>
             <p class="q-text"><Maths text={q.prompt} /></p>
             {q.figure && <FigureView fig={q.figure} />}
-            <ol class="steps">{q.solution.slice(0, stepsShown).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
+            <Solution q={q} count={stepsShown} />
             {stepsShown >= q.solution.length && <p class="answer-shown">Answer: <Maths text={q.shown} /></p>}
           </>}
 
@@ -121,7 +122,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
             <p class="q-text" data-testid="lesson-question"><Maths text={q.prompt} /></p>
             {q.figure && <FigureView fig={q.figure} onBoard={(v) => setValues([String(v)])} locked={phase !== "ask"} />}
             {screen === "guided" && (guidedSteps > 0
-              ? <ol class="steps given">{q.solution.slice(0, guidedSteps).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
+              ? <Solution q={q} count={guidedSteps} class="steps given" />
               : <p class="workbook-margin-note"><Maths text={q.hint} /></p>)}
             <div hidden={isDrawing(q.figure)}>
               <p class="practice-answer-label">Your answer</p>
@@ -133,7 +134,7 @@ export function SkillLesson({ skillId }: { skillId: string }) {
               {phase === "correct" && <div class="fb good" role="status"><p><strong>{voice.praise(skin)}</strong></p></div>}
               {phase === "reveal" && <div class="fb reveal" role="status">
                 <p><strong>{voice.reveal(skin)}</strong></p>
-                <ol class="steps">{q.solution.map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
+                <Solution q={q} />
                 <p class="answer-shown">Answer: <Maths text={q.shown} /></p>
               </div>}
             </div>

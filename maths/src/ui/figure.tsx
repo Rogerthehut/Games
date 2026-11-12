@@ -64,6 +64,8 @@ export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called w
   if (fig.type === "table") return <TableFigure {...fig} />;
   if (fig.type === "flow") return <FlowFigure {...fig} />;
   if (fig.type === "alphabet") return <AlphabetFigure {...fig} />;
+  if (fig.type === "column-sum") return <ColumnSumFigure {...fig} />;
+  if (fig.type === "bus-stop") return <BusStopFigure {...fig} />;
   if (fig.type === "histogram") return <HistogramFigure {...fig} />;
   if (fig.type === "square-grid") return <SquareGridFigure {...fig} />;
   if (fig.type === "solid") return <SolidFigure {...fig} />;
@@ -465,7 +467,7 @@ function TableFigure({ head, rows, alt }: Of<"table">) {
     <figure class="table-figure">
       <table aria-label={alt}>
         <thead><tr>{head.map((h, i) => <th key={i} scope="col">{h}</th>)}</tr></thead>
-        <tbody>{rows.map((row, i) => <tr key={i}>{row.map((c, j) => (j === 0 && head[0] === "" ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>))}</tr>)}</tbody>
+        <tbody>{rows.map((row, i) => <tr key={i}>{row.map((c, j) => (j === 0 && (head[0] === "" || head[0] === "×") ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>))}</tr>)}</tbody>
       </table>
     </figure>
   );
@@ -488,6 +490,63 @@ function FlowFigure({ steps, repeat, alt }: Of<"flow">) {
         const y1 = top(repeat.from) - 4, y2 = top(repeat.to) + bh + 4, x = x0 + bw + 14;
         return <g><path d={`M${x0 + bw + 4} ${y1} H${x} V${y2} H${x0 + bw + 4}`} fill="none" stroke="currentColor" stroke-width="2" /><text x={x + 8} y={(y1 + y2) / 2 + 5} class="fig-label" font-size="13" font-weight="700">{repeat.label}</text></g>;
       })()}
+    </svg>
+  );
+}
+
+/** A sum worked in columns, with the place names over the columns, carries under the answer and exchanges over the top number. */
+function ColumnSumFigure({ op, top, bottom, result, carries, exchanges, alt }: Of<"column-sum">) {
+  const N = carries.length, w = 38, x0 = 66, W = x0 + N * w + 14;
+  const cx = (i: number) => x0 + i * w + w / 2;
+  const pad = (s: string) => s.padStart(N, " ");
+  const T = pad(top), B = pad(bottom), R = pad(result);
+  const heads = ["M", "HTh", "TTh", "Th", "H", "T", "O"].slice(-N);
+  const hasEx = exchanges.some(Boolean), hasCarry = carries.some(Boolean);
+  const up = hasEx ? 0 : 34; // no exchange row, so no gap above the top number
+  const yEx = 46, yTop = 86 - up, yBot = 124 - up, yLine = 136 - up, yRes = 172 - up, yCar = 198 - up, H = (hasCarry ? 212 : 188) - up;
+  return (
+    <svg class="figure figure-wide column-sum" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={alt}>
+      {heads.map((h, i) => <text key={i} x={cx(i)} y="16" text-anchor="middle" class="fig-label" font-size="11" opacity=".6">{h}</text>)}
+      {Array.from({ length: N }, (_, i) => i).map((i) => (
+        <g key={i}>
+          {exchanges[i] && <text x={cx(i)} y={yEx} text-anchor="middle" class="fig-label" font-size={exchanges[i]!.now.length > 1 ? 15 : 19} font-weight="800" fill="#c2410c">{exchanges[i]!.now}</text>}
+          {T[i] !== " " && <text x={cx(i)} y={yTop} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{T[i]}</text>}
+          {exchanges[i] && T[i] !== " " && <line x1={cx(i) - 10} y1={yTop - 7} x2={cx(i) + 10} y2={yTop - 7} stroke="#c2410c" stroke-width="2.5" />}
+          {B[i] !== " " && <text x={cx(i)} y={yBot} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{B[i]}</text>}
+          {R[i] !== " " && <text x={cx(i)} y={yRes} text-anchor="middle" class="fig-label" font-size="26" font-weight="800" fill="#166534">{R[i]}</text>}
+          {carries[i] && <text x={cx(i)} y={yCar} text-anchor="middle" class="fig-label" font-size="16" font-weight="800" fill="#c2410c">{carries[i]}</text>}
+        </g>
+      ))}
+      <text x="38" y={yBot} text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{op === "+" ? "+" : "−"}</text>
+      <line x1="22" y1={yLine} x2={W - 8} y2={yLine} stroke="currentColor" stroke-width="3" />
+      {hasEx && <text x="4" y={yEx} class="fig-label" font-size="8" opacity=".7">exchange</text>}
+      {hasCarry && <text x="4" y={yCar} class="fig-label" font-size="8" opacity=".7">carry</text>}
+    </svg>
+  );
+}
+
+/** Short division: digits under the bus stop, the answer on top, remainders carried in small figures. */
+function BusStopFigure({ divisor, digits, quotient, carries, remainder, alt }: Of<"bus-stop">) {
+  const N = digits.length, w = 38, x0 = 64, W = x0 + N * w + (remainder ? 60 : 24);
+  const cx = (i: number) => x0 + i * w + w / 2;
+  const qPad = quotient.padStart(N, " ");
+  let seenNonZero = false;
+  return (
+    <svg class="figure figure-wide bus-stop" viewBox={`0 0 ${W} 120`} role="img" aria-label={alt}>
+      {digits.split("").map((d, i) => {
+        const q = qPad[i]; if (q !== "0" && q !== " ") seenNonZero = true;
+        const showQ = q !== " " && (seenNonZero || i === N - 1);
+        return (
+          <g key={i}>
+            {showQ && <text x={cx(i)} y="40" text-anchor="middle" class="fig-label" font-size="26" font-weight="800" fill="#166534">{q}</text>}
+            <text x={cx(i)} y="92" text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{d}</text>
+            {carries[i] && <text x={cx(i) - 14} y="70" text-anchor="middle" class="fig-label" font-size="14" font-weight="800" fill="#c2410c">{carries[i]}</text>}
+          </g>
+        );
+      })}
+      <text x={x0 - 22} y="92" text-anchor="middle" class="fig-label" font-size="26" font-weight="700">{divisor}</text>
+      <path d={`M${x0 - 6} 104 V56 H${x0 + N * w + 4}`} fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+      {remainder > 0 && <text x={x0 + N * w + 10} y="40" class="fig-label" font-size="16" font-weight="800" fill="#c2410c">r {remainder}</text>}
     </svg>
   );
 }

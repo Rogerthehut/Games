@@ -8,6 +8,14 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Solutions now show the method, not just the sum again
+"Column method: 376 − 238 = 138" only restated the question. Solutions can now carry a **picture of the method worked through** (`Question.worked`, shown by `src/ui/solution.tsx` above the steps in practice, lessons, papers, the learning report and the printable mark scheme; in step-by-step lessons the picture waits until every step is showing, so it doesn't give the answer away).
+- **Adding and subtracting:** a column layout with place names (O, T, H, Th…), the carries written under the answer, and exchanges over the top number with the old digit struck through, including exchanges passed across zeros (4003 − 1865). The words are made from the same digits ("Ones: 6 is too small to take away 8, so exchange 1 ten for 10 ones. Now 16 − 8 = 8").
+- **Written multiplying:** a grid with a box for each pair of parts.
+- **Short division:** a bus stop with the answer on top and the carried remainders.
+- Built in `src/engine/worked.ts`; the picture and the words can't disagree because they come from one calculation. Tests (`src/engine/worked.test.ts`) check hundreds of random sums: every carry and exchange is consistent and the picture's answer matches the question's.
+- **Still to do** (same approach): place value chart, rounding and negative numbers on a number line, large numbers, long division by chunking, money and measure addition with decimals, fractions as bar models and percentages. Tracked as task 40.
+
 ## Fix: the Parents' area sum opens in front of you on a phone
 On an iPhone in Safari, tapping Parents' area from the bottom of a long page (Me) dimmed the page but put the sum and keypad half way up it, out of sight. Two causes, both fixed: (1) every screen's entrance animation used `both`, which leaves an animation on the screen after it finishes, and Safari then places "fixed" pop-ups against the whole long screen instead of the visible part; it is now `backwards`, so nothing is left behind; (2) the sum and child-PIN pop-ups are now drawn straight on the page body (`src/ui/portal.tsx`), so no screen can move them. On very short phones the pop-up scrolls so every key is reachable. Test: `npm run e2e:gate-position` (three phone sizes). Not checked: Safari itself (no WebKit here), so please try it on your iPhone.
 

@@ -1,3 +1,4 @@
+import { Solution } from "./solution";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import type { AnsweredQuestion } from "../engine/activity";
@@ -253,7 +254,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
                   </details>
                 ) : t.q.figure && <FigureView fig={t.q.figure} />}
                 <p class="small muted">Your answer: {t.inputs.every((v) => !v.trim()) ? "left blank" : t.q.answer.kind === "choice" ? (/^[0-4]$/.test(t.inputs[0]) ? `option ${"ABCDE"[+t.inputs[0]]}` : t.inputs.join(", ")) : t.inputs.join(", ")} · Correct: <Maths text={t.q.shown} /></p>
-                <details><summary class="small">Show the steps</summary><ol class="steps">{t.q.solution.map((s, j) => <li key={j}><Maths text={s} /></li>)}</ol></details>
+                <details><summary class="small">Show the steps</summary><Solution q={t.q} /></details>
               </li>
             ))}
           </ul>

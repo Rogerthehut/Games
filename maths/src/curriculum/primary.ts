@@ -1,3 +1,4 @@
+import { busStopWork, columnWork, gridWork } from "../engine/worked";
 import type { Question, Skill } from "../engine/types";
 import { lShapeFig, pointAnglesFig, quadAnglesFig, rectFig, straightLineAnglesFig, triangleAnglesFig, triangleBaseHeightFig } from "./figures";
 import { gcd, int, lcm, nonZero, pick, round } from "../engine/rng";
@@ -80,6 +81,7 @@ function addSub(r: R, level: number): Question {
   if (!add && a < b) [a, b] = [b, a];
   if (!add && a === b) a += 1;
   const ans = add ? a + b : a - b;
+  const work = columnWork(a, b, add ? "+" : "-");
   const est = (x: number) => (level === 1 ? Math.round(x / 100) * 100 : level === 2 ? Math.round(x / 1000) * 1000 : Math.round(x / 10000) * 10000);
   return {
     skill: "add-sub", level,
@@ -88,8 +90,10 @@ function addSub(r: R, level: number): Question {
     hint: `Line the digits up by place value and work from the right. ${add ? "Carry" : "Exchange"} when you need to.`,
     solution: [
       `Estimate first: $${n$(est(a))} ${add ? "+" : "-"} ${n$(est(b))} = ${n$(add ? est(a) + est(b) : est(a) - est(b))}$, so the answer should be close to that.`,
-      `Column method, starting with the ones: $${n$(a)} ${add ? "+" : "-"} ${n$(b)} = ${n$(ans)}$.`,
+      ...work.steps,
+      `So $${n$(a)} ${add ? "+" : "-"} ${n$(b)} = ${n$(ans)}$, which is close to the estimate.`,
     ],
+    worked: work.figure,
     shown: `$${n$(ans)}$`,
   };
 }
@@ -118,16 +122,13 @@ function multWritten(r: R, level: number): Question {
   else if (level === 2) { a = int(r, 110, 499); b = int(r, 2, 9); }
   else { a = int(r, 12, 49); b = int(r, 12, 39); }
   const ans = a * b;
-  const tens = Math.floor(b / 10) * 10, ones = b % 10;
-  const steps = tens === 0
-    ? [`Split ${a}: $${a} \\times ${b} = ${Math.floor(a / 100) * 100 > 0 ? `${Math.floor(a / 100) * 100} \\times ${b} + ` : ""}${Math.floor((a % 100) / 10) * 10} \\times ${b} + ${a % 10} \\times ${b}$.`, `$= ${n$(ans)}$.`]
-    : [`Split ${b} into ${tens} and ${ones}: $${a} \\times ${tens} = ${a * tens}$ and $${a} \\times ${ones} = ${a * ones}$.`, `Add: $${a * tens} + ${a * ones} = ${n$(ans)}$.`];
+  const grid = gridWork(a, b);
   return {
     skill: "mult-written", level,
     prompt: `Work out $${a} \\times ${b}$.`,
     answer: { kind: "number", value: ans },
     hint: "Split one number into tens and ones (or hundreds, tens and ones), multiply each part, then add.",
-    solution: steps, shown: `$${n$(ans)}$`,
+    solution: grid.steps, worked: grid.figure, shown: `$${n$(ans)}$`,
   };
 }
 
@@ -135,12 +136,14 @@ function division(r: R, level: number): Question {
   if (level === 2) {
     const b = int(r, 3, 9), q = int(r, 10, 40), rem = int(r, 1, b - 1);
     const n = b * q + rem;
+    const bus = busStopWork(n, b);
     return {
       skill: "division", level,
       prompt: `Work out $${n} \\div ${b}$. Give the whole-number answer and the remainder.`,
       answer: { kind: "multi", fields: [{ label: "quotient =", value: q }, { label: "remainder =", value: rem }] },
       hint: `How many whole lots of ${b} fit into ${n}? What is left over?`,
-      solution: [`$${b} \\times ${q} = ${b * q}$, so ${q} groups of ${b} fit into ${n}. There isn’t enough left for another group.`, `$${n} - ${b * q} = ${rem}$, so the answer is ${q} remainder ${rem}.`],
+      solution: [...bus.steps, `Check: $${b} \\times ${q} + ${rem} = ${b * q + rem}$.`],
+      worked: bus.figure,
       shown: `$${q}$ remainder $${rem}$`,
     };
   }
@@ -152,8 +155,9 @@ function division(r: R, level: number): Question {
     answer: { kind: "number", value: q },
     hint: level === 1 ? "Use short division, or think about how many lots of the number fit." : `Take away groups of ${b}. Start by taking away 10 groups at a time.`,
     solution: level === 1
-      ? [`$${b} \\times ${q} = ${n}$, so $${n} \\div ${b} = ${q}$.`]
+      ? [...busStopWork(n, b).steps, `Check: $${b} \\times ${q} = ${n}$.`]
       : [`Start with 10 groups: $${b} \\times 10 = ${b * 10}$. Keep taking away groups of ${b} until nothing is left. Count how many groups you took away.`, `$${n} \\div ${b} = ${q}$.`],
+    ...(level === 1 ? { worked: busStopWork(n, b).figure } : {}),
     shown: `$${q}$`,
   };
 }

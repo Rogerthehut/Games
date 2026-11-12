@@ -1,3 +1,4 @@
+import { Solution } from "./solution";
 import { printPage } from "../native/bridge";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { useRemembered } from "./memory";
@@ -179,7 +180,7 @@ function WalkThrough({ example: { entry, question } }: { example: Example & { qu
     { title: "1. Read it together", body: <p>Read the question aloud. Ask {profile.name} to say what it's asking in their own words. Don't help yet.</p> },
     { title: "2. Let them try again", body: <><p>Ask: “{family.ask[0]}” Let them have another go, with a working-out tool if they want one.</p>{question.hint && <p class="small muted">If they're stuck, a hint: <Maths text={question.hint} /></p>}</> },
     { title: "3. Find where it slipped", body: <><p>{profile.name} answered <strong>{entry.tried.filter(Boolean).join(", ") || "nothing"}</strong>. The right answer is <strong><Maths text={question.shown} /></strong>.</p><p>{found ? <>It looks like they {found.reason}. Ask: “How did you get that?”</> : <>Ask: “Talk me through what you did first.” The first step they got wrong is the one to work on.</>}</p></> },
-    { title: "4. Work it through, a step at a time", body: <><ol class="steps">{question.solution.slice(0, shown + 1).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>{shown + 1 < question.solution.length && <button class="btn small ghost" onClick={() => setShown(shown + 1)}>Show the next step</button>}</> },
+    { title: "4. Work it through, a step at a time", body: <><Solution q={question} count={shown + 1} />{shown + 1 < question.solution.length && <button class="btn small ghost" onClick={() => setShown(shown + 1)}>Show the next step</button>}</> },
     { title: "5. Now they teach you", body: <><p>Ask {profile.name} to explain it back to you, step by step, as if you're the one who's stuck. Then try one like it.</p><button class="btn small primary" onClick={similar} data-testid="walk-similar">Try two like this</button></> },
   ];
   const s = steps[step];
@@ -212,7 +213,7 @@ function ExampleView({ example: { entry, question } }: { example: Example }) {
       {question && question.solution.length > 0 && (
         <div>
           <button class="btn small ghost" onClick={() => setSteps(!steps)} aria-expanded={steps}>{steps ? "Hide the steps" : "Show the steps to work through together"}</button>
-          {(steps) && <ol class="steps lr-steps">{question.solution.map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>}
+          {(steps) && <Solution q={question} class="steps lr-steps" />}
           {steps && question.hint && <p class="small muted">Hint to give first: <Maths text={question.hint} /></p>}
         </div>
       )}

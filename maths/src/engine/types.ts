@@ -53,6 +53,10 @@ export type Figure =
   | { type: "bars"; items: { label: string; value: number }[]; yLabel: string; alt: string }
   /** A small table: a header row and rows of cells (the first cell of each row is a row heading). */
   | { type: "table"; head: string[]; rows: (string | number)[][]; alt: string }
+  /** A sum worked in columns. `carries` (addition) are written under the answer; `exchanges` (subtraction) over the top digit, which is struck through. One entry per column, left to right. */
+  | { type: "column-sum"; op: "+" | "-"; top: string; bottom: string; result: string; carries: string[]; exchanges: ({ was: string; now: string } | null)[]; alt: string }
+  /** Short division: the dividend under the bus stop, the answer above it and the carried remainders. */
+  | { type: "bus-stop"; divisor: number; digits: string; quotient: string; carries: string[]; remainder: number; alt: string }
   /** Boxes joined by arrows, top to bottom: an input, steps and an output. `repeat` draws a loop bracket round the steps from `from` to `to`. */
   | { type: "flow"; steps: { text: string; kind?: "in" | "out" | "step" }[]; repeat?: { from: number; to: number; label: string }; alt: string }
   /** The alphabet in two rows with each letter's position (A = 0), for codes and ciphers. */
@@ -102,6 +106,8 @@ export interface Question {
   /** Text with $inline$ and $$display$$ maths. */
   prompt: string;
   figure?: Figure;
+  /** A picture of the method worked through (the column layout, a grid, a bus stop), shown with the steps once the answer is given or asked for. */
+  worked?: Figure;
   answer: Answer;
   hint: string;
   /** Worked solution, one step per entry, same $maths$ syntax. */

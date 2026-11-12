@@ -102,6 +102,7 @@ export function PrintPaper({ kind: first, number: firstNumber }: { kind: PaperKi
             <li key={q.n} class="pp-s">
               <p><strong>{q.n}.</strong> <span class="pp-topic">{q.skill}</span></p>
               <p class="small"><Maths text={q.question.prompt} /></p>
+              {q.question.worked && <div class="pp-fig"><FigureView fig={q.question.worked} locked /></div>}
               <ul>{q.question.solution.map((s, i) => <li key={i}><Maths text={s} /></li>)}</ul>
             </li>
           ))}

@@ -1,3 +1,4 @@
+import { Solution } from "./solution";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import { withBarChartHelp } from "../curriculum/expansion";
@@ -293,7 +294,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
             {q.answer.kind === "choice" && (
               <AnswerInput answer={q.answer} values={introDone ? [String(q.answer.correct)] : []} onChange={() => {}} onSubmit={() => {}} disabled state={introDone ? "right" : "idle"} />
             )}
-            <ol class="steps">{q.solution.slice(0, stepsShown).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
+            <Solution q={q} count={stepsShown} />
             {introDone && <p class="answer-shown">Answer: <Maths text={q.shown} /></p>}
           </>
         ) : (
@@ -328,12 +329,12 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
               {phase === "reveal" && (
                 <div class="fb reveal" role="status">
                   <p><strong>{voice.reveal(skin)}</strong></p>
-                  <ol class="steps">{q.solution.map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
+                  <Solution q={q} />
                   <p class="answer-shown">Answer: <Maths text={q.shown} /></p>
                 </div>
               )}
               {phase === "correct" && (
-                <details class="why"><summary>See the steps</summary><ol class="steps">{q.solution.map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol></details>
+                <details class="why"><summary>See the steps</summary><Solution q={q} /></details>
               )}
             </div>
 
