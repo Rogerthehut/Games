@@ -18,6 +18,7 @@ import { ParentAssistant } from "./assistant";
 import { conceptsForSkill } from "../concepts";
 import { FeedbackSection } from "./feedback";
 import { Guides } from "./guides";
+import { tablesOf } from "../engine/tables";
 import { lockParents } from "./gate";
 import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
@@ -241,6 +242,12 @@ export function Parent() {
                 {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => <option value={y}>Year {y}</option>)}
               </select>
             </label>
+          </section>
+
+          <section class="card" aria-labelledby="board-h">
+            <h2 id="board-h">Times tables family board</h2>
+            <label class="check"><input type="checkbox" checked={tablesOf(profile).showOnBoard !== false} onChange={(e) => update((p) => ({ ...p, tables: { ...tablesOf(p), showOnBoard: (e.target as HTMLInputElement).checked } }))} data-testid="show-on-board" /> Show {profile.name} on the family board</label>
+            <p class="small muted">The board lists each learner's best times tables challenge score, so brothers and sisters can compete for fun. It shows nicknames, avatars and best scores only, and stays inside your account.</p>
           </section>
 
           <PinSettings />

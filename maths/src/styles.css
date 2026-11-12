@@ -3220,3 +3220,22 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .lesson-panel .steps { margin: 0; }
 .lesson-panel .q-text { margin: 0; }
 .skill-lesson .qbody { max-width: 760px; }
+
+/* times tables challenges and the scoreboard */
+.tt-modes { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 10px; }
+.tt-mode { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.tt-mode > div { display: grid; gap: 2px; min-width: 0; }
+.tt-best { font-size: .9rem; color: var(--ink); }
+.tt-challenge .tt-time { text-align: center; margin: 8px 0 0; font: 800 1.5rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.tt-challenge .tt-q.right { background: var(--good-soft); }
+.tt-challenge .tt-q.wrong { background: var(--warn-soft); }
+.tt-result .tt-score strong { font: 800 clamp(2.4rem, 12vw, 4rem)/1 var(--font-display); }
+.tt-spark { margin: 0; text-align: center; }
+.tt-rank { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 8px; }
+.tt-rank li { display: grid; grid-template-columns: 2rem 36px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--line); }
+.tt-rank li.you { border-color: var(--accent); background: var(--accent-soft); }
+.tt-rank li.first { box-shadow: 0 2px 0 #e6c15a; }
+.tt-place { text-align: center; font: 800 1.2rem/1 var(--font-display); }
+.tt-who { display: grid; min-width: 0; }
+.tt-who small { font-size: .75rem; }
+.tt-pts { font: 800 1.05rem/1 var(--font-display); font-variant-numeric: tabular-nums; }

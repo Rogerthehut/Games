@@ -58,6 +58,15 @@ export const PARENT_GUIDE: GuideSection[] = [
     ],
   },
   {
+    id: "tables", icon: "star", title: "Times tables and the family board",
+    text: ["The Times tables page (the yellow note on Today) has a facts grid that fills in as facts become quick, practice rounds, and two timed challenges: a 60-second blitz and a 25-question race."],
+    tips: [
+      "Each learner keeps personal bests. A Scoreboard compares everyone on your account, so brothers and sisters can compete for fun.",
+      "The board shows nicknames, avatars and best scores only, and it stays inside your account. Hide a learner from it in Settings.",
+      "Timed rounds are for fun and recall speed, not a test. Every round makes the facts quicker.",
+    ],
+  },
+  {
     id: "assess", icon: "check", title: "Check-ups, practice papers and certificates",
     tips: [
       "Check-up: finds a starting point and any gaps. Another one after about six weeks shows progress.",
@@ -153,6 +162,15 @@ export const CHILD_GUIDE: GuideSection[] = [
       "To measure an angle, put the 0 on one arm and read round the same scale to the other arm.",
       "To draw an angle, turn the blue arm with your finger, the −1° and +1° buttons, or the arrow keys.",
       "To draw a shape, move the corner on the grid to the size the question says.",
+    ],
+  },
+  {
+    id: "challenge", icon: "star", title: "Times tables challenges",
+    text: ["On the Times tables page there are two challenges: a 60-second blitz and a 25-question race. They're about beating your own best."],
+    tips: [
+      "Blitz: get as many right as you can in 60 seconds.",
+      "Race: answer 25 as fast as you can. A wrong answer adds 3 seconds.",
+      "Your best scores are saved. The Scoreboard also shows your brothers and sisters on the same account, so you can compete for fun.",
     ],
   },
   {

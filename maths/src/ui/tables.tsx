@@ -10,8 +10,10 @@ import { useApp } from "./context";
 import { Icon } from "./icons";
 import { MoreBelow } from "./qshell";
 import { playPracticeSound, readPracticeQuestion, stopPracticeNarration } from "./practice-audio";
+import { ChallengeCard, ChallengeSession, Scoreboard } from "./tables-challenge";
+import type { ChallengeMode, ChallengeScope } from "../engine/tables-challenge";
 
-type View = { name: "hub" } | { name: "learn"; table: number } | { name: "round"; only?: number } | { name: "check" };
+type View = { name: "hub" } | { name: "learn"; table: number } | { name: "round"; only?: number } | { name: "check" } | { name: "challenge"; mode: ChallengeMode; scope: ChallengeScope } | { name: "board" };
 interface Result { q: TableQ; ok: boolean; ms: number; typed: string }
 
 /** Learn, practise and memorise the times tables: a grid that fills in as facts become quick, short rounds that lean on the tricky ones, and an optional timed check. */
@@ -23,10 +25,12 @@ export function Tables() {
   const hub = () => setView({ name: "hub" });
   return (
     <main class="tt-screen">
-      {view.name === "hub" && <Hub onLearn={(table) => setView({ name: "learn", table })} onRound={(only) => setView({ name: "round", only })} onCheck={() => setView({ name: "check" })} onBack={() => leave({ name: "home" })} />}
+      {view.name === "hub" && <Hub onLearn={(table) => setView({ name: "learn", table })} onRound={(only) => setView({ name: "round", only })} onCheck={() => setView({ name: "check" })} onChallenge={(mode, scope) => setView({ name: "challenge", mode, scope })} onBoard={() => setView({ name: "board" })} onBack={() => leave({ name: "home" })} />}
       {view.name === "learn" && <Learn table={view.table} onTable={(table) => setView({ name: "learn", table })} onPractise={() => setView({ name: "round", only: view.table })} onBack={hub} />}
       {view.name === "round" && <Session key={`r${view.only ?? 0}-${run}`} timed={false} only={view.only} onBack={hub} onAgain={again} />}
       {view.name === "check" && <Session key={`check-${run}`} timed onBack={hub} onAgain={again} />}
+      {view.name === "challenge" && <ChallengeSession key={`c-${view.mode}-${view.scope}-${run}`} mode={view.mode} scope={view.scope} onBack={hub} onAgain={again} onBoard={() => setView({ name: "board" })} />}
+      {view.name === "board" && <Scoreboard onBack={hub} />}
       {(view.name === "hub" || view.name === "learn") && <MoreBelow />}
     </main>
   );
@@ -34,7 +38,7 @@ export function Tables() {
 
 const WORD: Record<FactStatus, string> = STATUS_WORDS;
 
-function Hub({ onLearn, onRound, onCheck, onBack }: { onLearn: (t: number) => void; onRound: (only?: number) => void; onCheck: () => void; onBack: () => void }) {
+function Hub({ onLearn, onRound, onCheck, onChallenge, onBoard, onBack }: { onLearn: (t: number) => void; onRound: (only?: number) => void; onCheck: () => void; onChallenge: (m: ChallengeMode, s: ChallengeScope) => void; onBoard: () => void; onBack: () => void }) {
   const { profile, update } = useApp();
   const t = tablesOf(profile), s = useMemo(() => summarise(profile), [profile]);
   const last = t.checks[t.checks.length - 1];
@@ -79,6 +83,8 @@ function Hub({ onLearn, onRound, onCheck, onBack }: { onLearn: (t: number) => vo
         <button type="button" class="btn primary tt-big" onClick={() => onRound()} data-testid="tables-practise">Practise</button>
         <button type="button" class="btn tt-big" onClick={() => onLearn(t.active[0] ?? 2)} data-testid="tables-learn">Learn a table</button>
       </div>
+
+      <ChallengeCard onStart={onChallenge} onBoard={onBoard} />
 
       <section class="tt-card" aria-labelledby="tt-check">
         <h2 id="tt-check">Check practice</h2>

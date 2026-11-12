@@ -95,9 +95,11 @@ Three topics use them to close the two KS2 outcomes that were only partly covere
 
 Still to do: tools for secondary topics (graph paper with plotting, a calculator-free long-division frame with remainders, algebra tiles), and fully constructing triangles from three given sides or two angles and a side.
 
-## Times tables challenge (requested)
+## Times tables challenge (built)
 
-Timed times-table tests, in the spirit of Times Tables Rock Stars, to make revision fun. Each learner has personal bests (by table and overall, with recall times), a scoreboard for themselves, and a family board across every learner under the same parent login, so brothers and sisters can compete. Needs: a timed recall mode (short rounds, e.g. 60 seconds or 25 questions, mixed or chosen tables, with the tables a learner knows slowest practised more); results stored per learner (score, speed, which facts were missed); personal bests and streaks; a family leaderboard on the sibling profiles of one account (nicknames and avatars only, nothing leaving the account); kind wording so a slow round is never shameful; a grown-up setting to switch the family board off. Builds on the times tables note on the left and the existing practice engine.
+Timed challenges on the times tables page, for fun and to make revision stick. Two modes: a **60-second blitz** (most right) and a **25-question race** (fastest, with 3 seconds added for each wrong answer), each on **My tables** or **All tables** (the fair one to compare). Every learner keeps personal bests and their recent rounds. A **Scoreboard** shows a learner's own results and a **family board** across every learner on the same account, so brothers and sisters can compete; it shows nicknames, avatars and best scores only. A grown-up can hide a learner from the board (Parents' area, Settings). Answers still feed the facts grid, so rounds make the facts quicker. The wording is always about beating your own best, and a slow round is never shown as a low score. Code: `src/engine/tables-challenge.ts`, `src/ui/tables-challenge.tsx`; check: `npm run e2e:challenge`.
+
+Possible later: a "recall time" chart per table, daily streaks, and a weekly family winner.
 
 ## Full screen audit (last)
 
@@ -154,4 +156,5 @@ Run against a built preview (`VITE_ALLOW_LOCAL_ONLY=1 npm run build && npx vite 
 - `npm run e2e:pathway`: the assessment journey in a real browser. A learner who hasn't secured every topic can't start the pathway test; one who has can, saves and resumes it, fails and retries, misses the pass mark by one, then earns exactly one certificate at the pass mark, which survives a reload and moves the pathway on. Also checked on a phone.
 - `npm run e2e:taps`: a quick double tap on Check, Show the steps or Next counts once.
 - `npm run e2e:grownup`: the Parents' area, adding or changing a learner and the search all ask for the sum and PIN, and the area locks again on leaving. The review behind it is `docs/GROWN_UP_CONTROLS_REVIEW.md`.
+- `npm run e2e:lesson`, `e2e:refresher`, `e2e:instruments`, `e2e:tools`, `e2e:guides`, `e2e:challenge`: the worked-example lessons, the weekly refresher, the protractor and drawing questions, the working-out tools, the user guides and the times tables challenges.
 - Accounts: see the notes at the top of `scripts/accounts-e2e.mjs`.

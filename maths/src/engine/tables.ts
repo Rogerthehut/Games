@@ -1,5 +1,6 @@
 import { DAY, type Profile } from "./progress";
 import { int, type Rng } from "./rng";
+import type { ChallengeState } from "./tables-challenge";
 
 /** What is known about one multiplication fact, such as 7 × 8. Kept short because there are many of them. */
 export interface FactState {
@@ -19,6 +20,10 @@ export interface TablesState {
   rounds: number;
   /** Attempts at the timed check, newest last. */
   checks: { at: number; score: number; total: number }[];
+  /** Timed challenges: personal bests and recent results (see tables-challenge.ts). */
+  challenges?: ChallengeState;
+  /** Whether this learner shows on the family board. Missing means yes. */
+  showOnBoard?: boolean;
 }
 
 export const MIN_TABLE = 2, MAX_TABLE = 12;
