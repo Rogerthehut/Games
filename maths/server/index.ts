@@ -235,7 +235,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
       const out = await handleAccountApi({ method: req.method ?? "GET", path: url.pathname, token, body, humanPass: String(req.headers["x-human-pass"] ?? "") || undefined, origin: host ? `${proto}://${host}` : undefined }, accounts);
       if (out.file) {
         try {
-          const data = await readFile(new URL(`./assets/${out.file.name}`, import.meta.url));
+          const data = await readFile(new URL(`../server/assets/${out.file.name}`, import.meta.url)); // the same path from server/ and from the built dist-server/
           res.writeHead(200, { "Content-Type": out.file.type, "Content-Length": data.length, "Content-Disposition": `attachment; filename="${out.file.downloadAs}"`, "Cache-Control": "private, no-store" });
           return res.end(data);
         } catch { return send(res, 404, { error: "not-found", message: "That file isn't available just now." }); }

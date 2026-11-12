@@ -12,7 +12,7 @@ child's browser ──(question, what they typed, their message)──▶ tutor 
 ```
 
 - **App:** `src/ui/tutor.tsx`, `src/tutor/client.ts`. Off by default; enabled per learner in *Grown-up → AI tutor*. Every exchange is saved to a log on the device that the grown-up can read.
-- **Service:** `server/`. Holds the API key, validates, screens, rate limits, calls the model, checks the reply. Run `npm run server` (needs `ANTHROPIC_API_KEY`). `TUTOR_FAKE=1` runs it without a key against a script, for development.
+- **Service:** `server/`. Holds the API key, validates, screens, rate limits, calls the model, checks the reply. Run `npm run build` once and then `npm run server` (needs `ANTHROPIC_API_KEY`). `TUTOR_FAKE=1` runs it without a key against a script, for development.
 - **What the model sees:** the current question, the correct answer and worked solution (private, so it can be accurate), what the child typed for this question, the conversation so far, and the child's school year (to pitch the language). It is never given a name, school, location, progress or history.
 
 ## Safety layers

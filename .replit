@@ -1,6 +1,6 @@
 # Quarter Maths on Replit. The app lives in maths/. One Node process serves the built app and the tutor API.
 modules = ["nodejs-20"]
-hidden = [".config", "maths/node_modules", "maths/dist", "maths/native"]
+hidden = [".config", "maths/node_modules", "maths/dist", "maths/dist-server", "maths/native"]
 run = ["sh", "-c", "cd maths && npm ci --no-audit --no-fund && npm run build && npm run server"]
 
 # Replit's Run button and Preview start the app through a workflow. This one builds the app and starts the server,
@@ -23,7 +23,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "(pkill -f '[t]sx server/index.ts' || true); cd maths && ([ -d node_modules ] || npm ci --no-audit --no-fund) && npm run build && npm run server"
+args = "(pkill -f '[t]sx server/index.ts' || true); (pkill -f '[d]ist-server/index.mjs' || true); cd maths && ([ -d node_modules ] || npm ci --no-audit --no-fund) && npm run build && npm run server"
 waitForPort = 5000
 
 [nix]

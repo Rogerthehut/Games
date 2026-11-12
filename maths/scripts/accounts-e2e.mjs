@@ -2,7 +2,7 @@
  * End-to-end test of accounts: sign-up, consent, saving, a second device, a two-device clash, data download, sign-out,
  * moving old local progress into an account, and deleting an account. Uses the fake sign-in and an in-memory database.
  *
- *   AUTH_FAKE=1 npm run server &                       # port 8787, fresh in-memory database each start
+ *   AUTH_FAKE=1 npm run server:dev &                       # port 8787, fresh in-memory database each start
  *   VITE_FAKE_AUTH=1 npx vite --port 5173 &            # the app, proxying /api to the server
  *   npx tsx scripts/seed-profile.ts > /tmp/store.json  # an old-style local profile to migrate
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js LEGACY_STORE=/tmp/store.json OUT=/tmp/e2e node scripts/accounts-e2e.mjs

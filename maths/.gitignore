@@ -2,3 +2,4 @@ node_modules
 dist
 scripts/.booklet.html
 scripts/.booklet-shots/
+dist-server

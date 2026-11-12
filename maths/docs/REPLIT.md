@@ -21,7 +21,7 @@ Add these in the Secrets tool, never in files:
 
 ## Deploying
 
-`.replit` is set up for an **Autoscale** deployment: it builds with `npm run build` and runs `npm run server`. Check the tutor after deploying: open `/api/health`, which should return `{"ok":true,"tutor":true}` once a key is set.
+`.replit` is set up for an **Autoscale** deployment: it builds with `npm run build` (which also bundles the server into `dist-server/`, so it starts quickly) and runs `npm run server`. For development, `npm run server:dev` runs the TypeScript directly. Check the tutor after deploying: open `/api/health`, which should return `{"ok":true,"tutor":true}` once a key is set.
 
 ## Node version
 

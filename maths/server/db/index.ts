@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
@@ -8,7 +8,8 @@ import * as schema from "./schema";
 export type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
 export { schema };
 
-const MIGRATIONS = fileURLToPath(new URL("./migrations/", import.meta.url));
+// next to this file when run from source, or in server/db/ when the server has been bundled into dist-server/
+const MIGRATIONS = [new URL("./migrations/", import.meta.url), new URL("../server/db/migrations/", import.meta.url)].map((u) => fileURLToPath(u)).find((d) => existsSync(d)) ?? fileURLToPath(new URL("./migrations/", import.meta.url));
 
 /** The real database, from DATABASE_URL (Replit sets this when Postgres is added). */
 export async function connect(url = process.env.DATABASE_URL): Promise<Db> {

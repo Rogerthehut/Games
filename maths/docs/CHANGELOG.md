@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Faster server start
+The server is now bundled into one file at build time (`npm run build:server`, part of `npm run build`) and started with plain `node`, instead of compiling the TypeScript each time it starts. It's about 40% quicker to be ready on a fast machine and should help more on Replit's slower one, which shortens the burst of "healthcheck failed" lines at a deploy. `npm run server:dev` still runs the TypeScript directly for development and the browser tests. The booklet and the database migrations are found the same way from both. `.replit` now also stops the old process by either name.
+
 ## Study guides no longer send you back to Me
 Reading a study guide (for example "Algorithms and loops") could throw you back to the Me screen after about ten seconds, mid-sentence. The Parents' area's idle check counted study guides as part of the area, and since a child reaching a guide from Skills or the STEM lab hasn't entered the PIN, it treated them as "locked out". Study guides are now left alone by that check. The screens that need the PIN (Parents' area, progress report, learning report, my data and booklet) work as before, and a parent who opens a guide from the Parents' area still keeps the area unlocked for the trip. Check: `npm run e2e:idle`.
 
