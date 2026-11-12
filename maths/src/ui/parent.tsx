@@ -7,7 +7,7 @@ import { yearLabel } from "../engine/diagnostic";
 import { useTutorAvailable } from "./tutor";
 import { useApp } from "./context";
 import { useAccount } from "./account-context";
-import { AccountSection, SubscriptionSection } from "./account-section";
+import { AccountSection, SubscriptionSection, WeeklyEmailSection } from "./account-section";
 import { BookletSection } from "./booklet";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
@@ -256,6 +256,7 @@ export function Parent() {
 
           <PinSettings />
           <BookletSection />
+          {account && <WeeklyEmailSection />}
           {account && <SubscriptionSection />}
           {account && <AccountSection />}
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { buildLearningReport, lastDays, PERIODS, type Example, type Period, type TopicFinding } from "../engine/learning-report";
 import { STAGE_LABEL } from "../curriculum";
 import { SKILL_BY_ID } from "../curriculum";
+import { useAccount } from "./account-context";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
 import { Icon } from "./icons";
@@ -17,6 +18,7 @@ const toInput = (ms: number) => new Date(ms - new Date(ms).getTimezoneOffset() *
 export function LearningSummaryCard() {
   const { profile, go } = useApp();
   const report = useMemo(() => buildLearningReport(profile, lastDays(7)), [profile.wrongLog]);
+  const account = useAccount();
   return (
     <section class="card" aria-labelledby="lr-card" data-testid="learning-card">
       <h2 id="lr-card">Where {profile.name} is struggling</h2>
@@ -26,6 +28,7 @@ export function LearningSummaryCard() {
             <p><strong>{plural(report.totals.questions, "question")}</strong> needed another go in the last 7 days, across {plural(report.totals.topics, "topic")}. Start with: {report.topics.slice(0, 3).map((t) => t.name).join(", ")}.</p>
           </>}
       <div class="actions"><button class="btn primary" onClick={() => go({ name: "learning-report" })} data-testid="open-learning-report">Open the learning report</button></div>
+      {account && <p class="small muted">Want this in your inbox each week? Turn on the weekly email in Settings.</p>}
     </section>
   );
 }

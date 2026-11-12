@@ -19,6 +19,7 @@ Write every breach in the log below, even ones you decide not to report.
 ## Rotate secrets (Replit → Secrets, then restart and redeploy)
 | Secret | How |
 |---|---|
+| `RESEND_API_KEY`, `CRON_SECRET` | Resend → API keys → roll; change `CRON_SECRET` in Replit and the scheduler |
 | `CLERK_SECRET_KEY` | Clerk dashboard → API keys → roll; sign out all users if sessions may be stolen |
 | `DATABASE_URL` | Change the database password; update the secret |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe → Developers → roll both; check recent payments |

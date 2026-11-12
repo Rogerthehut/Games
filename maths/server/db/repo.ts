@@ -1,6 +1,7 @@
 import { and, asc, eq, gt, sql } from "drizzle-orm";
 import type { Db } from "./index";
-import { feedback, learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
+import { randomBytes } from "node:crypto";
+import { emailPrefs, feedback, learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
 import { MAX_LEARNERS, cleanProfile } from "./profile-check";
 
 export interface StoredLearner { id: string; version: number; data: Record<string, unknown> }
@@ -118,6 +119,36 @@ export function makeRepo(db: Db) {
       return ins.length > 0;
     },
 
+    /** The parent's email choices, made on first look (the weekly email starts off). */
+    async emailPrefsFor(parentId: string): Promise<{ weeklyDigest: boolean; optedInAt: Date | null; lastDigestAt: Date | null; token: string }> {
+      await db.insert(emailPrefs).values({ parentId, unsubToken: randomBytes(24).toString("base64url") }).onConflictDoNothing({ target: emailPrefs.parentId });
+      const [row] = await db.select().from(emailPrefs).where(eq(emailPrefs.parentId, parentId));
+      return { weeklyDigest: row.weeklyDigest, optedInAt: row.optedInAt, lastDigestAt: row.lastDigestAt, token: row.unsubToken };
+    },
+
+    async setWeeklyDigest(parentId: string, on: boolean, now = new Date()) {
+      await this.emailPrefsFor(parentId);
+      await db.update(emailPrefs).set({ weeklyDigest: on, optedInAt: on ? now : null, updatedAt: now }).where(eq(emailPrefs.parentId, parentId));
+    },
+
+    /** The unsubscribe link in an email. Returns false if the token isn't known. */
+    async unsubscribeByToken(token: string): Promise<boolean> {
+      if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) return false;
+      const done = await db.update(emailPrefs).set({ weeklyDigest: false, optedInAt: null, updatedAt: new Date() }).where(eq(emailPrefs.unsubToken, token)).returning({ id: emailPrefs.parentId });
+      return done.length > 0;
+    },
+
+    /** Parents who want the weekly email and haven't had one in `minGapMs`. */
+    async digestCandidates(now: Date, minGapMs: number): Promise<{ parentId: string; clerkUserId: string; token: string }[]> {
+      const rows = await db.select({ parentId: emailPrefs.parentId, clerkUserId: parents.clerkUserId, token: emailPrefs.unsubToken, last: emailPrefs.lastDigestAt })
+        .from(emailPrefs).innerJoin(parents, eq(parents.id, emailPrefs.parentId)).where(eq(emailPrefs.weeklyDigest, true));
+      return rows.filter((r) => !r.last || now.getTime() - r.last.getTime() >= minGapMs).map(({ parentId, clerkUserId, token }) => ({ parentId, clerkUserId, token }));
+    },
+
+    async markDigestSent(parentId: string, at: Date) {
+      await db.update(emailPrefs).set({ lastDigestAt: at }).where(eq(emailPrefs.parentId, parentId));
+    },
+
     /** Saves a piece of feedback from a parent. */
     async addFeedback(parentId: string, f: { category: string; rating: number | null; message: string; mayReply: boolean; context: string | null }): Promise<void> {
       await db.insert(feedback).values({ parentId, ...f });
@@ -134,7 +165,9 @@ export function makeRepo(db: Db) {
     async exportParent(parentId: string) {
       const [parent] = await db.select().from(parents).where(eq(parents.id, parentId));
       const sub = await this.getSubscription(parentId);
+      const prefs = await this.emailPrefsFor(parentId);
       return { parent: parent ? { consentVersion: parent.consentVersion, consentedAt: parent.consentedAt, createdAt: parent.createdAt } : null,
+        emailPreferences: { weeklyEmail: prefs.weeklyDigest, turnedOnAt: prefs.optedInAt, lastWeeklyEmailAt: prefs.lastDigestAt },
         subscription: sub ? { status: sub.status, plan: sub.plan, trialEnd: sub.trialEnd, currentPeriodEnd: sub.currentPeriodEnd, cancelAtPeriodEnd: sub.cancelAtPeriodEnd } : null, learners: await this.loadLearners(parentId),
         feedback: (await db.select().from(feedback).where(eq(feedback.parentId, parentId)).orderBy(asc(feedback.createdAt))).map((f) => ({ category: f.category, rating: f.rating, message: f.message, mayReply: f.mayReply, sentAt: f.createdAt })) };
     },

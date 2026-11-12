@@ -1,3 +1,7 @@
+import { timingSafeEqual } from "node:crypto";
+import { mailerFromEnv } from "./mail";
+import { runDigestJob } from "./digest-job";
+import { unsubscribePage } from "./unsubscribe-page";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, readFileSync } from "node:fs";
@@ -52,6 +56,10 @@ if ((process.env.DATABASE_URL || AUTH_FAKE) && (process.env.CLERK_SECRET_KEY || 
 } else {
   console.warn("Accounts are off: set DATABASE_URL and CLERK_SECRET_KEY to turn them on.");
 }
+
+// Email: Resend when RESEND_API_KEY is set, otherwise nothing is sent. The weekly email job is run by a scheduler calling /api/internal/digest.
+const mailer = mailerFromEnv();
+if (accounts && !mailer.live) console.warn("Email is off: set RESEND_API_KEY (and MAIL_FROM) to turn on the weekly parent email. See docs/EMAIL.md.");
 
 const limiter = new Limiter({
   perDeviceDay: Number(process.env.TUTOR_PER_DEVICE_DAY ?? DEFAULT_LIMITS.perDeviceDay),
@@ -141,6 +149,30 @@ createServer(async (req, res) => {
     if (!found) return send(res, 503, { error: "lookup-unavailable" });
     res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "public, max-age=86400" });
     return res.end(JSON.stringify(found));
+  }
+
+  // The weekly email. A scheduler calls this with the shared secret; nobody else can.
+  if (url.pathname === "/api/internal/digest" && req.method === "POST") {
+    const secret = process.env.CRON_SECRET;
+    const given = String(req.headers["x-cron-secret"] ?? "");
+    if (!accounts || !secret || given.length !== secret.length || !timingSafeEqual(Buffer.from(given), Buffer.from(secret))) return send(res, 404, { error: "not-found" });
+    const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "");
+    const serverUrl = process.env.SERVER_URL || process.env.APP_URL || (host ? `${TRUST_PROXY ? "https" : "http"}://${host}` : "");
+    const out = await runDigestJob({ repo: accounts.repo, auth: accounts.auth, mailer, appUrl: process.env.APP_URL || serverUrl, serverUrl });
+    return send(res, 200, { ...out, live: mailer.live });
+  }
+
+  // Unsubscribing from the weekly email, from the link in it. A GET only shows a button (mail scanners open links); the POST does it.
+  if (url.pathname === "/unsubscribe" && (req.method === "GET" || req.method === "POST")) {
+    const token = url.searchParams.get("t") ?? "";
+    const html = (title: string, body: string) => { res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" }); res.end(unsubscribePage(title, body)); };
+    if (!accounts) return html("Not available", "<p>This isn't available just now.</p>");
+    if (req.method === "POST") {
+      req.resume();
+      const done = await accounts.repo.unsubscribeByToken(token);
+      return html(done ? "You're unsubscribed" : "That link isn't valid", done ? "<p>You won't get the weekly email any more. You can turn it back on any time in the Parents' area.</p>" : "<p>That unsubscribe link isn't valid or has already been used.</p>");
+    }
+    return html("Unsubscribe from the weekly email", `<p>Stop the weekly quarter progress email?</p><form method="post" action="/unsubscribe?t=${encodeURIComponent(token)}"><button type="submit">Unsubscribe</button></form>`);
   }
 
   if (url.pathname === "/api/stripe/webhook" && req.method === "POST") {

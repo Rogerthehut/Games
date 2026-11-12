@@ -19,6 +19,9 @@ export interface AccountInfoCtx {
   notice: string;
   signOut(): Promise<void>;
   exportData(): Promise<unknown>;
+  /** The weekly progress email: whether it is on, and a way to turn it on or off. */
+  getWeeklyEmail(): Promise<boolean>;
+  setWeeklyEmail(on: boolean): Promise<boolean>;
   deleteAccount(): Promise<void>;
   billing: BillingInfo;
   manageBilling(): Promise<void>;

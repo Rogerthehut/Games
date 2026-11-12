@@ -107,6 +107,17 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     return reply(201, { saved: true });
   }
 
+  // the weekly email: a parent's own choice, off until they turn it on
+  if (req.path === "/api/account/email-prefs") {
+    if (req.method === "GET") return reply(200, { weeklyDigest: (await deps.repo.emailPrefsFor(parent.id)).weeklyDigest }, { "Cache-Control": "no-store" });
+    if (req.method === "PUT") {
+      if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+      if (typeof body.weeklyDigest !== "boolean") return err(400, "invalid", "Choose on or off.");
+      await deps.repo.setWeeklyDigest(parent.id, body.weeklyDigest);
+      return reply(200, { weeklyDigest: body.weeklyDigest });
+    }
+  }
+
   // subscriptions
   if (req.path.startsWith("/api/billing/")) {
     if (!deps.billing) return err(404, "billing-off", "Payments are not turned on.");

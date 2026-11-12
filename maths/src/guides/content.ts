@@ -117,6 +117,7 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Look and feel and Sound (read aloud) are on the Me page.",
       "Curriculum booklet: a designed PDF of everything quarter covers, for subscribed accounts.",
       "My information: download everything stored about your child, or delete it.",
+      "Weekly email: turn it on in Settings to get a short email each week with how your child did and what was tricky. It is only sent if they practised, and every email has an unsubscribe link.",
       "Delete this learner removes their progress.",
     ],
   },

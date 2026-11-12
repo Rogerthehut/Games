@@ -42,6 +42,15 @@ export const stripeEvents = pgTable("stripe_events", {
   receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const emailPrefs = pgTable("email_prefs", {
+  parentId: uuid("parent_id").primaryKey().references(() => parents.id, { onDelete: "cascade" }),
+  weeklyDigest: boolean("weekly_digest").notNull().default(false),
+  unsubToken: text("unsub_token").notNull().unique(),
+  optedInAt: timestamp("opted_in_at", { withTimezone: true }),
+  lastDigestAt: timestamp("last_digest_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const feedback = pgTable("feedback", {
   id: uuid("id").primaryKey().defaultRandom(),
   parentId: uuid("parent_id").notNull().references(() => parents.id, { onDelete: "cascade" }),

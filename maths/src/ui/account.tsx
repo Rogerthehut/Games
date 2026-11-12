@@ -180,6 +180,8 @@ export function AccountGate() {
   const info: AccountInfoCtx = {
     email: email.current, userId: userId.current, status, notice, signOut,
     exportData: () => api.current!.exportData(),
+    getWeeklyEmail: async () => (await api.current!.getEmailPrefs()).weeklyDigest,
+    setWeeklyEmail: async (on) => (await api.current!.setWeeklyEmail(on)).weeklyDigest,
     billing: billing.current,
     ask: (m, h, y) => api.current!.ask(m, h, y),
     sendFeedback: (f) => api.current!.sendFeedback(f),

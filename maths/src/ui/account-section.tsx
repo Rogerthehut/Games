@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import type { SyncStatus } from "../account/sync";
 import { useAccount } from "./account-context";
 import { useApp } from "./context";
@@ -76,6 +76,30 @@ export function AccountSection() {
             <button class="btn" onClick={() => { setConfirm(false); setTyped(""); }}>Cancel</button>
           </div>
         )}
+    </section>
+  );
+}
+
+/** For the grown-ups' area: the weekly progress email, which is off until the parent turns it on. */
+export function WeeklyEmailSection() {
+  const a = useAccount();
+  const [on, setOn] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  useEffect(() => { let live = true; a?.getWeeklyEmail().then((v) => { if (live) setOn(v); }).catch(() => { if (live) setOn(null); }); return () => { live = false; }; }, []);
+  if (!a) return null;
+  const change = async (next: boolean) => {
+    setBusy(true); setErr("");
+    try { setOn(await a.setWeeklyEmail(next)); } catch { setErr("We couldn't save that just now. Please try again."); }
+    setBusy(false);
+  };
+  return (
+    <section class="card" aria-labelledby="weekly-h" data-testid="weekly-email">
+      <h2 id="weekly-h">Weekly email</h2>
+      <p>A short email each week: how many days your child practised, which topics were tricky and why, and one small thing to try together. It's only sent if they practised that week.</p>
+      <label class="check"><input type="checkbox" checked={!!on} disabled={busy || on === null} onChange={(e) => void change((e.target as HTMLInputElement).checked)} data-testid="weekly-email-toggle" /> Send me the weekly email{a.email ? ` at ${a.email}` : ""}</label>
+      <p class="small muted">Every email has an unsubscribe link. We look up your email address from your sign-in when we send it, and don't keep a copy.</p>
+      {err && <p class="alert-note" role="alert">{err}</p>}
     </section>
   );
 }

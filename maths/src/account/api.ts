@@ -79,6 +79,8 @@ export class AccountApi implements SyncApi {
     if (!res.ok) { const j = (await res.json().catch(() => ({}))) as { error?: string; message?: string }; throw new AccountError(res.status, j.error ?? "error", j.message ?? "Something went wrong.", j); }
     return res.blob();
   }
+  async getEmailPrefs(): Promise<{ weeklyDigest: boolean }> { return (await this.request<{ weeklyDigest: boolean }>("GET", "/api/account/email-prefs")).data; }
+  async setWeeklyEmail(on: boolean): Promise<{ weeklyDigest: boolean }> { return (await this.request<{ weeklyDigest: boolean }>("PUT", "/api/account/email-prefs", { weeklyDigest: on })).data; }
   async exportData(): Promise<unknown> { return (await this.request("GET", "/api/account/export")).data; }
   async deleteAccount() { await this.request("DELETE", "/api/account", { confirm: "delete my account" }); }
 }

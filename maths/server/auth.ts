@@ -6,6 +6,8 @@ export interface AuthProvider {
   authenticate(token: string | null): Promise<{ userId: string } | null>;
   /** Delete the sign-in identity itself (used when a parent deletes their account). Optional. */
   deleteUser?(userId: string): Promise<void>;
+  /** The parent's main email address, looked up when an email is sent. We never keep it ourselves. */
+  emailOf?(userId: string): Promise<string | null>;
 }
 
 /** Clerk. Needs CLERK_SECRET_KEY. The browser sends the session token it gets from Clerk as `Authorization: Bearer ...`. */
@@ -23,6 +25,13 @@ export class ClerkAuth implements AuthProvider {
   async deleteUser(userId: string) {
     await createClerkClient({ secretKey: this.secretKey }).users.deleteUser(userId);
   }
+  async emailOf(userId: string) {
+    try {
+      const user = await createClerkClient({ secretKey: this.secretKey }).users.getUser(userId);
+      const main = user.emailAddresses.find((a) => a.id === user.primaryEmailAddressId) ?? user.emailAddresses[0];
+      return main?.emailAddress ?? null;
+    } catch { return null; }
+  }
 }
 
 /** For tests and local development only. The token is the user id. Never enabled in production. */
@@ -32,4 +41,5 @@ export class FakeAuth implements AuthProvider {
     return token && /^fake_[a-z0-9_]{1,40}$/i.test(token) ? { userId: token } : null;
   }
   async deleteUser(userId: string) { this.deleted.push(userId); }
+  async emailOf(userId: string) { return `${userId}@example.test`; }
 }

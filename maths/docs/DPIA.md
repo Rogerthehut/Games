@@ -16,6 +16,7 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 | Learner: a record of questions got wrong or needed help with (question text, answers typed, date, seed; up to 250, 120 days) | Our database, with the learner | The grown-ups' learning report: which questions, why, how to help. Created from generated maths questions: no free text is stored. Included in the data download and removed when the learner is deleted. |
 | Subscription: Stripe customer id, plan, status, dates | Our database | Control access |
 | Parent email, sign-in method | Clerk | Sign-in |
+| Weekly email choice and unsubscribe token (not the address) | Our database | Send the weekly progress email only to parents who turned it on |
 | Card, billing details, invoices | Stripe | Payment |
 | Feedback form (parent) | Message, topic, optional 1-5 rating, may-reply tick and screen size, linked to the parent account. No email stored (looked up from Clerk only if replying). Deleted with the account; included in the data download. Limited to 5 a day per parent and behind Turnstile | Improve the product, reply to the parent |
 | AI assistant questions (parent) | Not saved anywhere. Sent with the recent chat and the learner's school year (not nickname or account id) to the AI provider for a reply | Parent help |
@@ -25,7 +26,7 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 Up to 8 learners per account. Database held in **Europe (EU)**.
 
 ## Who else handles it
-Clerk (sign-in), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), postcodes.io (council area for the first half of a postcode typed into the 11+ finder; the full postcode is never sent, nothing is stored), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
+Clerk (sign-in), Resend (the optional weekly parent email: address and the email text, only if the parent turns it on), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), postcodes.io (council area for the first half of a postcode typed into the 11+ finder; the full postcode is never sent, nothing is stored), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
 **[CONFIRM]** data processing terms accepted with each, and the transfer safeguard for any processing outside the UK and EU.
 
 ## Lawful basis
