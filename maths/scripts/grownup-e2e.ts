@@ -48,6 +48,9 @@ if (!phone) ok("on a wide screen the sum and PIN open in the left-hand panel", (
 if (phone) ok("on a phone the Parents' row sits on Me, below the tour", (await page.getByTestId("open-parents").count()) === 1);
 await solveSum(); await pin();
 ok("with the sum and PIN, the Parents' area opens", /Parents' area/.test(await page.locator("body").innerText()) && !(await gateUp()));
+await page.keyboard.press("Shift"); // as if a keyboard was just used, which is when browsers draw focus rings
+const boxed = await page.evaluate(() => { const el = document.activeElement as HTMLElement | null; return el ? { tag: el.tagName, outline: getComputedStyle(el).outlineStyle } : null; });
+ok("the heading the app focuses on arrival has no box round it", boxed?.tag === "H1" && boxed.outline === "none", JSON.stringify(boxed));
 
 await page.screenshot({ path: `${process.env.OUT ?? "."}/gu-after-pin.png` });
 // 2a. the Lock and leave button locks it at once and goes back to Me

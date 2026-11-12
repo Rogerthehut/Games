@@ -3256,3 +3256,6 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .gate-embedded .actions { gap: 8px; }
 .gate-embedded .actions .btn { min-height: 44px; padding: .4rem 1rem; }
 .me-tour { margin-bottom: 14px; }
+
+/* A heading focused by the app after moving to a new screen (so a screen reader starts at the top) is not a control: it shouldn't be boxed. */
+[tabindex="-1"]:focus, [tabindex="-1"]:focus-visible { outline: none; }
