@@ -35,7 +35,7 @@ export function Checkup() {
     const item = nextItem(s, rng);
     if (!item) return finish(s);
     const skill = SKILL_BY_ID[item.skillId];
-    setQ(skill.generate(mulberry32((Date.now() + s.n * 7919) & 0x7fffffff), item.level));
+    { const seed = (Date.now() + s.n * 7919) & 0x7fffffff; setQ({ ...skill.generate(mulberry32(seed), item.level), seed }); } // the seed lets a missed question be asked again
     setLevel(item.level);
     setValues([""]);
     setNote("");
