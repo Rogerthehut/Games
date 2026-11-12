@@ -211,6 +211,15 @@ export type Reason = "review" | "focus" | "continue" | "next" | "refresher" | "f
 /** One question in a practice set. With a seed it is asked again exactly as before (a "fix this" retry); otherwise it is made fresh, at `level` if given. */
 export interface Pick { skillId: string; reason: Reason; seed?: number; level?: number }
 
+/**
+ * The furthest school year new topics are offered from on Today and in plans: the learner's own year plus a little, stretched by a strong
+ * check-up result but never more than two years ahead. (A learner can still open any topic from the Skills map themselves.)
+ */
+export function reachYear(p: Profile): number {
+  const theta = p.baselines.length ? p.baselines[p.baselines.length - 1].theta : p.year;
+  return Math.min(p.year + 2, Math.max(p.year + 1, theta + 0.5));
+}
+
 /** Pick up to three skills worth practising right now: due reviews, grown-up focus, then the frontier. */
 export function pickSkills(p: Profile, now: number, rng: Rng, max = 3): Pick[] {
   const scored: { pick: Pick; score: number }[] = [];
@@ -221,7 +230,7 @@ export function pickSkills(p: Profile, now: number, rng: Rng, max = 3): Pick[] {
       scored.push({ pick: { skillId: s.id, reason: "review" }, score: 3 + Math.min(2, (now - st.due) / DAY / 10) + tie });
     } else if (p.focus.includes(s.id) && (st?.box ?? 0) < 5) {
       scored.push({ pick: { skillId: s.id, reason: "focus" }, score: 2.8 + tie });
-    } else if (!st?.assumed && isUnlocked(p, s) && (st?.box ?? 0) < SECURE_BOX) {
+    } else if (!st?.assumed && s.year <= reachYear(p) && isUnlocked(p, s) && (st?.box ?? 0) < SECURE_BOX) {
       const inProgress = !!st && st.seen > 0;
       // Prefer skills at the learner's year group, then easier years.
       const closeness = 1 - Math.min(1, Math.abs(s.year - p.year) / 6);

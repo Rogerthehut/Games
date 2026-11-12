@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Fix: Today no longer offers topics far above the learner's year
+A Year 4 learner was shown "Binomial expansion coefficients" (Year 13). A strong check-up marks many earlier topics as already known, which unlocks later ones, and the picker only *preferred* topics near the learner's year, with no limit. Now new topics on Today, and the study plan, come from at most the learner's year plus two (plus one with no check-up result), whatever the check-up says (`reachYear` in `src/engine/progress.ts`). Reviews, grown-up focus topics and the Skills map are unaffected, so a learner can still choose to go ahead. Test: `progress.test.ts` ("topics offered are close to the learner's year").
+
 ## Times tables: streaks, speed and a weekly winner
 - **My streak and speed** card on the tables page: days in a row (today not yet done doesn't break it), and a 14-day chart of how long right answers took.
 - **Show how quickly I answer** button recolours the grid by recall time (3s or less, up to 6s, slower, not answered yet).

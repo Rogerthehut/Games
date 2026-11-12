@@ -33,7 +33,7 @@ const MOCK_WEEKS_BEFORE_EXAM = 2;
 /** What counts as in scope: for the 11+, primary content; otherwise up to just above the working level. */
 export function inScope(p: Profile, target: PlanTarget, reasoning = false): Skill[] {
   const theta = p.baselines.length ? p.baselines[p.baselines.length - 1].theta : p.year;
-  const ceiling = target === "11plus" ? 6.99 : Math.max(p.year, theta) + 0.5;
+  const ceiling = target === "11plus" ? 6.99 : Math.min(p.year + 2, Math.max(p.year, theta) + 0.5);
   const maths = SKILLS.filter((s) => s.year <= ceiling);
   return reasoning && target === "11plus" ? [...maths, ...REASONING_SKILLS] : maths;
 }

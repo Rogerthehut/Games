@@ -76,3 +76,24 @@ describe("tutor chats kept on the device", () => {
     expect(kept.map((e) => [Math.round((now - e.at) / 86_400_000), e.flag ?? null, !!e.seen])).toEqual([[2, null, false], [35, "wellbeing", false]]);
   });
 });
+
+import { SKILLS } from "../curriculum";
+import { reachYear } from "./progress";
+describe("topics offered are close to the learner's year", () => {
+  const strong = () => {
+    const p = newProfile("Y4", 4, 1000);
+    p.baselines = [{ at: 1, theta: 12.5 } as never];
+    // every topic's prerequisites look secure, as after a very strong check-up
+    // and everything up to Year 7 is already secure, so only far-ahead topics are left on the frontier
+    for (const s of SKILLS) p.skills[s.id] = { box: s.year <= 7 ? 5 : 2, due: 5e12, seen: 0, right: 0, wrong: 0, last: 0 };
+    return p;
+  };
+  it("never reaches more than two years above the learner, however strong the check-up", () => {
+    const p = strong();
+    expect(reachYear(p)).toBe(6);
+    for (let seed = 1; seed < 60; seed++) for (const pick of pickSkills(p, 2000, mulberry32(seed))) expect(SKILL_BY_ID[pick.skillId].year, pick.skillId).toBeLessThanOrEqual(6);
+  });
+  it("stays at the learner's year plus one without a check-up", () => {
+    expect(reachYear(newProfile("Y4", 4))).toBe(5);
+  });
+});
