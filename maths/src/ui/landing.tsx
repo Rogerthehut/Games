@@ -68,6 +68,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
       <header class="l-nav">
         <div class="l-wrap l-nav-in">
           <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
+          <span class="l-beta-tab" role="note">Public beta</span>
           <nav class="l-nav-links" aria-label="On this page">
             <button type="button" onClick={() => jump("what")}>Discover</button>
             <button type="button" onClick={() => jump("how")}>How it works</button>
@@ -86,7 +87,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
         <Scribbles />
         <div class="l-wrap l-hero-grid">
           <div class="l-hero-copy">
-            <p class="l-kicker">Maths and STEM for Years 3 to 13 <span class="l-beta">Public beta</span></p>
+            <p class="l-kicker">Maths and STEM for Years 3 to 13</p>
             <h1 id="hero">Maths practice that starts <em class="l-mark">where your child is</em></h1>
             <p class="l-lead">Short, friendly sessions that follow the National Curriculum for England, from Year 3 up to A-level, with a STEM lab for computing, data and AI. quarter finds the right starting point, explains mistakes clearly, and shows you what’s going well.</p>
             <div class="l-cta">

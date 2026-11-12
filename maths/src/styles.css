@@ -2384,7 +2384,7 @@ html:has(.quarter-search[open]),
 .l-btn-dark { background: var(--l-ink); color: #fff; }
 .l-btn-big { min-height: 56px; padding: 0 28px; font-size: 1.05rem; }
 .l-nav { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--l-cream) 88%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(18,21,34,.08); padding-top: env(safe-area-inset-top, 0px); }
-.l-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 68px; }
+.l-nav-in { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 68px; }
 .l-nav-actions { display: flex; align-items: center; gap: 10px; }
 .l-nav .wordmark { color: var(--l-ink); }
 @media (max-width: 640px) { .l-hide-sm { display: none; } }
@@ -3323,3 +3323,11 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .tip.on { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
 .tip-wrap .icon-btn { -webkit-touch-callout: none; user-select: none; }
+
+/* The "Public beta" lip: hangs from the bottom edge of the header under the wordmark, like a page tab */
+.l-beta-tab { position: absolute; top: 100%; left: calc(clamp(38px, 3.4vw, 52px) + clamp(8px, 1vw, 14px)); z-index: 1; padding: 2px 12px 3px; background: var(--l-cream); border: 1px solid rgba(18,21,34,.08); border-top: 0; border-radius: 0 0 10px 10px; font: 800 .68rem/1.2 "Figtree Variable", system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--l-ink); white-space: nowrap; margin-top: 1px; }
+/* iOS Safari redraws a blurred sticky bar on every toolbar collapse, which looks like it wobbles: keep it opaque and on its own layer on touch screens */
+@media (max-width: 900px), (hover: none) {
+  .l-nav { background: var(--l-cream); -webkit-backdrop-filter: none; backdrop-filter: none; transform: translateZ(0); will-change: transform; }
+}
+.l-nav-actions .l-btn { white-space: nowrap; }

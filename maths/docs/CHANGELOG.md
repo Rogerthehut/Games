@@ -2,6 +2,11 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Landing page header
+- "Public beta" is now a small tab hanging from the header under the wordmark, instead of sitting in the line of text under it (where it collided on a phone).
+- On touch screens the sticky header is opaque and on its own layer, so it no longer shimmers or wobbles as Safari's toolbar collapses while scrolling.
+- The header's Sign in and Create an account buttons no longer wrap onto two lines on a laptop.
+
 ## 11+ finder: per-school table
 Areas can now list the schools we've checked, in a table (School, Entry test, What we found) with a source and date for each. It reads as stacked cards on a phone. Eight schools are in so far (Queen Elizabeth's Barnet, Bournemouth School for Girls, North Halifax Grammar, Crossley Heath, The Blue Coat School, Reading School, Kendrick School, QEGS Penrith), each only where its own page has been read. Other areas keep their links until their school pages are read. `npm run fetch:11plus -- --all` collects pages for every area so more can be added.
 
