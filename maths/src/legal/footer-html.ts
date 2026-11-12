@@ -16,7 +16,7 @@ export function footerHtml(groups: FooterGroup[], link: (href: string, label: st
 </div>
 <div class="footer-bottom">
 <div class="footer-legal"><small>${esc(copyright)}</small><small class="footer-company">${esc(companyLine)}</small></div>
-<div class="footer-meta">${link("blog/rss.xml", "RSS feed")}<small>${esc(designer.credit)} · ${link(designer.href, designer.name)}</small></div>
+<div class="footer-meta">${link("blog/subscribe.html", "Subscribe to the blog")}<small>${esc(designer.credit)} · ${link(designer.href, designer.name)}</small></div>
 </div>
 </footer>`;
 }

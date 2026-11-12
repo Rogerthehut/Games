@@ -29,7 +29,7 @@ describe("search and sharing set-up", () => {
 });
 
 import { existsSync } from "node:fs";
-import { SITE, llmsFull, rssXml, rssXsl, sitePages } from "../scripts/site-pages";
+import { SITE, llmsFull, rssXml, sitePages } from "../scripts/site-pages";
 import { POSTS } from "../src/blog/posts";
 
 describe("the public pages (blog, reading list, what quarter covers)", () => {
@@ -65,8 +65,8 @@ describe("the public pages (blog, reading list, what quarter covers)", () => {
     for (const reader of ["Feedly", "Inoreader", "NewsBlur", "The Old Reader"]) expect(sub).toContain(reader);
     expect(sub).toContain(`value="${SITE}/blog/rss.xml"`);
     expect(sub).toContain("data-copy");
-    expect(rssXml()).toContain('<?xml-stylesheet type="text/xsl" href="rss.xsl"?>');
-    expect(rssXsl()).toContain("blog/subscribe.html");
+    // browsers are dropping XSLT, so the feed is plain XML for readers; people are sent to the subscribe page instead
+    expect(rssXml()).not.toContain("xml-stylesheet");
   });
   it("publish every article in a valid feed", () => {
     const rss = rssXml();

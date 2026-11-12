@@ -143,32 +143,10 @@ ${READERS.map((r) => `<li><a class="row" href="${escapeHtml(r.href)}" target="_b
   });
 }
 
-/** A stylesheet so that opening the feed itself in a browser shows a readable page that points to the subscribe page, not raw XML. */
-export function rssXsl() {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="html" encoding="UTF-8" indent="yes"/>
-<xsl:template match="/rss/channel">
-<html lang="en-GB"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title><xsl:value-of select="title"/> (feed)</title>
-<style>body{font:16px/1.55 system-ui,sans-serif;background:#f8f4e8;color:#1e2038;margin:0}main{max-width:720px;margin:0 auto;padding:32px 20px}h1{font-size:1.8rem;margin:.2em 0}.box{background:#fffdf6;border:1px solid #e4d9bd;border-radius:14px;padding:16px 18px;margin:18px 0}a{color:#1e2038}.btn{display:inline-block;padding:10px 18px;border-radius:999px;border:2px solid #e4d9bd;background:#fff;text-decoration:none;font-weight:700}li{margin:.7em 0}small{color:#5c5f78}</style></head>
-<body><main>
-<p><small>This is a feed: a page for feed readers and apps.</small></p>
-<h1><xsl:value-of select="title"/></h1>
-<p><xsl:value-of select="description"/></p>
-<div class="box"><p><strong>Want new articles delivered to you?</strong> Choose a reader on the subscribe page, or copy this page's address into one.</p><p><a class="btn" href="${SITE}/blog/subscribe.html">Subscribe</a> <a class="btn" href="${SITE}/blog/index.html">Read the blog</a></p></div>
-<h2>Latest articles</h2>
-<ul><xsl:for-each select="item"><li><a href="{link}"><xsl:value-of select="title"/></a><br/><small><xsl:value-of select="pubDate"/> · <xsl:value-of select="description"/></small></li></xsl:for-each></ul>
-</main></body></html>
-</xsl:template>
-</xsl:stylesheet>
-`;
-}
-
 export function rssXml() {
   const sorted = [...POSTS].sort((x, y) => y.date.localeCompare(x.date));
   const x = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="rss.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
 <title>The quarter blog</title>
@@ -296,8 +274,8 @@ export function llmsFull() {
 
 // ------------------------------------------------------------------ the plugin
 export function siteContent(): Plugin {
-  const types: Record<string, string> = { xml: "application/xml; charset=utf-8", xsl: "text/xsl; charset=utf-8", txt: "text/plain; charset=utf-8", html: "text/html; charset=utf-8" };
-  const extras = () => ({ "blog/rss.xml": rssXml(), "blog/rss.xsl": rssXsl(), "sitemap.xml": sitemapXml(), "llms-full.txt": llmsFull() });
+  const types: Record<string, string> = { xml: "application/xml; charset=utf-8", txt: "text/plain; charset=utf-8", html: "text/html; charset=utf-8" };
+  const extras = () => ({ "blog/rss.xml": rssXml(), "sitemap.xml": sitemapXml(), "llms-full.txt": llmsFull() });
   return {
     name: "quarter-site-content",
     configureServer(server) {

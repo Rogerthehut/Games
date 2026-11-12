@@ -45,4 +45,4 @@ The booklet PDF, the learning app and the account pages are deliberately not in 
 
 ## Subscribing to the blog
 
-People are sent to `blog/subscribe.html`, a readable page with reader buttons and a copy box, not to the raw feed. The feed `blog/rss.xml` is for apps; it carries an XSLT (`blog/rss.xsl`) so a browser that opens it shows a readable page. Feed discovery is unchanged: every public page still has the `<link rel="alternate" type="application/rss+xml">` tag, so readers and crawlers find the feed.
+People are sent to `blog/subscribe.html`, a readable page with reader buttons and a copy box, not to the raw feed. The feed `blog/rss.xml` is for apps and is plain XML: it has no XSLT stylesheet, because browsers are removing XSLT support (Chrome shows a warning on pages that use it). Every link meant for a person (the footer, the blog page) goes to the subscribe page. Feed discovery is unchanged: every public page still has the `<link rel="alternate" type="application/rss+xml">` tag, so readers and crawlers find the feed.

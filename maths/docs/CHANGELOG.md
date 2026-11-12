@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## RSS feed without XSLT, and footer credit
+The footer credit now reads "Built with curiosity in mind". The feed (`blog/rss.xml`) no longer carries an XSLT stylesheet, because Chrome is removing XSLT and was already showing a red warning banner on the page. Feed readers don't use it, so nothing changes for them. The footer's feed link now goes to the readable subscribe page ("Subscribe to the blog") rather than the raw feed.
+
 ## Footer redesign
 The page footer on the landing page, the legal pages and every static page (parent guides, FAQs, curriculum, blog, reading list, study guides) now uses its width: the logo, a short line and the email address on the left; three link columns (For parents, Explore, Legal) beside them; and a slim bar underneath with the copyright, company line, RSS feed and credit. Rows sit closer together with a mouse and keep full 44px targets on touch. It switches to a stacked layout based on the footer's own width, so it stays tidy in a narrow column or on a phone. The small cards in the Parents' area and the sign-in screens keep the compact footer. The static pages draw it from `src/legal/footer-html.ts` and the app from `LegalFooter full`, so the two stay the same (`src/legal/footer-html.test.ts`). The screen audit found the small print too small at first (10px) and it's now 13px.
 

@@ -52,7 +52,7 @@ export function LegalFooter({ full }: { full?: boolean }) {
       <div class="footer-bottom">
         <div class="footer-legal"><small>{copyright}</small><small class="footer-company">{companyLine}</small></div>
         <div class="footer-meta">
-          <a class="legal-link" href="blog/rss.xml">RSS feed</a>
+          <a class="legal-link" href="blog/subscribe.html">Subscribe to the blog</a>
           <small>{designer.credit} · <a class="legal-link" href={designer.href} target="_blank" rel="noopener noreferrer">{designer.name}</a></small>
         </div>
       </div>
