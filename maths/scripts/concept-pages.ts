@@ -47,14 +47,16 @@ function shell(opts: { title: string; description: string; path: string; body: s
 ${opts.styles}
 </head>
 <body>
+<div class="site-shell">
 <main class="page legal-page parent-resource concept-static">
 <a class="legal-home" href="./" aria-label="Back to quarter"><img class="cube-mark" src="./icon.svg" alt="">${slash}</a>
 <a class="btn small page-back" href="./" data-back><span aria-hidden="true">←</span> Back</a>
 <p>${link("learn/index.html", "All study guides")}</p>
 <h1>${escapeHtml(opts.title)}</h1>
 ${opts.body}
-${footerHtml(groups, link, BRAND_HTML)}
 </main>
+${footerHtml(groups, link, BRAND_HTML)}
+</div>
 <script src="./back.js" defer></script>
 </body>
 </html>

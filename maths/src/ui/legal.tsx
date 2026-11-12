@@ -72,8 +72,14 @@ export function LegalFooter({ full }: { full?: boolean }) {
   );
 }
 
+/** The footer in its dark band, as the landing page draws it. For pages that stand on their own (legal, sitemap). */
+export function SiteFooter() {
+  return <div class="site-foot"><div class="l-wrap"><LegalFooter full /></div></div>;
+}
+
 export function SitemapScreen() {
   return (
+    <div class="site-shell">
     <main class="page legal-page">
       <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
       <BackLink />
@@ -121,8 +127,9 @@ export function SitemapScreen() {
           </ul>
         </section>
       </nav>
-      <LegalFooter full />
     </main>
+    <SiteFooter />
+    </div>
   );
 }
 
@@ -152,6 +159,7 @@ export function LegalScreen({ page }: { page: LegalPage }) {
     cookies: cookiesSections, terms: termsSections, licences: licencesSections,
   }[page];
   return (
+    <div class="site-shell">
     <main class="page legal-page">
       <a class="legal-home" href="./" aria-label="Back to quarter"><CubeMark /><Wordmark /></a>
       <BackLink />
@@ -167,8 +175,9 @@ export function LegalScreen({ page }: { page: LegalPage }) {
       {page === "terms" && <p><a class="legal-link" href={legalHref("licences")}>Read the third-party licences</a></p>}
       {page === "licences" && <p><a class="legal-link" href="./third-party-licences.txt">Read the full licence notices (plain text)</a></p>}
       {page === "privacy" && <p><a class="legal-link" href={icoComplaints} target="_blank" rel="noopener noreferrer">Make a privacy complaint to the ICO</a></p>}
-      <LegalFooter full />
     </main>
+    <SiteFooter />
+    </div>
   );
 }
 

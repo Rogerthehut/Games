@@ -73,14 +73,16 @@ ${o.published ? `<meta property="article:published_time" content="${o.published}
 ${o.styles}
 </head>
 <body>
+<div class="site-shell">
 <main class="page legal-page parent-resource concept-static">
 <a class="legal-home" href="./" aria-label="Back to quarter"><img class="cube-mark" src="./icon.svg" alt="">${slash}</a>
 <a class="btn small page-back" href="./" data-back><span aria-hidden="true">←</span> Back</a>
 ${o.back ? `<p>${a(o.back.href, o.back.label)}</p>` : ""}
 <h1>${escapeHtml(o.title)}</h1>
 ${o.body}
-${footerHtml(groups, a, BRAND_HTML)}
 </main>
+${footerHtml(groups, a, BRAND_HTML)}
+</div>
 <script src="./back.js" defer></script>
 </body>
 </html>

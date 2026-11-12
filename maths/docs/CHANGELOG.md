@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## One footer look across the site
+The articles, blog posts, guides, FAQs, 11+ pages, curriculum and reading pages, study guides, and the privacy, cookie, terms, licences and sitemap pages now end in the same full-width dark footer band as the landing page, with the same layout (logo, line and email on the left, three link columns, the slim bar underneath). It sits outside the narrow reading column, and the page fills the screen so the band is always at the bottom. The static pages draw it from `src/legal/footer-html.ts` and the app's own pages from `SiteFooter` in `src/ui/legal.tsx`.
+
 ## Trustpilot link, and the Parents' area footer
 - The footer now has a **Leave us a review on Trustpilot** link with a green star, under the email address. It's a plain link to the Trustpilot profile: no Trustpilot script or widget is loaded, so nothing changes in the privacy or cookie wording. (Trustpilot's Free plan doesn't allow its logo or marketing assets, so the star is quarter's own icon, in quarter's colours, and the text is a plain link.)
 - The **Help and information** card in the Parents' area uses the same layout as the marketing footer: logo, one-line description, email and Trustpilot link, three link columns and a slim bar for the copyright, company line, subscribe link and credit. When the card is narrower the brand block collapses to a short row. The first-run screens keep a tidied compact footer.
