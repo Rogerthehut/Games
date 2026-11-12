@@ -23,3 +23,6 @@ if (page) {
 document.getElementById("app")!.textContent = ""; // drop the plain-HTML summary that search engines and no-script visitors see
 const ops = location.pathname === "/ops";
 render(ops ? <OpsPage /> : page === "sitemap" ? <SitemapScreen /> : page ? <LegalScreen page={page} /> : notSetUp ? <NotSetUp /> : accountsOn ? <AccountGate /> : <LazyApp />, document.getElementById("app")!);
+
+// crash reports: only where a Sentry address is set at build time (docs/MONITORING.md), and loaded after the app has started
+if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) void import("./monitoring/sentry").then((m) => m.startMonitoring()).catch(() => {});

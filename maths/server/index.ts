@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { startMonitoring, reportError } from "./monitoring";
 import { mailerFromEnv } from "./mail";
 import { runDigestJob } from "./digest-job";
 import { unsubscribePage } from "./unsubscribe-page";
@@ -26,6 +27,7 @@ import { AnthropicProvider, DEFAULT_CONFIG, OpenRouterProvider, ScriptedProvider
  * The tutor service. It holds the API key, checks everything in both directions, rate limits, and stores nothing:
  * message text exists only for the length of one request and is never logged.
  */
+if (startMonitoring()) console.log("Error reporting is on (Sentry).");
 const PORT = Number(process.env.PORT ?? 8787);
 const ALLOWED = (process.env.TUTOR_ALLOWED_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 const TRUST_PROXY = process.env.TRUST_PROXY === "1";
@@ -197,7 +199,7 @@ createServer(async (req, res) => {
       const token = /^Bearer (.+)$/i.exec(String(req.headers.authorization ?? ""))?.[1] ?? null;
       const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess });
       return send(res, out.status, out.body);
-    } catch (e) { console.error("ops route failed:", (e as Error).name); return send(res, 500, { error: "server-error" }); }
+    } catch (e) { console.error("ops route failed:", (e as Error).name); reportError(e, "ops"); return send(res, 500, { error: "server-error" }); }
   }
 
   if (url.pathname === "/ops" && (req.method === "GET" || req.method === "HEAD") && existsSync(join(DIST, "index.html"))) {
@@ -214,7 +216,7 @@ createServer(async (req, res) => {
     try {
       const out = await handleStripeWebhook(Buffer.concat(chunks), String(req.headers["stripe-signature"] ?? "") || undefined, accounts);
       return send(res, out.status, out.body);
-    } catch (e) { console.error("stripe webhook failed:", (e as Error).name); return send(res, 500, { error: "server-error" }); }
+    } catch (e) { console.error("stripe webhook failed:", (e as Error).name); reportError(e, "stripe-webhook"); return send(res, 500, { error: "server-error" }); }
   }
 
   if (isAccountRoute(url.pathname)) {
@@ -238,7 +240,7 @@ createServer(async (req, res) => {
       res.writeHead(out.status, { "Content-Type": "application/json", "Cache-Control": "no-store", ...out.headers });
       return res.end(JSON.stringify(out.body));
     } catch (e) {
-      console.error("account route failed:", (e as Error).name); // the error's name only: never request data
+      console.error("account route failed:", (e as Error).name); reportError(e, "account"); // the error's name only: never request data
       return send(res, 500, { error: "server-error", message: "Something went wrong. Please try again." });
     }
   }

@@ -75,8 +75,9 @@ export function privacySections(native: boolean): Section[] {
         "Cloudflare provides a quick check (Turnstile) that you are a person, before the AI tutor or assistant can be used. It looks at your browser and connection to tell people from automated scripts. quarter does not use it to track you.",
         "Resend sends the optional weekly progress email, if you turn it on in the Parents’ area. It receives your email address and the text of that email, which includes your child’s nickname and a short summary of their week. It may process them outside the UK. You can turn the email off at any time, and every email has an unsubscribe link.",
         "Clerk provides sign-in. It handles your email address, sign-in method and login sessions, and may process them outside the UK. If you choose Google or Apple, they tell Clerk who you are. They do not receive your learners’ information.",
+        "Sentry receives a short report if quarter crashes, so we can fix it. A report has the type of error and a short message, where in our code it happened, and the browser and device software version, plus the page path without anything after a question mark. It has no names, nicknames, email addresses, answers or anything typed into quarter, and we ask Sentry not to store IP addresses. Reports are stored in Europe (EU) and deleted after 90 days.",
         "The database that holds account information is located in Europe (EU). Our hosting provider delivers the website and runs the database.",
-        "Clerk, Cloudflare and the AI provider used by the optional AI tutor and the assistant may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
+        "Clerk, Cloudflare, Sentry and the AI provider used by the optional AI tutor and the assistant may process information outside the UK and EU. Where that happens, we rely on the safeguards the law allows, such as standard contractual clauses.",
       ],
     }, {
       title: "If a grown-up turns on the AI tutor",
@@ -117,7 +118,7 @@ export const cookiesSections: Section[] = [
   },
   {
     title: "Sign-in",
-    paragraphs: ["Our sign-in provider, Clerk, sets cookies on this site so you stay signed in and to keep the sign-in secure. They are removed when you sign out or they expire."],
+    paragraphs: ["Our sign-in provider, Clerk, sets cookies on this site so you stay signed in and to keep the sign-in secure. They are removed when you sign out or they expire.", "Our crash reporting (Sentry) does not set cookies or save anything in your browser. If quarter crashes, a short report with no personal details is sent so we can fix it."],
   },
   {
     title: "What quarter saves in your browser",
@@ -212,7 +213,7 @@ export const termsSections: Section[] = [
 export const licencesSections: Section[] = [
   {
     title: "Software",
-    paragraphs: ["The quarter web app uses Preact, KaTeX and Clerk’s sign-in libraries under their MIT licences."],
+    paragraphs: ["The quarter web app uses Preact, KaTeX, Sentry’s error reporting library and Clerk’s sign-in libraries under their MIT licences."],
   },
   {
     title: "Fonts",

@@ -28,8 +28,8 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 Up to 8 learners per account. Database held in **Europe (EU)**.
 
 ## Who else handles it
-Clerk (sign-in), Resend (the optional weekly parent email: address and the email text, only if the parent turns it on), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), postcodes.io (council area for the first half of a postcode typed into the 11+ finder; the full postcode is never sent, nothing is stored), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
-**[CONFIRM]** data processing terms accepted with each, and the transfer safeguard for any processing outside the UK and EU.
+Clerk (sign-in), Sentry (crash reports, EU region: error type and short message, code location, browser and operating-system version, and the page path; no user, no query strings, no typed text, no breadcrumbs, no session replay, IP addresses not stored; 90 days), Resend (the optional weekly parent email: address and the email text, only if the parent turns it on), Stripe (payments), Replit (hosting and database), Cloudflare Turnstile (a human check before the AI tutor and assistant), postcodes.io (council area for the first half of a postcode typed into the 11+ finder; the full postcode is never sent, nothing is stored), the AI provider (tutor replies: the chat and maths question only, never the nickname or account id).
+**[CONFIRM]** data processing terms accepted with each (including Sentry, and its "Prevent storing of IP addresses" setting switched on), and the transfer safeguard for any processing outside the UK and EU.
 
 ## Lawful basis
 Contract (the service the parent asked for) and legitimate interests (security). The **AI tutor rests on parental consent**, given by switching it on. Terms and privacy agreement is ticked at sign-up and recorded.

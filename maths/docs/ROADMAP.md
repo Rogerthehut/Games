@@ -129,7 +129,7 @@ Everything that can be built and tested from the code is done. What remains need
 | Teacher and subject review | A maths teacher | Methods and reasons wording in the learning report, the KS2 coverage audit, pathway wording |
 | Solicitor review | A solicitor | Privacy notice, terms, DPIA **[CONFIRM]** items, Resend and Clerk data-processing terms |
 | Real-device checks | A phone and tablet | Safari header scrolling, print, read-aloud voices, Resend emails arriving, the ops sign-in code email |
-| Go-live accounts | You | Stripe and Clerk live keys, Resend domain and scheduler (`docs/EMAIL.md`), `OPS_ADMINS` and `OPS_SESSION_SECRET` (`docs/OPS.md`), Search Console, ICO registration |
+| Go-live accounts | You | Sentry projects in the EU region and the two DSNs (`docs/MONITORING.md`), Stripe and Clerk live keys, Resend domain and scheduler (`docs/EMAIL.md`), `OPS_ADMINS` and `OPS_SESSION_SECRET` (`docs/OPS.md`), Search Console, ICO registration |
 | Yearly upkeep | Autumn | Re-check the 11+ test dates and providers (`npm run fetch:11plus -- --all`), then update `src/parents/admissions.json` |
 
 ## Teaching and writing standards
