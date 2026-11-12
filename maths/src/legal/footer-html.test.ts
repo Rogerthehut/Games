@@ -16,6 +16,7 @@ describe("the page footer", () => {
     expect(html).toContain("footer-top"); expect(html).toContain("footer-bottom");
     expect(html).toContain(footerTagline);
     expect(html).toContain(`mailto:${contactEmail}`);
+    expect(html).toContain("https://uk.trustpilot.com/review/yourquarter.co.uk");
     expect(html).toContain("blog/subscribe.html"); expect(html).not.toContain("rss.xml");
     expect(html).toContain('class="wordmark"');
   });

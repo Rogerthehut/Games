@@ -8,6 +8,11 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Trustpilot link, and the Parents' area footer
+- The footer now has a **Review quarter on Trustpilot** link with a green star, under the email address. It's a plain link to the Trustpilot profile: no Trustpilot script or widget is loaded, so nothing changes in the privacy or cookie wording. (The star is our own drawing in Trustpilot's green. If you'd rather use Trustpilot's official logo, download it from their brand assets and I'll drop it in.)
+- The **Help and information** card in the Parents' area uses the same layout as the marketing footer: logo, one-line description, email and Trustpilot link, three link columns and a slim bar for the copyright, company line, subscribe link and credit. When the card is narrower the brand block collapses to a short row. The first-run screens keep a tidied compact footer.
+- Small-print links get full 44px tap targets on touch screens and sit tight on a mouse.
+
 ## RSS feed without XSLT, and footer credit
 The footer credit now reads "Built with curiosity in mind". The feed (`blog/rss.xml`) no longer carries an XSLT stylesheet, because Chrome is removing XSLT and was already showing a red warning banner on the page. Feed readers don't use it, so nothing changes for them. The footer's feed link now goes to the readable subscribe page ("Subscribe to the blog") rather than the raw feed.
 

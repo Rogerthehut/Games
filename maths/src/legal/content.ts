@@ -22,6 +22,8 @@ export type LegalPage = keyof typeof legalTitles;
 export const legalPages = Object.keys(legalTitles) as LegalPage[];
 export type FooterGroup = { heading: string; links: { label: string; href: string }[] };
 /** Footer link groups, shared by the app and the generated parent pages. */
+/** Where people can review quarter. It is a plain link: nothing from Trustpilot is loaded on our pages. */
+export const trustpilot = { label: "Review quarter on Trustpilot", href: "https://uk.trustpilot.com/review/yourquarter.co.uk" } as const;
 /** Said under the wordmark in the page footer. */
 export const footerTagline = "Maths and STEM practice for Years 3 to 13, starting where your child is.";
 export function footerGroups(parents: { hub: { path: string; title: string }; faq: { path: string } }): FooterGroup[] {

@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { companyLine, contactEmail, cookiesSections, copyright, footerGroups, footerTagline, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
+import { companyLine, contactEmail, cookiesSections, copyright, footerGroups, footerTagline, trustpilot, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
 import { Icon } from "./icons";
 import { primaryNav, tabHref } from "./navigation";
@@ -46,6 +46,7 @@ export function LegalFooter({ full }: { full?: boolean }) {
           <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
           <p class="footer-tagline">{footerTagline}</p>
           <p class="footer-contact"><a class="legal-link" href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+          <p class="footer-review"><a class="legal-link" href={trustpilot.href} target="_blank" rel="noopener noreferrer"><svg class="footer-star" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z" fill="#00b67a" /></svg><span>{trustpilot.label}</span></a></p>
         </div>
         {groups}
       </div>

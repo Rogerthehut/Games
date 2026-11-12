@@ -263,7 +263,7 @@ export function Parent() {
 
           <section class="card" aria-labelledby="help-info">
             <h2 id="help-info">Help and information</h2>
-            <LegalFooter />
+            <LegalFooter full />
           </section>
 
           <section class="card">
