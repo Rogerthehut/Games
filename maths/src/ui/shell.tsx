@@ -11,13 +11,8 @@ import { SearchDialog } from "./search";
 
 import { CubeMark, Wordmark } from "./wordmark";
 import { BrowserStorageNotice } from "./legal";
-
-function ProfileHi() {
-  return <svg class="profile-hi" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
-    <path d="M2 11C7 7 12 1 9 1.5 6.5 1.7 4.2 11 3.5 16c3-5 5.8-7.5 7.1-6.8 1.2.6-1.9 5.1-.3 5.8 1.2.5 3.5-1.4 5.4-4.5m1.6-2.4c-1.1 2.1-3.7 6.1-2 6.7 1.3.5 3.6-1.3 6.3-4.1" />
-    <circle cx="19" cy="4.4" r="1.1" />
-  </svg>;
-}
+import { ProfileHi } from "./profile-hi";
+import { RailSwitcher } from "./rail-switcher";
 
 /** Bottom tab bar on phones and tablets, side rail on wide screens. */
 export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren }) {
@@ -89,10 +84,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
         {wide && (tab === "today"
           ? <><TablesNote variant="rail" /><StemNote variant="rail" /></>
           : <div class="note-minis" aria-label="Quick links"><TablesNote variant="mini" /><StemNote variant="mini" /></div>)}
-        <button class="rail-me" aria-current={tab === "me" ? "page" : undefined} onClick={() => go({ name: "me" })} aria-label={`${profile.name}, open Me`}>
-          <Avatar choice={profile.avatar} year={profile.year} size={36} />
-          <span><ProfileHi /><strong>{profile.name}</strong><small>Year {profile.year}</small></span>
-        </button>
+        <RailSwitcher tab={tab} />
         <RailParents tab={tab} />
       </aside>
       <header class="mobile-wordmark">

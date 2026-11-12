@@ -119,7 +119,7 @@ details[open] > summary::before { transform: rotate(90deg); }
   .rail .nav-item .icon { padding: 0; color: var(--muted); }
   .rail .nav-item.on { background: var(--accent-soft); color: var(--accent); } .rail .nav-item.on .icon { background: none; color: var(--accent); }
   .rail .nav-item:hover:not(.on) { background: color-mix(in srgb, var(--line) 50%, transparent); }
-  .rail-me { margin-top: auto; display: flex; align-items: center; gap: 12px; border: 0; background: none; padding: 10px 12px; border-radius: var(--r-md); cursor: pointer; text-align: left; }
+  .rail-me { display: flex; align-items: center; gap: 12px; border: 0; background: none; padding: 10px 12px; border-radius: var(--r-md); cursor: pointer; text-align: left; }
   .rail-me[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
   .rail-me:hover { background: color-mix(in srgb, var(--line) 50%, transparent); }
   .rail-me span { display: flex; flex-direction: column; line-height: 1.2; } .rail-me small { color: var(--muted); }
@@ -3482,3 +3482,17 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 
 .table-figure table.dense th, .table-figure table.dense td { padding: 6px 7px; font-size: .95rem; }
 .table-figure td.blank { border-color: transparent; background: transparent; }
+
+/* the learner switcher in the left-hand panel */
+.rail-switch { position: relative; margin-top: auto; }
+.rail-switch > .rail-me { margin-top: 0; width: 100%; }
+.rail-me-caret { margin-left: auto; color: var(--muted); transform: rotate(-90deg); transition: transform .15s; flex: none; }
+.rail-me-caret.up { transform: rotate(90deg); }
+.rail-switch-list { list-style: none; margin: 0; padding: 6px; position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 30; display: grid; gap: 2px; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-md); box-shadow: 0 12px 28px -12px rgba(18,21,34,.35); }
+.rail-switch-row { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; min-height: 44px; }
+.rail-switch-row:hover { background: color-mix(in srgb, var(--line) 45%, transparent); }
+.rail-switch-row.current { background: var(--accent-soft); }
+.rail-switch-label { display: flex; flex-direction: column; line-height: 1.2; flex: 1; min-width: 0; }
+.rail-switch-row small { color: var(--muted); }
+.rail-switch-row.plain { color: var(--muted); }
+.rail-switch-row.plain .rail-switch-label { flex-direction: row; }

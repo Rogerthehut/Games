@@ -22,7 +22,8 @@ const p = await ctx.newPage(); p.setDefaultTimeout(9000);
 await p.goto(base); await p.waitForTimeout(1000);
 await p.getByRole("button", { name: /^Continue/ }).click({ timeout: 1500 }).catch(() => {});
 await p.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
-const openMe = async () => { await p.getByRole("button", { name: /open Me/ }).first().click(); await p.waitForTimeout(500); };
+const openMeVia = async (pg: any) => { const rail = pg.getByTestId("rail-me"); if (await rail.isVisible().catch(() => false)) { await rail.click(); await pg.getByTestId("rail-open-me").click(); } else await pg.getByRole("button", { name: /(?:open Me|switch learner)/ }).first().click(); await pg.waitForTimeout(500); };
+const openMe = () => openMeVia(p);
 const type = async (digits: string) => { await p.waitForTimeout(250); await p.keyboard.type(digits, { delay: 50 }); await p.waitForTimeout(150); };
 const clear4 = async () => { for (let i = 0; i < 4; i++) { await p.keyboard.press("Backspace"); await p.waitForTimeout(80); } };
 const parentGate = async () => { // the sum, then the parent's PIN (made the first time, typed twice)
@@ -53,7 +54,7 @@ ok("switching to Sam asks for his PIN", (await p.getByTestId("kid-pin-gate").cou
 await type("9999"); await p.keyboard.press("Enter"); await p.waitForTimeout(500);
 ok("a wrong PIN is refused with tries left", /isn't right/.test(await p.getByTestId("kid-pin-note").innerText()) && (await p.getByTestId("kid-pin-gate").count()) === 1);
 await type(SAM); await p.keyboard.press("Enter"); await p.waitForTimeout(700);
-ok("the right PIN opens Sam's profile", (await p.getByRole("button", { name: /Sam, open Me/ }).count()) > 0 && (await p.getByTestId("kid-pin-gate").count()) === 0);
+ok("the right PIN opens Sam's profile", (await p.getByRole("button", { name: /Sam, (?:open Me|switch learner)/ }).count()) > 0 && (await p.getByTestId("kid-pin-gate").count()) === 0);
 
 // Sam, allowed by a grown-up, changes his own PIN
 await openMe();
@@ -70,13 +71,13 @@ await clear4();
 await p.getByTestId("kid-pin-forgot").click(); await p.getByTestId("kid-pin-grownup").click(); await p.waitForTimeout(400); await parentGate();
 ok("after the grown-up check there's a choice", (await p.getByTestId("kid-pin-clear").count()) === 1);
 await p.getByTestId("kid-pin-open-anyway").click(); await p.waitForTimeout(600);
-ok("opening anyway shows Sam's profile", (await p.getByRole("button", { name: /Sam, open Me/ }).count()) > 0);
+ok("opening anyway shows Sam's profile", (await p.getByRole("button", { name: /Sam, (?:open Me|switch learner)/ }).count()) > 0);
 await switchTo(/Maya/); await p.waitForTimeout(300);
 await openMe(); await p.getByRole("button", { name: /Sam/ }).first().click(); await p.waitForTimeout(400);
 ok("and the PIN is still there afterwards", (await p.getByTestId("kid-pin-gate").count()) === 1);
 await p.getByTestId("kid-pin-forgot").click(); await p.getByTestId("kid-pin-grownup").click(); await p.waitForTimeout(400); await parentGate();
 await p.getByTestId("kid-pin-clear").click(); await p.waitForTimeout(600);
 await switchTo(/Maya/); await openMe(); await p.getByRole("button", { name: /Sam/ }).first().click(); await p.waitForTimeout(500);
-ok("once cleared, switching to Sam no longer asks", (await p.getByTestId("kid-pin-gate").count()) === 0 && (await p.getByRole("button", { name: /Sam, open Me/ }).count()) > 0);
+ok("once cleared, switching to Sam no longer asks", (await p.getByTestId("kid-pin-gate").count()) === 0 && (await p.getByRole("button", { name: /Sam, (?:open Me|switch learner)/ }).count()) > 0);
 await b.close();
 process.exit(failed ? 1 : 0);

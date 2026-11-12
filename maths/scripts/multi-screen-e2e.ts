@@ -33,11 +33,12 @@ const tick = async (p: any, n: string) => { // work on a times table: this saves
 };
 const stored = (p: any) => p.evaluate(() => JSON.parse(localStorage.getItem("mathpath.v1")!));
 
+const openMeVia = async (pg: any) => { const rail = pg.getByTestId("rail-me"); if (await rail.isVisible().catch(() => false)) { await rail.click(); await pg.getByTestId("rail-open-me").click(); } else await pg.getByRole("button", { name: /(?:open Me|switch learner)/ }).first().click(); await pg.waitForTimeout(500); };
 const A = await open();
 const B = await open();
-await B.getByRole("button", { name: /open Me/ }).first().click(); await B.waitForTimeout(500);
+await openMeVia(B);
 await B.getByRole("button", { name: /Sam/ }).first().click(); await B.waitForTimeout(600);
-await A.getByRole("button", { name: /open Me/ }).first().click(); await A.waitForTimeout(500);
+await openMeVia(A);
 ok("screen A shows the first child", /Maya/.test(await A.locator("body").innerText()));
 ok("screen B shows the second child", /Sam/.test(await B.locator("body").innerText()));
 
@@ -49,6 +50,6 @@ const active = (id: string) => s.profiles.find((p: any) => p.id === id)?.tables?
 // Year 5 starts with every table switched on, so a change shows up as one table missing
 ok("the first child's change from screen A was kept (12× switched off)", Array.isArray(active(store.profiles[0].id)) && !active(store.profiles[0].id)!.includes(12), JSON.stringify(active(store.profiles[0].id)));
 ok("the second child's change from screen B was kept (11× switched off)", Array.isArray(active("sam-id")) && !active("sam-id")!.includes(11), JSON.stringify(active("sam-id")));
-ok("after a reload, screen A still shows the first child and B the second", (await A.getByRole("button", { name: /Maya, open Me/ }).count()) > 0 && (await B.getByRole("button", { name: /Sam, open Me/ }).count()) > 0);
+ok("after a reload, screen A still shows the first child and B the second", (await A.getByRole("button", { name: /Maya, (?:open Me|switch learner)/ }).count()) > 0 && (await B.getByRole("button", { name: /Sam, (?:open Me|switch learner)/ }).count()) > 0);
 await b.close();
 process.exit(failed ? 1 : 0);
