@@ -3189,3 +3189,26 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 .guide-block ul, .guide-block ol { padding-left: 1.3rem; display: grid; gap: .4rem; margin: .5rem 0 .8rem; }
 .guide-block p { margin: .5rem 0; }
 .parent-head .lock-parents { margin-left: auto; white-space: nowrap; }
+
+/* user guides: icons, step badges, sticky-note tips, and printing */
+.guide-block summary { display: flex; align-items: center; gap: 10px; list-style: none; }
+.guide-block summary::-webkit-details-marker { display: none; }
+.guide-block summary::after { content: "+"; margin-left: auto; font: 800 1.3rem/1 var(--font-display); color: var(--muted); }
+.guide-block[open] summary::after { content: "−"; }
+.guide-icon { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; background: color-mix(in srgb, var(--tone, #c1c5ee) 70%, var(--surface)); border: 1px solid color-mix(in srgb, var(--tone, #c1c5ee) 80%, var(--ink) 20%); color: #18192b; }
+.guide-block.tone-yellow { --tone: #f6e0a0; } .guide-block.tone-mint { --tone: #84d8ba; } .guide-block.tone-rose { --tone: #f6a0bc; } .guide-block.tone-peri { --tone: #c1c5ee; }
+.guide-steps { list-style: none; padding: 0; counter-reset: step; display: grid; gap: .6rem; }
+.guide-steps li { counter-increment: step; display: grid; grid-template-columns: 2rem 1fr; gap: 10px; align-items: start; }
+.guide-steps li::before { content: counter(step); display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--tone, #c1c5ee); color: #18192b; font: 800 1rem/1 var(--font-display); border: 1.5px solid color-mix(in srgb, var(--tone, #c1c5ee) 60%, #18192b); }
+.guide-tips { list-style: none; padding: 0; display: grid; gap: .55rem; }
+.guide-tips li { padding: 10px 12px; border-radius: 6px 6px 14px 6px; background: color-mix(in srgb, var(--tone, #f6e0a0) 38%, var(--surface)); border: 1px solid color-mix(in srgb, var(--tone, #f6e0a0) 60%, transparent); box-shadow: 0 2px 0 color-mix(in srgb, var(--tone, #f6e0a0) 55%, transparent); }
+.guide-actions { display: flex; justify-content: flex-end; margin: 4px 0 2px; }
+@media print {
+  body.printing-guide * { visibility: hidden; }
+  body.printing-guide .guides, body.printing-guide .guides * { visibility: visible; }
+  body.printing-guide .guides { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: 0; background: #fff; }
+  body.printing-guide .guide-actions, body.printing-guide .guides .seg { display: none; }
+  body.printing-guide .guide-block { break-inside: avoid; }
+  body.printing-guide .guide-block summary::after { content: ""; }
+}
+.guide-block summary::marker { content: ""; font-size: 0; }

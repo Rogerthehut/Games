@@ -11,6 +11,7 @@ export type Route =
   | { name: "stem" }
   | { name: "booklet" }
   | { name: "tour" }
+  | { name: "child-guide" }
   | { name: "concept"; id: string }
   | { name: "time-lesson" }
   | { name: "angles-lesson" }

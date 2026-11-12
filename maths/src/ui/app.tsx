@@ -8,6 +8,7 @@ import { Home } from "./home";
 import { SkillMap } from "./skillmap";
 import { FractionsLesson } from "./fractions-lesson";
 import { SkillLesson } from "./skill-lesson";
+import { ChildGuidePage } from "./guides";
 import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
@@ -159,6 +160,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   // a brand-new learner is offered a short tour once; it can also be replayed from Me
   const tourDue = route.name === "home" && !profile.toured && profile.sessions.length === 0 && profile.baselines.length === 0;
   if (tourDue) return <Ctx.Provider value={ctx}><Tour name={profile.name} onDone={() => ctx.update((p) => ({ ...p, toured: true }))} /></Ctx.Provider>;
+  if (route.name === "child-guide") return <Ctx.Provider value={ctx}><Shell tab="me"><ChildGuidePage onBack={() => setRoute({ name: "me" })} /></Shell></Ctx.Provider>;
   if (route.name === "tour") return <Ctx.Provider value={ctx}><Tour name={profile.name} onDone={() => { ctx.update((p) => ({ ...p, toured: true })); ctx.go({ name: "me" }); }} /></Ctx.Provider>;
   if (route.name === "mock")
     return <Ctx.Provider value={ctx}><Mock /></Ctx.Provider>;

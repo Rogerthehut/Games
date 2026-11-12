@@ -19,6 +19,7 @@
     "e2e:refresher": "tsx scripts/refresher-e2e.ts",
     "e2e:instruments": "tsx scripts/instruments-e2e.ts",
     "e2e:tools": "tsx scripts/tools-e2e.ts",
+    "e2e:guides": "tsx scripts/guides-e2e.ts",
     "e2e:grownup": "tsx scripts/grownup-e2e.ts",
     "ops:stats": "tsx scripts/ops.ts stats",
     "ops:feedback": "tsx scripts/ops.ts feedback",
