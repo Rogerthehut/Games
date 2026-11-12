@@ -40,6 +40,17 @@ try {
   await boss.getByTestId("ops-tab-numbers").click(); await boss.getByTestId("ops-numbers").waitFor();
   await boss.getByTestId("ops-tab-audit").click(); await boss.waitForTimeout(600);
   ok("the audit log lists the reply", /feedback-reply/.test(await boss.locator("body").innerText()));
+  // deleting an account for someone who can't sign in
+  await boss.getByTestId("ops-tab-account").click();
+  await boss.locator("input[type=email]").fill("fake_maya@example.test"); await boss.getByRole("button", { name: "Look up" }).click(); await boss.getByTestId("ops-delete").waitFor();
+  ok("the lookup shows a delete section, with the button off until the phrase is typed", await boss.getByTestId("ops-delete-go").isDisabled());
+  await boss.getByTestId("ops-delete-confirm").fill("delete wrong@example.test");
+  ok("a wrong phrase leaves it off", await boss.getByTestId("ops-delete-go").isDisabled());
+  await boss.getByTestId("ops-delete-confirm").fill("delete fake_maya@example.test");
+  await boss.getByTestId("ops-delete-go").click(); await boss.waitForTimeout(900);
+  ok("the account is deleted and the parent emailed", /has been deleted/.test(await boss.getByTestId("ops-msg").innerText()) && /Your quarter account has been deleted/.test(log));
+  await boss.locator("input[type=email]").fill("fake_maya@example.test"); await boss.getByRole("button", { name: "Look up" }).click(); await boss.waitForTimeout(600);
+  ok("looking it up again finds nothing", /No quarter account/.test(await boss.getByTestId("ops-msg").innerText()));
   await b.close();
 } catch (e) { console.error(e); failed++; } finally { for (const c of [server, app]) { try { process.kill(-c.pid); } catch {} } }
 process.exit(failed ? 1 : 0);

@@ -198,7 +198,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
       let body: unknown;
       if (req.method === "POST") { try { body = await readBody(req, 8192); } catch { return send(res, 400, { error: "bad-request" }); } }
       const token = /^Bearer (.+)$/i.exec(String(req.headers.authorization ?? ""))?.[1] ?? null;
-      const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess });
+      const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess, repo: accounts.repo, billing: accounts.billing });
       return send(res, out.status, out.body);
     } catch (e) { console.error("ops route failed:", (e as Error).name); reportError(e, "ops"); return send(res, 500, { error: "server-error" }); }
   }

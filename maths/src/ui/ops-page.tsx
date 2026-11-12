@@ -161,17 +161,41 @@ function Numbers({ call }: { call: Call }) {
 
 function Lookup({ call }: { call: Call }) {
   const [email, setEmail] = useState("");
-  const [out, setOut] = useState<string>("");
+  const [found, setFound] = useState<{ email: string; account: Record<string, any> } | null>(null);
+  const [msg, setMsg] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
   const go = async (e: Event) => {
-    e.preventDefault();
+    e.preventDefault(); setMsg(""); setFound(null); setConfirm("");
     const r = await call<{ account: Record<string, any> | null }>("GET", `/api/ops/account?email=${encodeURIComponent(email)}`);
-    setOut(!r.ok ? r.data.message ?? "Couldn't look that up." : !r.data.account ? "No quarter account for that address." : JSON.stringify(r.data.account, null, 2));
+    if (!r.ok) setMsg(r.data.message ?? "Couldn't look that up.");
+    else if (!r.data.account) setMsg("No quarter account for that address.");
+    else setFound({ email: email.trim().toLowerCase(), account: r.data.account });
   };
+  const phrase = found ? `delete ${found.email}` : "";
+  const remove = async () => {
+    if (!found || confirm !== phrase) return;
+    setBusy(true);
+    const r = await call("POST", "/api/ops/account/delete", { email: found.email, confirm });
+    setBusy(false);
+    if (r.ok) { setFound(null); setConfirm(""); setMsg("That account and everything under it has been deleted, and the parent has been emailed."); }
+    else setMsg(r.data.message ?? "It couldn't be deleted.");
+  };
+  const a = found?.account;
   return (
     <section class="card"><h2>Account lookup</h2>
       <form onSubmit={go}><input type="email" value={email} onInput={(e) => setEmail((e.target as HTMLInputElement).value)} aria-label="Parent's email address" /> <button class="btn primary">Look up</button></form>
       <p class="small muted">Shows account facts only: never a child's name, answers or progress. Each lookup is written to the audit log.</p>
-      {out && <pre data-testid="ops-account" style="white-space:pre-wrap">{out}</pre>}
+      {msg && <p role="status" data-testid="ops-msg">{msg}</p>}
+      {a && <>
+        <pre data-testid="ops-account" style="white-space:pre-wrap">{JSON.stringify(a, null, 2)}</pre>
+        <div class="card" style="border:2px solid #b3261e;margin-top:12px" data-testid="ops-delete">
+          <h3>Delete this account</h3>
+          <p>This permanently deletes the parent's account, their learners' progress, their feedback and their subscription, and removes their sign-in. It can't be undone. Use it when they've asked and can't do it themselves in the Parents' area.</p>
+          <label>To confirm, type <b>{phrase}</b><br /><input style="width:100%" value={confirm} onInput={(e) => setConfirm((e.target as HTMLInputElement).value)} autoComplete="off" spellcheck={false} data-testid="ops-delete-confirm" /></label>
+          <p><button class="btn" style="border-color:#b3261e;color:#b3261e" disabled={busy || confirm !== phrase} onClick={remove} data-testid="ops-delete-go">Delete this account for good</button></p>
+        </div>
+      </>}
     </section>
   );
 }

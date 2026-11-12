@@ -1,5 +1,7 @@
 import type { AuthProvider } from "./auth";
 import type { Db } from "./db";
+import type { Repo } from "./db/repo";
+import type { Gateway } from "./billing";
 import type { Mailer } from "./mail";
 import { OpsAccess, actorOf } from "./ops-access";
 import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
@@ -8,7 +10,7 @@ import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList
  * The team's ops page API (/api/ops/...). Every route needs the parent sign-in AND the allow-list AND the emailed code (see ops-access.ts).
  * Anyone else gets the same plain "not found", so the page doesn't announce itself. Every view and every reply is written to the audit log.
  */
-export interface OpsDeps { db: Db; auth: AuthProvider; mailer: Mailer; access: OpsAccess; appUrl?: string }
+export interface OpsDeps { db: Db; auth: AuthProvider; mailer: Mailer; access: OpsAccess; appUrl?: string; repo?: Repo; billing?: Gateway }
 export interface OpsRequest { method: string; path: string; query: URLSearchParams; token: string | null; session?: string; body?: unknown }
 export interface OpsResponse { status: number; body: unknown }
 
@@ -80,6 +82,28 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     const account = id ? await accountByClerkId(d.db, id) : null;
     await audit(d.db, actor, "account", account?.parentId ?? "not-found");
     return ok({ account });
+  }
+
+  // Deleting an account for someone who can't sign in to do it themselves. The same steps as the parent's own button: cancel the subscription
+  // first (and stop if that fails, so nobody is billed for something deleted), then the data, then the sign-in identity. Typed confirmation, audit-logged.
+  if (req.path === "/api/ops/account/delete" && req.method === "POST") {
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    if (!/^[^\s@]{1,64}@[^\s@]{1,255}$/.test(email)) return bad("Enter the parent's email address.");
+    if (body.confirm !== `delete ${email}`) return bad(`To confirm, type exactly: delete ${email}`);
+    if (!d.repo) return { status: 503, body: { error: "unavailable", message: "Deleting isn't available on this server." } };
+    const id = await d.auth.idByEmail?.(email);
+    const account = id ? await accountByClerkId(d.db, id) : null;
+    if (!id || !account) { await audit(d.db, actor, "account-delete-miss", "not-found"); return { status: 404, body: { error: "not-found", message: "No quarter account for that address." } }; }
+    const stripeId = account.subscription?.stripeCustomerId;
+    if (stripeId && d.billing) {
+      try { await d.billing.deleteCustomer(stripeId); } catch { return { status: 502, body: { error: "billing-error", message: "The subscription couldn't be cancelled, so nothing was deleted. Try again." } }; }
+    }
+    await audit(d.db, actor, "account-delete", account.parentId);   // written first: the record has to outlive the account
+    await d.repo.deleteParent(account.parentId);
+    await d.auth.deleteUser?.(id).catch(() => undefined);
+    // best effort: tell them it has been done
+    await d.mailer.send({ to: email, subject: "Your quarter account has been deleted", text: "As you asked, your quarter account and everything saved under it has been deleted. If you didn't ask for this, please reply to this email straight away.\n\nquarter", html: "<p style=\"font:16px/1.5 system-ui,sans-serif\">As you asked, your quarter account and everything saved under it has been deleted.</p><p style=\"font:14px/1.5 system-ui,sans-serif;color:#555\">If you didn't ask for this, please reply to this email straight away.</p>" }).catch(() => undefined);
+    return ok({ deleted: true });
   }
 
   if (req.path === "/api/ops/audit" && req.method === "GET") return ok({ items: await auditLog(d.db, 100) });

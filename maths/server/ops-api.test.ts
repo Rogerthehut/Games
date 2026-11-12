@@ -5,7 +5,7 @@ import { makeRepo, type Repo } from "./db/repo";
 import { FakeMailer } from "./mail";
 import { OpsAccess, parseAdmins } from "./ops-access";
 import { handleOpsApi, type OpsDeps } from "./ops-api";
-import { auditLog } from "./ops";
+import { accountByClerkId, auditLog } from "./ops";
 
 let db: Db, repo: Repo, mailer: FakeMailer, access: OpsAccess, deps: OpsDeps, clock = 1_000_000;
 const SECRET = "x".repeat(32);
@@ -91,6 +91,48 @@ describe("the inbox", () => {
     mailer.failNext = true;
     expect((await call("POST", "/api/ops/feedback/reply", "fake_boss", { session, body: { id, message: "Thanks a lot" } })).status).toBe(502);
     expect(((await call("GET", "/api/ops/feedback", "fake_boss", { session })).body as { items: { replies: unknown[] }[] }).items[0].replies).toHaveLength(0);
+  });
+});
+
+describe("deleting an account for someone who can't sign in", () => {
+  const del = (session: string, email: string, confirm: string) => call("POST", "/api/ops/account/delete", "fake_boss", { session, body: { email, confirm } });
+  const withRepo = () => { deps = { ...deps, repo, billing: gateway }; };
+  const gateway = { deleted: [] as string[], fail: false, deleteCustomer: async function (this: { deleted: string[]; fail: boolean }, id: string) { if (gateway.fail) throw new Error("stripe down"); gateway.deleted.push(id); } } as never as import("./billing").Gateway & { deleted: string[]; fail: boolean };
+  beforeEach(() => { (gateway as { deleted: string[] }).deleted.length = 0; (gateway as { fail: boolean }).fail = false; });
+
+  it("needs the exact typed confirmation, and deletes nothing without it", async () => {
+    withRepo(); const p = await repo.upsertParent("fake_maya"); const session = await signIn();
+    expect((await del(session, "fake_maya@example.test", "yes")).status).toBe(400);
+    expect((await del(session, "fake_maya@example.test", "delete someone@else.test")).status).toBe(400);
+    expect(await accountByClerkId(db, "fake_maya")).not.toBeNull();
+    expect(p.id).toBeTruthy();
+  });
+  it("deletes the data, the sign-in identity and the subscription, writes the audit entry first, and tells the parent", async () => {
+    withRepo(); const p = await repo.upsertParent("fake_maya"); await repo.setCustomer(p.id, "cus_123");
+    await repo.addFeedback(p.id, { category: "idea", rating: null, message: "A note", mayReply: true, context: null });
+    const session = await signIn(); const before = mailer.sent.length;
+    const r = await del(session, "fake_maya@example.test", "delete fake_maya@example.test");
+    expect(r.status).toBe(200);
+    expect(await accountByClerkId(db, "fake_maya")).toBeNull();
+    expect((deps.auth as FakeAuth).deleted).toContain("fake_maya");
+    expect((gateway as unknown as { deleted: string[] }).deleted).toEqual(["cus_123"]);
+    expect(mailer.sent.length).toBe(before + 1); expect(mailer.sent.at(-1)).toMatchObject({ to: "fake_maya@example.test", subject: "Your quarter account has been deleted" });
+    const log = await auditLog(db);
+    expect(log.some((l) => l.action === "account-delete" && l.target === p.id)).toBe(true);
+    expect(JSON.stringify(log)).not.toContain("example.test");   // the log never holds an address
+  });
+  it("stops, and keeps the account, if the subscription can't be cancelled", async () => {
+    withRepo(); const p = await repo.upsertParent("fake_maya"); await repo.setCustomer(p.id, "cus_999");
+    (gateway as unknown as { fail: boolean }).fail = true; const session = await signIn();
+    const r = await del(session, "fake_maya@example.test", "delete fake_maya@example.test");
+    expect(r.status).toBe(502);
+    expect(await accountByClerkId(db, "fake_maya")).not.toBeNull();
+    expect((deps.auth as FakeAuth).deleted).not.toContain("fake_maya");
+  });
+  it("is closed to anyone without the ops session, and says so plainly for an address with no account", async () => {
+    withRepo(); expect((await del("not-a-session", "fake_maya@example.test", "delete fake_maya@example.test")).status).toBe(404);
+    const session = await signIn();
+    expect((await del(session, "fake_nobody@example.test", "delete fake_nobody@example.test")).status).toBe(404);
   });
 });
 

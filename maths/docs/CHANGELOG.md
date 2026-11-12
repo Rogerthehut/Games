@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Ops page: delete an account
+The ops page can now delete an account for a parent who can't sign in. Look them up by email, type `delete <their email>` to confirm, and it cancels the subscription (stopping if that fails), deletes the account and everything under it, removes their sign-in and emails them. It's audit-logged without the address. Tests: `server/ops-api.test.ts` and `npm run e2e:ops`.
+
 ## Rate limits in the database
 The AI tutor's limits and daily cost cap, the parents' assistant limits, the write limit and the limits on the public postcode and human-check endpoints now count in the database (`rate_counters`, migration 0007) instead of in memory. They survive restarts and are shared by every copy of the server, so the daily cap really is a daily cap. Visitor addresses and ids are stored only as a keyed hash, and rows are swept within a day. If the database can't be reached the counters fall back to memory. After pulling, restart so migration 0007 runs. Tests: `server/counters.test.ts`.
 

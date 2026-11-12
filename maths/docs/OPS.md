@@ -84,6 +84,10 @@ The inbox lists feedback from the last 90 days, showing only those still waiting
 
 Every code sent, sign-in, failed code, inbox view, reply and account lookup is written to the audit log, tagged `admin:` plus part of the sign-in id, never a name or email. See it under **Audit log**, or `npm run ops -- audit`.
 
+### Deleting an account
+
+Under **Account lookup**, find the parent by email and a **Delete this account** section appears. Type exactly `delete <their email>` and press the button. It does what the parent's own Delete button does: cancels the subscription first (and stops if that fails, so nobody is billed for something deleted), deletes the account, their learners' progress and their feedback, removes their sign-in, and emails them to say so. The audit log records `account-delete` with the internal id, written before the deletion, and never the email address.
+
 ## Next steps
 
-Showing inbound replies in the portal, and a button to delete an account for someone who can't sign in.
+Showing parents' replies inside the portal. That needs an address that receives email into the server (for example Resend's inbound mail on a separate subdomain, with portal replies pointing their Reply-To at it) rather than into the Zoho mailbox. It's a set-up decision more than code, so it waits until you choose how replies should arrive.
