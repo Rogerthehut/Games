@@ -314,7 +314,24 @@
         "path": "https://www.latymer.co.uk/page/?pid=84&title=Year+7+admissions"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "The Latymer School",
+        "test": "Quest Assessments (from September 2027)",
+        "parts": [
+          "Mathematics",
+          "English comprehension",
+          "English writing"
+        ],
+        "note": "From September 2027 (for 2028 entry) the 11+ assessment is provided by Quest and has three sections: Mathematics, English Comprehension and English Writing.",
+        "source": {
+          "label": "The Latymer School Year 7 admissions",
+          "path": "https://www.latymer.co.uk/page/?pid=84&title=Year+7+admissions"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "essex",
@@ -455,7 +472,24 @@
         "path": "https://www.tiffinschool.co.uk/admissions/year-7-admissions/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Tiffin School",
+        "type": "Boys",
+        "test": "Quest Assessments",
+        "parts": [
+          "English",
+          "Maths"
+        ],
+        "note": "A test made by Quest specially for Tiffin, changing each year. There are English and Maths tests at Stage One, held at the school across morning and afternoon slots, and Stage Two tests for those invited. Registration for 2027 entry closed at noon on 1 September 2026.",
+        "source": {
+          "label": "Tiffin School Year 7 admissions",
+          "path": "https://www.tiffinschool.co.uk/admissions/year-7-admissions/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "kirklees",
@@ -521,7 +555,23 @@
         "path": "https://www.kevigs.org/admissions/faqs/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Bourne Grammar School",
+        "test": "Consortium of Lincolnshire grammar schools",
+        "parts": [
+          "Verbal reasoning",
+          "Non-verbal and spatial reasoning"
+        ],
+        "note": "A Verbal Reasoning test and a Non-Verbal and Spatial Reasoning test, on adjacent Saturday mornings at the school. Both papers must be sat for a valid score. Registration for current Year 5 opens in January 2027; the dates aren't confirmed yet.",
+        "source": {
+          "label": "Bourne Grammar School 11+ registration",
+          "path": "https://bourne-grammar.lincs.sch.uk/page/?pid=13&title=Register+for+the+11%2B+test"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "liverpool",
@@ -1006,7 +1056,19 @@
         "path": "https://www.swgs.wilts.sch.uk/the-11-plus-process/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "South Wilts Grammar School",
+        "test": "GL Assessment (reported)",
+        "note": "For September 2028 entry the school lists: registration opens 24 March 2027 and closes 31 July 2027, a familiarisation session on 11 September 2027 and the test on Saturday 25 September 2027. The page doesn't say which papers it contains.",
+        "source": {
+          "label": "South Wilts Grammar School 11+ guidance",
+          "path": "https://www.swgs.wilts.sch.uk/the-11-plus-process/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "wirral",
