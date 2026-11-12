@@ -122,11 +122,9 @@ export function Me() {
             </button>
           ))}
         </div>
-        {band === "junior" && <>
         <p class="field-label">Glasses</p>
         <Segmented label="Avatar glasses" value={currentAvatar.glasses ?? "none"} options={[...GLASSES]}
           onChange={(glasses) => update((p) => ({ ...p, avatar: { ...avatarForYear(p.avatar, p.year), glasses } }))} />
-        </>}
       </section>
 
       <section class="appearance-panel paper-edge" aria-labelledby="look-h">
