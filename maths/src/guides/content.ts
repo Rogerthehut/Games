@@ -107,6 +107,7 @@ export const PARENT_GUIDE: GuideSection[] = [
     text: ["The tutor is off until you switch it on, per learner, in the AI tutor tab. Like any AI, it can make mistakes, and your child is told so."],
     tips: [
       "You choose whether it only guides, or reveals the answer after some tries.",
+      "Each reply has a Read to me button that reads it aloud with the voice on the device. Nothing is recorded or sent anywhere for that.",
       "It sees the question, what your child has typed for it, and the topic and year. It never sees their nickname, avatar, progress or your details.",
       "The chat log is kept on this device only, for 30 days. You can read it or clear it in the AI tutor tab.",
       "If your child writes something that suggests they may be upset or unsafe, the tutor replies kindly, points them to a trusted adult and Childline (0800 1111), and flags it for you in the grown-ups' area.",
@@ -159,7 +160,7 @@ export const CHILD_GUIDE: GuideSection[] = [
     tips: [
       "Hint gives you a clue.",
       "Working-out tools gives you things to work with: beans and an abacus for counting, a column method sheet for adding, taking away and multiplying, a number line to jump along, a hundred square, a fraction wall, and paper with a ruler and a protractor.",
-      "Ask talks to your tutor. It's only there if a grown-up has turned it on, and it can make mistakes, so check what it says.",
+      "Ask talks to your tutor. It's only there if a grown-up has turned it on, and it can make mistakes, so check what it says. Under each reply there's a Read to me button if you'd like to hear it.",
     ],
   },
   {

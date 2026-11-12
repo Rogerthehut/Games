@@ -31,6 +31,7 @@
     "e2e:ops": "node scripts/ops-e2e.mjs",
     "e2e:memory": "tsx scripts/memory-e2e.ts",
     "e2e:idle": "tsx scripts/idle-e2e.ts",
+    "e2e:tutor-read": "tsx scripts/tutor-read-e2e.ts",
     "reading-list": "tsx scripts/fetch-reading-list.ts",
     "icons": "node scripts/make-icons.mjs",
     "server:fake": "TUTOR_FAKE=1 tsx server/index.ts",

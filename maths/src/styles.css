@@ -3398,3 +3398,9 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .booklet-previews figure { margin: 0; }
 .booklet-previews img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--paper-depth); }
 .booklet-previews figcaption { margin-top: 6px; font-size: .875rem; color: var(--muted); text-align: center; }
+
+/* the tutor's "Read to me" button under each reply */
+.tutor .turn-body { display: grid; gap: 4px; min-width: 0; }
+.tutor-read { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: 700 .85rem/1 var(--font-body); cursor: pointer; }
+.tutor-read.on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+@media (pointer: coarse) { .tutor-read { min-height: 44px; } }

@@ -88,6 +88,18 @@ export function spokenQuestion(prompt: string): string | undefined {
   return expressions.join("").replace(/\s+/g, " ").trim();
 }
 
+/** What a tutor reply sounds like read out: simple arithmetic as words, and any other maths notation turned into plain speech or dropped. */
+export function spokenReply(text: string): string {
+  const plain = spokenQuestion(text);
+  if (plain !== undefined) return plain;
+  return text
+    .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, " $1 over $2 ")
+    .replace(/\^2\b/g, " squared ").replace(/\^3\b/g, " cubed ").replace(/\^\{?([\w.-]+)\}?/g, " to the power $1 ")
+    .replace(/\\times|×/g, " times ").replace(/\\div|÷/g, " divided by ").replace(/\\square/g, " blank ").replace(/\\(?:%|,)/g, " ")
+    .replace(/\\[a-zA-Z]+/g, " ").replace(/[$\\{}]/g, " ")
+    .replace(/(\d)\s*=\s*(?=\S)/g, "$1 equals ").replace(/\s+/g, " ").trim();
+}
+
 export function playPracticeSound(kind: "tap" | "success") {
   const sound = new Audio(kind === "tap" ? tapUrl : successUrl);
   if (kind === "success") {

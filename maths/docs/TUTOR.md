@@ -98,3 +98,7 @@ These are estimates from token counts, not measurements. Choose by running the l
 - **Review of the screening patterns** by a safeguarding lead, and a regular review of flagged, anonymised cases.
 - **An incident process** for a harmful reply, and a way for a parent to report one.
 - **A human review of tutor accuracy** on a sample of real conversations. The tutor is told the correct answer, which helps, but it can still explain badly or get a side question wrong.
+
+## Read to me
+
+Each tutor reply has a **Read to me** button (`src/ui/tutor.tsx`). It reads the reply with the voices already on the device (the same ones as the question read-aloud, using the learner's chosen voice), turns maths into words, and stops when the child presses Stop, sends another message or closes the tutor. It uses the browser's speech synthesis only: no audio or text is sent anywhere for it. Speaking *to* the tutor is not built; the plan is on-device recognition in the mobile app, switched on by a parent per learner, showing the child the words to check before sending, with no audio stored (see the mobile app notes).

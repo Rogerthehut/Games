@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## The AI tutor can read its replies aloud
+Each tutor reply has a **Read to me** button (turning into Stop while it speaks). It uses the device's own voices and the learner's chosen voice, says maths as words, and stops when they send another message or close the tutor. Nothing is recorded or sent anywhere for it. Speaking to the tutor is planned for the mobile app with on-device recognition only. Tests: `src/ui/tutor-speech.test.ts` and `npm run e2e:tutor-read`.
+
 ## Ops page: delete an account
 The ops page can now delete an account for a parent who can't sign in. Look them up by email, type `delete <their email>` to confirm, and it cancels the subscription (stopping if that fails), deletes the account and everything under it, removes their sign-in and emails them. It's audit-logged without the address. Tests: `server/ops-api.test.ts` and `npm run e2e:ops`.
 
