@@ -8,6 +8,14 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Server security pass
+- **Fixed a crash:** a single request for a folder name (for example `/assets`) made the server throw and exit. Any error in a request is now caught and answered with a plain 500, and folder addresses serve their `index.html` (so `/blog` works).
+- **Security headers on every response:** no sniffing, no framing, a referrer policy, a permissions policy, HSTS over HTTPS, and a Content-Security-Policy in report-only mode (switch it to enforcing with `CSP_ENFORCE=1` once the live site's console is quiet).
+- **Safer file serving:** addresses are decoded, normalised and kept inside the app folder; null bytes and look-alike folder names are refused.
+- **Rate limits can't be dodged by faking a header:** the caller's address now comes from the proxy's own entry in `X-Forwarded-For`, not the first, caller-supplied one (`TRUSTED_PROXY_HOPS` for more than one proxy).
+- `/api/health` no longer names the tutor provider or lists what's switched on.
+- New: `docs/SECURITY.md` with every route, what protects it, the settings to check in Replit (including `CLERK_AUTHORIZED_PARTIES`), and the known limits. Tests: `server/http-safety.test.ts`.
+
 ## One footer look across the site
 The articles, blog posts, guides, FAQs, 11+ pages, curriculum and reading pages, study guides, and the privacy, cookie, terms, licences and sitemap pages now end in the same full-width dark footer band as the landing page, with the same layout (logo, line and email on the left, three link columns, the slim bar underneath). It sits outside the narrow reading column, and the page fills the screen so the band is always at the bottom. The static pages draw it from `src/legal/footer-html.ts` and the app's own pages from `SiteFooter` in `src/ui/legal.tsx`.
 

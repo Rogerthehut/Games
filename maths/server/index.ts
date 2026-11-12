@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { startMonitoring, reportError } from "./monitoring";
+import { clientIp, resolveStatic, securityHeaders } from "./http-safety";
 import { mailerFromEnv } from "./mail";
 import { runDigestJob } from "./digest-job";
 import { unsubscribePage } from "./unsubscribe-page";
@@ -31,6 +32,8 @@ if (startMonitoring()) console.log("Error reporting is on (Sentry).");
 const PORT = Number(process.env.PORT ?? 8787);
 const ALLOWED = (process.env.TUTOR_ALLOWED_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 const TRUST_PROXY = process.env.TRUST_PROXY === "1";
+/** How many proxies sit in front of us and add to X-Forwarded-For (Replit alone is 1; add one for each extra, such as Cloudflare). */
+const PROXY_HOPS = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS ?? 1) || 1);
 const DIST = fileURLToPath(new URL("../dist", import.meta.url));
 
 // Which model answers: TUTOR_PROVIDER=anthropic|openrouter, otherwise whichever key is set (Anthropic first).
@@ -132,16 +135,16 @@ function readBody(req: IncomingMessage, max = 16_384): Promise<unknown> {
 const postcodeHits = new Map<string, number[]>();
 const outcodeLookup = makeOutcodeLookup();
 
-createServer(async (req, res) => {
+const handle = async (req: IncomingMessage, res: ServerResponse) => {
   cors(req, res);
   const url = new URL(req.url ?? "/", "http://x");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
-  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY, provider: FAKE ? "fake" : WHICH, accounts: !!accounts, human: !!turnstile });
+  if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY });
 
   if (url.pathname === "/api/humans/verify" && req.method === "POST") {
     if (!turnstile) return send(res, 200, { pass: "", expiresInSeconds: 0, off: true });
-    const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
+    const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
     const recent = (verifyHits.get(ip) ?? []).filter((t) => Date.now() - t < 3_600_000);
     if (recent.length >= 40) return send(res, 429, { error: "slow-down" });
     verifyHits.set(ip, [...recent, Date.now()]);
@@ -154,7 +157,7 @@ createServer(async (req, res) => {
 
   // 11+ finder: which council areas does the start of a postcode (such as BR1) cover? Only that outward code is ever sent here.
   if (url.pathname === "/api/outcode" && req.method === "GET") {
-    const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
+    const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
     const recent = (postcodeHits.get(ip) ?? []).filter((t) => Date.now() - t < 3_600_000);
     if (recent.length >= 60) return send(res, 429, { error: "slow-down" });
     postcodeHits.set(ip, [...recent, Date.now()]);
@@ -247,7 +250,7 @@ createServer(async (req, res) => {
 
   if (url.pathname === "/api/tutor" && req.method === "POST") {
     if (!humanOk(String(req.headers["x-human-pass"] ?? "") || undefined)) return send(res, 401, { error: "human-required" });
-    const ip = (TRUST_PROXY ? String(req.headers["x-forwarded-for"] ?? "").split(",")[0].trim() : "") || req.socket.remoteAddress || "unknown";
+    const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
     let body: unknown;
     try { body = await readBody(req); } catch { return send(res, 400, { error: "Bad request." }); }
     const out = await handleTutor(body, ip, {
@@ -259,13 +262,23 @@ createServer(async (req, res) => {
 
   // the built app, so one process can serve everything
   if ((req.method === "GET" || req.method === "HEAD") && existsSync(DIST)) {
-    const rel = normalize(url.pathname === "/" ? "/index.html" : url.pathname).replace(/^(\.\.[/\\])+/, "");
-    const file = join(DIST, rel);
-    if (file.startsWith(DIST) && existsSync(file)) {
+    const file = resolveStatic(DIST, url.pathname);
+    if (file) {
       // built files in /assets carry a content hash in their name, so browsers may keep them; everything else is checked each time
-      res.writeHead(200, { "Content-Type": MIME[extname(file)] ?? "application/octet-stream", "Cache-Control": rel.replace(/\\/g, "/").startsWith("/assets/") ? "public, max-age=31536000, immutable" : "no-cache" });
+      const rel = file.slice(DIST.length).replace(/\\/g, "/");
+      res.writeHead(200, { "Content-Type": MIME[extname(file)] ?? "application/octet-stream", "Cache-Control": rel.startsWith("/assets/") ? "public, max-age=31536000, immutable" : "no-cache" });
       return res.end(req.method === "HEAD" ? undefined : readFileSync(file));
     }
   }
   send(res, 404, { error: "Not found." });
+};
+
+// Nothing a request does may take the server down: an error becomes a plain 500 (and a crash report, if reporting is on).
+createServer((req, res) => {
+  securityHeaders(req, res, { trustProxy: TRUST_PROXY, enforceCsp: process.env.CSP_ENFORCE === "1", hsts: process.env.HSTS === "1" });
+  handle(req, res).catch((e) => {
+    console.error("request failed:", (e as Error).name);
+    reportError(e, "request");
+    if (!res.headersSent) send(res, 500, { error: "server-error" }); else res.end();
+  });
 }).listen(PORT, () => console.log(WHICH === "openrouter" && !FAKE ? `quarter tutor service on :${PORT} (OpenRouter, model ${openRouterConfig().model}, data collection ${openRouterConfig().dataCollection})` : `quarter tutor service on :${PORT} (model ${DEFAULT_CONFIG.model}, effort ${DEFAULT_CONFIG.effort})`));
