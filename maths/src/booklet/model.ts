@@ -56,7 +56,7 @@ const page = (chapter: string, title: string, body: string, kicker = chapter, bi
 const cont = (chapter: string, title: string, body: string): BookletPage => ({ chapter, title, frame: "normal", html: `<div class="bk-body"><div><p class="bk-kicker">${esc(chapter)}</p><h3 style="font-size:24px">${esc(title)} <span class="bk-muted" style="font-size:15px;font-family:var(--bk-body);font-weight:700">(continued)</span></h3></div>${body}</div>` });
 
 function topicPages(chapter: string, title: string, kicker: string, items: { name: string; blurb: string; talkAbout: string; strand?: string }[], intro = ""): BookletPage[] {
-  const parts = paginate(items, rowHeight, 860 - (intro ? 50 : 0), 940);
+  const parts = paginate(items, rowHeight, 850 - (intro ? 50 : 0), 895);
   return parts.map((p, i) => {
     const body = `${i === 0 && intro ? `<p class="bk-lead" style="font-size:14.5px">${esc(intro)}</p>` : ""}<div class="bk-topics">${p.map(topicRow).join("")}</div>`;
     return i === 0 ? page(chapter, title, body, kicker) : cont(chapter, title, body);
@@ -214,4 +214,31 @@ export function buildBooklet(): BookletBuilt {
     return { n, chapter: p.chapter, title: p.title, html: `<div class="bk"><div class="bk-head"><span>${esc(p.chapter)}</span>${WORDMARK}</div>${html}<div class="bk-foot"><span>The quarter curriculum</span><b>${n}</b></div></div>` };
   });
   return { pages, contents: order.map((c) => ({ chapter: c, page: first.get(c) ?? 1 })) };
+}
+
+/** The free sample: the cover, the welcome pages, one year of topics, a look at the 11+ and STEM strands, tips for home, and a page about the full booklet. */
+export const SAMPLE_YEAR = 5;
+export function buildBookletSample(): BookletBuilt & { total: number; fullPages: number } {
+  const all = bookletPages();
+  const fullPages = buildBooklet().pages.length;
+  const pick = (chapter: string, title?: string) => all.filter((p) => p.chapter === chapter && (title === undefined || p.title === title));
+  const year = pick("Key Stage 2", `Year ${SAMPLE_YEAR}`);
+  const cta = page("This is a sample", "Want the full booklet?", `
+    <p class="bk-lead">You've seen ${year.length} pages of Year ${SAMPLE_YEAR} topics and a look at the 11+ and STEM strands. The full booklet has all ${fullPages} pages.</p>
+    <div class="bk-cols">
+      <div class="bk-card gold"><h3>In the full booklet</h3><ul class="bk-list"><li>Every maths topic from Year 3 to A-level, year by year.</li><li>The full 11+ strand, with the test finder for ${admissions.length} areas.</li><li>Every STEM lab topic.</li><li>The illustrated study library.</li></ul></div>
+      <div class="bk-card mint"><h3>How to get it</h3><ul class="bk-list"><li>Create a quarter account at <b>yourquarter.co.uk</b>.</li><li>Open the Parents' area, then Settings.</li><li>Find the Curriculum booklet card and choose Read online or Download PDF.</li></ul></div>
+    </div>
+    <div class="bk-callout">Questions? hello@yourquarter.co.uk</div>`, "Free sample");
+  const raw: BookletPage[] = [
+    ...pick("Cover"), ...pick("Welcome"), ...pick("How quarter works"), ...pick("At a glance"),
+    ...year, ...pick("The 11+", "What's in the 11+ strand"), ...pick("The STEM lab", "How the STEM lab works"),
+    ...pick("Helping at home"), cta, ...pick("Back cover"),
+  ];
+  const pages = raw.map((p, i) => {
+    const n = i + 1;
+    if (p.frame === "none") return { n, chapter: p.chapter, title: p.title, html: p.html };
+    return { n, chapter: p.chapter, title: p.title, html: `<div class="bk"><div class="bk-head"><span>${esc(p.chapter)}</span>${WORDMARK}</div>${p.html}<div class="bk-foot"><span>The quarter curriculum · free sample</span><b>${n}</b></div></div>` };
+  });
+  return { pages, contents: [], total: pages.length, fullPages };
 }

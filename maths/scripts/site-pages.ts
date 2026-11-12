@@ -1,4 +1,5 @@
 import admissions from "../src/parents/admissions.json";
+import { SAMPLE_YEAR, buildBooklet, buildBookletSample } from "../src/booklet/model";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { Plugin } from "vite";
@@ -204,7 +205,7 @@ function curriculumPages(styles: string) {
     body: `<p class="muted">${mathsSkills.length} maths topics from Year 3 to A-level, following the National Curriculum for England, plus ${STEM_SKILLS.length} STEM lab topics. Pick a year to see what's covered.</p>
 <ul class="rows sitemap-links">${years.map((y) => { const n = mathsSkills.filter((s) => s.year === y).length; const st = mathsSkills.find((s) => s.year === y)?.stage ?? "KS2"; return `<li><a class="row" href="${yearPath(y)}"><span>Year ${y} maths<small>${NAME[st]} · ${ageOf(y)} · ${n} topics</small></span></a></li>`; }).join("")}
 <li><a class="row" href="curriculum/stem.html"><span>The STEM lab<small>Computing, data science, AI and quantum ideas · Years 3 to 13 · ${STEM_SKILLS.length} topics</small></span></a></li></ul>
-<p>${a("11-plus-maths.html", "Getting started with 11+ maths")}</p>`,
+<p>${a("curriculum/booklet.html", "Free curriculum booklet sample")} · ${a("11-plus-maths.html", "Getting started with 11+ maths")}</p>`,
   });
   const yearPages = years.map((y) => {
     const skills = mathsSkills.filter((s) => s.year === y).sort((p, q) => STRANDS.indexOf(p.strand) - STRANDS.indexOf(q.strand) || p.name.localeCompare(q.name));
@@ -226,7 +227,20 @@ ${strands.map((st) => `<section><h2>${escapeHtml(strandLabel(st))}</h2>${topicLi
     body: `<p class="muted">${STEM_SKILLS.length} topics in four themes, with ideas pitched for every age. The lab also has four hands-on activities: binary lamps, program the robot, teach a machine and a qubit playground.</p>
 ${THEMES.map((t) => `<section><h2>${escapeHtml(t.label)}</h2><p class="muted">${escapeHtml(t.blurb)}</p>${topicList(STEM_SKILLS.filter((s) => themeOf(s) === t.id).sort((p, q) => p.year - q.year))}</section>`).join("")}`,
   });
-  return [{ path: "curriculum/index.html", html: hub }, ...years.map((y, i) => ({ path: yearPath(y), html: yearPages[i] })), { path: "curriculum/stem.html", html: stem }];
+  const sample = buildBookletSample(), fullPages = buildBooklet().pages.length;
+  const bookletPage = shell({
+    title: "Free curriculum booklet sample", path: "curriculum/booklet.html", styles, back: { href: "curriculum/index.html", label: "What quarter covers" },
+    description: `Download a free ${sample.total}-page sample of the quarter curriculum booklet: how quarter works, a full year of topics with questions to ask at home, and a look at the 11+ and STEM lab.`,
+    jsonLd: [{ "@type": "WebPage", url: `${SITE}/curriculum/booklet.html`, name: "Free curriculum booklet sample", inLanguage: "en-GB", publisher }, crumbs([{ name: "What quarter covers", path: "curriculum/index.html" }, { name: "Free booklet sample", path: "curriculum/booklet.html" }])],
+    body: `<p class="muted">The quarter curriculum booklet is a plain-English map of everything quarter covers, with a question to ask at home for every topic. This free sample shows how it works.</p>
+<p><a class="btn primary" href="quarter-curriculum-sample.pdf" download>Download the free sample (PDF, ${sample.total} pages)</a></p>
+<div class="booklet-previews"><figure><img src="booklet-sample-cover.png" width="397" height="561" alt="The cover of the quarter curriculum booklet: The curriculum, Years 3 to 13, with coloured tiles" loading="lazy"><figcaption>The cover</figcaption></figure><figure><img src="booklet-sample-page.png" width="397" height="561" alt="A Year ${SAMPLE_YEAR} page from the booklet, listing topics such as decimals and factors and multiples, each with a question to ask at home" loading="lazy"><figcaption>A year of topics, with a question to ask at home</figcaption></figure></div>
+<section><h2>In the free sample</h2><ul><li>How to use the booklet and how quarter works, from check-up to progress report.</li><li>The whole of Year ${SAMPLE_YEAR}: every topic in plain words, with a question to ask your child.</li><li>A look at the 11+ strand and the STEM lab.</li><li>Tips for helping at home.</li></ul></section>
+<section><h2>In the full booklet</h2><p>All ${fullPages} pages: ${mathsSkills.length} maths topics from Year 3 to A-level, the full 11+ strand with a test finder covering ${admissions.length} areas, all ${STEM_SKILLS.length} STEM lab topics, and the illustrated study library.</p>
+<p>You get it with a quarter account: sign in at ${a("./", "yourquarter.co.uk")}, open the Parents' area, then Settings, and choose Read online or Download PDF.</p></section>
+<p>${a("curriculum/index.html", "Browse every topic on this site")} · ${a(content.faq.path, "FAQs")}</p>`,
+  });
+  return [{ path: "curriculum/index.html", html: hub }, ...years.map((y, i) => ({ path: yearPath(y), html: yearPages[i] })), { path: "curriculum/stem.html", html: stem }, { path: "curriculum/booklet.html", html: bookletPage }];
 }
 
 export function sitePages(styles: string): { path: string; html: string }[] {
@@ -241,7 +255,7 @@ export function sitemapEntries(): { path: string; lastmod: string }[] {
     e(content.hub.path), e(content.faq.path), ...content.guides.map((g) => e(g.path)),
     e("blog/index.html", [...POSTS].sort((x, y) => y.date.localeCompare(x.date))[0].date), ...POSTS.map((p) => e(postPath(p), p.date)),
     e("reading/index.html", readingList.updated || CONTENT_DATE),
-    e("curriculum/index.html"), ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => e(yearPath(y))), e("curriculum/stem.html"),
+    e("curriculum/index.html"), ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => e(yearPath(y))), e("curriculum/stem.html"), e("curriculum/booklet.html"),
   ];
 }
 export const sitemapXml = () => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries().map((x) => `  <url>\n    <loc>${SITE}/${x.path}</loc>\n    <lastmod>${x.lastmod}</lastmod>\n  </url>`).join("\n")}\n</urlset>\n`;

@@ -1,0 +1,203 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><title>The quarter curriculum: free sample</title><style>/* Fonts ship with the app (no third-party requests, which matters for a children's product). Latin only. */
+@font-face { font-family: "Nunito Variable"; font-style: normal; font-display: swap; font-weight: 200 1000;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource-variable/nunito/files/nunito-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: "Figtree Variable"; font-style: normal; font-display: swap; font-weight: 300 900;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face { font-family: "Manrope Variable"; font-style: normal; font-display: swap; font-weight: 200 800;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+@font-face {
+  font-family: "Fraunces Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Fraunces Variable";
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-italic.woff2") format("woff2");
+}
+@font-face { font-family: "Caveat Variable"; font-style: normal; font-display: swap; font-weight: 400 700;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource-variable/caveat/files/caveat-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+
+/* marker pen writing, for the sticky note */
+@font-face { font-family: "Permanent Marker"; font-style: normal; font-display: swap; font-weight: 400;
+  src: url("file:///home/user/games/maths/node_modules/@fontsource/permanent-marker/files/permanent-marker-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+
+/* The quarter curriculum booklet. One page is 794 by 1123 pixels (A4). The same pages are printed to PDF and shown in the flip-through reader. */
+.bk { --bk-bg: #faf5e9; --bk-surface: #fffdf7; --bk-ink: #20243a; --bk-muted: #565264; --bk-line: #ddd2be; --bk-accent: #343c70;
+  --bk-pink: #dd7697; --bk-rose: #f8dae6; --bk-gold: #f8e5bb; --bk-mint: #d4eee2; --bk-peri: #dcdff6; --bk-yellow: #fff3a3;
+  --bk-display: "Fraunces Variable", Georgia, serif; --bk-body: "Nunito Variable", system-ui, sans-serif; --bk-marker: "Permanent Marker", "Segoe Print", cursive;
+  width: 794px; height: 1123px; position: relative; overflow: hidden; box-sizing: border-box; background: var(--bk-bg); color: var(--bk-ink); font-family: var(--bk-body); font-size: 13.5px; line-height: 1.45; }
+.bk *, .bk *::before, .bk *::after { box-sizing: border-box; }
+.bk h1, .bk h2, .bk h3, .bk p, .bk ul, .bk ol { margin: 0; }
+.bk h1, .bk h2, .bk h3 { font-family: var(--bk-display); letter-spacing: -.02em; line-height: 1.08; font-weight: 650; }
+
+/* page frame */
+.bk-head { position: absolute; inset: 34px 54px auto 54px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--bk-muted); font-weight: 750; }
+.bk-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 2px; background: var(--bk-line); }
+.bk-foot { position: absolute; inset: auto 54px 30px 54px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--bk-muted); }
+.bk-foot b { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px; background: var(--bk-rose); color: var(--bk-ink); font-weight: 800; }
+.bk-body { position: absolute; inset: 78px 54px 70px 54px; display: flex; flex-direction: column; gap: 14px; }
+.bk-wm { font-family: var(--bk-display); font-weight: 700; letter-spacing: -.03em; text-transform: none; font-size: 17px; color: var(--bk-ink); display: inline-flex; align-items: baseline; }
+.bk-wm svg { width: .42em; height: .68em; margin: 0 .01em 0 .02em; transform: translateY(.04em); }
+.bk-wm sup { font-size: .5em; line-height: 1; margin-left: .1em; font-family: var(--bk-body); font-weight: 600; }
+
+/* headings and text */
+.bk-kicker { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; color: var(--bk-pink); }
+.bk h2 { font-size: 34px; }
+.bk h3 { font-size: 20px; }
+.bk-lead { font-size: 16px; line-height: 1.5; max-width: 600px; }
+.bk-muted { color: var(--bk-muted); }
+.bk-marker { font-family: var(--bk-marker); letter-spacing: .01em; }
+.bk-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.bk-cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.bk-card { background: var(--bk-surface); border: 2px solid var(--bk-line); border-radius: 18px; padding: 16px 18px; }
+.bk-card h3 { margin-bottom: 6px; }
+.bk-card.rose { background: var(--bk-rose); border-color: #efbdd0; } .bk-card.gold { background: var(--bk-gold); border-color: #ecd193; }
+.bk-card.mint { background: var(--bk-mint); border-color: #a9d9c5; } .bk-card.peri { background: var(--bk-peri); border-color: #b9bff0; }
+.bk-steps { counter-reset: s; display: grid; gap: 12px; list-style: none; padding: 0; }
+.bk-steps li { counter-increment: s; display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start; }
+.bk-steps li::before { content: counter(s); display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--bk-rose); font-family: var(--bk-display); font-weight: 700; font-size: 18px; }
+.bk-steps strong { display: block; font-size: 15px; }
+.bk-list { padding-left: 18px; display: grid; gap: 4px; } .bk-list li::marker { color: var(--bk-pink); }
+
+/* stats */
+.bk-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.bk-stat { border-radius: 18px; padding: 14px 14px 12px; text-align: left; }
+.bk-stat b { display: block; font-family: var(--bk-display); font-size: 40px; line-height: 1; font-weight: 700; }
+.bk-stat span { font-size: 12px; font-weight: 700; }
+
+/* the topic rows */
+.bk-topics { display: grid; gap: 8px; align-content: start; }
+.bk-topic { display: grid; grid-template-columns: 200px 1fr; gap: 14px; padding: 9px 14px 10px; background: var(--bk-surface); border: 2px solid var(--bk-line); border-radius: 14px; }
+.bk-topic h3 { font-size: 15px; margin: 0 0 4px; font-family: var(--bk-body); letter-spacing: 0; font-weight: 800; line-height: 1.2; }
+.bk-topic p { font-size: 12.5px; line-height: 1.42; }
+.bk-topic .ask { margin-top: 3px; font-size: 11.5px; color: var(--bk-muted); font-style: italic; }
+.bk-chip { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 800; background: var(--bk-peri); }
+.bk-chip.Number { background: #fbe3a6; } .bk-chip.Ratio { background: #f6c8d8; } .bk-chip.Algebra { background: #d4d9f7; } .bk-chip.Measures { background: #bfe6d4; }
+.bk-chip.Geometry { background: #f5d1b8; } .bk-chip.Statistics { background: #c9e3f3; } .bk-chip.Calculus { background: #e4d0f1; } .bk-chip.Reasoning { background: #f6c8d8; } .bk-chip.STEM { background: #bfe6d4; }
+.bk-theme { display: grid; grid-template-columns: 170px 1fr; gap: 14px; padding: 12px 16px; border-radius: 16px; }
+
+/* cover */
+.bk.cover { background: radial-gradient(circle at 85% 10%, #f8dae6 0, transparent 38%), radial-gradient(circle at 10% 95%, #d4eee2 0, transparent 42%), var(--bk-bg); }
+.bk-cube { position: absolute; left: 70px; top: 90px; width: 118px; height: 118px; filter: drop-shadow(0 12px 18px #20243a33); }
+.bk-cover-title { position: absolute; left: 70px; top: 270px; right: 70px; }
+.bk-cover-title .bk-wm { font-size: 66px; }
+.bk-cover-title h1 { font-size: 74px; line-height: .98; margin-top: 18px; letter-spacing: -.04em; font-weight: 600; }
+.bk-cover-title h1 em { font-style: italic; color: var(--bk-pink); position: relative; }
+.bk-cover-title p { margin-top: 22px; max-width: 500px; font-size: 20px; line-height: 1.4; }
+.bk-note { position: absolute; width: 200px; height: 200px; padding: 22px 18px; border-radius: 3px 3px 3px 22px; box-shadow: 0 16px 24px -10px #20243a55, 0 3px 4px #20243a22; font-family: var(--bk-marker); color: var(--bk-ink); }
+.bk-note::before { content: ""; position: absolute; top: -12px; left: 50%; width: 82px; height: 24px; transform: translateX(-50%) rotate(3deg); background: #ffffffaa; border: 1px solid #ffffffcc; }
+.bk-note b { display: block; font-size: 25px; line-height: 1; margin-bottom: 8px; font-weight: 400; } .bk-note span { font-size: 17px; line-height: 1.2; display: block; }
+.bk-note.y { background: linear-gradient(168deg, #fff3a3, #fbe27a 70%, #f4d25a); right: 78px; top: 100px; transform: rotate(4deg); }
+.bk-note.m { background: linear-gradient(168deg, #c9f1e0, #9ee3c6 70%, #84d8b8); right: 118px; bottom: 150px; transform: rotate(-5deg); }
+.bk-cover-foot { position: absolute; left: 70px; right: 70px; bottom: 46px; display: flex; justify-content: space-between; align-items: end; font-size: 12px; color: var(--bk-muted); }
+.bk-tiles { display: flex; gap: 10px; margin-top: 30px; } .bk-tiles i { width: 52px; height: 52px; border-radius: 12px; display: block; }
+
+/* chapter openers */
+.bk.opener { background: var(--bk-gold); } .bk.opener.mint { background: var(--bk-mint); } .bk.opener.rose { background: var(--bk-rose); } .bk.opener.peri { background: var(--bk-peri); }
+.bk-opener { position: absolute; inset: 120px 70px 90px 70px; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+.bk-opener .big { font-family: var(--bk-display); font-size: 240px; line-height: .8; font-weight: 700; letter-spacing: -.06em; color: #20243a; opacity: .92; }
+.bk-opener h2 { font-size: 52px; line-height: 1; } .bk-opener .bk-lead { font-size: 18px; max-width: 520px; }
+.bk-strands { display: flex; flex-wrap: wrap; gap: 8px; }
+.bk-year-dots { display: flex; gap: 8px; }
+.bk-year-dots i { font-style: normal; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--bk-surface); border: 2px solid #20243a; font-family: var(--bk-display); font-weight: 700; font-size: 18px; }
+.bk-year-dots i.on { background: #20243a; color: #fffdf7; }
+
+/* contents */
+.bk-toc { display: grid; gap: 6px; list-style: none; padding: 0; }
+.bk-toc li { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 2px dotted var(--bk-line); font-size: 15px; }
+.bk-toc li strong { font-family: var(--bk-display); font-size: 18px; font-weight: 650; } .bk-toc li small { display: block; font-size: 12px; color: var(--bk-muted); }
+.bk-toc li b { font-family: var(--bk-display); font-size: 18px; }
+.bk-toc a { color: inherit; text-decoration: none; }
+
+.bk-lib { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
+.bk-lib .bk-card { padding: 11px 14px 12px; } .bk-lib h3 { font-family: var(--bk-body); font-size: 14px; font-weight: 800; letter-spacing: 0; margin-bottom: 2px; } .bk-lib p { font-size: 12px; line-height: 1.38; } .bk-lib small { display: block; margin-top: 4px; font-size: 11px; font-weight: 800; color: var(--bk-pink); }
+.bk-callout { padding: 14px 18px; border-radius: 18px; background: var(--bk-yellow); font-family: var(--bk-marker); font-size: 19px; line-height: 1.25; transform: rotate(-1deg); box-shadow: 0 10px 16px -10px #20243a66; }
+.bk-small { font-size: 11px; color: var(--bk-muted); }
+
+@media print { .bk { break-after: page; page-break-after: always; } }
+
+@page { size: 794px 1123px; margin: 0 } html, body { margin: 0; background: #fff } .bk { break-after: page; }</style></head><body><div class="bk cover">
+    <svg class="bk-cube" viewBox="0 0 96 96" aria-hidden="true"><rect x="3" y="3" width="90" height="90" rx="16" fill="#121522"/><rect x="15" y="15" width="30" height="30" rx="5" fill="#f5dc63"/><rect x="51" y="15" width="30" height="30" rx="5" fill="#f782a9"/><rect x="15" y="51" width="30" height="30" rx="5" fill="#8294e9"/><rect x="51" y="51" width="30" height="30" rx="5" fill="#4cc6a7"/></svg>
+    <div class="bk-note y"><b>Years 3 to 13</b><span>Maths from age 7 to A-level</span></div>
+    <div class="bk-note m"><b>STEM lab</b><span>Code, data, AI and quantum ideas</span></div>
+    <div class="bk-cover-title"><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span><h1>The <em>curriculum</em></h1><p>Everything your child can learn on quarter, year by year, with questions to ask at home.</p>
+      <div class="bk-tiles"><i style="background:#f5dc63"></i><i style="background:#f782a9"></i><i style="background:#8294e9"></i><i style="background:#4cc6a7"></i></div></div>
+    <div class="bk-cover-foot"><span>A reference for parents and carers</span><span>quarter™ is a trading name of Wristed Ltd</span></div></div>
+<div class="bk"><div class="bk-head"><span>Welcome</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Welcome</p><h2>Welcome</h2></div>
+    <p class="bk-lead">This booklet is a map of everything quarter covers, so you can see where your child is, what comes next and how to help at home.</p>
+    <div class="bk-cols">
+      <div class="bk-card gold"><h3>How to use it</h3><ul class="bk-list"><li>Find your child's school year in the chapters that follow.</li><li>Read what each topic covers, in plain words.</li><li>Use the “Ask” question beside a topic to start a conversation about it.</li></ul></div>
+      <div class="bk-card mint"><h3>What you'll find</h3><ul class="bk-list"><li>Maths from Year 3 to A-level, topic by topic.</li><li>The 11+ strand and practice papers.</li><li>The STEM lab: computing, data, AI and quantum ideas.</li><li>The study library, tools and the parents' area.</li></ul></div>
+    </div>
+    <div class="bk-callout">Short, regular practice beats long sessions. Ten minutes most days is plenty.</div>
+    <div class="bk-card"><h3>The idea behind quarter</h3><p>Every question works out its own answer, so hints, worked steps and feedback always match the question. Topics come back later, a little at a time, so what's learned stays learned. Children are never rushed on normal practice, and the only timed activity is the clearly labelled 11+ practice paper.</p></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>2</b></div></div>
+<div class="bk"><div class="bk-head"><span>How quarter works</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Using quarter</p><h2>How quarter works</h2></div>
+    <ol class="bk-steps">
+      <li><div><strong>A short check-up finds the starting point</strong>About 24 questions that adapt to your child, so the first plan fits them, not just their school year.</div></li>
+      <li><div><strong>A weekly plan keeps things steady</strong>Each week focuses on a few topics, with review of earlier ones mixed in.</div></li>
+      <li><div><strong>Practice is short and kind</strong>A hint is always there, “Show the steps” explains a worked answer, and an optional AI tutor can talk a problem through without giving the answer away.</div></li>
+      <li><div><strong>Working-out tools help on paper and on screen</strong>Counters, number lines, grids and method sheets are a tap away, and the keyboard works everywhere.</div></li>
+      <li><div><strong>Topics return at the right moment</strong>Anything that was tricky comes back sooner. Anything secure comes back later.</div></li>
+      <li><div><strong>You see the progress</strong>The parents' area shows what's secure, what needs attention, and a progress report you can print or save for any dates you choose.</div></li>
+    </ol>
+    <div class="bk-cols">
+      <div class="bk-card rose"><h3>What the status words mean</h3><ul class="bk-list"><li><b>New</b>: not tried yet.</li><li><b>Learning</b>: being worked on.</li><li><b>Getting there</b>: mostly right, still wobbly.</li><li><b>Got it</b>: secure, and brought back later to stay that way.</li></ul></div>
+      <div class="bk-card peri"><h3>Where it works</h3><p>In any modern browser on phones, tablets and computers. Progress is saved to your account, so a child can carry on from any device.</p></div>
+    </div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>3</b></div></div>
+<div class="bk"><div class="bk-head"><span>At a glance</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">The whole picture</p><h2>At a glance</h2></div>
+    <div class="bk-stats">
+      <div class="bk-stat" style="background:var(--bk-gold)"><b>202</b><span>maths topics</span></div>
+      <div class="bk-stat" style="background:var(--bk-rose)"><b>21</b><span>11+ reasoning topics</span></div>
+      <div class="bk-stat" style="background:var(--bk-mint)"><b>29</b><span>STEM lab topics</span></div>
+      <div class="bk-stat" style="background:var(--bk-peri)"><b>29</b><span>illustrated study guides</span></div>
+    </div>
+    <div class="bk-cols">
+      <div class="bk-card gold"><h3>Key Stage 2</h3><p class="bk-muted" style="margin-bottom:6px">Years 3 to 6, ages 7 to 11</p><p><b>90</b> topics</p><p class="bk-small" style="margin-top:6px">Number · Ratio and proportion · Algebra · Measures · Geometry · Statistics</p></div><div class="bk-card mint"><h3>Key Stage 3</h3><p class="bk-muted" style="margin-bottom:6px">Years 7 to 9, ages 11 to 14</p><p><b>40</b> topics</p><p class="bk-small" style="margin-top:6px">Number · Ratio and proportion · Algebra · Measures · Geometry · Statistics</p></div><div class="bk-card rose"><h3>GCSE</h3><p class="bk-muted" style="margin-bottom:6px">Years 10 to 11, ages 14 to 16</p><p><b>37</b> topics</p><p class="bk-small" style="margin-top:6px">Number · Ratio and proportion · Algebra · Measures · Geometry · Statistics</p></div><div class="bk-card peri"><h3>A-level</h3><p class="bk-muted" style="margin-bottom:6px">Years 12 to 13, ages 16 to 18</p><p><b>35</b> topics</p><p class="bk-small" style="margin-top:6px">Algebra · Measures · Geometry · Statistics · Calculus</p></div>
+    </div>
+    <div class="bk-card"><h3>Also included</h3><ul class="bk-list"><li>Times tables revision with an optional timed check.</li><li>11+ practice papers and a finder for local test details, covering 33 areas.</li><li>An AI tutor for children and an assistant for parents, both optional.</li><li>Money topics from Year 3, with real-life contexts.</li><li>Read-aloud, sound and motion controls, and light, dark or automatic themes.</li></ul></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>4</b></div></div>
+<div class="bk"><div class="bk-head"><span>Key Stage 2</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Key Stage 2 · age 7 to 11</p><h2>Year 5</h2></div><p class="bk-lead" style="font-size:14.5px">22 topics first taught in Year 5. Earlier topics keep coming back in review.</p><div class="bk-topics"><div class="bk-topic"><div><h3>Decimals</h3><span class="bk-chip Number">Number</span></div><div><p>Add, subtract, multiply and divide decimals.</p><p class="ask">Ask: What happens to the digits when you multiply 3.5 by 10?</p></div></div><div class="bk-topic"><div><h3>Factors and multiples</h3><span class="bk-chip Number">Number</span></div><div><p>Factors, multiples, highest common factor and lowest common multiple.</p><p class="ask">Ask: How can you tell quickly whether a number is a multiple of 3?</p></div></div><div class="bk-topic"><div><h3>Fractions of amounts</h3><span class="bk-chip Number">Number</span></div><div><p>Find a fraction of a number or quantity.</p><p class="ask">Ask: What does the bottom number tell you, and what does the top number tell you?</p></div></div><div class="bk-topic"><div><h3>Mixed numbers and improper fractions</h3><span class="bk-chip Number">Number</span></div><div><p>Count the fraction pieces in whole numbers and mixed numbers.</p><p class="ask">Ask: Why does the denominator stay the same?</p></div></div><div class="bk-topic"><div><h3>Multiplying fractions by whole numbers</h3><span class="bk-chip Number">Number</span></div><div><p>Multiply a fraction by a whole number, and write the answer as a mixed number.</p><p class="ask">Ask: Why does the bottom number not change when you multiply?</p></div></div><div class="bk-topic"><div><h3>Numbers to a million</h3><span class="bk-chip Number">Number</span></div><div><p>Read, write and compare numbers to 1,000,000, and multiply and divide by 10, 100 and 1,000.</p><p class="ask">Ask: What happens to the digits when you multiply by 1,000?</p></div></div><div class="bk-topic"><div><h3>Prime, square and cube numbers</h3><span class="bk-chip Number">Number</span></div><div><p>Know prime numbers up to 19, and use square and cube numbers.</p><p class="ask">Ask: How can you tell that 21 is not a prime number?</p></div></div><div class="bk-topic"><div><h3>Thousandths</h3><span class="bk-chip Number">Number</span></div><div><p>Read, write and compare decimals with three decimal places, and relate thousandths to tenths and hundredths.</p><p class="ask">Ask: Why is 0.4 the same as 0.400?</p></div></div><div class="bk-topic"><div><h3>Converting units</h3><span class="bk-chip Measures">Measures</span></div><div><p>Convert between metric units of length, mass and capacity.</p><p class="ask">Ask: Should the number get bigger or smaller when you change kilograms into grams? Why?</p></div></div></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>5</b></div></div>
+<div class="bk"><div class="bk-head"><span>Key Stage 2</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Key Stage 2</p><h3 style="font-size:24px">Year 5 <span class="bk-muted" style="font-size:15px;font-family:var(--bk-body);font-weight:700">(continued)</span></h3></div><div class="bk-topics"><div class="bk-topic"><div><h3>Metric and imperial units</h3><span class="bk-chip Measures">Measures</span></div><div><p>Convert between common metric and imperial units using a given rule, such as inches and centimetres, or miles and kilometres.</p><p class="ask">Ask: How many lots of the rule did you need?</p></div></div><div class="bk-topic"><div><h3>Multiplying and dividing money</h3><span class="bk-chip Measures">Measures</span></div><div><p>Multiply a price by a number, and share an amount to find the price of one.</p><p class="ask">Ask: Would it be easier to work in pounds or in pence here?</p></div></div><div class="bk-topic"><div><h3>Perimeter and area</h3><span class="bk-chip Measures">Measures</span></div><div><p>Perimeter and area of rectangles and triangles.</p><p class="ask">Ask: Can two shapes have the same area but different perimeters?</p></div></div><div class="bk-topic"><div><h3>Shopping bills</h3><span class="bk-chip Measures">Measures</span></div><div><p>Work out the cost of several items, and the change from a bigger note.</p><p class="ask">Ask: What is a quick estimate of the bill before you work it out exactly?</p></div></div><div class="bk-topic"><div><h3>Volume of cuboids</h3><span class="bk-chip Measures">Measures</span></div><div><p>Use layers of cubes to calculate volume.</p><p class="ask">Ask: What does one cubic centimetre look like?</p></div></div><div class="bk-topic"><div><h3>3-D shapes</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Count the faces, edges and vertices of 3-D shapes.</p><p class="ask">Ask: How can you keep track so you don't count an edge twice?</p></div></div><div class="bk-topic"><div><h3>Angles</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Angles on a line, around a point, in triangles and quadrilaterals.</p><p class="ask">Ask: Why do the angles in any triangle always add up to 180°?</p></div></div><div class="bk-topic"><div><h3>Drawing angles with a protractor</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Draw an angle of a given size by turning an arm on a protractor.</p><p class="ask">Ask: How can you check an angle you have drawn?</p></div></div><div class="bk-topic"><div><h3>Measuring angles with a protractor</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Read the size of an angle from a protractor, using the right scale.</p><p class="ask">Ask: How can you tell which scale to read before you look at the numbers?</p></div></div><div class="bk-topic"><div><h3>Nets and 3D solids</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Count the faces, edges and corners of a solid, and use them to check a net.</p><p class="ask">Ask: Which solids have the same number of faces but different numbers of corners?</p></div></div><div class="bk-topic"><div><h3>Properties of rectangles</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Use the properties of rectangles to find missing lengths and angles.</p><p class="ask">Ask: If you know two sides of a rectangle, how many more sides do you know?</p></div></div></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>6</b></div></div>
+<div class="bk"><div class="bk-head"><span>Key Stage 2</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Key Stage 2</p><h3 style="font-size:24px">Year 5 <span class="bk-muted" style="font-size:15px;font-family:var(--bk-body);font-weight:700">(continued)</span></h3></div><div class="bk-topics"><div class="bk-topic"><div><h3>Regular and irregular polygons</h3><span class="bk-chip Geometry">Geometry</span></div><div><p>Tell regular polygons (equal sides and angles) from irregular ones.</p><p class="ask">Ask: Why is a rectangle that is not a square an irregular polygon?</p></div></div><div class="bk-topic"><div><h3>Line graphs</h3><span class="bk-chip Statistics">Statistics</span></div><div><p>Read values from a line graph, find changes, and estimate between two readings.</p><p class="ask">Ask: What does a steep line tell you compared with a flat line?</p></div></div></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>7</b></div></div>
+<div class="bk"><div class="bk-head"><span>The 11+</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Selective school preparation</p><h2>What's in the 11+ strand</h2></div>
+    <div class="bk-cols3">
+      <div class="bk-card rose"><h3>Verbal reasoning</h3><p>Word and letter patterns, codes, analogies, odd words out and hidden words.</p></div>
+      <div class="bk-card peri"><h3>Non-verbal reasoning</h3><p>Shapes and pictures: series, matrices, reflections, rotations and odd one out.</p></div>
+      <div class="bk-card mint"><h3>Problem solving</h3><p>Logic puzzles, finding the error, combinations and “always, sometimes, never” reasoning.</p></div>
+    </div>
+    <div class="bk-card gold"><h3>Practice papers</h3><div class="bk-cols3" style="margin-top:6px"><div><b>Maths paper</b><p class="bk-muted">20 questions · 25 minutes</p></div><div><b>Reasoning paper</b><p class="bk-muted">Verbal, non-verbal and problem solving · 20 questions · 20 minutes</p></div><div><b>Maths and reasoning</b><p class="bk-muted">Two parts in one sitting · 30 questions · 35 minutes</p></div></div><p style="margin-top:8px">Papers are timed, with no hints, and marks are shown at the end with the topics to revisit. They're the one place quarter uses a countdown.</p></div>
+    <div class="bk-card"><h3>Local test finder</h3><p>Tests differ between areas and schools. The finder in the parents' guides covers 33 areas of England and Northern Ireland: search by postcode, area or school, see what's known about each test and follow the links to the official admissions pages.</p></div>
+    <div class="bk-callout">Start early and keep it light. Twenty minutes a few times a week beats a last-minute rush.</div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>8</b></div></div>
+<div class="bk"><div class="bk-head"><span>The STEM lab</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Beyond maths</p><h2>How the STEM lab works</h2></div>
+    <p class="bk-lead">The lab sits next to the maths activities, with its own sticky note on Today. It has its own topics and progress, separate from the maths plan, so children can explore for the fun of it.</p>
+    <div class="bk-theme" style="background:var(--bk-peri)"><h3>Computing</h3><p>Precise instructions, loops, sorting and searching, binary and hexadecimal, tracing code, logic, storage and secret codes.</p></div>
+    <div class="bk-theme" style="background:var(--bk-gold)"><h3>Data science</h3><p>Reading survey data, spotting outliers and checking whether data is fair.</p></div>
+    <div class="bk-theme" style="background:var(--bk-rose)"><h3>AI and machine learning</h3><p>Learning from examples, bias in data, nearest neighbour, a tiny artificial neuron, accuracy, spam filters, gradient descent and a neural network layer.</p></div>
+    <div class="bk-theme" style="background:var(--bk-mint)"><h3>Quantum ideas</h3><p>Packets of energy, qubits and probability, how many states qubits hold, and the X and H gates.</p></div>
+    <div class="bk-card"><h3>Build it labs</h3><div class="bk-cols"><p><b>Binary lamps.</b> Switch lamps on and off to build numbers.</p><p><b>Program the robot.</b> Queue up instructions to reach the star.</p><p><b>Teach a machine.</b> Place dots and see how a nearest-neighbour model decides.</p><p><b>Qubit playground.</b> Try the X and H gates and measure the qubit.</p></div></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>9</b></div></div>
+<div class="bk"><div class="bk-head"><span>Helping at home</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Practical tips</p><h2>Helping at home</h2></div>
+    <div class="bk-cols">
+      <div class="bk-card gold"><h3>Before practice</h3><ul class="bk-list"><li>Pick a calm moment, and stop when focus fades.</li><li>Two or three topics are enough for a sitting.</li><li>Have paper and a pencil to hand.</li></ul></div>
+      <div class="bk-card mint"><h3>During practice</h3><ul class="bk-list"><li>Let them try first. A hint is always there.</li><li>Ask them to explain a step in their own words.</li><li>Praise the effort and the method, not just the answer.</li></ul></div>
+      <div class="bk-card rose"><h3>When something's tricky</h3><ul class="bk-list"><li>Use “Show the steps”, then try a fresh question.</li><li>Use a real object: coins, a ruler, slices of fruit.</li><li>Come back to it tomorrow. Topics return on their own.</li></ul></div>
+      <div class="bk-card peri"><h3>After practice</h3><ul class="bk-list"><li>Look at the “Ask” question for the topic.</li><li>Spot the topic in real life: shopping, cooking, travel.</li><li>Check the parents' area now and then, and celebrate what's secure.</li></ul></div>
+    </div>
+    <div class="bk-callout">If a topic feels too easy or too hard, try one from the year above or below. The map is there to be explored.</div>
+    <div class="bk-card"><h3>Keeping in touch</h3><p>Questions, ideas and feedback are always welcome through the feedback form in the parents' area, or at <b>yourquarter.co.uk</b>.</p></div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>10</b></div></div>
+<div class="bk"><div class="bk-head"><span>This is a sample</span><span class="bk-wm">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span></div><div class="bk-body"><div><p class="bk-kicker">Free sample</p><h2>Want the full booklet?</h2></div>
+    <p class="bk-lead">You've seen 3 pages of Year 5 topics and a look at the 11+ and STEM strands. The full booklet has all 53 pages.</p>
+    <div class="bk-cols">
+      <div class="bk-card gold"><h3>In the full booklet</h3><ul class="bk-list"><li>Every maths topic from Year 3 to A-level, year by year.</li><li>The full 11+ strand, with the test finder for 33 areas.</li><li>Every STEM lab topic.</li><li>The illustrated study library.</li></ul></div>
+      <div class="bk-card mint"><h3>How to get it</h3><ul class="bk-list"><li>Create a quarter account at <b>yourquarter.co.uk</b>.</li><li>Open the Parents' area, then Settings.</li><li>Find the Curriculum booklet card and choose Read online or Download PDF.</li></ul></div>
+    </div>
+    <div class="bk-callout">Questions? hello@yourquarter.co.uk</div></div><div class="bk-foot"><span>The quarter curriculum · free sample</span><b>11</b></div></div>
+<div class="bk cover" style="display:grid;place-items:center;text-align:center"><div><span class="bk-wm" style="font-size:64px">qua<svg viewBox="0 0 14 20"><path fill="currentColor" d="M1 19 5.8 1H9L7.4 7.1C9 4.8 11 4 13.5 4.7l-.9 3.4c-2.7-1-4.9.2-6.2 3.1L4.3 19Z"/></svg>ter<sup>™</sup></span><p style="margin-top:18px;font-size:18px">Maths and STEM, one quarter at a time.</p><div class="bk-tiles" style="justify-content:center"><i style="background:#f5dc63"></i><i style="background:#f782a9"></i><i style="background:#8294e9"></i><i style="background:#4cc6a7"></i></div><p class="bk-small" style="margin-top:36px">quarter™ is a trading name of Wristed Ltd (company number 12397793)</p></div></div></body></html>

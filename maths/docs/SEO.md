@@ -9,6 +9,7 @@ Everything public is plain HTML, generated at build time from the same data the 
 | Home page title, description, share image, structured data (Organization, WebSite, WebApplication) | `index.html` |
 | Parent guides and FAQs | `scripts/parent-pages.ts`, `src/parents/content.json` |
 | Study guides (`/learn/`), kept out of search on purpose: `noindex`, not in the sitemap or llms files, not linked from public pages | `scripts/concept-pages.ts`, `src/concepts/library.ts` |
+| Free booklet sample page (`/curriculum/booklet.html`) and its PDF (`/quarter-curriculum-sample.pdf`), rebuilt with `npm run booklet` | `src/booklet/model.ts`, `scripts/build-booklet.ts` |
 | What quarter covers (`/curriculum/`: one page per year, plus the STEM lab) | `scripts/site-pages.ts`, built from the curriculum |
 | Blog (`/blog/`) and its RSS feed (`/blog/rss.xml`) | `src/blog/posts.ts`, `scripts/site-pages.ts` |
 | Reading list (`/reading/`) | `src/blog/reading-list.json`, filled by `npm run reading-list` |

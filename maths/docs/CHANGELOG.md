@@ -8,6 +8,11 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Free curriculum booklet sample
+- A public 12-page sample of the booklet: `public/quarter-curriculum-sample.pdf` (served at `/quarter-curriculum-sample.pdf`) with the cover, welcome and how-it-works pages, the whole of Year 5, a look at the 11+ and STEM strands, tips for home, and a page about the full booklet. It's chosen from the full booklet's own pages, so the two can't drift apart (`buildBookletSample` in `src/booklet/model.ts`).
+- A public page, `curriculum/booklet.html` ("Free curriculum booklet sample"), with the cover and a sample page as pictures, a download button and what's in the full booklet. It's linked from the curriculum hub, in the sitemap and in `llms.txt`.
+- `npm run booklet` now builds both PDFs and the two preview pictures. It also showed that one Year 4 page in the full booklet ran slightly past its page area, which is fixed. The server now labels PDFs correctly.
+
 ## Email signature and mail set-up guide
 - A branded HTML email signature (`docs/email/signature.html`, with a plain-text version) and its logo (`public/email/quarter-signature-logo.png`, drawn by `scripts/make-email-assets.mjs`). It includes the company details the law requires on business emails.
 - `docs/EMAIL_ADDRESSES.md` explains how to forward `hello@yourquarter.co.uk` to `hello@roger-richman.com` and how to reply from that mailbox as `hello@yourquarter.co.uk` (through Resend or Zoho SMTP), then paste the signature.

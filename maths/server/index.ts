@@ -106,7 +106,7 @@ const humanOk = (pass: string | undefined) => !turnstile || passIsValid(turnstil
 if (accounts) accounts.humanPassOk = humanOk;
 const verifyHits = new Map<string, number[]>();
 
-const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json", ".txt": "text/plain; charset=utf-8", ".xml": "application/xml; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp" };
+const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".ttf": "font/ttf", ".webmanifest": "application/manifest+json", ".json": "application/json", ".txt": "text/plain; charset=utf-8", ".xml": "application/xml; charset=utf-8", ".png": "image/png", ".pdf": "application/pdf", ".jpg": "image/jpeg", ".ico": "image/x-icon", ".webp": "image/webp" };
 
 function cors(req: IncomingMessage, res: ServerResponse) {
   const origin = req.headers.origin;

@@ -3392,3 +3392,9 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .site-shell { display: flex; flex-direction: column; min-height: 100dvh; }
 .site-shell > .legal-page { min-height: 0; flex: 1 0 auto; width: 100%; }
 .site-foot { margin-top: 24px; padding: clamp(24px, 4vw, 40px) 0 calc(12px + env(safe-area-inset-bottom, 0px)); color-scheme: dark; }
+
+/* The free booklet sample page: the cover and a sample page side by side, stacking on a phone */
+.booklet-previews { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 18px 0; }
+.booklet-previews figure { margin: 0; }
+.booklet-previews img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--paper-depth); }
+.booklet-previews figcaption { margin-top: 6px; font-size: .875rem; color: var(--muted); text-align: center; }
