@@ -1,6 +1,6 @@
 import { recall, remember, forgetLearner, restoreScroll, scrollNow } from "./memory";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
-import { loadStore, saveStore, type Store } from "../engine/storage";
+import { STORE_KEY, loadStore, mergeFromOtherScreen, parseStore, saveStore, type Store } from "../engine/storage";
 import type { Profile } from "../engine/progress";
 import { Ctx, type Route } from "./context";
 import { Onboarding } from "./onboarding";
@@ -50,6 +50,17 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   const session = useRef(Math.random().toString(36).slice(2));
   const [route, setRouteRaw] = useState<Route>(() => tabRoute(location.search) ?? (store.profiles.length ? { name: "home" } : { name: "onboard", first: true }));
   useEffect(() => { if (bridge) bridge.persist(store); else saveStore(store); }, [store]);
+  // another screen on this device saved: take its changes to the other children, and keep this screen's own child as it is
+  useEffect(() => {
+    if (bridge) return;
+    const on = (e: StorageEvent) => {
+      if (e.key !== STORE_KEY) return;
+      const saved = parseStore(e.newValue);
+      if (saved) setStore((s) => mergeFromOtherScreen(s, saved));
+    };
+    addEventListener("storage", on);
+    return () => removeEventListener("storage", on);
+  }, [bridge]);
   useEffect(() => {
     bridge?.setHandlers({
       // a learner made on this device got its permanent id from the server

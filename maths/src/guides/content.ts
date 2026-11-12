@@ -123,6 +123,7 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Curriculum booklet: a designed PDF of everything quarter covers, for subscribed accounts.",
       "My information: download everything stored about your child, or delete it.",
       "Weekly email: turn it on in Settings to get a short email each week with how your child did and what was tricky. It is only sent if they practised, and every email has an unsubscribe link.",
+      "Several children: each can use their own screen at the same time. On the Me page, choose who is using that screen. Two screens showing the same child at once isn't a good idea, as the one that saves last wins.",
       "Delete this learner removes their progress.",
     ],
   },

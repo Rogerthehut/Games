@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Two screens at once, with different children
+Two browser tabs or windows on one device can each show a different child (chosen on Me). Before, whichever screen saved last overwrote the other's progress, because every save wrote everyone's data. Now each screen picks up the other's changes to the other children straight away, keeps its own child exactly as it is, and remembers which child it was showing after a reload (kept per tab, not shared). Two screens on the *same* child still end up with whichever saved last. Signed-in accounts already save each child separately with a version check, so different devices were fine. Tests: `src/engine/storage.test.ts`, `npm run e2e:multi-screen`.
+
 ## Printable practice papers
 - **Print a paper:** "Print this paper instead" on the practice paper screen, and a "Practice papers to print" card in the Parents' area. The 20-question maths paper and the Quest-style, 50-minute and 60-minute maths papers can be printed on A4, with name, date and mark boxes, working space and an answer line (`src/ui/print-paper.tsx`).
 - **Answers kept separate:** "Print the paper" and "Print answers and mark scheme" print different pages, so the answers can be kept back. The mark scheme gives each answer with the steps and the topic.

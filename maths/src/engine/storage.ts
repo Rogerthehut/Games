@@ -11,12 +11,36 @@ export interface Store {
 
 export const emptyStore = (): Store => ({ version: STORE_VERSION, profiles: [], activeId: null });
 
+/** Which child this browser tab is showing. A tab remembers its own choice (even after a reload), so two screens can show two children. */
+const TAB_KEY = "mathpath.tab-active";
+const tabChoice = (): string | null => { try { return sessionStorage.getItem(TAB_KEY); } catch { return null; } };
+
+/**
+ * Takes the changes another screen saved (the shared save changed under us), keeping what this screen is showing: its own child's
+ * progress stays as it is here, and every other child comes from the other screen. Without this, the screen that saved last would
+ * overwrite the other's work. Returns the same object when nothing differs.
+ */
+export function mergeFromOtherScreen(mine: Store, saved: Store): Store {
+  const own = mine.activeId ?? mine.profiles[0]?.id;
+  const ownProfile = mine.profiles.find((p) => p.id === own);
+  const profiles = saved.profiles.map((p) => (p.id === own && ownProfile ? ownProfile : p));
+  if (ownProfile && !profiles.some((p) => p.id === own)) profiles.push(ownProfile); // a child just added here stays
+  const same = profiles.length === mine.profiles.length && profiles.every((p, i) => JSON.stringify(p) === JSON.stringify(mine.profiles[i]));
+  return same ? mine : { ...mine, profiles };
+}
+export const parseStore = (raw: string | null): Store | null => {
+  try { const s = raw ? (JSON.parse(raw) as Store) : null; return s?.version === STORE_VERSION && Array.isArray(s.profiles) ? { ...s, profiles: s.profiles.map((p) => ({ ...p, baselines: p.baselines ?? [] })) } : null; } catch { return null; }
+};
+export const STORE_KEY = KEY;
+
 export function loadStore(): Store {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return emptyStore();
     const s = JSON.parse(raw) as Store;
-    return s?.version === STORE_VERSION && Array.isArray(s.profiles) ? { ...s, profiles: s.profiles.map((p) => ({ ...p, baselines: p.baselines ?? [] })) } : emptyStore();
+    if (s?.version !== STORE_VERSION || !Array.isArray(s.profiles)) return emptyStore();
+    const mine = tabChoice(), activeId = mine && s.profiles.some((p) => p.id === mine) ? mine : s.activeId;
+    return { ...s, activeId, profiles: s.profiles.map((p) => ({ ...p, baselines: p.baselines ?? [] })) };
   } catch {
     return emptyStore();
   }
@@ -26,6 +50,7 @@ export function saveStore(s: Store): void {
   try {
     if (s.profiles.length) localStorage.setItem(KEY, JSON.stringify(s));
     else localStorage.removeItem(KEY);
+    try { if (s.activeId) sessionStorage.setItem(TAB_KEY, s.activeId); } catch { /* ignore */ }
   } catch { /* storage unavailable: progress lasts this visit only */ }
 }
 
