@@ -11,6 +11,7 @@
     "test": "vitest run",
     "server": "node --enable-source-maps dist-server/index.mjs",
     "booklet": "tsx scripts/build-booklet.ts",
+    "audit:worked": "tsx scripts/audit-worked.ts",
     "paper-sample": "tsx scripts/build-paper-sample.ts",
     "e2e:gate-position": "tsx scripts/gate-position-e2e.ts",
     "e2e:kid-pin": "tsx scripts/kid-pin-e2e.ts",

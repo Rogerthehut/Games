@@ -7,8 +7,10 @@ import { chunkWork, columnManyWork, columnWork, jumpLine, placeChart } from "../
  * question's own wording and answer; if it can't make sense of a question it returns nothing and the question stays as it was. The
  * tests check every builder against the question's own answer, so a picture can't disagree with it.
  */
-import { dec, fmt, thin, clean, numbers, val, type Built, type Builder } from "./worked-utils";
+import { dec, fmt, thin, clean, numbers, val, sequenceLine, type Built, type Builder } from "./worked-utils";
 import { FRACTION_BUILDERS } from "./worked-fractions";
+import { MORE_BUILDERS } from "./worked-more";
+import { SECONDARY_BUILDERS } from "./worked-secondary";
 
 // ---------------------------------------------------------------------------------------------- place value
 const placeValueBuilder: Builder = (q) => {
@@ -58,11 +60,6 @@ const roundingBuilder: Builder = (q) => {
 };
 
 // ---------------------------------------------------------------------------------------------- counting in steps, and through zero
-function sequenceLine(start: number, step: number, count: number, answerAt = count - 1): Built {
-  const terms = Array.from({ length: count }, (_, i) => start + i * step), lo = Math.min(...terms), hi = Math.max(...terms), pad = Math.abs(step) / 2;
-  const labels: Record<number, string> = {}; for (const t of terms) labels[t] = String(t).replace("-", "−");
-  return { figure: jumpLine({ min: lo - pad, max: hi + pad, step: Math.abs(step), tickLabels: labels, marks: [{ v: terms[0], tone: "start" }, { v: terms[answerAt], tone: "end", label: answerAt === count - 1 ? undefined : "?" }], jumps: terms.slice(1).map((t, i) => ({ from: terms[i], to: t, label: `${step > 0 ? "+" : "−"}${Math.abs(step)}` })), alt: `A number line with hops of ${Math.abs(step)} ${step > 0 ? "up" : "down"}: ${terms.join(", ")}.` }) };
-}
 const countingBuilder: Builder = (q) => {
   const p = clean(q.prompt), a = val(q);
   if (a === null) return null;
@@ -186,7 +183,7 @@ const chunkingBuilder: Builder = (q) => {
 };
 
 const BUILDERS: Record<string, Builder> = {
-  ...FRACTION_BUILDERS,
+  ...FRACTION_BUILDERS, ...MORE_BUILDERS, ...SECONDARY_BUILDERS,
   "place-value": placeValueBuilder, "place-value-millions": placeValueBuilder, "large-numbers": (q) => (/[×÷]/.test(clean(q.prompt)) ? shiftBuilder(q) : placeValueBuilder(q)),
   "divide-10-100": shiftBuilder, hundredths: decimalNumberBuilder, thousandths: decimalNumberBuilder,
   rounding: roundingBuilder, "count-steps": countingBuilder, "count-steps-more": countingBuilder, "count-through-zero": (q) => (temperatureBuilder(q) ?? countingBuilder(q)),
