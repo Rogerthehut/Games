@@ -1,3 +1,4 @@
+import { Portal } from "./portal";
 import type { ComponentChildren } from "preact";
 import { useMemo, useState } from "preact/hooks";
 import { useAccount } from "./account-context";
@@ -76,7 +77,7 @@ export function ParentGate({ onPass, onCancel, embedded = false }: { onPass: () 
 
   const frame = (children: ComponentChildren) => embedded
     ? <div class="gate gate-embedded" role="region" aria-labelledby="gate-h">{children}</div>
-    : <div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="gate-h"><div class="gate">{children}</div></div>;
+    : <Portal><div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="gate-h"><div class="gate">{children}</div></div></Portal>;
   return frame(
     <>
         <h2 id="gate-h">Parents' area</h2>

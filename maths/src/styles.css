@@ -312,7 +312,7 @@ textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8r
 .recap li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--surface); border-radius: var(--r-md); border: 1px solid var(--line); flex-wrap: wrap; font-weight: 700; }
 
 /* parents' gate */
-.gate-backdrop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / .5); animation: pop var(--dur-2) var(--ease-out) both; }
+.gate-backdrop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: safe center; overflow-y: auto; overscroll-behavior: contain; padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(16px, env(safe-area-inset-bottom, 0px)); background: rgb(0 0 0 / .5); animation: pop var(--dur-2) var(--ease-out) both; }
 .gate { width: 100%; max-width: 360px; padding: 24px; border-radius: calc(var(--radius) + 6px); background: var(--surface); text-align: center; }
 .gate p { color: var(--muted); }
 .gate-sum { margin: 4px 0 10px; font-family: var(--font-display); font-size: 2.2rem; font-weight: 850; color: var(--ink) !important; }
@@ -2682,8 +2682,8 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 /* every new screen eases in: a short fade and lift, so nothing pops */
 @keyframes screen-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes screen-fade { from { opacity: 0; } to { opacity: 1; } }
-#app > :where(main, div, section) { animation: screen-fade .32s cubic-bezier(.2, .8, .2, 1) both; }
-.content > :where(div, section, main, article) { animation: screen-in .34s cubic-bezier(.2, .8, .2, 1) both; }
+#app > :where(main, div, section) { animation: screen-fade .32s cubic-bezier(.2, .8, .2, 1) backwards; }
+.content > :where(div, section, main, article) { animation: screen-in .34s cubic-bezier(.2, .8, .2, 1) backwards; } /* backwards, not both: once it has finished nothing is left on the screen to move fixed pop-ups */
 @media (prefers-reduced-motion: reduce) {
   #app > :where(main, div, section), .content > * { animation: none; }
   .boot-splash .cube-mark { animation: none; }

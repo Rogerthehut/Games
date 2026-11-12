@@ -12,6 +12,7 @@
     "server": "node --enable-source-maps dist-server/index.mjs",
     "booklet": "tsx scripts/build-booklet.ts",
     "paper-sample": "tsx scripts/build-paper-sample.ts",
+    "e2e:gate-position": "tsx scripts/gate-position-e2e.ts",
     "e2e:kid-pin": "tsx scripts/kid-pin-e2e.ts",
     "e2e:multi-screen": "tsx scripts/multi-screen-e2e.ts",
     "e2e:print-paper": "tsx scripts/print-paper-e2e.ts",

@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { Portal } from "./portal";
 import { Avatar } from "./avatar";
 import { useApp } from "./context";
 import { ParentGate, PinPad, parentUnlocked } from "./gate";
@@ -30,7 +31,7 @@ export function KidPinGate({ learner, onPass, onCancel }: { learner: Profile; on
   };
   if (step === "grownup") return <ParentGate onCancel={() => setStep("forgot")} onPass={() => setStep("choose")} />;
   return (
-    <div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="kidpin-h" data-testid="kid-pin-gate">
+    <Portal><div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="kidpin-h" data-testid="kid-pin-gate">
       <div class="gate">
         <div class="kidpin-who"><Avatar choice={learner.avatar} year={learner.year} size={44} /><h2 id="kidpin-h">{learner.name}'s PIN</h2></div>
         {step === "pin" ? (
@@ -63,7 +64,7 @@ export function KidPinGate({ learner, onPass, onCancel }: { learner: Profile; on
           </>
         )}
       </div>
-    </div>
+    </div></Portal>
   );
 }
 

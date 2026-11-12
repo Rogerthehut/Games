@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Fix: the Parents' area sum opens in front of you on a phone
+On an iPhone in Safari, tapping Parents' area from the bottom of a long page (Me) dimmed the page but put the sum and keypad half way up it, out of sight. Two causes, both fixed: (1) every screen's entrance animation used `both`, which leaves an animation on the screen after it finishes, and Safari then places "fixed" pop-ups against the whole long screen instead of the visible part; it is now `backwards`, so nothing is left behind; (2) the sum and child-PIN pop-ups are now drawn straight on the page body (`src/ui/portal.tsx`), so no screen can move them. On very short phones the pop-up scrolls so every key is reachable. Test: `npm run e2e:gate-position` (three phone sizes). Not checked: Safari itself (no WebKit here), so please try it on your iPhone.
+
 ## Groundwork for the iPhone and iPad app
 - **`src/native/bridge.ts`:** a small link between the web app and the app shell (an Expo project in `/mobile`, in progress). In the app, printing and saving files are handed to the phone (print sheet, share sheet), because a web view can't do either; in a browser nothing changes. Printing, the progress CSV, the data export, the curriculum booklet and the printable papers all go through it. Tests: `src/native/bridge.test.ts`.
 - **`/mobile`:** the Expo project is started (dependencies chosen to match Expo SDK 58). The shell itself, the iPad settings and the build notes come next. iPad and tablet layout is the priority.
