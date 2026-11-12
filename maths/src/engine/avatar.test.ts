@@ -3,8 +3,8 @@ import { avatarBand, avatarForYear } from "./avatar";
 
 describe("avatar age bands", () => {
   it("matches the school year to a band", () => {
-    expect([3, 4, 6].map(avatarBand)).toEqual(["junior", "junior", "junior"]);
-    expect([7, 8, 10].map(avatarBand)).toEqual(["older", "older", "older"]);
+    expect([3, 4, 5].map(avatarBand)).toEqual(["junior", "junior", "junior"]);
+    expect([6, 8, 10].map(avatarBand)).toEqual(["older", "older", "older"]);
     expect([11, 12, 13].map(avatarBand)).toEqual(["teen", "teen", "teen"]);
   });
   it("keeps a portrait from the learner's own band", () => {

@@ -8,7 +8,7 @@ import skater from "../assets/avatars/skater-clay.webp";
 
 const originals = { explorer, builder, artist, skater };
 const junior = import.meta.glob<string>("../assets/avatars/variants/*.webp", { eager: true, import: "default" });
-// Art for Years 7 to 10 goes in variants-older/ and for Years 11 to 13 in variants-teen/, named like the others (explorer-1.webp).
+// Art for Years 6 to 10 goes in variants-older/ and for Years 11 to 13 in variants-teen/, named like the others (explorer-1.webp).
 const teen = import.meta.glob<string>("../assets/avatars/variants-teen/*.webp", { eager: true, import: "default" });
 const older = import.meta.glob<string>("../assets/avatars/variants-older/*.webp", { eager: true, import: "default" });
 

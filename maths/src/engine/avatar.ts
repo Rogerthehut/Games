@@ -16,12 +16,12 @@ export const GLASSES = [
 type Glasses = typeof GLASSES[number]["id"];
 
 /**
- * Portraits come in three age bands, matched to the learner's school year: the youngest set for Years 3 to 6 (and below),
- * slightly older ones for Years 7 to 10, and teenage ones for Years 11 to 13. A learner only gets portraits from their own band.
+ * Portraits come in three age bands, matched to the learner's school year: the youngest set for Years 3 to 5 (and below),
+ * preteen ones for Years 6 to 10, and teenage ones for Years 11 to 13. A learner only gets portraits from their own band.
  */
 export const AVATAR_BANDS = [
-  { id: "junior", label: "Years 3 to 6", from: 0, to: 6 },
-  { id: "older", label: "Years 7 to 10", from: 7, to: 10 },
+  { id: "junior", label: "Years 3 to 5", from: 0, to: 5 },
+  { id: "older", label: "Years 6 to 10", from: 6, to: 10 },
   { id: "teen", label: "Years 11 to 13", from: 11, to: 99 },
 ] as const;
 export type AvatarBand = typeof AVATAR_BANDS[number]["id"];
