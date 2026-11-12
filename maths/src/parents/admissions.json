@@ -458,7 +458,19 @@
         "path": "https://www.gloucestershire.gov.uk/schooladmissions/grammar-schools/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Gloucestershire grammar schools",
+        "test": "Varies by school (Future Stories for 2028 entry)",
+        "note": "The schools register children and run the test themselves, not the council. For 2027 entry, registration ran from noon on 18 May to noon on 26 June 2026 and the test was on Saturday 12 September 2026. For 2028 entry the window is noon 8 February to noon 19 March 2027, with the test planned for Saturday 3 July 2027.",
+        "source": {
+          "label": "Gloucestershire County Council grammar school testing",
+          "path": "https://www.gloucestershire.gov.uk/schooladmissions/grammar-schools/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "hertfordshire",
@@ -595,7 +607,19 @@
         "path": "https://www.heckgrammar.co.uk/admissions/entrance-exam/"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Heckmondwike Grammar School",
+        "test": "Future Stories (FSCE)",
+        "note": "Children must pass the school's entrance examination, which the school says is the Future Stories Community Enterprise exam, and meet the admission criteria. Check the school's policy for your year.",
+        "source": {
+          "label": "Heckmondwike Grammar School admissions",
+          "path": "https://www.heckgrammar.co.uk/admissions/admissions-policy/"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "lancashire",
@@ -609,7 +633,17 @@
         "label": "Lancashire County Council school admissions and selection",
         "path": "https://live.lancashire.gov.uk/schools-and-education/school-admissions/how-we-allocate-school-places/"
       }
-    ]
+    ],
+    "test": {
+      "provider": "Not confirmed",
+      "status": "reported",
+      "note": "The council's admissions pages explain how places are allocated but don't say how selective schools test, and the school-by-school details weren't found. Check each school's own admissions page.",
+      "source": {
+        "label": "Lancashire County Council school admissions and selection",
+        "path": "https://live.lancashire.gov.uk/schools-and-education/school-admissions/how-we-allocate-school-places/"
+      },
+      "checked": "2026-11-12"
+    }
   },
   {
     "id": "lincolnshire",
@@ -820,7 +854,23 @@
         "path": "https://www.phsg.org/page/?pid=425"
       },
       "checked": "2026-11-11"
-    }
+    },
+    "schools": [
+      {
+        "name": "Plymouth High School for Girls (and Devonport High School for Girls)",
+        "test": "Quest Assessment",
+        "parts": [
+          "English comprehension",
+          "Maths"
+        ],
+        "note": "English comprehension and Maths papers taken together, about 8am to 12.30pm. For 2027 entry the compulsory real test was on Saturday 12 September 2026 and registration ran from 27 April to 31 August 2026. Register directly with one of the two schools, not both. A non-compulsory practice (mock) exam ran on 4 July 2026.",
+        "source": {
+          "label": "Plymouth High School for Girls 11+ information",
+          "path": "https://www.phsg.org/page/?pid=425"
+        },
+        "checked": "2026-11-12"
+      }
+    ]
   },
   {
     "id": "reading",
