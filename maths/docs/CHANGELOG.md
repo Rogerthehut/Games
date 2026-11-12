@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## "See how it explains it" on the landing page
+The cell beside the Learning report card now holds a quiet, self-playing panel on graph paper that draws three worked examples step by step: taking away with an exchange (342 − 158), adding fractions (½ + ¼) and sharing with a bus stop (156 ÷ 4). Nothing to click, though there are scene dots and a pause button. It's hand-drawn SVG that moves only position and opacity, plays only while on screen, and stands still (on the finished picture) for people who prefer reduced motion. `scripts/explain-card-e2e.ts` checks it on desktop, iPad and iPhone widths.
+
 ## Search and AI findability refresh
 - Sitemap dates moved to today, so crawlers see the changed 11+ page. `/llms-full.txt` now includes the 11+ test notes for every area and the per-school entries, each with its source and confidence. `llms.txt` and the home page's structured data (feature list) now mention the learning report, timed papers, times tables challenges and the weekly email. `/ops` is in `robots.txt` and sends `noindex`. Icons, favicons and the manifest were checked and need no change.
 

@@ -1,6 +1,7 @@
 import { ActivityArt } from "./activity-art";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
+import { ExplainCard } from "./landing-explain";
 import { CubeMark, Wordmark } from "./wordmark";
 import parentContent from "../parents/content.json";
 
@@ -184,6 +185,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
               <ActivityArt kind="checkup" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
+            <li class="l-explain-cell"><ExplainCard onStart={onStart} /></li>
           </ul>
         </div>
       </section>
