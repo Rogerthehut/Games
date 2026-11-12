@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Labels on icon buttons
+The two help icons on Me now show what they are: instantly on mouse hover and keyboard focus, and on a touch screen when pressed and held (the label fades after a moment, and releasing doesn't open anything). Screen readers always had the label. The reusable `TipButton` (`src/ui/tip.tsx`) is there for other icon-only buttons. Check: `npm run e2e:guides`.
+
 ## Learning report: Fix this, then and now, walk-through
 - **Fix this:** one button per topic asks the exact questions that went wrong again (from their seeds), then fresh ones at the same level. How it went is saved (`fixes`) and shown as "Fix practice: 2 sets, latest 6 of 8 right".
 - **Then and now:** each topic compares wrong answers with the same length of time before, and shows where the topic stands now. A "Looking better" list shows topics that had wrong answers before and none now.

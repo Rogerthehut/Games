@@ -3309,3 +3309,10 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .me-head-actions { margin-left: auto; display: flex; gap: 8px; align-self: flex-start; }
 .me-head-actions .icon-btn { width: 44px; height: 44px; border: 1.5px solid var(--line); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--line); }
 .me-head-actions .icon-btn:hover { border-color: var(--accent); }
+
+/* labels for icon-only buttons */
+.tip-wrap { position: relative; display: inline-flex; }
+.tip { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; max-width: 70vw; padding: 6px 12px; border-radius: 10px; background: var(--ink); color: var(--surface); font: 700 .82rem/1.2 var(--font-body); white-space: nowrap; pointer-events: none; opacity: 0; transform: translateY(-3px); transition: opacity 120ms ease, transform 120ms ease; box-shadow: 0 4px 12px #20143a40; }
+.tip.on { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+.tip-wrap .icon-btn { -webkit-touch-callout: none; user-select: none; }

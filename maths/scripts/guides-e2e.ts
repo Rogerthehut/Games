@@ -31,6 +31,27 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   await page.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
   const nav = page.locator("[data-testid=nav-me]:visible").first(); if (await nav.count()) await nav.click(); else await page.locator(".rail-me").click(); await page.waitForTimeout(400);
 
+  // the icon buttons say what they are: on hover, on keyboard focus, and on a long press (which doesn't open anything)
+  const tip = page.locator(".me-head-actions .tip-wrap").nth(1).locator(".tip");
+  const guideBtn = page.getByTestId("open-child-guide");
+  if (label === "desktop") {
+    ok(`${label}: the label is hidden until needed`, !(await tip.evaluate((e: HTMLElement) => e.classList.contains("on"))));
+    await guideBtn.hover(); await page.waitForTimeout(250);
+    ok(`${label}: hovering shows what the button is`, (await tip.innerText()) === "How quarter works" && (await tip.evaluate((e: HTMLElement) => e.classList.contains("on"))));
+    await page.mouse.move(5, 5); await page.waitForTimeout(250);
+    ok(`${label}: and moving away hides it`, !(await tip.evaluate((e: HTMLElement) => e.classList.contains("on"))));
+    await page.keyboard.press("Tab"); for (let i = 0; i < 30 && !(await guideBtn.evaluate((e: HTMLElement) => e === document.activeElement)); i++) await page.keyboard.press("Tab");
+    ok(`${label}: the keyboard focus shows it too`, await tip.evaluate((e: HTMLElement) => e.classList.contains("on")));
+    await page.keyboard.press("Escape"); await page.waitForTimeout(150);
+  }
+  await guideBtn.evaluate((e: HTMLElement) => e.dispatchEvent(new PointerEvent("pointerdown", { pointerType: "touch", bubbles: true })));
+  await page.waitForTimeout(650);
+  ok(`${label}: pressing and holding on touch shows the label`, await tip.evaluate((e: HTMLElement) => e.classList.contains("on")));
+  await guideBtn.evaluate((e: HTMLElement) => { e.dispatchEvent(new PointerEvent("pointerup", { pointerType: "touch", bubbles: true })); e.click(); });
+  await page.waitForTimeout(300);
+  ok(`${label}: and the release after a long press doesn't open the guide`, (await page.getByTestId("guide-list").count()) === 0);
+  await page.waitForTimeout(2400);
+  ok(`${label}: the label fades after a moment`, !(await tip.evaluate((e: HTMLElement) => e.classList.contains("on"))));
   await page.getByTestId("open-child-guide").click(); await page.waitForTimeout(400);
   ok(`${label}: the children's guide opens from Me without a PIN`, (await page.getByTestId("guide-list").count()) === 1 && (await page.getByTestId("gate-input").count()) === 0);
   ok(`${label}: it is the children's guide only (no switch)`, (await page.getByTestId("guide-parents").count()) === 0 && /Your first go/.test(await page.locator("body").innerText()));

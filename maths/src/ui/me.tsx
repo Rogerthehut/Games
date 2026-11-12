@@ -6,6 +6,7 @@ import { currentStreak, statusOf, type Profile } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
 import { useApp } from "./context";
 import { SyncChip } from "./account-section";
+import { TipButton } from "./tip";
 import { ParentGate, parentUnlocked } from "./gate";
 import { useWide } from "./tables-note";
 import { Icon } from "./icons";
@@ -65,8 +66,8 @@ export function Me() {
           <SyncChip />
         </div>
         <div class="me-head-actions" role="group" aria-label="Help">
-          <button type="button" class="icon-btn" onClick={() => go({ name: "tour" })} aria-label="Show me around" title="Show me around" data-testid="replay-tour"><Icon name="star" size={22} /></button>
-          <button type="button" class="icon-btn" onClick={() => go({ name: "child-guide" })} aria-label="How quarter works" title="How quarter works" data-testid="open-child-guide"><Icon name="book" size={22} /></button>
+          <TipButton icon="star" label="Show me around" onClick={() => go({ name: "tour" })} testId="replay-tour" />
+          <TipButton icon="book" label="How quarter works" onClick={() => go({ name: "child-guide" })} testId="open-child-guide" />
         </div>
       </header>
 
