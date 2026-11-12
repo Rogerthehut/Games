@@ -5,6 +5,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Search and AI findability refresh
 - Sitemap dates moved to today, so crawlers see the changed 11+ page. `/llms-full.txt` now includes the 11+ test notes for every area and the per-school entries, each with its source and confidence. `llms.txt` and the home page's structured data (feature list) now mention the learning report, timed papers, times tables challenges and the weekly email. `/ops` is in `robots.txt` and sends `noindex`. Icons, favicons and the manifest were checked and need no change.
 
+## FAQ wording
+The "Where is my child's progress saved?" answer no longer mentions where the database is held; the privacy notice still says it.
+
 ## Remembering where people left off, and smaller fixes
 - **Remembers the place.** Coming back to Today, Skills (map and list), Plan or Me, or going back from a sub-screen, now puts the page exactly where it was left, including after the app is closed and reopened. The Parents' area remembers its tab, the learning report remembers its period, the guides remember which guide was open, and the Skills list remembers its filters. It's kept on the device only (`quarter.where.v1`: positions and choices, no answers or personal details) and cleared when a learner is deleted. Check: `npm run e2e:memory`.
 - **Search panel on Topics.** The Find a topic panel now stays visible until the first topic in the list reaches the top of the page, fades only then, and comes back when you scroll back up past that point. It no longer reacts to scroll speed.
