@@ -99,6 +99,7 @@ export function Me() {
         </section>
       )}
 
+      {!wide && (
       <section aria-labelledby="who-h">
         <h2 id="who-h">Who's learning</h2>
         <ul class="rows">
@@ -113,6 +114,7 @@ export function Me() {
           <li><button class="row add" onClick={() => (parentUnlocked() ? go({ name: "onboard" }) : setGate("add"))} data-testid="add-learner"><Icon name="plus" /><span>Add someone, or change year</span></button></li>
         </ul>
       </section>
+      )}
       <MyPin />
 
       <section aria-labelledby="avatar-h">

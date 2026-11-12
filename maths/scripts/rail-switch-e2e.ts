@@ -31,7 +31,7 @@ ok("Escape closes it", (await p.getByTestId("rail-switch-list").count()) === 0);
 await card.click(); await p.getByTestId("rail-switch-sam-id").click(); await p.waitForTimeout(600);
 ok("choosing Sam switches to him", /Sam/.test(await p.getByTestId("rail-me").innerText()) && (await p.getByTestId("rail-switch-list").count()) === 0);
 await p.getByTestId("rail-me").click(); await p.getByTestId("rail-open-me").click(); await p.waitForTimeout(500);
-ok("'Me and settings' opens Me", /Who's learning/i.test(await p.locator("body").innerText()));
+ok("'Me and settings' opens Me, and the learner list is no longer repeated there on a wide screen", /Look and feel|Sound/i.test(await p.locator("body").innerText()) && !/Who's learning/i.test(await p.locator("body").innerText()));
 await p.getByTestId("rail-me").click(); await p.getByTestId("rail-add-learner").click(); await p.waitForTimeout(400);
 ok("'Add someone' asks a grown-up first", (await p.locator(".gate-sum").count()) === 1);
 await b.close();

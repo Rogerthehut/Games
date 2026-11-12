@@ -53,6 +53,11 @@ const reasoningList = async (p) => {
   await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {});
   for (const box of await p.getByRole("combobox").all()) { if (await box.selectOption({ label: "Reasoning (11+)" }).then(() => true, () => false)) break; }
 };
+const openMe = async (p) => {
+  const rail = p.getByTestId("rail-me");
+  if (await rail.isVisible().catch(() => false)) { await rail.click(); await wait(p, 250); await p.getByTestId("rail-open-me").click(); await wait(p, 600); return; }
+  await navTab(p, "me").catch(async () => { await p.getByRole("button", { name: /Maya/ }).first().click(); await wait(p, 600); });
+};
 const skillList = async (p) => { await navTab(p, "skills"); await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {}); await wait(p, 300); };
 const practiseSkill = async (p, id) => { await p.locator(`#skill-${id} button:has-text("Practise")`).click(); await wait(p, 600); };
 const openQuestion = async (p) => { await p.getByTestId("intro-skip").click().catch(() => {}); await wait(p, 500); };
@@ -66,7 +71,12 @@ const SCREENS = [
   { name: "skills-list", go: async (p) => { await reasoningList(p); await wait(p, 400); } },
   { name: "plan", go: async (p) => { await navTab(p, "plan"); } },
   { name: "plan-form", go: async (p) => { await navTab(p, "plan"); await click(p, "edit-plan").catch(() => {}); } },
-  { name: "me", go: async (p) => { await navTab(p, "me").catch(async () => { await p.getByRole("button", { name: /Maya/ }).first().click(); await wait(p, 600); }); } },
+  { name: "me", go: async (p) => { await openMe(p); } },
+  { name: "rail-switcher-open", go: async (p) => { const rail = p.getByTestId("rail-me"); if (await rail.isVisible().catch(() => false)) { await rail.click(); await wait(p, 300); } } },
+  { name: "print-paper", go: async (p) => { await navTab(p, "plan"); await click(p, "take-mock"); await click(p, "paper-maths"); await click(p, "mock-print"); await wait(p, 500); } },
+  { name: "practice-worked-column", go: async (p) => { await skillList(p); await practiseSkill(p, "add-sub"); await openQuestion(p); await click(p, "hint").catch(() => {}); await click(p, "show-me").catch(() => {}); await wait(p, 400); } },
+  { name: "practice-worked-fraction", go: async (p) => { await skillList(p); await practiseSkill(p, "frac-add"); await openQuestion(p); await click(p, "hint").catch(() => {}); await click(p, "show-me").catch(() => {}); await wait(p, 400); } },
+  { name: "tables-scoreboard", go: async (p) => { await click(p, "start-tables"); await click(p, "open-board"); await wait(p, 300); } },
   { name: "practice-intro", go: async (p) => { await click(p, "start-practice"); } },
   { name: "practice-number", go: async (p) => { await click(p, "start-practice"); await openQuestion(p); } },
   { name: "practice-fraction", go: async (p) => { await navTab(p, "skills"); await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {}); await wait(p, 300); await p.getByRole("combobox").nth(1).selectOption("Number").catch(() => {}); await practiseSkill(p, "frac-add"); await openQuestion(p); } },

@@ -37,7 +37,7 @@ const openMeVia = async (pg: any) => { const rail = pg.getByTestId("rail-me"); i
 const A = await open();
 const B = await open();
 await openMeVia(B);
-await B.getByRole("button", { name: /Sam/ }).first().click(); await B.waitForTimeout(600);
+await B.getByTestId("rail-me").click(); await B.getByRole("menuitemradio", { name: /Sam/ }).click(); await B.waitForTimeout(600);
 await openMeVia(A);
 ok("screen A shows the first child", /Maya/.test(await A.locator("body").innerText()));
 ok("screen B shows the second child", /Sam/.test(await B.locator("body").innerText()));

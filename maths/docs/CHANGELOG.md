@@ -8,6 +8,11 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Smaller sticky notes in the left panel, and the learner list only on phones
+- The Times tables and STEM lab notes in the left-hand panel are about a fifth smaller (and a little smaller again on shorter screens), so they leave room above the learner card and the panel no longer needs its scroll bar on desktop and iPad.
+- On tablets and desktops the "Who's learning" list is gone from the Me page, because the switcher in the left-hand panel does that job. Phones keep the list on Me.
+- Fix: choosing "I'm a grown-up" on a child's PIN prompt used to leave the Parents' area unlocked for five minutes. It now locks again straight away.
+
 ## Learner switcher in the left-hand panel
 The learner card at the bottom of the left panel (the avatar with "hi" and the name) is now a switcher. Tap it to open a list of everyone on the account, with a tick on who is using this screen; tap a name to switch (a child with a PIN asks for it first, as on Me). The list also has **Me and settings** and **Add someone, or change year** (which asks a grown-up). Escape or a tap outside closes it. The same list is still on the Me page, which is where phones use it. Tests: `npm run e2e:rail-switch`; the PIN and two-screen tests were updated to use it.
 

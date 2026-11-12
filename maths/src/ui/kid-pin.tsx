@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Portal } from "./portal";
 import { Avatar } from "./avatar";
 import { useApp } from "./context";
-import { ParentGate, PinPad, parentUnlocked } from "./gate";
+import { ParentGate, PinPad, lockParents, parentUnlocked } from "./gate";
 import { checkPin, clearPin, hasPin, kidKey, kidPinProblem, setPin } from "./pin";
 import type { Profile } from "../engine/progress";
 
@@ -29,7 +29,8 @@ export function KidPinGate({ learner, onPass, onCancel }: { learner: Profile; on
       setNote(r.waitSeconds > 0 ? `Too many tries. Please wait ${wait(r.waitSeconds)}.` : `That PIN isn't right. ${r.triesLeft} ${r.triesLeft === 1 ? "try" : "tries"} left before a short wait.`);
     } finally { setBusy(false); }
   };
-  if (step === "grownup") return <ParentGate onCancel={() => setStep("forgot")} onPass={() => setStep("choose")} />;
+  // the grown-up check is only to open this profile (or clear its PIN): the Parents' area locks again straight away, so nobody can slip in behind it
+  if (step === "grownup") return <ParentGate onCancel={() => setStep("forgot")} onPass={() => { lockParents(); setStep("choose"); }} />;
   return (
     <Portal><div class="gate-backdrop" role="dialog" aria-modal="true" aria-labelledby="kidpin-h" data-testid="kid-pin-gate">
       <div class="gate">
