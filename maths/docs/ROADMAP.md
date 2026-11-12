@@ -117,6 +117,19 @@ Possible later: a "recall time" chart per table, daily streaks, and a weekly fam
 
 Once the remaining roadmap items are done, a full screen audit across all aspect ratios (phones in both orientations, tablets, laptops, wide and ultrawide), using `scripts/screen-audit.mjs`, with fixes.
 
+## What's left, and who owns it
+
+Everything that can be built and tested from the code is done. What remains needs people, real devices or live accounts:
+
+| Item | Needs | Notes |
+| --- | --- | --- |
+| Learner pilot (Years 3–4 and 5–6) | A teacher or parents with children, consent | Also decides the "calmer default" and the first-interaction and neutral-highlight trials above. The Years 5–6 quieter style is parked for now |
+| Teacher and subject review | A maths teacher | Methods and reasons wording in the learning report, the KS2 coverage audit, pathway wording |
+| Solicitor review | A solicitor | Privacy notice, terms, DPIA **[CONFIRM]** items, Resend and Clerk data-processing terms |
+| Real-device checks | A phone and tablet | Safari header scrolling, print, read-aloud voices, Resend emails arriving, the ops sign-in code email |
+| Go-live accounts | You | Stripe and Clerk live keys, Resend domain and scheduler (`docs/EMAIL.md`), `OPS_ADMINS` and `OPS_SESSION_SECRET` (`docs/OPS.md`), Search Console, ICO registration |
+| Yearly upkeep | Autumn | Re-check the 11+ test dates and providers (`npm run fetch:11plus -- --all`), then update `src/parents/admissions.json` |
+
 ## Teaching and writing standards
 
 - **Key Stage 2.** Show the idea using familiar objects or pictures where they help. Link the picture to the symbols. Model one example, guide a second, then remove the prompts for an independent problem. Return to the idea later in a different context.
