@@ -1,5 +1,5 @@
 import type { Figure } from "../engine/types";
-import { jumpLine } from "../engine/worked";
+import { jumpLine, placeChart } from "../engine/worked";
 import { clean, dec, sequenceLine, val, type Builder } from "./worked-utils";
 
 /**
@@ -137,8 +137,65 @@ const expandSingle: Builder = (q) => {
   return { figure: table(["×", term(b, bx ? 1 : 0), `${c < 0 ? "−" : "+"}${Math.abs(c)}`], [[term(a, ax ? 1 : 0), term(a * b, px), term(a * c, ax ? 1 : 0)]], `A grid. Across the top: ${term(b, bx ? 1 : 0)} and ${c}. Down the side: ${term(a, ax ? 1 : 0)}. The two boxes are ${term(a * b, px)} and ${term(a * c, ax ? 1 : 0)}; together they are the answer.`) };
 };
 
+
+const reversePercent: Builder = (q) => {
+  const p = plain(q.prompt), m = p.match(/costs £(\d+) after a (\d+)% discount/), a = val(q);
+  if (!m || a === null) return null;
+  const paid = Number(m[1]), d = Number(m[2]);
+  return { figure: { type: "bar-model", rows: [{ label: `after a ${d}% discount you pay ${100 - d}%`, segments: [{ label: `${100 - d}% = ${money(paid)}`, size: 100 - d, tone: "a" }, { label: `${d}%`, size: d, tone: "c" }] }, { label: "so the original price, 100%, is", segments: [{ label: money(a), size: 100, tone: "b" }], note: `${money(paid)} ÷ ${dec((100 - d) / 100)}` }], alt: `Paying ${100 - d} percent costs ${money(paid)}. Dividing by ${dec((100 - d) / 100)} gives 100 percent, the original price, ${money(a)}.` } };
+};
+
+const proportion2: Builder = (q) => {
+  const p = clean(q.prompt), a = val(q), m = p.match(/When x = (-?[\d.]+), y = (-?[\d.]+)\. What is y when x = (-?[\d.]+)/);
+  if (!m || a === null) return null;
+  const x1 = Number(m[1]), y1 = Number(m[2]), x2 = Number(m[3]);
+  if (/inversely/.test(p)) return { figure: table(["x", "y", "x × y"], [[x1, y1, dec(x1 * y1)], [x2, dec(a), dec(x2 * a)]], `y is inversely proportional to x, so x times y stays the same, ${dec(x1 * y1)}. When x is ${x2}, y is ${dec(a)}.`) };
+  return { figure: table(["x", "y", "y ÷ x"], [[x1, y1, dec(y1 / x1)], [x2, dec(a), dec(a / x2)]], `y is directly proportional to x, so y divided by x stays the same, ${dec(y1 / x1)}. When x is ${x2}, y is ${dec(a)}.`) };
+};
+
+const compoundMeasures: Builder = (q) => {
+  const p = plain(q.prompt), a = val(q), n = (p.match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
+  if (a === null || n.length < 2) return null;
+  const dens = /density|mass|volume/.test(p);
+  const t = dens ? { top: "Mass", left: "Density", right: "Volume", tu: "g", lu: "g/cm³", ru: "cm³" } : { top: "Force", left: "Pressure", right: "Area", tu: "N", lu: "N/m²", ru: "m²" };
+  if (/What is its density|What is the pressure/.test(p)) return { figure: { type: "formula-triangle", top: t.top, left: t.left, right: t.right, find: "left", values: { top: `${n[0]} ${t.tu}`, right: `${n[1]} ${t.ru}` }, alt: `A formula triangle. Cover ${t.left.toLowerCase()}: ${t.top.toLowerCase()} divided by ${t.right.toLowerCase()}. ${n[0]} divided by ${n[1]} is ${dec(a)}.` } };
+  if (/What is the mass/.test(p)) return { figure: { type: "formula-triangle", top: t.top, left: t.left, right: t.right, find: "top", values: { left: `${n[0]} ${t.lu}`, right: `${n[1]} ${t.ru}` }, alt: `A formula triangle. Cover mass: density times volume. ${n[0]} times ${n[1]} is ${dec(a)}.` } };
+  if (/What is its volume|What is the area/.test(p)) return { figure: { type: "formula-triangle", top: t.top, left: t.left, right: t.right, find: "right", values: { top: `${n[0]} ${t.tu}`, left: `${n[1]} ${t.lu}` }, alt: `A formula triangle. Cover ${t.right.toLowerCase()}: ${t.top.toLowerCase()} divided by ${t.left.toLowerCase()}. ${n[0]} divided by ${n[1]} is ${dec(a)}.` } };
+  return null;
+};
+
+const standardForm: Builder = (q) => {
+  const p = clean(q.prompt), a = val(q);
+  let m = p.match(/Write (\d+(?:\.\d+)?) \\times 10\^\{(-?\d+)\} as an ordinary number/) ?? p.match(/Write (\d+(?:\.\d+)?) \\times 10\^(-?\d+) as an ordinary number/);
+  if (m && a !== null) return { figure: placeChart([{ label: `${m[1]} × 10${Number(m[2]) < 0 ? "⁻" : ""}${String(Math.abs(Number(m[2]))).replace(/\d/g, (d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[Number(d)])}`, value: m[1] }, { label: "Ordinary number", value: dec(a) }], `${m[1]} in a place value chart, then ${dec(a)}. Multiplying by ten to the ${m[2]} moves every digit ${Math.abs(Number(m[2]))} place${Math.abs(Number(m[2])) > 1 ? "s" : ""} ${Number(m[2]) < 0 ? "right" : "left"}.`) };
+  m = p.match(/Write (\d+) in standard form/);
+  if (m) { const n = Number(m[1]), e = String(n).length - 1, lead = String(n / 10 ** e); return { figure: placeChart([{ label: "Number", value: String(n) }, { label: "Between 1 and 10", value: lead }], `${n} in a place value chart. The digits moved ${e} places to get ${lead}, which is between 1 and 10, so n is ${e}.`) }; }
+  return null;
+};
+
+const budget: Builder = (q) => {
+  const p = plain(q.prompt), tot = Number(p.match(/£(\d+) a month/)?.[1]), pcts = [...p.matchAll(/(\d+)% goes on (\w+)/g), ...p.matchAll(/ and (\d+)% on (\w+)/g)].map((x) => ({ pct: Number(x[1]), name: x[2] }));
+  if (!Number.isFinite(tot) || !pcts.length) return null;
+  const left = 100 - pcts.reduce((t, x) => t + x.pct, 0), tones = ["c", "b", "a"] as const;
+  return { figure: { type: "bar-model", rows: [{ label: `${money(tot)} a month`, segments: [...pcts.map((x, i) => ({ label: `${x.name} ${x.pct}%`, size: x.pct, tone: tones[i % 3] })), { label: `left ${left}%`, size: left, tone: "none" as const }], note: pcts.map((x) => `${x.name} ${money((tot * x.pct) / 100)}`).join(", ") }], alt: `A bar for ${money(tot)}. ${pcts.map((x) => `${x.pct} percent for ${x.name}, ${money((tot * x.pct) / 100)}`).join("; ")}. ${left} percent is left.` } };
+};
+
+const bounds: Builder = (q) => {
+  const p = plain(q.prompt), a = val(q), m = p.match(/is (\d+(?:\.\d+)?) (\w+), correct to (the nearest (?:whole number|\d+(?: \w+)?)|(\d) decimal places?)/);
+  if (!m || a === null) return null;
+  const v = Number(m[1]), unit = /whole number/.test(m[3]) ? 1 : m[4] ? 10 ** -Number(m[4]) : Number(m[3].match(/nearest (\d+)/)?.[1] ?? 1), r = (x: number) => Math.round(x * 1e6) / 1e6, lo = r(v - unit / 2), hi = r(v + unit / 2), upper = /upper/.test(p);
+  return { figure: jumpLine({ min: r(v - unit), max: r(v + unit), step: r(unit / 2), tickLabels: { [lo]: `${dec(lo)} ${m[2]}`, [v]: `${dec(v)}`, [hi]: `${dec(hi)} ${m[2]}` }, marks: [{ v, tone: "start" }, { v: upper ? hi : lo, tone: "end" }], jumps: [{ from: v, to: upper ? hi : lo, label: `${upper ? "+" : "−"}${dec(unit / 2)}` }], alt: `A number line. ${dec(v)} ${m[2]} correct to the nearest ${dec(unit)} lies between ${dec(lo)} and ${dec(hi)}. The ${upper ? "upper" : "lower"} bound is ${dec(a)}.` }) };
+};
+
+const probabilityCounters: Builder = (q) => {
+  const p = plain(q.prompt), parts = [...p.matchAll(/(\d+) (blue|red|green|yellow) counters?/g)].map((x) => ({ n: Number(x[1]), c: x[2] }));
+  if (parts.length < 2) return null;
+  const total = parts.reduce((t, x) => t + x.n, 0), tones: Record<string, "a" | "b" | "c" | "none"> = { blue: "a", red: "c", green: "b", yellow: "none" }, want = p.match(/probability it is (\w+)/)?.[1] ?? "blue", k = parts.find((x) => x.c === want)?.n ?? 0;
+  return { figure: { type: "bar-model", rows: [{ label: `${total} counters`, segments: parts.flatMap((x) => Array.from({ length: x.n }, () => ({ label: "", tone: tones[x.c] ?? "a" }))), note: `${want}: ${k}/${total}` }, { label: parts.map((x) => `${x.n} ${x.c}`).join(", "), segments: parts.map((x) => ({ label: `${x.n} ${x.c}`, size: x.n, tone: tones[x.c] ?? "a" })) }], alt: `${total} counters: ${parts.map((x) => `${x.n} ${x.c}`).join(", ")}. ${k} out of ${total} are ${want}.` } };
+};
+
 export const ALGEBRA_BUILDERS: Record<string, Builder> = {
   "solve-linear": stepsTable, "collect-terms": stepsTable, "expand-single": (q) => expandSingle(q) ?? stepsTable(q), "factorise-common": stepsTable, substitute, "substitute-negatives": substitute,
   inequalities: inequality, "nth-term": nthTerm, "simple-interest": simpleInterest, "compound-interest": compoundInterest, "growth-decay": growthDecay, "tree-probability": tree,
-  "speed-distance-time": speedDistanceTime, "profit-loss": profitLoss, "vat-wages": vatWages, "circle-area": circleArea, "index-laws": indexLaws,
+  "speed-distance-time": speedDistanceTime, "profit-loss": profitLoss, "vat-wages": vatWages, "circle-area": circleArea, "index-laws": indexLaws, "reverse-percentages": reversePercent, "proportion-direct-inverse": proportion2, "compound-measures": compoundMeasures, "standard-form": standardForm, "standard-form-first": standardForm, budgeting: budget, bounds, "probability-fractions": probabilityCounters,
 };

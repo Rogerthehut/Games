@@ -25,9 +25,15 @@ const out = [
   "",
   "Topics with no picture are mostly ones where the working is symbolic (algebra, calculus), where the steps written out are the method, or ones still to do (see task 40 in the roadmap).",
   "",
+  "Topics with no picture today are listed at the end. They fall into three groups: (1) pure recall or a single step (time facts, multiplying three numbers); (2) symbolic working where the steps written out are the method (calculus, differentiating and integrating, surds, logs, proofs, series, algebraic fractions, functions); (3) still to do, where a picture would help (word problems, using formulae, rounding to significant figures, constructions and loci, simultaneous equations, quadratics, exact trigonometry, conditional probability, vectors, forces and projectiles).",
+  "",
   "| Topic | Year | Strand | With the question | Method drawn | Any picture | Status |",
   "|---|---|---|---|---|---|---|",
   ...rows.sort((a, b) => a.year - b.year || a.strand.localeCompare(b.strand) || a.name.localeCompare(b.name)).map((r) => `| ${r.name} (\`${r.id}\`) | ${r.year} | ${r.strand} | ${pct(r.fig, r.q)} | ${pct(r.worked, r.q)} | ${pct(r.any, r.q)} | ${status(r)} |`),
+  "",
+  "## Still without a picture",
+  "",
+  rows.filter((r) => status(r) === "none").map((r) => `${r.name} (Y${r.year})`).join(", "),
   "",
 ].join("\n");
 writeFileSync(new URL("../docs/WORKED_EXAMPLES.md", import.meta.url), out);
