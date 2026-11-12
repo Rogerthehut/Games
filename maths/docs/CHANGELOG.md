@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Full screen audit
+Ran the screen audit on 18 sizes (phones from 280px, landscape phones, four portrait and four landscape tablets, laptops to a 2560-wide ultrawide), 43 screens each. The one finding was the Parents' area padlock in the left rail being 36px tall on tablets; it's now at least 44px. Everything else came back clean on every size.
+
 ## Skills map starts at the learner's year
 On the journey map the avatar now waits at the first topic of the learner's own school year that isn't secure yet (a Year 6 learner starts in Year 6), and the page scrolls there when the map opens, including after the year is changed in the Parents' area. Nothing is locked: the map still runs both ways, so a child or parent can scroll back to an earlier year or ahead to a later one. The coloured part of the trail still shows how far they've really got.
 

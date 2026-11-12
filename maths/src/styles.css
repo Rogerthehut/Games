@@ -3250,7 +3250,7 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 
 /* the Parents' area padlock in the left-hand panel */
 .rail-parents { position: relative; margin-top: 6px; }
-.rail-lock { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0; border-radius: var(--r-md); background: none; color: var(--muted); font: 700 .86rem/1 var(--font-body); cursor: pointer; text-align: left; }
+.rail-lock { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 12px; min-height: 44px; border: 0; border-radius: var(--r-md); background: none; color: var(--muted); font: 700 .86rem/1 var(--font-body); cursor: pointer; text-align: left; }
 .rail-lock span { flex: 1; }
 .rail-lock:hover { background: color-mix(in srgb, var(--line) 50%, transparent); color: var(--ink); }
 .rail-lock[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
