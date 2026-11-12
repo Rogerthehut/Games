@@ -2220,6 +2220,12 @@ html:has(.quarter-search[open]),
   background: var(--surface);
 }
 .test-finder-entry h3 { margin: 0 0 4px; }
+.school-table-wrap { overflow-x: auto; margin: 10px 0; }
+.school-table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+.school-table caption { text-align: left; font-weight: 700; padding-bottom: 6px; }
+.school-table th, .school-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line, #e4d9bd); }
+.school-table thead th { border-top: 0; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+@media (max-width: 560px) { .school-table thead { position: absolute; left: -9999px; } .school-table tr, .school-table th, .school-table td { display: block; border-top: 0; padding: 2px 0; } .school-table tr { padding: 8px 0; border-top: 1px solid var(--line, #e4d9bd); } }
 .test-finder-entry ul { margin: 0; padding-inline-start: 18px; }
 .test-finder-entry a { display: inline-block; padding-block: 4px; }
 .test-finder > p:last-child { margin-top: 12px; }
