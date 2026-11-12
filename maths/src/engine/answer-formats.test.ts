@@ -78,7 +78,7 @@ describe("every sensible way of writing the right answer is accepted, across all
           if (res.outcome !== "correct") rejected.push(`${skill.id} L${level}: "${v}" → ${res.outcome} (${res.feedback ?? ""}) [${q.prompt.slice(0, 60)}]`);
         }
         if (a.kind === "number") {
-          for (const bad of [String(a.value + 1), String(a.value * 10 + 3)]) {
+          for (const bad of [String(a.value + (a.tol ?? 0) + 1), String(a.value * 10 + 3)]) {
             if (a.tol && Math.abs(a.value * 10 + 3 - a.value) < a.tol) continue;
             if (check(q, [bad]).outcome === "correct") wrongAccepted.push(`${skill.id} L${level}: "${bad}" accepted for ${a.value}`);
           }

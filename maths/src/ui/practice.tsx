@@ -8,13 +8,13 @@ import type { Question } from "../engine/types";
 import type { TutorContext } from "../tutor/types";
 import { AnswerInput, type InputState } from "./answer-input";
 import { useApp } from "./context";
-import { FigureView } from "./figure";
+import { FigureView, isDrawing } from "./figure";
 import { describeGlyph } from "./glyph";
 import { Icon } from "./icons";
 import { Maths } from "./maths";
 import { Sparkles } from "./pip";
 import { Avatar } from "./avatar";
-import { WorkingOut } from "./working-out";
+import { WorkingOut, suggestedTool } from "./working-out";
 import { conceptsForSkill } from "../concepts";
 import { playPracticeSound, readPracticeQuestion, spokenQuestion, stopPracticeNarration, type NarrationStatus } from "./practice-audio";
 import { ChapterFriend } from "./chapter-friend";
@@ -282,8 +282,10 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
             <div class="question-main">
             <p class="q-text" data-testid="question"><Maths text={q.prompt} /></p>
             {q.figure && <FigureView fig={q.figure} onBoard={(v) => setValues([String(v)])} locked={phase !== "ask"} />}
-            <p class="practice-answer-label">Your answer</p>
-            <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={inputState} reveal={phase === "reveal"} />
+            <div hidden={isDrawing(q.figure)}>
+              <p class="practice-answer-label">Your answer</p>
+              <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={inputState} reveal={phase === "reveal"} />
+            </div>
 
             <div class="fb-zone" ref={feedback} aria-live="polite">
               {phase === "ask" && result && (result.outcome === "wrong" || result.outcome === "almost" || result.outcome === "invalid") && !stale && (
@@ -317,7 +319,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
             </div>
 
             </div>
-            <WorkingOut suggestCounters={profile.year <= 6 && skill.strand === "Number"} />
+            <WorkingOut suggest={suggestedTool(skill.id, skill.strand, profile.year)} />
           </div>
         )}
 

@@ -1477,8 +1477,8 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .working-out[hidden] { display: none; }
 .working-tools.help-tools { gap: 12px; }
 .working-tools.help-tools > .btn { flex: 1 1 max-content; min-height: 52px; }
-/* Count with beans and Count with abacus share the first row; Work it out has the row below */
-.working-tools.help-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* the tools sit three to a row, with Work it out on the row below */
+.working-tools.help-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .working-tools.help-tools > .tool-wide { grid-column: 1 / -1; }
 .practice-answer-label { margin: 0 0 8px; font-weight: 750; }
 .fb .spark { animation-duration: 420ms; }
@@ -3151,3 +3151,32 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 /* Years 7 to 13 portraits are already cut to head and shoulders */
 .learner-avatar.avatar-cut .avatar-art { transform: none; }
 .learner-avatar.avatar-cut { border-radius: 22%; }
+
+/* working-out sheets and instruments */
+.sheet-svg { width: 100%; height: auto; display: block; touch-action: none; color: inherit; }
+.sheet-tool { display: grid; gap: 10px; }
+.hundred { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+.hundred-cell { min-width: 0; padding: 0; aspect-ratio: 1; display: grid; place-items: center; font: 700 clamp(.62rem, 2.4vw, .9rem)/1 var(--font-display); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+.hundred-cell.on { background: var(--accent-soft); border-color: var(--accent); }
+.wall { display: grid; gap: 3px; }
+.wall-row { display: grid; gap: 2px; }
+.wall-part { min-width: 0; padding: 7px 0; font: 700 clamp(.58rem, 2.2vw, .82rem)/1 var(--font-display); color: var(--ink); background: color-mix(in srgb, var(--surface) 70%, #c1c5ee); border: 1px solid var(--line); border-radius: 5px; cursor: pointer; overflow: hidden; }
+.wall-part.on { background: #f6a0bc; border-color: #c2410c; }
+.column-sheet { display: grid; gap: 4px; max-width: 360px; }
+.column-row { display: grid; grid-template-columns: 1.6rem repeat(5, minmax(0, 1fr)); gap: 4px; align-items: center; }
+.column-row.rule .column-cell { border-top: 3px solid var(--ink); }
+.column-head { text-align: center; font: 700 .72rem/1 var(--font-body); color: var(--muted); }
+.column-sign { text-align: center; font: 800 1.2rem/1 var(--font-display); }
+.column-cell { min-width: 0; width: 100%; box-sizing: border-box; aspect-ratio: 1; padding: 0; text-align: center; font: 800 1.4rem/1 var(--font-display); background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; color: var(--ink); }
+.column-row.small .column-cell { aspect-ratio: 1.7; font-size: .9rem; border-style: dashed; }
+.column-cell:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.paper-wrap { position: relative; }
+.paper-instrument { position: absolute; pointer-events: none; color: var(--ink); filter: drop-shadow(0 1px 2px #2a1d3a30); }
+.paper-instrument.ruler { width: 80%; }
+.paper-instrument.protractor { width: 46%; }
+.paper-instrument svg { display: block; width: 100%; height: auto; }
+.instrument-handle { pointer-events: auto; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); color: var(--ink); cursor: grab; touch-action: none; }
+.paper-instrument.protractor .instrument-handle { top: 88%; }
+.instrument-turn { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: .85rem; }
+.instrument-turn input { flex: 1; min-width: 0; }
+.instrument-turn output { min-width: 3.4ch; text-align: right; font-variant-numeric: tabular-nums; }

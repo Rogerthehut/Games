@@ -1,7 +1,18 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { JSX } from "preact";
 import { Icon } from "./icons";
+import { ColumnSheetTool, FractionWallTool, HundredSquareTool, NumberLineTool, PaperInstrument, type Placement } from "./working-sheets";
 
+export type ToolId = "counters" | "abacus" | "paper" | "numberline" | "hundred" | "wall" | "column";
+/** The tool that suits a topic, opened first in the working-out panel. */
+export function suggestedTool(skillId: string, strand: string, year: number): ToolId {
+  if (/^(add-sub|mult-written|division|long-division|multiply-three|add-sub-money|multiply-divide-money)$/.test(skillId)) return "column";
+  if (/^(frac-|fraction-|mixed-numbers|hundredths|thousandths)/.test(skillId)) return "wall";
+  if (/^(times-tables|factors-multiples|count-steps|primes-squares-cubes|divide-10-100)/.test(skillId)) return "hundred";
+  if (/^(count-through-zero|negative-numbers|elapsed-time|convert-time|time-facts|roman-numerals)$/.test(skillId)) return "numberline";
+  if (/angle|shapes|protractor/.test(skillId)) return "paper";
+  return year <= 6 && strand === "Number" ? "counters" : "paper";
+}
 type Counter = "rose" | "mint";
 type Picked = { colour: Counter; from?: number };
 type Point = { x: number; y: number };
@@ -17,8 +28,11 @@ const ERASER_WIDTHS: Record<DrawingSize, number> = { Small: 18, Medium: 36, Larg
 /** The drawing sheet is 1200 units across and A5 landscape in shape (210 : 148), so strokes keep their size whatever the screen. */
 const PAPER_H = 846;
 
-export function WorkingOut({ suggestCounters = false }: { suggestCounters?: boolean }) {
-  const [tool, setTool] = useState<"counters" | "paper" | "abacus">(suggestCounters ? "counters" : "paper");
+export function WorkingOut({ suggest = "paper" }: { /** the tool that opens first: the one that suits the topic */ suggest?: ToolId }) {
+  const [tool, setTool] = useState<ToolId>(suggest);
+  const [lineMode, setLineMode] = useState(false);
+  const [ruler, setRuler] = useState<Placement | null>(null);
+  const [protractor, setProtractor] = useState<Placement | null>(null);
   const [digits, setDigits] = useState(EMPTY_ABACUS);
   const changeBeads = (column: number, change: number) => {
     setDigits((previous) => previous.map((digit, index) => index === column ? Math.min(9, Math.max(0, digit + change)) : digit));
@@ -126,10 +140,14 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
       <div class="working-tools help-tools" role="group" aria-label="Pick a maths tool">
         <button type="button" class="btn" aria-pressed={tool === "counters"} onClick={() => setTool("counters")}><Icon name="counters" size={22} /> Count with beans</button>
         <button type="button" class="btn" aria-pressed={tool === "abacus"} onClick={() => setTool("abacus")}><Icon name="beads" size={22} /> Count with abacus</button>
+        <button type="button" class="btn" aria-pressed={tool === "column"} onClick={() => setTool("column")}><Icon name="grid" size={22} /> Column method</button>
+        <button type="button" class="btn" aria-pressed={tool === "numberline"} onClick={() => setTool("numberline")}><Icon name="route" size={22} /> Number line</button>
+        <button type="button" class="btn" aria-pressed={tool === "hundred"} onClick={() => setTool("hundred")}><Icon name="grid" size={22} /> Hundred square</button>
+        <button type="button" class="btn" aria-pressed={tool === "wall"} onClick={() => setTool("wall")}><Icon name="list" size={22} /> Fraction wall</button>
         <button type="button" class="btn tool-wide" aria-pressed={tool === "paper"} onClick={() => setTool("paper")}><Icon name="pencil" size={22} /> Work it out</button>
       </div>
 
-      {tool === "abacus" ? <>
+      {tool === "column" ? <ColumnSheetTool /> : tool === "numberline" ? <NumberLineTool /> : tool === "hundred" ? <HundredSquareTool /> : tool === "wall" ? <FractionWallTool /> : tool === "abacus" ? <>
         <p class="small muted">Tap + to add a bead. Tap − to take one away.</p>
         <p class="abacus-number" aria-live="polite">Your number: <strong>{Number(digits.join("")).toLocaleString("en-GB")}</strong></p>
         <div class="abacus">
@@ -203,6 +221,18 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
           <button type="button" class="btn ghost" aria-pressed={eraser} onClick={() => setEraser(!eraser)}><Icon name="eraser" size={16} />Eraser</button>
           <button type="button" class="btn ghost" disabled={!strokes.length} onClick={() => setStrokes((previous) => previous.slice(0, -1))}><Icon name="undo" size={16} />Undo stroke</button>
         </div>
+        <div class="working-tools" role="group" aria-label="Drawing tools">
+          <button type="button" class="btn ghost" aria-pressed={lineMode} onClick={() => { setLineMode(!lineMode); setEraser(false); }}><Icon name="pencil" size={16} />Straight lines</button>
+          <button type="button" class="btn ghost" aria-pressed={!!ruler} onClick={() => setRuler(ruler ? null : { x: 50, y: 70, rot: 0 })}>Ruler</button>
+          <button type="button" class="btn ghost" aria-pressed={!!protractor} onClick={() => setProtractor(protractor ? null : { x: 50, y: 62, rot: 0 })}>Protractor</button>
+        </div>
+        {([["Ruler", ruler, setRuler], ["Protractor", protractor, setProtractor]] as const).map(([name, at, set]) => at && (
+          <label class="instrument-turn" key={name}>Turn the {name.toLowerCase()}
+            <input type="range" min={-180} max={180} step={1} value={at.rot} aria-label={`Turn the ${name.toLowerCase()}`} onInput={(e) => set({ ...at, rot: Number(e.currentTarget.value) })} />
+            <output>{at.rot}°</output>
+          </label>
+        ))}
+        {(ruler || protractor) && <p class="small muted">Drag the move handle on the ruler or protractor. Draw along its edge with straight lines on. They are for practice and not exactly to scale.</p>}
         <div class="working-tools drawing-sizes" role="group" aria-label={sizeLabel}>
           <span aria-hidden="true">{sizeLabel}</span>
           {DRAWING_SIZES.map((size) => (
@@ -212,6 +242,7 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
             </button>
           ))}
         </div>
+        <div class="paper-wrap">
         <canvas ref={canvas} class={`scrap-paper ${squared ? "squared" : ""} ${expanded ? "expanded" : ""}`} style={paperHeight === undefined ? undefined : { height: `${paperHeight}px` }} width={1200} height={PAPER_H} role="img" aria-label={eraser ? "Drawing area, eraser on" : "Drawing area"}
           onPointerDown={(event) => {
             if (event.button !== 0 || drawing.current !== null) return;
@@ -228,10 +259,13 @@ export function WorkingOut({ suggestCounters = false }: { suggestCounters?: bool
             const point = paperPoint(event);
             setStrokes((previous) => {
               const last = previous[previous.length - 1];
-              return [...previous.slice(0, -1), { ...last, points: [...last.points, point] }];
+              return [...previous.slice(0, -1), { ...last, points: lineMode && !last.erase ? [last.points[0], point] : [...last.points, point] }];
             });
           }}
           onLostPointerCapture={(event) => { if (drawing.current === event.pointerId) drawing.current = null; }} />
+        {ruler && <PaperInstrument kind="ruler" at={ruler} onChange={setRuler} />}
+        {protractor && <PaperInstrument kind="protractor" at={protractor} onChange={setProtractor} />}
+        </div>
         <button type="button" class="paper-resize" aria-label="Resize paper. Use the up and down arrows or drag."
           onPointerDown={(event) => {
             if (event.button !== 0 || !canvas.current) return;

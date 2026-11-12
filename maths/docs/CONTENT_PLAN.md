@@ -8,7 +8,7 @@ common mistakes cannot disagree. `src/engine/engine.test.ts` checks 150 question
 
 | Stage | Years | Topics now |
 |---|---|---|
-| Key Stage 2 | 3 to 6 | 86 (was 32; batches 2, 3, the money set, the second pass and the outcome-level audit, see KS2_COVERAGE.md) |
+| Key Stage 2 | 3 to 6 | 89 (was 32; batches 2, 3, the money set, the second pass and the outcome-level audit, see KS2_COVERAGE.md) |
 | Key Stage 3 | 7 to 9 | 40 (was 8; batch 1, the money set, batch 4 and the second pass) |
 | GCSE | 10 and 11 | 37 (was 8; batch 1, batch 5 and the second pass) |
 | A-level | 12 and 13 | 35 (was 4; batch 1, batch 6 and the second pass) |

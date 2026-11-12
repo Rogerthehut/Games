@@ -87,6 +87,14 @@ A reusable lesson format that runs on any maths topic with worked solutions (abo
 
 Still to do: a teacher's review of the lesson wording per topic, hand-written "key idea" lines where the topic's blurb isn't enough, and lessons for reasoning papers and the STEM lab (which have their own formats).
 
+## Working-out tools and drawing (built)
+
+New tools in the working-out panel, which opens the one that suits the topic: a **column method** sheet (add, subtract, multiply, divide, with carrying rows), a **number line** with jumps, a **hundred square** with multiples, and a **fraction wall**. On the paper there are now a **straight-line pen**, a **ruler** and a **protractor** that can be moved and turned. They are practice aids, not exactly to scale.
+
+Three topics use them to close the two KS2 outcomes that were only partly covered: **Measuring angles with a protractor** (read a drawn protractor, using the right scale), **Drawing angles with a protractor** (turn an arm to the size asked for) and **Drawing shapes from measurements** (rectangles and right-angled triangles on a centimetre grid). The two drawing topics are marked `interactive`: they are practised and taught, but left out of timed papers, check-ups and pathway tests, where the figure can't be drawn on. Code: `src/ui/working-sheets.tsx`, `src/ui/instrument-figures.tsx`, `src/curriculum/ks2-instruments.ts`; checks: `npm run e2e:instruments`, `npm run e2e:tools`.
+
+Still to do: tools for secondary topics (graph paper with plotting, a calculator-free long-division frame with remainders, algebra tiles), and fully constructing triangles from three given sides or two angles and a side.
+
 ## Teaching and writing standards
 
 - **Key Stage 2.** Show the idea using familiar objects or pictures where they help. Link the picture to the symbols. Model one example, guide a second, then remove the prompts for an independent problem. Return to the idea later in a different context.

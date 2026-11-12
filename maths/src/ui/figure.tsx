@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import { AngleDrawFigure, ProtractorFigure, ShapeDrawFigure } from "./instrument-figures";
 import type { Figure } from "../engine/types";
 
 type Of<T extends Figure["type"]> = Extract<Figure, { type: T }>;
 import { GlyphFigure } from "./glyph";
 import { Maths } from "./maths";
 
+/** Pictures the learner answers by drawing on them, so the typed answer box is hidden. */
+export const isDrawing = (fig?: Figure) => fig?.type === "angle-draw" || fig?.type === "shape-draw";
+
 export function FigureView({ fig, onBoard, locked }: { fig: Figure; /** called with the piece's new place, when the figure is a board */ onBoard?: (answer: number) => void; locked?: boolean }) {
   if (fig.type === "board") return <BoardFigure {...fig} onBoard={onBoard} locked={locked} />;
+  if (fig.type === "protractor") return <ProtractorFigure {...fig} />;
+  if (fig.type === "angle-draw") return <AngleDrawFigure {...fig} onBoard={onBoard} locked={locked} />;
+  if (fig.type === "shape-draw") return <ShapeDrawFigure {...fig} onBoard={onBoard} locked={locked} />;
   if (fig.type === "glyphs") return <GlyphFigure layout={fig.layout} items={fig.items} caption={fig.caption} />;
   if (fig.type === "working") {
     return (

@@ -109,7 +109,7 @@ describe.each([...SKILLS, ...STEM_SKILLS])("skill $id", (skill) => {
         const inputs = correctInputs(q);
         expect(check(q, inputs).outcome, `${ctx} | input ${inputs}`).toBe("correct");
         // a deliberately wrong answer is not
-        if (q.answer.kind === "number") expect(check(q, [String(q.answer.value + 1)]).outcome, ctx).not.toBe("correct");
+        if (q.answer.kind === "number") expect(check(q, [String(q.answer.value + (q.answer.tol ?? 0) + 1)]).outcome, ctx).not.toBe("correct");
         // known mistakes are recognised and never equal the right answer
         for (const w of q.wrong ?? []) {
           const input =

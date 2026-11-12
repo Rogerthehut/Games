@@ -5,7 +5,7 @@ import { buildLesson, finishLesson } from "../engine/lesson";
 import type { Question } from "../engine/types";
 import { AnswerInput, type InputState } from "./answer-input";
 import { useApp } from "./context";
-import { FigureView } from "./figure";
+import { FigureView, isDrawing } from "./figure";
 import { Icon } from "./icons";
 import { Maths } from "./maths";
 import { QBar, QTop } from "./qshell";
@@ -111,8 +111,10 @@ export function SkillLesson({ skillId }: { skillId: string }) {
             {screen === "guided" && (guidedSteps > 0
               ? <ol class="steps given">{q.solution.slice(0, guidedSteps).map((s, i) => <li key={i}><Maths text={s} /></li>)}</ol>
               : <p class="workbook-margin-note"><Maths text={q.hint} /></p>)}
-            <p class="practice-answer-label">Your answer</p>
-            <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={answerState} reveal={phase === "reveal"} />
+            <div hidden={isDrawing(q.figure)}>
+              <p class="practice-answer-label">Your answer</p>
+              <AnswerInput answer={q.answer} skill={q.skill} values={values} onChange={setValues} onSubmit={submit} disabled={phase !== "ask"} state={answerState} reveal={phase === "reveal"} />
+            </div>
             <div class="fb-zone" aria-live="polite">
               {phase === "ask" && message && <div class="fb bad" role="alert"><p><strong>{voice.notQuite(skin)}</strong> <Maths text={message} /></p></div>}
               {phase === "ask" && showHint && screen !== "guided" && <div class="fb hint workbook-margin-note"><span class="fb-icon"><Icon name="bulb" size={20} /></span><p><Maths text={q.hint} /></p></div>}

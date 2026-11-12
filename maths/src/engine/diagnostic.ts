@@ -86,6 +86,7 @@ export function nextItem(s: DiagState, rng: Rng): Item | null {
 
   let best: { item: Item; score: number } | null = null;
   for (const skill of SKILLS) {
+    if (skill.interactive) continue;
     for (let level = 1; level <= 3; level++) {
       if (s.asked.has(`${skill.id}:${level}`)) continue;
       const d = difficulty(skill.id, level);

@@ -53,6 +53,12 @@ export type Figure =
   | { type: "bars"; items: { label: string; value: number }[]; yLabel: string; alt: string }
   /** A board with a piece the learner moves by tap, drag, arrow keys or buttons. The piece's place becomes their answer. */
   | { type: "board"; mode: "line" | "grid"; size: number; start: [number, number]; steps: string[]; ask: "x" | "y" | "dist"; alt: string }
+  /** A protractor over an angle, to read its size. `from` is the side the first arm points to. */
+  | { type: "protractor"; angle: number; from: "left" | "right"; alt: string }
+  /** A protractor with a loose arm to turn. The angle it shows becomes the answer. */
+  | { type: "angle-draw"; start: number; alt: string }
+  /** A grid to draw a rectangle or a right-angled triangle on. The answer is 1 when the sizes match `target` (width and height, or the two short sides). */
+  | { type: "shape-draw"; cols: number; rows: number; shape: "rectangle" | "triangle"; target: [number, number]; alt: string }
   | { type: "bearing"; angle: number; from: string; to: string; alt: string }
   | { type: "venn"; labelA: string; labelB: string; a: number; both: number; b: number; alt: string };
 
@@ -114,5 +120,7 @@ export interface Skill {
   parentNote: string;
   /** For the grown-up: a question to ask to check understanding. */
   talkAbout: string;
+  /** Answered by drawing or moving something on screen, so it is practised and taught but left out of timed papers, check-ups and pathway tests. */
+  interactive?: boolean;
   generate: (rng: () => number, level: number) => Question;
 }

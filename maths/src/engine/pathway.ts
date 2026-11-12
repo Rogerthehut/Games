@@ -22,7 +22,7 @@ export function activePathwayStage(profile: Profile): Stage | undefined {
 }
 
 export function pathwayProgress(profile: Profile, stage: Stage) {
-  const skills = SKILLS.filter((skill) => skill.stage === stage);
+  const skills = SKILLS.filter((skill) => skill.stage === stage && !skill.interactive);
   const ready = skills.filter((skill) => statusOf(profile.skills[skill.id]) === "secure").length;
   return { ready, total: skills.length };
 }
@@ -38,7 +38,7 @@ const APPLICATION_SKILLS: Record<Stage, string[]> = {
 /** How many questions each pathway test has: a fair sample across the topic areas, not one for every topic. */
 const PATHWAY_LENGTH: Record<Stage, number> = { KS2: 30, KS3: 24, KS4: 24, KS5: 24 };
 function testLength(stage: Stage) {
-  return Math.min(PATHWAY_LENGTH[stage], SKILLS.filter((skill) => skill.stage === stage).length);
+  return Math.min(PATHWAY_LENGTH[stage], SKILLS.filter((skill) => skill.stage === stage && !skill.interactive).length);
 }
 
 /**
@@ -47,7 +47,7 @@ function testLength(stage: Stage) {
  * until every topic in its area has been used. A different mix each time, so a retake isn't the same paper.
  */
 export function buildPathwayTest(stage: Stage, rng: Rng) {
-  const all = SKILLS.filter((skill) => skill.stage === stage), length = testLength(stage);
+  const all = SKILLS.filter((skill) => skill.stage === stage && !skill.interactive), length = testLength(stage);
   const applications = shuffle(rng, APPLICATION_SKILLS[stage]).slice(0, Math.min(APPLICATION_SKILLS[stage].length, Math.floor(length / 8))).map((skillId) => ({ skillId, level: 3 }));
   const room = length - applications.length;
   const areas = [...new Set(all.map((skill) => skill.strand))].map((strand) => ({ strand, pool: shuffle(rng, all.filter((skill) => skill.strand === strand)) }));
