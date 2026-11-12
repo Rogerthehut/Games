@@ -8,6 +8,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## Email sending address
 Emails (the weekly email and the ops sign-in code) now send from `quarter <hello@yourquarter.co.uk>` by default, matching the domain verified in Resend. Set `MAIL_FROM` to use a different verified address. Docs updated.
 
+## Study guides no longer send you back to Me
+Reading a study guide (for example "Algorithms and loops") could throw you back to the Me screen after about ten seconds, mid-sentence. The Parents' area's idle check counted study guides as part of the area, and since a child reaching a guide from Skills or the STEM lab hasn't entered the PIN, it treated them as "locked out". Study guides are now left alone by that check. The screens that need the PIN (Parents' area, progress report, learning report, my data and booklet) work as before, and a parent who opens a guide from the Parents' area still keeps the area unlocked for the trip. Check: `npm run e2e:idle`.
+
 ## Free curriculum booklet sample
 - A public 12-page sample of the booklet: `public/quarter-curriculum-sample.pdf` (served at `/quarter-curriculum-sample.pdf`) with the cover, welcome and how-it-works pages, the whole of Year 5, a look at the 11+ and STEM strands, tips for home, and a page about the full booklet. It's chosen from the full booklet's own pages, so the two can't drift apart (`buildBookletSample` in `src/booklet/model.ts`).
 - A public page, `curriculum/booklet.html` ("Free curriculum booklet sample"), with the cover and a sample page as pictures, a download button and what's in the full booklet. It's linked from the curriculum hub, in the sitemap and in `llms.txt`.

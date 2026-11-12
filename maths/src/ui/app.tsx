@@ -92,17 +92,20 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   };
 
   // the grown-ups' area locks again as soon as someone moves on from it, so the next person on the device needs the PIN
-  const inParents = ["parent", "progress-report", "learning-report", "my-data", "booklet", "concept"].includes(route.name);
+  const parentOnly = ["parent", "progress-report", "learning-report", "my-data", "booklet"].includes(route.name);
+  // a study guide is open to everyone (children reach it from Skills and the STEM lab), but when a parent opens one from the Parents' area the
+  // area should stay unlocked for the trip, so it counts as "in the area" for keeping it open, and never for sending anyone back
+  const inParents = parentOnly || route.name === "concept";
   useEffect(() => { if (!inParents) lockParents(); }, [route.name]);
-  // while someone is using the area it stays open; after five minutes of nothing it closes and goes back to Me
+  // while someone is using the area it stays open; after five minutes of nothing it closes and goes back to Me. Only the screens that need the PIN do that.
   useEffect(() => {
     if (!inParents) return;
     const touch = () => keepParentsOpen();
     const events = ["pointerdown", "keydown", "scroll", "touchstart"] as const;
     events.forEach((e) => addEventListener(e, touch, { passive: true, capture: true }));
-    const check = setInterval(() => { if (!parentUnlocked()) setRoute({ name: "me" }); }, 10_000);
+    const check = setInterval(() => { if (parentOnly && !parentUnlocked()) setRoute({ name: "me" }); }, 10_000);
     return () => { events.forEach((e) => removeEventListener(e, touch, { capture: true })); clearInterval(check); };
-  }, [inParents]);
+  }, [inParents, parentOnly]);
 
   // Where they were on each screen. Coming back to a main tab, or going back from a sub-screen, puts the page exactly where it was left.
   // The place is written down at the moment they leave (before the old screen is taken away and the page shrinks), and when the app is closed.
