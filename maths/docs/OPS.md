@@ -61,7 +61,7 @@ Without all three the page stays off, and the server logs "The ops page is off".
 
 You got past the sign-in and the allow-list; the failure is Resend refusing the email. The screen now shows what Resend said, and the server log has the line `ops code email not sent: ...`. Common causes:
 
-- `403` / `validation_error` about the **from address**: the sending domain isn't verified in Resend yet. `MAIL_FROM` defaults to `quarter <weekly@mail.yourquarter.co.uk>`, so `mail.yourquarter.co.uk` must be added and verified in Resend (the DNS records in `docs/EMAIL.md`). Or set `MAIL_FROM` to an address on a domain you have verified.
+- `403` / `validation_error` about the **from address**: the domain in `MAIL_FROM` isn't the one verified in Resend. `MAIL_FROM` defaults to `quarter <hello@yourquarter.co.uk>`, so `yourquarter.co.uk` must show **Verified** under Domains in Resend. Resend only sends from the exact domain you verified: a verified `yourquarter.co.uk` does not cover `mail.yourquarter.co.uk`, and the other way round. Fix it by verifying the domain you send from, or by setting `MAIL_FROM` to an address on the verified one.
 - `403` saying you can **only send to your own address**: Resend is in test mode (no verified domain). Until the domain is verified it only delivers to the email you signed up to Resend with.
 - `401`: `RESEND_API_KEY` is wrong, or was created with "sending access" for a different domain.
 - `429`: too many tries. Wait a minute.

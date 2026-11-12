@@ -11,7 +11,7 @@ What it does and doesn't hold:
 
 ## 1. Set up Resend (about 15 minutes)
 
-1. Create an account at resend.com and add a **sending domain**. Use a **subdomain**, for example `mail.yourquarter.co.uk`, not the main domain. Then Resend's DNS records don't touch the records Zoho uses for `hello@yourquarter.co.uk`.
+1. Create an account at resend.com and add a **sending domain**. Either works. A **subdomain** such as `mail.yourquarter.co.uk` keeps Resend's DNS records well away from the ones Zoho uses for `hello@yourquarter.co.uk`. Verifying the main domain `yourquarter.co.uk` also works (Resend puts its records on `resend._domainkey` and a `send` subdomain); after adding them, send yourself a test email at `hello@yourquarter.co.uk` to check Zoho still receives. Whichever you verify, `MAIL_FROM` must use that exact domain.
 2. Resend shows DNS records (SPF, DKIM and a return-path MX/TXT for the subdomain). Add them where your DNS is managed. Zoho's records on the main domain stay exactly as they are. Receiving mail at `hello@yourquarter.co.uk` is unaffected.
 3. Wait for Resend to show the domain as **Verified**.
 4. Create an API key (sending access only).
@@ -20,7 +20,7 @@ What it does and doesn't hold:
 | Secret | Value |
 | --- | --- |
 | `RESEND_API_KEY` | the key from Resend |
-| `MAIL_FROM` | `quarter <weekly@mail.yourquarter.co.uk>` |
+| `MAIL_FROM` | `quarter <hello@yourquarter.co.uk>` (the address's domain must be the exact domain verified in Resend, which is `yourquarter.co.uk`; if you verify a subdomain such as `mail.yourquarter.co.uk` instead, use an address on that) |
 | `MAIL_REPLY_TO` | `hello@yourquarter.co.uk` (replies land in your Zoho inbox) |
 | `CRON_SECRET` | a long random string; keep it private |
 | `APP_URL` | the public address of the app, such as `https://yourquarter.co.uk` |

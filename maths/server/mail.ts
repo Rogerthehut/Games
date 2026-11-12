@@ -56,5 +56,5 @@ export class FakeMailer implements Mailer {
 export function mailerFromEnv(env: Record<string, string | undefined> = process.env): Mailer {
   const key = env.RESEND_API_KEY?.trim();
   if (!key) return new FakeMailer();
-  return new ResendMailer(key, env.MAIL_FROM?.trim() || "quarter <weekly@mail.yourquarter.co.uk>", env.MAIL_REPLY_TO?.trim() || "hello@yourquarter.co.uk");
+  return new ResendMailer(key, env.MAIL_FROM?.trim() || "quarter <hello@yourquarter.co.uk>", env.MAIL_REPLY_TO?.trim() || "hello@yourquarter.co.uk");
 }
