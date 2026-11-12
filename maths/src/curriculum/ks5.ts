@@ -210,7 +210,7 @@ export const ks5Skills: Skill[] = [
     const k = int(r, 2, 4), y1 = int(r, 5, 12); return { prompt: `$\\frac{dy}{dx} = ${3 * k}x^{2}$ and $y = ${y1}$ when $x = 1$. What is $y$ when $x = 2$?`, value: 8 * k + (y1 - k), hint: "Integrate, then use the point (1, y) to find c.", solution: [`$y = ${k}x^{3} + c$. At $x = 1$: $${k} + c = ${y1}$, so $c = ${y1 - k}$.`, `At $x = 2$: ${8 * k} + ${y1 - k} = ${8 * k + y1 - k}.`] };
   }),
   num({
-    id: "differentiate-exp-trig", name: "Differentiating exponentials and trigonometric functions", stage: "KS5", year: 13, strand: "Calculus", prereqs: ["chain-rule", "product-quotient"],
+    id: "differentiate-exp-trig", name: "Differentiating exponentials and trig", stage: "KS5", year: 13, strand: "Calculus", prereqs: ["chain-rule", "product-quotient"],
     blurb: "Differentiate eᵏˣ, sin kx, cos kx and ln x, and find the gradient at a point.",
     explainer: "d/dx(eᵏˣ) = k eᵏˣ. d/dx(sin kx) = k cos kx. d/dx(cos kx) = −k sin kx. d/dx(ln x) = 1 ÷ x.",
     parentNote: "With a number in front of x inside the function, multiply by that number (the chain rule). Angles are in radians.",

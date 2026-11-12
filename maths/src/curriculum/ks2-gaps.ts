@@ -35,7 +35,7 @@ export const ks2GapSkills: Skill[] = [
     return { prompt: q, value: v, hint: "Think of a clock or a calendar.", solution: [why] };
   }),
   choiceSkill({
-    id: "line-types", name: "Parallel, perpendicular, horizontal and vertical lines", stage: "KS2", year: 3, strand: "Geometry", prereqs: ["right-angles"],
+    id: "line-types", name: "Parallel and perpendicular lines", stage: "KS2", year: 3, strand: "Geometry", prereqs: ["right-angles"],
     blurb: "Name horizontal, vertical, parallel and perpendicular lines.",
     explainer: "A horizontal line goes side to side, like the horizon. A vertical line goes up and down. Parallel lines never meet. Perpendicular lines meet at a right angle.",
     parentNote: "Look for them around the house: a door frame has vertical and horizontal lines, and railway tracks are parallel. Perpendicular lines make a square corner.",
