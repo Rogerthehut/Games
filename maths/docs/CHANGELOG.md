@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Licence
+Added a `LICENSE` file at the repository root: proprietary, all rights reserved by Wristed Ltd trading as quarter™ (company details taken from the legal pages), with third-party components and exam-board material kept under their owners' terms. `package.json` files say `UNLICENSED`. Have your solicitor look over the wording.
+
 ## iPhone and iPad app: Face ID, haptics, reminders, Pencil, links (needs a new build)
 New in the app shell and on the site: Face ID / Touch ID for the Parents' area (opt-in, with the PIN as back-up), haptic taps on buttons and answers, edge-swipe back and forward and other web-view settings (no accidental phone-number links), weekly practice reminders as local notifications chosen by the parent (off by default), "Pencil only" palm rejection for the working-out sheet, links to yourquarter.co.uk that open the app (`/.well-known/apple-app-site-association`), and a rating prompt for grown-ups. The site checks which features the installed app has, so nothing breaks for people who haven't updated. Native tab bar, widget and Siri are not built yet; see `docs/MOBILE.md`. Also: `mobile/node_modules` is no longer tracked in git. Browser checks: `npm run e2e:native`, `scripts/tools-e2e.ts`.
 

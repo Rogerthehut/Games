@@ -33,3 +33,7 @@ This snapshot includes the Skills and Parents’ area filters, the searchable 11
 ## GitHub handover
 
 Copy the contents of the extracted `Quarter` folder into your repository root. Keep the `maths/` and `maths/native/` directories in place because the Expo prototype uses the shared maths engine. The included web build is for preview. Git ignores generated build output and installed dependencies. Keep local credentials and environment files outside version control.
+
+## Licence
+
+Proprietary. Copyright © 2026 Wristed Ltd, trading as quarter™. All rights reserved. See [LICENSE](../LICENSE).

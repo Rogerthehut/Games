@@ -1,0 +1,35 @@
+quarter™ source code, content and assets
+
+Copyright (c) 2026 Wristed Ltd, trading as quarter™. All rights reserved.
+
+Wristed Ltd is registered in England and Wales, company number 12397793.
+Registered office: 124 City Road, London, England, EC1V 2NX.
+
+This repository and everything in it, including the source code, the question
+generators and curriculum content, the worked examples and drawings, the
+written text, the booklet and printable papers, the artwork, avatars, icons
+and logos, the database schema and the documentation, is the proprietary
+property of Wristed Ltd. "quarter" and the quarter logo are trade marks or
+trading names of Wristed Ltd.
+
+No licence or permission of any kind is granted. You may not use, copy,
+modify, merge, publish, distribute, sublicense, sell, host, reverse engineer
+or make derivative works from any part of this repository, in source or
+compiled form, without the prior written permission of Wristed Ltd. Access to
+this repository for the purpose of working on quarter, given by Wristed Ltd,
+does not transfer any rights.
+
+Third-party components. This repository and the apps built from it use
+open-source and third-party software and services, each of which keeps its own
+licence and copyright. They are not covered by the notice above. Their notices
+are in maths/public/third-party-licences.txt and in each package's own
+licence file. Official past papers, specimen papers and other material
+published by exam boards, the Department for Education or other bodies, where
+referred to in the documentation, remain the property of their owners and are
+not included in this repository.
+
+Nothing here is a promise that quarter is free of defects or fit for any
+particular purpose. The software and content are provided "as is".
+
+For permission or any other question, contact Wristed Ltd through the Message
+us page at https://yourquarter.co.uk/?info=contact.
