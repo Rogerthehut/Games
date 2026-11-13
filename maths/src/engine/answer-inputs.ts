@@ -22,6 +22,7 @@ export function correctInputs(q: Question): string[] {
   }
   if (a.kind === "multi") return a.fields.map((f) => String(f.value));
   if (a.kind === "choice") return [String(a.correct)];
+  if (a.kind === "explain") return [a.model, "1".repeat(a.points.length)];
   return [a.form === "factorised" ? fromShown(q.shown) : plain(a.value)];
 }
 

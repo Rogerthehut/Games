@@ -39,21 +39,21 @@ The reasoning papers (papers 2 and 3 of both years, 92 questions) were measured 
 | Questions over 40 words | 18% | 0% | the same topic |
 | "Tick the true one" or "which is correct" | about 18% | 5% | *True or false? Is it correct?* |
 | Yes/no or "is she right?" | about 4% | 2% | the same topic |
-| Complete a table or diagram | 10% | 0% | **not built**: needs a table-filling answer type |
+| Complete a table or diagram | 10% | 0% | *Complete the table* (Year 4): a table with numbered blank boxes and one answer box for each |
 | Draw, plot, shade or measure | 17% | 0% (in drawing topics only) | existing drawing topics are marked interactive and left out of timed papers |
-| "Explain" or "show that" | about 4% | 0% | **not built**: free-text answers can't be marked automatically |
+| "Explain" or "show that" | about 4% | 0% | *Explain your answer* (Year 6) and *Explain with algebra* (Year 11): written, then **self-marked** against a model answer (the app can't read writing) |
 | A named person | 9% | 2% | longer problems name people |
 | Money, measures, time | 12%, 20%, 11% | 11%, 17%, 8% | already similar |
 
-So the main differences were reading load and the amount of "judge this statement" work. Both now have a topic of their own (Year 6: *Longer test-style problems* and *True or false? Is it correct?*). Two formats are not built: completing a table or diagram (needs a new kind of answer box) and explaining in words (cannot be marked by the app; a grown-up would have to mark it).
+So the main differences were reading load and the amount of "judge this statement" work. Both now have a topic of their own (Year 6: *Longer test-style problems* and *True or false? Is it correct?*). Completing a table is now built (diagrams to complete are not). Explaining in words is built too, but the child ticks the key points they included, because the app cannot read writing. Both need a teacher's review.
 
 ## Secondary papers
 
-The same exercise at a coarser level for GCSE and A-level, using the OCR sample assessment papers (GCSE maths J560 foundation and higher; A-level maths H240 papers 1 to 3, published on ocr.org.uk). It counts how often each of about 90 topics comes up in the papers and checks that we have a topic with a matching name. This is a topic-name check only: it does not compare difficulty or style, and OCR's papers are one board's view.
+The same exercise at a coarser level for GCSE and A-level, using OCR (GCSE J560 sample papers; A-level H240 papers 1 to 3), AQA (GCSE 2025; A-level June 2024) and Edexcel (GCSE June 2024) papers. It counts how often each of about 90 topics comes up in the papers and checks that we have a topic with a matching name. This is a topic-name check only: it does not compare difficulty or style.
 
 - **GCSE:** every topic area in the papers has a matching topic of ours except **the equation of a circle** (named in the higher paper) and **algebraic proof** as GCSE asks for it ("prove that…"; ours was only at A-level). *Fixed:* *The equation of a circle* (Year 11) and *Algebraic proof* (Year 11).
 - **A-level:** every topic area has a match except **implicit differentiation**. *Fixed:* *Implicit differentiation* (Year 13).
-- Not yet compared: the other boards (AQA and Edexcel papers are on sites we can't fetch from here), and difficulty and style, which needs a teacher's eye.
+- Across all of these papers, no topic is left without a match. Not fetched: Edexcel A-level, WJEC, and the GL and CEM 11+ papers. Difficulty and style, and all the new questions, still need a teacher's eye.
 
 ## The codes
 

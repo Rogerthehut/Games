@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Two new kinds of question, and more boards checked
+- **Complete the table** (Year 4): a table with numbered dashed boxes for the missing cells and one answer box for each ("Box 1 =", …). Five levels: a pack row, a price table, an input/output rule, unit conversions, and a reading table with a total. Every filled table is tested against its own rule.
+- **Explain your answer** (Year 6) and **Explain with algebra** (Year 11): the child writes in words, presses "Compare with the model answer", then ticks the key points they included. The app can't read writing, so they mark it themselves, and the screen says so; a missed point is named in the feedback. Every claim in a model answer is worked out from the numbers in the question and re-checked by tests. These topics are left out of timed papers and check-ups, like the drawing topics.
+- **Boards compared:** the GCSE and A-level topic comparison now covers OCR, AQA and Edexcel (GCSE) papers and OCR and AQA (A-level): no topic is unmatched. Edexcel A-level, WJEC and the GL/CEM papers were not fetched. Papers were read for topic names only and none are stored in the repository.
+- Browser tests (`scripts/table-e2e.ts`, `scripts/explain-e2e.ts`) pass at desktop and phone widths. All new questions still need a teacher's review.
+
 ## Closing the gaps found against the real papers
 Finished the list from the Key Stage 2 comparison and extended it to GCSE and A-level (`docs/SATS_COVERAGE.md`):
 - **Four new Key Stage 2 topics** for the codes that were only partly covered: *Estimate, then check* (round to estimate; use the inverse to check; which calculation checks it), *Scaling and correspondence problems*, *Listing combinations*, and *Translating on a grid* (Year 4).

@@ -85,6 +85,7 @@ export function formatHelp(a: Answer): FormatHelp {
     return { line: `${base}${unitNote}`, also: [] };
   }
   if (a.kind === "choice") return { line: "Tap the answer you think is right.", also: [] };
+  if (a.kind === "explain") return { line: "Write your answer in words, then compare it with the model answer and tick what you included.", also: [] };
   if (a.kind === "multi") {
     const rem = a.fields.some((f) => /remainder/i.test(f.label));
     return { line: rem ? "Fill both boxes: the whole-number answer, then what's left over." : "Fill in each box.", also: rem ? ["Or type the quotient, the letter r, and the remainder in the first box."] : [] };

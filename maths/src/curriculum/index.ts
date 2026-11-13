@@ -19,6 +19,8 @@ import { ks2GapSkills } from "./ks2-gaps";
 import { ks2TestSkills } from "./ks2-tests";
 import { ks2ReadingSkills } from "./ks2-reading";
 import { secondaryTestSkills } from "./secondary-tests";
+import { ks2TableSkills } from "./ks2-tables";
+import { explainSkills } from "./explain";
 import { ks2InstrumentSkills } from "./ks2-instruments";
 import { stemSkills } from "./stem";
 import { reasoningSkills } from "./reasoning";
@@ -76,7 +78,7 @@ function withAnswerFormat(q: Question): Question {
   return { ...q, answer: out };
 }
 
-const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills, ...ks2Skills, ...ks2UpperSkills, ...moneySkills, ...secondarySkills, ...ks3Skills, ...ks4Skills, ...ks5Skills, ...secondPassSkills, ...ks2GapSkills, ...ks2InstrumentSkills, ...ks2TestSkills, ...ks2ReadingSkills, ...secondaryTestSkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
+const raw: Skill[] = [...primarySkills, ...numberSkills, ...algebraSkills, ...geometrySkills, ...calculusSkills, ...expansionSkills, ...ks2Skills, ...ks2UpperSkills, ...moneySkills, ...secondarySkills, ...ks3Skills, ...ks4Skills, ...ks5Skills, ...secondPassSkills, ...ks2GapSkills, ...ks2InstrumentSkills, ...ks2TestSkills, ...ks2ReadingSkills, ...secondaryTestSkills, ...ks2TableSkills, ...explainSkills].map((s) => ({ ...s, ...OVERRIDES[s.id] }));
 const prepared = (s: Skill): Skill => ({ ...s, generate: (r, l) => addWorkedPicture(withAnswerFormat(withoutAccidentalCorrect(s.generate(r, l)))) });
 /** The maths curriculum. The check-up, pathway tests, plans and daily practice all work from this list. */
 export const SKILLS: Skill[] = raw.map(prepared);

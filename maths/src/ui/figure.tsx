@@ -476,7 +476,11 @@ function TableFigure({ head, rows, alt }: Of<"table">) {
     <figure class="table-figure">
       <table aria-label={alt} class={head.length > 6 ? "dense" : undefined}>
         <thead><tr>{head.map((h, i) => <th key={i} scope="col">{h}</th>)}</tr></thead>
-        <tbody>{rows.map((row, i) => <tr key={i}>{row.map((c, j) => (j === 0 && (head[0] === "" || head[0] === "×") ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>))}</tr>)}</tbody>
+        <tbody>{rows.map((row, i) => <tr key={i}>{row.map((c, j) => {
+          const gap = typeof c === "string" ? /^\?(\d+)$/.exec(c) : null;                     // a blank cell, "?1": drawn as a numbered dashed box
+          if (gap) return <td key={j} class="table-blank"><span aria-label={`box ${gap[1]}`}>{gap[1]}</span></td>;
+          return j === 0 && (head[0] === "" || head[0] === "×") ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>;
+        })}</tr>)}</tbody>
       </table>
     </figure>
   );

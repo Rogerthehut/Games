@@ -115,7 +115,12 @@ export type Answer =
   | { kind: "expr"; value: Poly; form: "collected" | "factorised"; label?: string }
   | { kind: "multi"; fields: { label: string; value: number }[] }
   /** Pick one. The value typed into the answer box is the option's position, "0" to "4". */
-  | { kind: "choice"; options: ChoiceOption[]; correct: number };
+  | { kind: "choice"; options: ChoiceOption[]; correct: number }
+  /**
+   * Explain in words. The app can't read writing, so the child writes, then compares with a model answer and ticks which of the key points their own
+   * answer included. They mark it themselves. The typed text is the first value and the ticks ("101" for points one and three) the second.
+   */
+  | { kind: "explain"; model: string; points: string[] };
 
 export interface Question {
   skill: string;
@@ -151,7 +156,7 @@ export interface Skill {
   parentNote: string;
   /** For the grown-up: a question to ask to check understanding. */
   talkAbout: string;
-  /** Answered by drawing or moving something on screen, so it is practised and taught but left out of timed papers, check-ups and pathway tests. */
+  /** Answered by drawing, moving something on screen, or writing in words that the child marks against a model answer, so it is practised and taught but left out of timed papers, check-ups and pathway tests. */
   interactive?: boolean;
   generate: (rng: () => number, level: number) => Question;
 }

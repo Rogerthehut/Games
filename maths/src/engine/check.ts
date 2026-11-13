@@ -29,6 +29,15 @@ export function check(q: Question, inputs: string[]): Result {
   const a = q.answer;
   if (inputs.every((s) => !s.trim())) return { outcome: "invalid", feedback: "Type your answer first." };
 
+  if (a.kind === "explain") {
+    const words = (inputs[0] ?? "").trim().split(/\s+/).filter(Boolean).length;
+    if (words < 3) return { outcome: "invalid", feedback: "Write your explanation first, in a sentence or two." };
+    const ticks = inputs[1];
+    if (ticks === undefined) return { outcome: "invalid", feedback: "Press 'Compare with the model answer', then tick what your answer said." };
+    const missed = a.points.filter((_, i) => ticks[i] !== "1");
+    return missed.length === 0 ? { outcome: "correct" } : { outcome: "wrong", feedback: `Your answer didn't include: ${missed.join("; ")}.` };
+  }
+
   if (a.kind === "choice") {
     const typed = inputs[0].trim();
     const pick = /^[a-e]$/i.test(typed) ? typed.toUpperCase().charCodeAt(0) - 65 : /^\d$/.test(typed) ? +typed : -1;

@@ -147,6 +147,7 @@ export function AnswerInput(props: {
     requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(out.caret, out.caret); });
   };
 
+  if (answer.kind === "explain") return <ExplainInput answer={answer} values={values} onChange={onChange} disabled={disabled} state={state} />;
   if (answer.kind === "choice") return <ChoiceInput answer={answer} values={values} onChange={onChange} onSubmit={onSubmit} disabled={disabled} state={state} help={help.line} reveal={reveal} />;
 
   const field = (i: number, cls: string, label?: string) => (
@@ -246,6 +247,40 @@ function ChoiceInput({ answer, values, onChange, onSubmit, disabled, state, help
         ))}
       </div>
       {!disabled && <div class="format-hint" data-testid="format-hint"><Icon name="info" size={16} /><span>{help}</span></div>}
+    </div>
+  );
+}
+
+/**
+ * Explain in words. The child writes, presses "Compare with the model answer", and ticks the key points their own answer included. They mark it
+ * themselves, because the app can't read writing; the note says so. Enter makes a new line here and does not submit.
+ */
+function ExplainInput({ answer, values, onChange, disabled, state }: { answer: Extract<Answer, { kind: "explain" }>; values: string[]; onChange: (v: string[]) => void; disabled?: boolean; state: InputState }) {
+  const text = values[0] ?? "", ticks = values[1], marking = ticks !== undefined;
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const tick = (i: number) => { const t = (ticks ?? "").padEnd(answer.points.length, "0").split(""); t[i] = t[i] === "1" ? "0" : "1"; onChange([text, t.join("")]); };
+  return (
+    <div class="answer explain" data-state={state}>
+      <label class="field explain-field">
+        <span class="field-tag">Your explanation</span>
+        <textarea class="explain-text" rows={4} value={text} disabled={disabled || marking} data-testid="explain-text" placeholder="Write it in your own words. A sentence or two is fine."
+          onInput={(e) => onChange([(e.target as HTMLTextAreaElement).value])} />
+      </label>
+      {!disabled && !marking && (
+        <button type="button" class="btn" disabled={words < 3} onClick={() => onChange([text, ""])} data-testid="explain-compare">Compare with the model answer</button>
+      )}
+      {!disabled && marking && (
+        <section class="explain-mark" aria-label="Compare your answer" data-testid="explain-mark">
+          <p class="explain-model"><strong>A model answer:</strong> <Maths text={answer.model} /></p>
+          <p class="small muted">You mark this one yourself, because the app can't read writing. Tick each point that your answer said, even in different words.</p>
+          <div class="explain-points" role="group" aria-label="Key points">
+            {answer.points.map((pt, i) => (
+              <label class="check" key={i}><input type="checkbox" checked={ticks?.[i] === "1"} onChange={() => tick(i)} data-testid={`explain-point-${i}`} /> <Maths text={pt} /></label>
+            ))}
+          </div>
+          <button type="button" class="linkish small" onClick={() => onChange([text])} data-testid="explain-edit">Change my answer</button>
+        </section>
+      )}
     </div>
   );
 }

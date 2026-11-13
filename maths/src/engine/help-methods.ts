@@ -118,7 +118,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["Is it bigger or smaller than a right angle?", "Which scale starts at 0 here?", "Which numbers go together on a straight line?"], tool: "paper",
   },
   {
-    id: "data", name: "charts, data and averages", test: /^(pictograms|read-bar-charts|read-tables|line-graphs|pie|averages|scale-recipes|stats|histogram|boxplot|probability|cumulative)/,
+    id: "data", name: "charts, data and averages", test: /^(pictograms|read-bar-charts|read-tables|complete-table|line-graphs|pie|averages|scale-recipes|stats|histogram|boxplot|probability|cumulative)/,
     why: ["Not reading the title, key and axis labels first.", "Scales that go up in twos, fives or tens, not ones.", "Mixing up mean, median, mode and range."],
     methods: [
       { title: "Read the chart in order", steps: ["Read the title and what each axis or symbol means.", "Check the scale: what does one step or one picture stand for?", "Only then read off the value."] },
@@ -127,7 +127,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["What is the chart about?", "What does one square or picture stand for?", "Which average is the question asking for?"], tool: "paper",
   },
   {
-    id: "problems", name: "word problems and algebra", test: /^(word-problems|test-problems|test-claims|combinations|order-ops|missing-number|two-unknowns|using-formulae|sequences|substitute|solve-linear|expand|factoris|nth-term|algebraic-proof|simultaneous|quadratic|algebra)/,
+    id: "problems", name: "word problems and algebra", test: /^(word-problems|explain-why|explain-algebra|test-problems|test-claims|combinations|order-ops|missing-number|two-unknowns|using-formulae|sequences|substitute|solve-linear|expand|factoris|nth-term|algebraic-proof|simultaneous|quadratic|algebra)/,
     why: ["Not knowing which operation the words ask for.", "Skipping the order of operations (brackets, then powers, then × ÷, then + −).", "In algebra, treating letters as words rather than numbers."],
     methods: [
       { title: "Read, picture, choose, solve, check", steps: ["Read it twice and underline the question.", "Draw a bar model or quick sketch.", "Pick the operation and write the sum.", "Solve it, then ask if the answer makes sense."] },
