@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { companyLine, contactEmail, cookiesSections, copyright, footerGroups, footerTagline, trustpilot, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
+import { companyLine, cookiesSections, copyright, footerGroups, footerTagline, trustpilot, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
 import { Icon } from "./icons";
 import { primaryNav, tabHref } from "./navigation";
@@ -17,10 +17,11 @@ export function BackLink() {
   return <a class="btn small page-back" href="./" onClick={back}><span aria-hidden="true">←</span> Back</a>;
 }
 export const sitemapHref = "./?info=sitemap";
+export const contactHref = "./?info=contact";
 
-export function getInformationPage(search: string): LegalPage | "sitemap" | undefined {
+export function getInformationPage(search: string): LegalPage | "sitemap" | "contact" | undefined {
   const page = new URLSearchParams(search).get("info");
-  return page === "sitemap" ? page : legalPages.find((entry) => entry === page);
+  return page === "sitemap" || page === "contact" ? page : legalPages.find((entry) => entry === page);
 }
 
 /**
@@ -45,7 +46,7 @@ export function LegalFooter({ full }: { full?: boolean }) {
         <div class="footer-brand">
           <a class="legal-home" href="./" aria-label="quarter home"><CubeMark /><Wordmark /></a>
           <p class="footer-tagline">{footerTagline}</p>
-          <p class="footer-contact"><a class="legal-link" href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+          <p class="footer-contact"><a class="legal-link footer-message" href={contactHref} data-testid="footer-contact">Message us</a></p>
           <p class="footer-review"><a class="legal-link" href={trustpilot.href} target="_blank" rel="noopener noreferrer"><svg class="footer-star" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z" fill="#f5dc63" stroke="#1e2038" stroke-width="1.6" stroke-linejoin="round" /></svg><span>{trustpilot.label}</span></a></p>
         </div>
         {groups}
@@ -124,6 +125,7 @@ export function SitemapScreen() {
                 <a class="row" href={legalHref(page)}><span>{legalTitles[page]}</span><Icon name="chevron" size={18} /></a>
               </li>
             ))}
+            <li><a class="row" href={contactHref}><span>Message us</span><Icon name="chevron" size={18} /></a></li>
           </ul>
         </section>
       </nav>
@@ -165,7 +167,7 @@ export function LegalScreen({ page }: { page: LegalPage }) {
       <BackLink />
       <h1>{legalTitles[page]}</h1>
       <p class="small muted">Updated {legalUpdated[page]}</p>
-      {page !== "licences" && <p class="small">Questions about this page? Email <a class="legal-link" href={`mailto:${contactEmail}`}>{contactEmail}</a>.</p>}
+      {page !== "licences" && <p class="small">Questions about this page? <a class="legal-link" href={contactHref}>Message us</a>.</p>}
       {sections.map(({ title, paragraphs }) => (
         <section key={title}>
           <h2>{title}</h2>

@@ -3,9 +3,11 @@ export const company = { number: "12397793", office: "124 City Road, London, Eng
 export const companyLine = `${operator} is registered in ${company.registered}, company number ${company.number}. Registered office: ${company.office}.`;
 export const copyright = `© 2026 ${operator}. quarter™ is a trading name of ${operator}.`;
 export const contactEmail = "hello@yourquarter.co.uk";
+/** Where people get in touch: the Message us page. (The address above is what replies are sent from, not an inbox we ask people to write to.) */
+export const contactPage = "yourquarter.co.uk/?info=contact";
 export const designer = { credit: "Built with curiosity in mind", name: "RR Studio", href: "https://roger-richman.com/" } as const;
 export const legalUpdated = {
-  privacy: "10 November 2026",
+  privacy: "13 November 2026",
   cookies: "10 November 2026",
   terms: "10 November 2026",
   licences: "9 November 2026",
@@ -59,7 +61,7 @@ export function privacySections(native: boolean): Section[] {
     ...(native ? [] : [{
       title: "Who looks after your information",
       paragraphs: [
-        `quarter™ is a trading name of ${operator}, which is responsible for the information described in this notice.  ${companyLine} For any question about your information, or to use any of your rights, email ${contactEmail}.`,
+        `quarter™ is a trading name of ${operator}, which is responsible for the information described in this notice.  ${companyLine} For any question about your information, or to use any of your rights, message us at ${contactPage}.`,
         "quarter is made for parents and guardians to set up and for children to use under their supervision. Only a parent or guardian creates an account. Children never create their own.",
       ],
     }, {
@@ -70,6 +72,7 @@ export function privacySections(native: boolean): Section[] {
         "We do not ask for real names, birthdays, photos, home addresses or school names for learners. Nothing is used for advertising, and we do not sell information.",
         "quarter is in public beta and free to use for now. The same privacy protections apply during the beta as will apply afterwards.",
         "Feedback: if you send us feedback from the Parents’ area, we keep your message, the topic you chose, an optional star rating, whether you said we may reply, and your screen size, linked to your account. We don’t store your email address with it. If you say we may reply, we look it up from your sign-in account when we answer. It is used only to improve quarter and to reply to you, and it is deleted with your account. Please don’t put personal details about a child in it.",
+        "Messages: if you send us a message from the Message us page, we keep your message, the topic you chose, the email address you typed and, if you gave one, your name. We use them only to reply and to improve quarter. We never email the address you typed unless a member of our team is replying to you. Messages and our replies are deleted after 180 days, or sooner if you ask us.",
         "If you subscribe, Stripe takes the payment and holds your card details. We keep only your Stripe customer reference, your plan, its status and its dates. We never see or store your card number.",
       ],
     }, {
@@ -110,7 +113,7 @@ export function privacySections(native: boolean): Section[] {
     {
       title: "Your choices and rights",
       paragraphs: [
-        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, including any feedback you have sent, remove a learner, turn the AI tutor off, or delete the whole account. You can also email us at " + contactEmail + "."]),
+        ...(native ? [] : ["In the Parents’ area you can download everything we hold about your account, including any feedback you have sent, remove a learner, turn the AI tutor off, or delete the whole account. You can also message us at " + contactPage + "."]),
         "Where data protection law applies, you may have rights to ask for a copy, correct or delete information, restrict its use or move it to another service. You can also object to some uses of your information. In the UK you can complain to the Information Commissioner’s Office.",
       ],
     },
@@ -142,7 +145,7 @@ export const cookiesSections: Section[] = [
     title: "How to clear it",
     paragraphs: [
       "Sign out to remove the account copy from this browser. To remove everything quarter and Clerk have saved here, clear this site’s data in your browser settings. Your account and learners stay safe in your account until you delete them in the Parents’ area.",
-      `Questions: ${contactEmail}.`,
+      `Questions: message us at ${contactPage}.`,
     ],
   },
 ];
@@ -160,7 +163,7 @@ export const termsSections: Section[] = [
     paragraphs: [
       `quarter™ is a trading name of ${operator}. By using it you agree to these terms with ${operator}.`,
       "An account must be created by a parent or guardian aged 18 or over. You are responsible for the learners you add, for keeping your sign-in secure, and for turning the tutor on or off. Please give accurate information and use a nickname for each learner.",
-      `You can delete your account at any time from the Parents’ area. We may suspend an account that is used to harm others or the service. Email ${contactEmail} if you need help.`,
+      `You can delete your account at any time from the Parents’ area. We may suspend an account that is used to harm others or the service. Message us at ${contactPage} if you need help.`,
     ],
   },
   {
@@ -191,7 +194,7 @@ export const termsSections: Section[] = [
       "quarter is a practice and learning aid. We can’t promise any particular result, such as a better school grade, a place at a school, or a pass in the 11+ or any other exam. What a learner gains depends on many things, including how often they practise and the teaching they get elsewhere.",
       "Levels, scores and reports, including the working level from a check-up and the progress report, are estimates to help you plan practice. They are not an official assessment and not a prediction of exam results.",
       "Our 11+ style practice is original and independent of exam boards and test providers. It may not match any particular test, and school admission rules and tests change, so always check with the school or local authority.",
-      "Our maths topics follow England’s maths curriculum as we understand it, and our STEM topics are our own selection, pitched for each age. We can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactEmail + ". The AI tutor and the AI assistant can also make mistakes and are not a replacement for a teacher.",
+      "Our maths topics follow England’s maths curriculum as we understand it, and our STEM topics are our own selection, pitched for each age. We can’t guarantee they are complete or free of mistakes. If you spot one, please tell us at " + contactPage + ". The AI tutor and the AI assistant can also make mistakes and are not a replacement for a teacher.",
     ],
   },
   {

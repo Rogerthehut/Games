@@ -229,7 +229,7 @@ export function buildBookletSample(): BookletBuilt & { total: number; fullPages:
       <div class="bk-card gold"><h3>In the full booklet</h3><ul class="bk-list"><li>Every maths topic from Year 3 to A-level, year by year.</li><li>The full 11+ strand, with the test finder for ${admissions.length} areas.</li><li>Every STEM lab topic.</li><li>The illustrated study library.</li></ul></div>
       <div class="bk-card mint"><h3>How to get it</h3><ul class="bk-list"><li>Create a quarter account at <b>yourquarter.co.uk</b>.</li><li>Open the Parents' area, then Settings.</li><li>Find the Curriculum booklet card and choose Read online or Download PDF.</li></ul></div>
     </div>
-    <div class="bk-callout">Questions? hello@yourquarter.co.uk</div>`, "Free sample");
+    <div class="bk-callout">Questions? Message us at yourquarter.co.uk/?info=contact</div>`, "Free sample");
   const raw: BookletPage[] = [
     ...pick("Cover"), ...pick("Welcome"), ...pick("How quarter works"), ...pick("At a glance"),
     ...year, ...pick("The 11+", "What's in the 11+ strand"), ...pick("The STEM lab", "How the STEM lab works"),

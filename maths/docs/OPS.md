@@ -91,3 +91,12 @@ Under **Account lookup**, find the parent by email and a **Delete this account**
 ## Next steps
 
 Showing parents' replies inside the portal. That needs an address that receives email into the server (for example Resend's inbound mail on a separate subdomain, with portal replies pointing their Reply-To at it) rather than into the Zoho mailbox. It's a set-up decision more than code, so it waits until you choose how replies should arrive.
+
+## Messages from the website
+
+The footer's **Message us** link opens `/?info=contact`, a short form (name optional, email, topic, message). It replaces the email address, which isn't set up as an inbox.
+
+- **Reading and replying:** in the ops page, the **Messages** tab. A reply is emailed through Resend from `MAIL_FROM` (`hello@yourquarter.co.uk`) to the address the person typed, with their message quoted. Replies and views are audit-logged. **Delete** removes a message and its replies.
+- **Retention:** messages are deleted after 180 days (a small purge runs now and then when new messages arrive). The sender's email address is stored on the message only so the team can reply, and nothing is sent to it until someone replies. It's described in the privacy notice under "What we keep".
+- **Abuse protection:** the Turnstile human check (when `TURNSTILE_SECRET_KEY` is set), a hidden field bots fill in, 5 messages an hour and 15 a day per address, 3 a day per email address, 2,000 characters, 8 KB body.
+- **Needs:** the database (`DATABASE_URL`), and for replies `RESEND_API_KEY` and a verified sending domain. Replies say "send another message at yourquarter.co.uk/?info=contact", so they don't depend on an inbox existing. If `MAIL_REPLY_TO` is left unset, Resend replies go to `hello@yourquarter.co.uk`, so either set up that mailbox or set `MAIL_REPLY_TO` to one you read.

@@ -4,6 +4,7 @@ import type { Repo } from "./db/repo";
 import type { Gateway } from "./billing";
 import type { Mailer } from "./mail";
 import { OpsAccess, actorOf } from "./ops-access";
+import { addContactReply, contactById, contactList, deleteContact } from "./contact";
 import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
 
 /**
@@ -73,6 +74,32 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     await addReply(d.db, fb.id, actor, message);
     await audit(d.db, actor, "feedback-reply", fb.id);
     return ok({ sent: true });
+  }
+
+  // messages from the public "Message us" page: the sender's address is on the message itself, so a reply goes straight to it
+  if (req.path === "/api/ops/contact" && req.method === "GET") {
+    await audit(d.db, actor, "contact-view", "-");
+    return ok({ items: await contactList(d.db, { unreplied: req.query.get("unreplied") === "1" }) });
+  }
+  if (req.path === "/api/ops/contact/reply" && req.method === "POST") {
+    const id = typeof body.id === "string" ? body.id : "";
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    if (message.length < 5 || message.length > 4000) return bad("Write a reply between 5 and 4000 characters.");
+    const c = await contactById(d.db, id);
+    if (!c) return NOT_FOUND;
+    const quoted = c.message.split("\n").map((l) => `> ${l}`).join("\n");
+    const html = `<p style="font:16px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(message)}</p><blockquote style="margin:16px 0;padding:8px 14px;border-left:3px solid #ddd;color:#555;font:14px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(c.message)}</blockquote><p style="font:13px system-ui,sans-serif;color:#666">You're getting this because you sent us a message on the quarter website. To say more, send another at yourquarter.co.uk/?info=contact.</p>`;
+    const sent = await d.mailer.send({ to: c.email, subject: "Re: your message to quarter", text: `${message}\n\n---\nYour message:\n${quoted}\n\nYou're getting this because you sent us a message on the quarter website. To say more, send another at yourquarter.co.uk/?info=contact.`, html });
+    if (!sent.ok) return { status: 502, body: { error: "mail-failed", message: "The reply couldn't be sent. Nothing was recorded; try again." } };
+    await addContactReply(d.db, c.id, actor, message);
+    await audit(d.db, actor, "contact-reply", c.id);
+    return ok({ sent: true });
+  }
+  if (req.path === "/api/ops/contact/delete" && req.method === "POST") {
+    const id = typeof body.id === "string" ? body.id : "";
+    if (!(await deleteContact(d.db, id))) return NOT_FOUND;
+    await audit(d.db, actor, "contact-delete", id);
+    return ok({ deleted: true });
   }
 
   if (req.path === "/api/ops/account" && req.method === "GET") {

@@ -87,3 +87,20 @@ export const rateCounters = pgTable("rate_counters", {
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Parent = typeof parents.$inferSelect;
+
+export const contactMessages = pgTable("contact_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  name: text("name"),
+  email: text("email").notNull(),
+  topic: text("topic").notNull(),
+  message: text("message").notNull(),
+});
+
+export const contactReplies = pgTable("contact_replies", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  contactId: uuid("contact_id").notNull().references(() => contactMessages.id, { onDelete: "cascade" }),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  actor: text("actor").notNull(),
+  message: text("message").notNull(),
+});

@@ -10,7 +10,7 @@ const read = () => { try { const v = JSON.parse(sessionStorage.getItem(KEY) ?? "
 const keep = (v: { s: string; exp: number } | null) => { try { v ? sessionStorage.setItem(KEY, JSON.stringify(v)) : sessionStorage.removeItem(KEY); } catch { /* ignore */ } };
 
 type Item = { id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
-type Tab = "inbox" | "numbers" | "account" | "audit";
+type Tab = "inbox" | "numbers" | "account" | "audit" | "messages";
 
 export function OpsPage() {
   const [auth, setAuth] = useState<AuthClient | null>(null);
@@ -88,7 +88,7 @@ function Code({ call, onDone, signOut }: { call: Call; onDone: (s: { s: string; 
 
 function Dashboard({ call, leave }: { call: Call; leave: () => void }) {
   const [tab, setTab] = useState<Tab>("inbox");
-  const tabs: [Tab, string][] = [["inbox", "Inbox"], ["numbers", "Numbers"], ["account", "Account lookup"], ["audit", "Audit log"]];
+  const tabs: [Tab, string][] = [["inbox", "Feedback"], ["messages", "Messages"], ["numbers", "Numbers"], ["account", "Account lookup"], ["audit", "Audit log"]];
   return (
     <>
       <div class="seg" role="tablist" aria-label="Ops sections">
@@ -96,6 +96,7 @@ function Dashboard({ call, leave }: { call: Call; leave: () => void }) {
         <button class="btn small ghost" onClick={leave}>Lock</button>
       </div>
       {tab === "inbox" && <Inbox call={call} />}
+      {tab === "messages" && <Messages call={call} />}
       {tab === "numbers" && <Numbers call={call} />}
       {tab === "account" && <Lookup call={call} />}
       {tab === "audit" && <Audit call={call} />}
@@ -137,6 +138,47 @@ function FeedbackCard({ item, call, onSent }: { item: Item; call: Call; onSent: 
         <button class="btn small primary" disabled={busy || text.trim().length < 5} onClick={send} data-testid="ops-reply">Send reply</button>
         {msg && <span role="alert"> {msg}</span>}
       </>}
+    </article>
+  );
+}
+
+type ContactItem = { id: string; at: string; name: string | null; email: string; topic: string; message: string; replies: { at: string; actor: string; message: string }[] };
+/** Messages from the public "Message us" page. A reply is emailed from the sending address to whatever the sender typed. */
+function Messages({ call }: { call: Call }) {
+  const [items, setItems] = useState<ContactItem[] | null>(null);
+  const [only, setOnly] = useState(true);
+  const load = async () => { const r = await call<{ items: ContactItem[] }>("GET", `/api/ops/contact${only ? "?unreplied=1" : ""}`); setItems(r.ok ? r.data.items : []); };
+  useEffect(() => { load(); }, [only]);
+  return (
+    <section class="card" data-testid="ops-messages">
+      <h2>Messages</h2>
+      <p class="small muted">Sent from the Message us page on the website. Deleted automatically after 180 days.</p>
+      <label><input type="checkbox" checked={only} onChange={(e) => setOnly((e.target as HTMLInputElement).checked)} /> Only ones waiting for a reply</label>
+      {!items ? <p>Loading…</p> : !items.length ? <p class="muted">Nothing here.</p> : items.map((i) => <MessageCard key={i.id} item={i} call={call} onChanged={load} />)}
+    </section>
+  );
+}
+
+function MessageCard({ item, call, onChanged }: { item: ContactItem; call: Call; onChanged: () => void }) {
+  const [text, setText] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const send = async () => {
+    setBusy(true); setMsg("");
+    const r = await call("POST", "/api/ops/contact/reply", { id: item.id, message: text });
+    setBusy(false);
+    if (r.ok) { setText(""); onChanged(); } else setMsg(r.data.message ?? "Couldn't send.");
+  };
+  const remove = async () => { if (confirm("Delete this message and its replies for good?")) { await call("POST", "/api/ops/contact/delete", { id: item.id }); onChanged(); } };
+  return (
+    <article class="card" style="margin:12px 0" data-testid="ops-message">
+      <p class="small muted">{item.at.slice(0, 16).replace("T", " ")} · {item.topic} · {item.name ? `${item.name} · ` : ""}{item.email}</p>
+      <p style="white-space:pre-wrap">{item.message}</p>
+      {item.replies.map((r) => <blockquote key={r.at} style="margin:8px 0;padding-left:12px;border-left:3px solid #ccc"><span class="small muted">Replied {r.at.slice(0, 10)}</span><br />{r.message}</blockquote>)}
+      <textarea rows={3} style="width:100%" value={text} onInput={(e) => setText((e.target as HTMLTextAreaElement).value)} aria-label="Your reply" placeholder="Write a reply. It's emailed to them from hello@yourquarter.co.uk." />
+      <button class="btn small primary" disabled={busy || text.trim().length < 5} onClick={send} data-testid="ops-message-reply">Send reply</button>{" "}
+      <button class="btn small ghost" onClick={remove}>Delete</button>
+      {msg && <span role="alert"> {msg}</span>}
     </article>
   );
 }

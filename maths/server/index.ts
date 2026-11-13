@@ -7,6 +7,7 @@ import { runDigestJob } from "./digest-job";
 import { unsubscribePage } from "./unsubscribe-page";
 import { OpsAccess, parseAdmins } from "./ops-access";
 import { handleOpsApi, isOpsRoute } from "./ops-api";
+import { cleanContact, contactAllowed, purgeContact, saveContact } from "./contact";
 import type { Db } from "./db";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -167,6 +168,21 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
     if (!found) return send(res, 503, { error: "lookup-unavailable" });
     res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "public, max-age=86400" });
     return res.end(JSON.stringify(found));
+  }
+
+  // The public "Message us" form. No account needed; guarded by the human check, a hidden field, and limits per address and per email.
+  if (url.pathname === "/api/contact" && req.method === "POST") {
+    if (!opsDb) return send(res, 503, { error: "unavailable", message: "Messages aren't available just now." });
+    if (!humanOk(String(req.headers["x-human-pass"] ?? "") || undefined)) return send(res, 401, { error: "human-required", message: "Please complete the quick check and try again." });
+    const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
+    let body: unknown;
+    try { body = await readBody(req, 8192); } catch { return send(res, 400, { error: "bad-request", message: "That couldn't be read." }); }
+    const c = cleanContact(body);
+    if (!c.ok) return c.error === "bot" ? send(res, 200, { sent: true }) : send(res, 400, { error: c.error, message: c.message });
+    if (!(await contactAllowed(counters, ip, c.value.email))) return send(res, 429, { error: "slow-down", message: "You've sent a few messages already. Please try again later." });
+    await saveContact(opsDb, c.value);
+    if (Math.random() < 0.05) void purgeContact(opsDb).catch(() => undefined);
+    return send(res, 200, { sent: true });
   }
 
   // The weekly email. A scheduler calls this with the shared secret; nobody else can.

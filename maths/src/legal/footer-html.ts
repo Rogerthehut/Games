@@ -1,4 +1,4 @@
-import { companyLine, contactEmail, copyright, designer, footerTagline, trustpilot, type FooterGroup } from "./content";
+import { companyLine, copyright, designer, footerTagline, trustpilot, type FooterGroup } from "./content";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -11,7 +11,7 @@ export function footerHtml(groups: FooterGroup[], link: (href: string, label: st
   const nav = groups.map((g, i) => `<nav aria-labelledby="footer-h${i}"><h2 id="footer-h${i}">${esc(g.heading)}</h2><ul>${g.links.map((l) => `<li>${link(l.href, l.label)}</li>`).join("")}</ul></nav>`).join("");
   return `<div class="site-foot"><div class="l-wrap"><footer class="legal-footer full">
 <div class="footer-top">
-<div class="footer-brand"><a class="legal-home" href="./" aria-label="quarter home">${brand}</a><p class="footer-tagline">${esc(footerTagline)}</p><p class="footer-contact"><a class="legal-link" href="mailto:${esc(contactEmail)}">${esc(contactEmail)}</a></p><p class="footer-review"><a class="legal-link" href="${esc(trustpilot.href)}" target="_blank" rel="noopener noreferrer"><svg class="footer-star" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z" fill="#f5dc63" stroke="#1e2038" stroke-width="1.6" stroke-linejoin="round"/></svg><span>${esc(trustpilot.label)}</span></a></p></div>
+<div class="footer-brand"><a class="legal-home" href="./" aria-label="quarter home">${brand}</a><p class="footer-tagline">${esc(footerTagline)}</p><p class="footer-contact">${link("./?info=contact", "Message us")}</p><p class="footer-review"><a class="legal-link" href="${esc(trustpilot.href)}" target="_blank" rel="noopener noreferrer"><svg class="footer-star" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z" fill="#f5dc63" stroke="#1e2038" stroke-width="1.6" stroke-linejoin="round"/></svg><span>${esc(trustpilot.label)}</span></a></p></div>
 <div class="footer-groups">${nav}</div>
 </div>
 <div class="footer-bottom">

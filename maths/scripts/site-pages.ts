@@ -262,7 +262,7 @@ export function sitePages(styles: string): { path: string; html: string }[] {
 export function sitemapEntries(): { path: string; lastmod: string }[] {
   const e = (path: string, lastmod = CONTENT_DATE) => ({ path, lastmod });
   return [
-    e(""), ...legalPages.map((p) => e(`?info=${p}`)), e("?info=sitemap"),
+    e(""), ...legalPages.map((p) => e(`?info=${p}`)), e("?info=sitemap"), e("?info=contact"),
     e(content.hub.path), e(content.faq.path), ...content.guides.map((g) => e(g.path)),
     e("blog/index.html", [...POSTS].sort((x, y) => y.date.localeCompare(x.date))[0].date), ...POSTS.map((p) => e(postPath(p), p.date)),
     e("reading/index.html", readingList.updated || CONTENT_DATE),
