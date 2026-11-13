@@ -82,11 +82,12 @@ function addSub(r: R, level: number): Question {
   if (!add && a < b) [a, b] = [b, a];
   if (!add && a === b) a += 1;
   const ans = add ? a + b : a - b;
+  const answerFirst = r() < 0.2;      // "□ = 9,171 − 530": the box comes first, as in the Key Stage 2 arithmetic paper
   const work = columnWork(a, b, add ? "+" : "-");
   const est = (x: number) => { const unit = 10 ** (String(x).length - 1); return Math.round(x / unit) * unit; };   // round to the first digit
   return {
     skill: "add-sub", level,
-    prompt: `Work out $${n$(a)} ${add ? "+" : "-"} ${n$(b)}$.`,
+    prompt: answerFirst ? `Find the missing number: $\\square = ${n$(a)} ${add ? "+" : "-"} ${n$(b)}$.` : `Work out $${n$(a)} ${add ? "+" : "-"} ${n$(b)}$.`,
     answer: { kind: "number", value: ans },
     hint: `Line the digits up by place value and work from the right. ${add ? "Carry" : "Exchange"} when you need to.`,
     solution: [
@@ -167,7 +168,7 @@ function division(r: R, level: number): Question {
   const n = b * q;
   return {
     skill: "division", level,
-    prompt: `Work out $${n$(n)} \\div ${b}$.`,
+    prompt: level === 1 && r() < 0.25 ? `Find the missing number: $\\square = ${n$(n)} \\div ${b}$.` : `Work out $${n$(n)} \\div ${b}$.`,
     answer: { kind: "number", value: q },
     hint: level === 1 ? "Use short division, or think about how many lots of the number fit." : `Take away groups of ${b}. Start by taking away 10 groups at a time.`,
     solution: level === 1

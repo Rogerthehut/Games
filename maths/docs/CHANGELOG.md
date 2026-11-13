@@ -2,6 +2,14 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Closing the gaps found against the real papers
+Finished the list from the Key Stage 2 comparison and extended it to GCSE and A-level (`docs/SATS_COVERAGE.md`):
+- **Four new Key Stage 2 topics** for the codes that were only partly covered: *Estimate, then check* (round to estimate; use the inverse to check; which calculation checks it), *Scaling and correspondence problems*, *Listing combinations*, and *Translating on a grid* (Year 4).
+- **The answer-first layout** ("box = 9,171 - 530") now appears in about one *Adding and subtracting* question in five and one plain *Dividing* question in four.
+- **Reasoning-question style.** The tests' reasoning questions are about three times as long as ours (about 35 words against 12, and 18% over 40 words against none), and about one in five asks "which is true?" or "is she right?". Two new Year 6 topics practise this: *Longer test-style problems* (25 to 50 words, a name, a number that isn't needed) and *True or false? Is it correct?*. Completing a table and explaining in words are not built (they need a new answer box and a human marker).
+- **GCSE and A-level** (OCR sample papers, topic-name comparison): three gaps found and filled, *The equation of a circle*, *Algebraic proof* (the GCSE kind) and *Implicit differentiation*.
+- 12 new topics in all, each with tests that re-check every answer independently (`ks2-tests`, `ks2-reading`, `secondary-tests`, `sats-shapes`). KS2 outcomes: 111 of 111 fully covered; test codes: 121 of 124 fully, 3 partly. The plan and check-up tests got a little more room, because the pool of topics grew.
+
 ## Marketing page tidy-up
 The last card now reads "See how quarter explains tricky problems" with a line on the benefit (your child learns why it works, not just what the answer is). The Learning report card had borrowed the 11+ card's colour and icon; it now has its own sky-blue colour and a report-with-magnifier drawing.
 

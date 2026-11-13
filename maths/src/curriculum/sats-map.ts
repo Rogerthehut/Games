@@ -677,7 +677,8 @@ export const SATS_TOPICS: Record<string, string[]> = {
   "times-tables"
  ],
  "3C8": [
-  "times-tables"
+  "times-tables",
+  "correspondence"
  ],
  "3F1b": [
   "frac-same-denom",
@@ -737,6 +738,7 @@ export const SATS_TOPICS: Record<string, string[]> = {
   "add-sub"
  ],
  "4C3": [
+  "estimate-check",
   "rounding",
   "word-problems"
  ],
@@ -823,6 +825,7 @@ export const SATS_TOPICS: Record<string, string[]> = {
   "count-through-zero"
  ],
  "4P2": [
+  "translate-grid",
   "coordinates",
   "reflect-translate"
  ],
@@ -961,6 +964,7 @@ export const SATS_TOPICS: Record<string, string[]> = {
   "two-unknowns"
  ],
  "6A5": [
+  "combinations",
   "two-unknowns"
  ],
  "6C5": [
@@ -981,7 +985,9 @@ export const SATS_TOPICS: Record<string, string[]> = {
   "long-division"
  ],
  "6C8": [
-  "word-problems"
+  "word-problems",
+  "test-problems",
+  "test-claims"
  ],
  "6C9": [
   "order-ops"
@@ -1092,10 +1098,6 @@ export const SATS_TOPICS: Record<string, string[]> = {
 /** Codes where our topics cover only part of the statement, and what is missing. */
 export const SATS_PARTIAL: Record<string, string> = {
  "3C4": "Missing-number problems appear only in the 'find the missing number' forms of the times tables; there is no Year 3 addition missing-number topic.",
- "3C8": "Integer scaling and correspondence problems ('3 hats and 4 scarves') have no topic of their own.",
- "4C3": "Estimating is practised inside word problems and the add/subtract estimate step; a stand-alone estimate-then-check topic does not exist.",
- "4P2": "Translating a shape on a grid by left/right and up/down is practised only in Year 6 reflect-and-translate.",
- "6A5": "Listing the combinations of two variables is not practised directly; two-unknown equations cover the algebra side.",
  "6F6": "Writing a fraction as a decimal by dividing (such as 3/8 = 0.375) is practised; the link to the division method is not shown step by step.",
  "5M6": "Approximate metric and imperial equivalences are practised; some of the less common ones (such as feet and inches) are not."
 };

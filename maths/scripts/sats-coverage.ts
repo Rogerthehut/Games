@@ -42,9 +42,44 @@ Reading the arithmetic papers against our question generators (the shapes of the
 4. **Taking fractions away, and mixed numbers (6F4, one of the most-used fraction codes).** *Adding fractions* only added proper fractions, although the outcome list said it covered subtracting and mixed numbers. *Fixed:* from level 2 half of the questions take one fraction from another, and levels 4 and 5 start with a mixed number (answers are written as an improper fraction; no picture is drawn for mixed numbers).
 5. **Overstated before:** the Year 6 outcome "multiply up to four digits by two digits" was marked fully covered by a topic that did not reach it, so was the Year 5 "four digits by one digit" division one. Both are true now.
 
-Still partly covered (listed in the tables below): a stand-alone *estimate then check with the inverse* topic (4C3), correspondence and scaling problems (3C8), listing the combinations of two variables (6A5), and translating a shape in Year 4 (4P2).
+### Codes that were only partly covered, now closed with new topics
 
-Not yet compared and worth doing next: the *style* of the reasoning questions (how much reading, which contexts, how marks are given), the answer-first layout ("= 9,171 - 530") that the arithmetic paper uses, and the same exercise for GCSE and A-level papers.
+- **4C3, estimating and checking with the inverse:** *Estimate, then check* (Year 4): round to estimate, use the inverse to check someone's answer, and say which calculation checks a sum.
+- **3C8, correspondence and scaling:** *Scaling and correspondence problems* (Year 4): "times as much", and pairing each of one thing with each of another.
+- **6A5, combinations of two variables:** *Listing combinations* (Year 6): pairs that fit a rule, and ways of arranging digits, checked by counting them all.
+- **4P2, translating a shape:** *Translating on a grid* (Year 4): move a point or a rectangle left, right, up or down.
+
+Still partly covered: missing-number problems in Year 3 (3C4), writing a fraction as a decimal by dividing (6F6), and the less common imperial equivalences (5M6).
+
+### The answer-first layout
+
+The arithmetic paper writes some sums with the box first ("□ = 9,171 − 530" and "□ = 630 ÷ 7"). About one question in five in *Adding and subtracting*, and one in four of the plain *Dividing* questions, now use that layout.
+
+## The style of the reasoning questions
+
+The reasoning papers (papers 2 and 3 of both years, 92 questions) were measured against a sample of 2,736 of our Key Stage 2 questions. The measures are crude counts, not a judgement of quality, but the differences are large.
+
+| | Tests (papers 2 and 3) | Our questions before | What we did |
+| --- | --- | --- | --- |
+| Words per question (mean) | about 35 (median 24) | about 12 (median 12) | *Longer test-style problems* are 25 to 50 words with a named person and a detail that is not needed |
+| Questions over 40 words | 18% | 0% | the same topic |
+| "Tick the true one" or "which is correct" | about 18% | 5% | *True or false? Is it correct?* |
+| Yes/no or "is she right?" | about 4% | 2% | the same topic |
+| Complete a table or diagram | 10% | 0% | **not built**: needs a table-filling answer type |
+| Draw, plot, shade or measure | 17% | 0% (in drawing topics only) | existing drawing topics are marked interactive and left out of timed papers |
+| "Explain" or "show that" | about 4% | 0% | **not built**: free-text answers can't be marked automatically |
+| A named person | 9% | 2% | longer problems name people |
+| Money, measures, time | 12%, 20%, 11% | 11%, 17%, 8% | already similar |
+
+So the main differences were reading load and the amount of "judge this statement" work. Both now have a topic of their own (Year 6: *Longer test-style problems* and *True or false? Is it correct?*). Two formats are not built: completing a table or diagram (needs a new kind of answer box) and explaining in words (cannot be marked by the app; a grown-up would have to mark it).
+
+## Secondary papers
+
+The same exercise at a coarser level for GCSE and A-level, using the OCR sample assessment papers (GCSE maths J560 foundation and higher; A-level maths H240 papers 1 to 3, published on ocr.org.uk). It counts how often each of about 90 topics comes up in the papers and checks that we have a topic with a matching name. This is a topic-name check only: it does not compare difficulty or style, and OCR's papers are one board's view.
+
+- **GCSE:** every topic area in the papers has a matching topic of ours except **the equation of a circle** (named in the higher paper) and **algebraic proof** as GCSE asks for it ("prove that…"; ours was only at A-level). *Fixed:* *The equation of a circle* (Year 11) and *Algebraic proof* (Year 11).
+- **A-level:** every topic area has a match except **implicit differentiation**. *Fixed:* *Implicit differentiation* (Year 13).
+- Not yet compared: the other boards (AQA and Edexcel papers are on sites we can't fetch from here), and difficulty and style, which needs a teacher's eye.
 
 ## The codes
 

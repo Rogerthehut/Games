@@ -29,7 +29,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["Which column is that digit in?", "What is it really worth?", "Which two tens is this number between?"], tool: "numberline",
   },
   {
-    id: "add-sub", name: "adding and subtracting", test: /^(add-sub|measure-add|add-sub-money|money-change|coins-notes|pounds-pence|shopping-bills)/,
+    id: "add-sub", name: "adding and subtracting", test: /^(add-sub|estimate-check|measure-add|add-sub-money|money-change|coins-notes|pounds-pence|shopping-bills)/,
     why: ["Carrying (or exchanging) across a column is the usual slip.", "Lining up digits by place value, not from the left.", "Money needs the pence kept in their own column."],
     methods: [
       { title: "Column (bus-stop) method", steps: ["Line the numbers up by place value, ones under ones.", "Add or subtract the ones first, then the tens, then the hundreds.", "Carry (add) or exchange (subtract) a ten when needed, writing it small.", "Check by doing the opposite: add to check a subtraction."] },
@@ -38,7 +38,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["Which column do we start with?", "Do we need to carry or exchange here?", "How could you check it with the opposite sum?"], tool: "column",
   },
   {
-    id: "times", name: "multiplying and times tables", test: /^(times-tables|mult-written|multiply-three|multiply-divide-money|factors-multiples|primes-squares-cubes)/,
+    id: "times", name: "multiplying and times tables", test: /^(times-tables|correspondence|mult-written|multiply-three|multiply-divide-money|factors-multiples|primes-squares-cubes)/,
     why: ["Tables facts are not yet automatic, so working them out takes the attention needed for the method.", "In written multiplication, a missed placeholder zero or an unmatched carry.", "Mixing up factors, multiples and primes."],
     methods: [
       { title: "Arrays and skip counting", steps: ["Draw the sum as rows and columns of dots: 6 × 4 is 6 rows of 4.", "Count in steps of the table: 4, 8, 12, 16, 20, 24.", "Use a fact you know and adjust: 6 × 4 is double 3 × 4."] },
@@ -108,7 +108,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["Are we measuring round the edge or the space inside?", "Which sides are missing?", "What units go with this?"], tool: "paper",
   },
   {
-    id: "angles", name: "angles and shapes", test: /^(angles|right-angles|angle-types|measure-angles|draw-angles|shape|shapes|draw-shapes|polygon|symmetry|line-types|vertically|nets|reflect|coordinates)/,
+    id: "angles", name: "angles and shapes", test: /^(angles|right-angles|angle-types|measure-angles|draw-angles|shape|shapes|draw-shapes|polygon|symmetry|line-types|translate-grid|vertically|nets|reflect|coordinates)/,
     why: ["Reading the wrong scale on a protractor.", "Not estimating first, so an impossible answer isn't noticed.", "Mixing up the names of shapes and angles."],
     methods: [
       { title: "Estimate, then measure", steps: ["Is it smaller or bigger than a right angle?", "Pick the protractor scale that starts at 0 on your arm.", "Check your reading matches your estimate."] },
@@ -127,7 +127,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["What is the chart about?", "What does one square or picture stand for?", "Which average is the question asking for?"], tool: "paper",
   },
   {
-    id: "problems", name: "word problems and algebra", test: /^(word-problems|order-ops|missing-number|two-unknowns|using-formulae|sequences|substitute|solve-linear|expand|factoris|nth-term|simultaneous|quadratic|algebra)/,
+    id: "problems", name: "word problems and algebra", test: /^(word-problems|test-problems|test-claims|combinations|order-ops|missing-number|two-unknowns|using-formulae|sequences|substitute|solve-linear|expand|factoris|nth-term|algebraic-proof|simultaneous|quadratic|algebra)/,
     why: ["Not knowing which operation the words ask for.", "Skipping the order of operations (brackets, then powers, then × ÷, then + −).", "In algebra, treating letters as words rather than numbers."],
     methods: [
       { title: "Read, picture, choose, solve, check", steps: ["Read it twice and underline the question.", "Draw a bar model or quick sketch.", "Pick the operation and write the sum.", "Solve it, then ask if the answer makes sense."] },
@@ -137,7 +137,7 @@ export const FAMILIES: HelpFamily[] = [
     ask: ["What is the question really asking?", "Can you draw it?", "What happens if we put your answer back in?"], tool: "paper",
   },
   {
-    id: "secondary", name: "trigonometry, calculus and advanced algebra", test: /^(pythagoras|trig|differentiate|integrate|binomial|logarithm|exponential|vectors|series|geometric|arithmetic|newton|factor-theorem|circle-theorems|surds|indices|functions|bounds|similar)/,
+    id: "secondary", name: "trigonometry, calculus and advanced algebra", test: /^(pythagoras|circle-equation|implicit-differentiation|trig|differentiate|integrate|binomial|logarithm|exponential|vectors|series|geometric|arithmetic|newton|factor-theorem|circle-theorems|surds|indices|functions|bounds|similar)/,
     why: ["Not labelling the sides or setting the problem up before calculating.", "Rules (power rule, chain rule, log laws) recalled loosely rather than practised.", "Arithmetic slips inside a long method."],
     methods: [
       { title: "Set it up first", steps: ["Draw and label a diagram, or write the formula in full.", "Substitute values carefully, keeping brackets.", "Check units and that the answer is sensible."] },
