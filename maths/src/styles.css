@@ -3435,7 +3435,8 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .table-figure tbody th { text-align: left; background: color-mix(in srgb, #c1c5ee 30%, var(--surface)); }
 
 /* printable practice papers */
-.pp { max-width: 860px; margin: 0 auto; padding: 16px; display: grid; gap: 18px; }
+.pp { max-width: 860px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.pp-toolbar, .pp-toolbar fieldset { min-width: 0; }
 .pp-toolbar { display: grid; gap: 12px; }
 .pp-number { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .pp-number input { width: 6.5rem; min-height: 44px; padding: 6px 12px; font: inherit; border: 2px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit; }

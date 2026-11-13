@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Print-a-paper screen on small phones
+The screen audit found the print-a-paper page was wider than a 320px phone, cutting off its right edge. The page's grid column and option list can now shrink to fit (`src/styles.css`). Not yet rechecked after the fix: the full audit is still running on the earlier build.
+
 ## Endpoint and API audit
 Every server route was checked for who can call it and what it returns (table in `docs/SECURITY.md`). Nothing safety-critical was exposed. Three hardenings: the development-only fake sign-in and fake payments are now refused on anything that looks live (not just `NODE_ENV=production`), `/unsubscribe` has a per-address limit, and the server warns if payments are on without `APP_URL`.
 
