@@ -35,6 +35,14 @@ export function Avatar({ choice, year, size = 40, pose, showProp = false }: {
   pose?: "wave" | "think" | "cheer";
   showProp?: boolean;
 }) {
+  // Nobody has picked a character yet (a brand new learner): a plain purple circle with a simple head and shoulders, until they choose one in Me.
+  if (choice === undefined) {
+    return (
+      <span class={`learner-avatar avatar-blank${pose ? ` pip pip-${pose}` : ""}`} style={{ width: size, height: size }} aria-hidden="true" data-testid="avatar-blank">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="17" /><path d="M16 94c0-21 15-33 34-33s34 12 34 33z" /></svg>
+      </span>
+    );
+  }
   const { role, variant, glasses, band = "junior" } = year === undefined ? clayAvatar(choice) : avatarForYear(choice, year);
   const own = band !== "junior" && SETS[band].files[`../assets/avatars/${SETS[band].folder}/${role}-${variant}.webp`];
   const portrait = own || junior[`../assets/avatars/variants/${role}-${variant}.webp`];

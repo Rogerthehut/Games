@@ -119,7 +119,7 @@ export function Me() {
 
       <section aria-labelledby="avatar-h">
         <h2 id="avatar-h">Choose your avatar</h2>
-        <p class="small muted">Pick a character, then choose the portrait you like best.</p>
+        <p class="small muted">{profile.avatar ? "Pick a character, then choose the portrait you like best." : "You haven't picked one yet. Choose a character, then the portrait you like best, to replace the purple circle."}</p>
         <div class="avatar-roles" role="group" aria-label="Character">
           {AVATAR_ROLES.map(({ id, label }) => (
             <button key={id} type="button" class="btn small" aria-pressed={role === id} onClick={() => setBrowseRole(id)}>{label}</button>
@@ -128,7 +128,7 @@ export function Me() {
         <div class="avatar-choices" role="group" aria-label={`${roleLabel} portraits`}>
           {avatarVariants(role, band).map((variant) => (
             <button key={variant} type="button" class="btn" aria-label={variant ? `${roleLabel}, look ${variant}` : `${roleLabel}, original`}
-              aria-pressed={currentAvatar.role === role && currentAvatar.variant === variant}
+              aria-pressed={!!profile.avatar && currentAvatar.role === role && currentAvatar.variant === variant}
               onClick={() => update((p) => ({ ...p, avatar: { role, variant, glasses: currentAvatar.glasses, band } }))}>
               <Avatar choice={{ role, variant, band, glasses: currentAvatar.role === role && currentAvatar.variant === variant ? currentAvatar.glasses : undefined }} year={profile.year} size={80} showProp />
             </button>

@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Blank avatar for new learners
+A learner who hasn't chosen a character yet now shows a plain purple circle with a simple head and shoulders (instead of the Explorer), until they pick one in Me. The Me picker says so and no portrait is shown as selected until one is chosen. Learners who already have a character are unchanged; an older profile that never picked one shows the purple circle too.
+
 ## Technical documentation
 New: `ARCHITECTURE.md` (the pieces, data, request flows), `REQUIREMENTS.md` (users, functional and non-functional requirements, scope), `DECISIONS.md` (why things are built this way), `CONFIGURATION.md` (every setting), `API.md` (endpoints) and `TESTING.md`. `REPLIT.md` no longer says the database isn't set up.
 
