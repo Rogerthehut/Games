@@ -27,7 +27,7 @@ try {
   ok("with receiving switched off, the webhook doesn't exist", (await fetch("http://localhost:8787/api/inbound/resend", { method: "POST", body: "{}" })).status === 404);
 
   const b = await chromium.launch();
-  const ctx = await b.newContext({ viewport: { width: 1100, height: 900 } }); await ctx.addInitScript(() => localStorage.setItem("quarter.fake.user", "fake_boss"));
+  const ctx = await b.newContext({ viewport: { width: Number(process.env.W ?? 1100), height: 900 } }); await ctx.addInitScript(() => localStorage.setItem("quarter.fake.user", "fake_boss"));
   const boss = await ctx.newPage(); boss.setDefaultTimeout(9000); await boss.goto("http://localhost:5173/ops");
   await boss.getByTestId("ops-send").click(); await boss.getByTestId("ops-code").waitFor();
   const code = /\[dev email to fake_boss@example.test\] Your quarter ops code: (\d{6})/.exec(log)?.[1];
@@ -56,7 +56,7 @@ try {
   await boss.getByTestId("ops-folder-messages").click(); await boss.waitForTimeout(400);
   await boss.getByTestId("ops-mail-row").first().locator(".ops-mail-open").click(); await boss.getByTestId("ops-thread").waitFor();
   ok("the conversation shows its reference number", /Q-\d{4,}/.test(await boss.getByTestId("ops-message").innerText()));
-  if (process.env.SHOT) await boss.screenshot({ path: "/tmp/claude-0/ops-mail-thread.png" });
+  if (process.env.SHOT) await boss.screenshot({ path: `/tmp/claude-0/ops-mail-thread-${process.env.W ?? 1100}.png` });
   ok("the default signature is chosen under the reply box", (await boss.getByTestId("ops-message-signature").first().inputValue()) !== "");
   await boss.locator("textarea[aria-label='Your reply']").first().fill("A reply I'm not sure about yet.");
   await boss.getByTestId("ops-draft-save").click(); await boss.waitForTimeout(500);

@@ -3585,3 +3585,17 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .ops-mail-row.unread .ops-mail-who, .ops-mail-row.unread .ops-mail-subject { font-weight: 800; }
 .ops-mail-row.unread .ops-mail-open { box-shadow: inset 4px 0 0 #2f3a73; padding-left: 10px; }
 .ops-mail-preview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the mailbox as three panes on wide screens (folders, list, reading pane); stacked on phones and small tablets */
+.ops:has([data-testid="ops-messages"]) { max-width: 1320px !important; }
+.ops-mail-grid.has-pane .ops-mail-listcol { display: none; }
+.ops-mail-grid:not(.has-pane) .ops-mail-pane { display: none; }
+@media (min-width: 1000px) {
+  .ops-mail-grid { display: grid; grid-template-columns: 190px minmax(280px, 380px) minmax(0, 1fr); gap: 14px; align-items: start; }
+  .ops-mail-grid.has-pane .ops-mail-listcol, .ops-mail-grid:not(.has-pane) .ops-mail-pane { display: block; }
+  .ops-mail-nav { flex-direction: column; flex-wrap: nowrap; margin: 0; position: sticky; top: 8px; }
+  .ops-mail-folder { justify-content: space-between; border-width: 1px; border-radius: 10px; }
+  .ops-mail-listcol { max-height: 74vh; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; padding: 0 6px; background: var(--surface); }
+  .ops-mail-pane { min-height: 40vh; }
+  .ops-mail-row.selected { background: var(--accent-soft); }
+  .ops-mail-empty { padding: 60px 12px; text-align: center; }
+}

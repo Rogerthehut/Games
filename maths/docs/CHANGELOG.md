@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## The mailbox as three panes
+On wide screens (1000px and up) the ops Mail tab is laid out like a desktop mail program: folders down the left with their counts, the message list in the middle, and the conversation in a reading pane on the right, all visible at once, with the selected message highlighted. On phones and small tablets it stays stacked (folders, then the list, then the message on its own with a Back button). The page is wider when the Mail tab is open.
+
 ## Trash in the ops mailbox, and a security pass
 **Delete** in the mailbox now moves a conversation or piece of feedback to a **Trash** folder for 30 days (Restore, Delete forever, Empty Trash; a reply from the sender brings a trashed conversation back). A security review of the new routes found and fixed one thing: reference numbers in subjects were trusted on the number alone, so a guessed number could have written into someone else's conversation; the tag is now signed with a key only the server holds, and a tag that doesn't verify is ignored. Also: made-up tags are stripped from stored subjects, and the signing key is derived separately from the ops session secret. Findings and checks are in `docs/SECURITY.md`. Migration `0011_trash.sql`.
 

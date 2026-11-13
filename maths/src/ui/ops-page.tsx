@@ -193,7 +193,7 @@ function Mail({ call }: { call: Call }) {
     const r = await call<{ deleted?: number }>("POST", "/api/ops/mail/empty-trash", {});
     setNote(r.ok ? `Deleted ${r.data.deleted ?? 0} for good.` : "Couldn't empty the Trash."); load();
   };
-  const showList = !open && !composing && !managing;
+  const pane = !!open || !!composing || managing;
   return (
     <section class="card" data-testid="ops-messages">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
@@ -204,38 +204,43 @@ function Mail({ call }: { call: Call }) {
         </span>
       </div>
       <p class="small muted">Sent from hello@yourquarter.co.uk. Deleted automatically 180 days after the last message.{!inbound && " Email to hello@ isn't being received yet: see docs/OPS.md."}</p>
-      <nav class="ops-mail-nav" aria-label="Mail folders">
+      <div class={`ops-mail-grid${pane ? " has-pane" : ""}`}>
+        <nav class="ops-mail-nav" aria-label="Mail folders">
         {FOLDERS.map(([f, label]) => (
           <button key={f} type="button" class={`ops-mail-folder${folder === f ? " on" : ""}`} aria-current={folder === f} onClick={() => go(f)} data-testid={`ops-folder-${f}`}>
             {label}{counts && (counts[f].unread || (f === "drafts" || f === "outbox") && counts[f].total) ? <span class="ops-mail-count" data-testid={`ops-count-${f}`}>{counts[f].unread || counts[f].total}</span> : null}
           </button>
         ))}
       </nav>
-      {note && <p role="status" class="small">{note}</p>}
-      {managing && <SignatureManager call={call} sigs={sigs} onChanged={loadSigs} />}
-      {composing && <ComposeEmail call={call} sigs={sigs} draft={composing === "new" ? undefined : composing} onDone={() => { setComposing(null); load(); }} />}
-      {open && <ThreadView key={open.id} call={call} sigs={sigs} open={open} onBack={() => { setOpen(null); load(); }} onChanged={() => load()} />}
-      {showList && (
-        <div data-testid="ops-mail-list">
-          {folder === "trash" && <p class="small muted">Deleted conversations stay here for 30 days, then are removed for good. A reply from the sender brings one back. {!!items?.length && <button class="btn small ghost" onClick={emptyTrash} data-testid="ops-empty-trash">Empty Trash</button>}</p>}
-          {(folder === "inbox" || folder === "messages" || folder === "feedback") && <label class="small"><input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly((e.target as HTMLInputElement).checked)} /> Only unread</label>}
-          {!items ? <p>Loading…</p> : !items.length ? <p class="muted">{folder === "outbox" ? "Nothing waiting to be sent." : folder === "drafts" ? "No drafts." : "Nothing here."}</p> : items.map((i, n) => (
-            <div key={`${i.kind}${i.id}${n}`} class={`ops-mail-row${i.unread ? " unread" : ""}`} data-testid="ops-mail-row">
-              <button type="button" class="ops-mail-open" onClick={() => pick(i)} aria-label={`${i.unread ? "Unread: " : ""}${i.who}: ${i.subject}`}>
-                <span class="ops-mail-top"><strong class="ops-mail-who">{i.who}</strong><span class="small muted">{i.ref ? `${i.ref} · ` : ""}{when(i.at)}</span></span>
-                <span class="ops-mail-subject">{i.subject}</span>
-                <span class="small muted ops-mail-preview">{i.preview}</span>
-              </button>
-              {folder === "trash" && <div class="small" style="margin:4px 0 8px"><button class="btn small" onClick={() => trashAct("restore", i)} data-testid="ops-trash-restore">Restore</button>{" "}<button class="btn small ghost" onClick={() => trashAct("purge", i)} data-testid="ops-trash-purge">Delete forever</button></div>}
-              {i.kind === "outbox" && <div class="small" style="margin:4px 0 8px">
-                <span class="muted">{i.status === "failed" ? `Couldn't send (${i.error ?? "error"}), tried ${i.attempts} time${i.attempts === 1 ? "" : "s"}.` : "Waiting to send."}</span>{" "}
-                <button class="btn small" onClick={() => outbox("retry", i.id)} data-testid="ops-outbox-retry">Retry now</button>{" "}
-                <button class="btn small ghost" onClick={() => { if (confirm("Discard this email without sending it?")) outbox("discard", i.id); }} data-testid="ops-outbox-discard">Discard</button>
-              </div>}
-            </div>
-          ))}
+        <div class="ops-mail-listcol">
+          {note && <p role="status" class="small">{note}</p>}
+      <div data-testid="ops-mail-list">
+            {folder === "trash" && <p class="small muted">Deleted conversations stay here for 30 days, then are removed for good. A reply from the sender brings one back. {!!items?.length && <button class="btn small ghost" onClick={emptyTrash} data-testid="ops-empty-trash">Empty Trash</button>}</p>}
+            {(folder === "inbox" || folder === "messages" || folder === "feedback") && <label class="small"><input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly((e.target as HTMLInputElement).checked)} /> Only unread</label>}
+            {!items ? <p>Loading…</p> : !items.length ? <p class="muted">{folder === "outbox" ? "Nothing waiting to be sent." : folder === "drafts" ? "No drafts." : "Nothing here."}</p> : items.map((i, n) => (
+              <div key={`${i.kind}${i.id}${n}`} class={`ops-mail-row${i.unread ? " unread" : ""}${open && open.id === i.id ? " selected" : ""}`} data-testid="ops-mail-row">
+                <button type="button" class="ops-mail-open" onClick={() => pick(i)} aria-label={`${i.unread ? "Unread: " : ""}${i.who}: ${i.subject}`}>
+                  <span class="ops-mail-top"><strong class="ops-mail-who">{i.who}</strong><span class="small muted">{i.ref ? `${i.ref} · ` : ""}{when(i.at)}</span></span>
+                  <span class="ops-mail-subject">{i.subject}</span>
+                  <span class="small muted ops-mail-preview">{i.preview}</span>
+                </button>
+                {folder === "trash" && <div class="small" style="margin:4px 0 8px"><button class="btn small" onClick={() => trashAct("restore", i)} data-testid="ops-trash-restore">Restore</button>{" "}<button class="btn small ghost" onClick={() => trashAct("purge", i)} data-testid="ops-trash-purge">Delete forever</button></div>}
+                {i.kind === "outbox" && <div class="small" style="margin:4px 0 8px">
+                  <span class="muted">{i.status === "failed" ? `Couldn't send (${i.error ?? "error"}), tried ${i.attempts} time${i.attempts === 1 ? "" : "s"}.` : "Waiting to send."}</span>{" "}
+                  <button class="btn small" onClick={() => outbox("retry", i.id)} data-testid="ops-outbox-retry">Retry now</button>{" "}
+                  <button class="btn small ghost" onClick={() => { if (confirm("Discard this email without sending it?")) outbox("discard", i.id); }} data-testid="ops-outbox-discard">Discard</button>
+                </div>}
+              </div>
+            ))}
         </div>
-      )}
+        </div>
+        <div class="ops-mail-pane" data-testid="ops-mail-pane">
+      {managing && <SignatureManager call={call} sigs={sigs} onChanged={loadSigs} />}
+          {composing && <ComposeEmail call={call} sigs={sigs} draft={composing === "new" ? undefined : composing} onDone={() => { setComposing(null); load(); }} />}
+          {open && <ThreadView key={open.id} call={call} sigs={sigs} open={open} onBack={() => { setOpen(null); load(); }} onChanged={() => load()} />}
+          {!pane && <p class="muted ops-mail-empty">Select a message to read it here.</p>}
+        </div>
+      </div>
     </section>
   );
 }
