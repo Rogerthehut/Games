@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Final screen audit fixes
+The last full screen audit (all 18 sizes) found three things, all fixed: the print-a-paper screen was wider than a 320px phone (its grid column now shrinks to fit); a harmless but noisy browser error "Transition was aborted… Viewport size changed" when the window was resized or turned during a screen change (now ignored, since the screen has changed anyway); and the "Jump to a world" links on the Skills map were 30px tall on landscape iPad (they're back to 44px on touch screens, and everything still fits). Everything else came back with 0 problems.
+
 ## Message us: the Back to quarter button
 The button shown after a message is sent had the browser's blue underlined link style. It now matches the other buttons.
 

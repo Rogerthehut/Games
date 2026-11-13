@@ -74,11 +74,13 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
 
   // Screen changes cross-fade and slide with the browser's View Transitions API where it exists.
   const showRoute = (r: Route) => {
-    const d = document as Document & { startViewTransition?: (cb: () => Promise<void>) => unknown };
+    const d = document as Document & { startViewTransition?: (cb: () => Promise<void>) => { ready?: Promise<unknown>; finished?: Promise<unknown>; updateCallbackDone?: Promise<unknown> } };
     if (!d.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) return setRouteRaw(r);
     // Resolve once Preact has committed the new screen (it renders in a microtask). Waiting for a frame here would
     // stall until the browser's 4 second transition timeout, because rendering is paused during the callback.
-    d.startViewTransition(() => new Promise<void>((done) => { setRouteRaw(r); setTimeout(done, 0); }));
+    const t = d.startViewTransition(() => new Promise<void>((done) => { setRouteRaw(r); setTimeout(done, 0); }));
+    // the browser abandons a transition if the window is resized or turned while it runs; the screen has still changed, so that is not an error
+    for (const p of [t.ready, t.finished, t.updateCallbackDone]) p?.catch(() => undefined);
   };
   useEffect(() => {
     const currentSession = session.current;
