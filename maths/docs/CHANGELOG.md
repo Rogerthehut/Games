@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Trash in the ops mailbox, and a security pass
+**Delete** in the mailbox now moves a conversation or piece of feedback to a **Trash** folder for 30 days (Restore, Delete forever, Empty Trash; a reply from the sender brings a trashed conversation back). A security review of the new routes found and fixed one thing: reference numbers in subjects were trusted on the number alone, so a guessed number could have written into someone else's conversation; the tag is now signed with a key only the server holds, and a tag that doesn't verify is ignored. Also: made-up tags are stripped from stored subjects, and the signing key is derived separately from the ops session secret. Findings and checks are in `docs/SECURITY.md`. Migration `0011_trash.sql`.
+
 ## The ops mailbox
 The ops page's Messages and Feedback tabs are now one **Mail** tab shaped like a mailbox, with folders and unread counts: **Inbox** (email to hello@, and replies to emails we started), **Messages** (the website form), **Feedback**, **Drafts**, **Sent** and **Outbox**. Each conversation keeps its thread and gets a reference number (Q-1001..., F-1001... for feedback) shown on it and in the subject of our emails, so a reply from a different address still finds its conversation. New: drafts (reply and new email), a Sent folder, an Outbox that holds an email the email service couldn't take and retries it (it is only recorded once it has gone, and can't be sent twice), unread/read and Mark unread. Migration `0010_mailbox.sql`. Tests in `server/mailbox.test.ts`; browser checks in `scripts/ops-messages-e2e.mjs` and `scripts/ops-e2e.mjs`.
 

@@ -74,7 +74,7 @@ describe("replies", () => {
     const out = await call("POST", "/api/ops/contact/reply", { id: thread.id, message: "Sorry about that, I'll look now.", signatureId: sig.id });
     expect(out.status).toBe(200);
     const mail = mailer.sent[before];
-    expect(mail.to).toBe("kim@example.com"); expect(mail.subject).toMatch(/^Re: Billing question \[Q-\d{4,}\]$/);
+    expect(mail.to).toBe("kim@example.com"); expect(mail.subject).toMatch(/^Re: Billing question \[Q-\d{4,}-[0-9a-f]{8}\]$/);
     expect(mail.html).toContain("Roger Richman"); expect(mail.text).toContain("Roger Richman");
     expect(mail.headers).toEqual({ "In-Reply-To": "<kim-1@mail.example.com>", References: "<kim-1@mail.example.com>" });
     expect((await contactList(db)).find((c) => c.id === thread.id)!.waiting).toBe(false);
@@ -120,7 +120,7 @@ describe("new emails written by the team", () => {
     const out = await call("POST", "/api/ops/contact/new", { to: "  Partner@Example.org ", subject: "Hello from  quarter", message: "Hi, a quick question about a school visit.", signatureId: sig.id });
     expect(out.status).toBe(200);
     const mail = mailer.sent[before];
-    expect(mail.to).toBe("partner@example.org"); expect(mail.subject).toMatch(/^Hello from quarter \[Q-\d{4,}\]$/);
+    expect(mail.to).toBe("partner@example.org"); expect(mail.subject).toMatch(/^Hello from quarter \[Q-\d{4,}-[0-9a-f]{8}\]$/);
     expect(mail.html).toContain("Roger Richman"); expect(mail.text).toContain("Roger Richman"); expect(mail.headers).toBeUndefined();
     const convo = (await contactList(db)).find((c) => c.email === "partner@example.org")!;
     expect(convo.source).toBe("sent"); expect(convo.waiting).toBe(false); expect(convo.subject).toBe("Hello from quarter");
@@ -142,7 +142,7 @@ describe("new emails written by the team", () => {
   });
   it("keep line breaks out of the subject, record nothing if the email fails, and are limited to 30 an hour", async () => {
     await call("POST", "/api/ops/contact/new", { to: "line@example.org", subject: "Two\r\nBcc: x@example.org", message: "A fine message." });
-    expect(mailer.sent.at(-1)!.subject).toMatch(/^Two Bcc: x@example\.org \[Q-\d+\]$/);
+    expect(mailer.sent.at(-1)!.subject).toMatch(/^Two Bcc: x@example\.org \[Q-\d+-[0-9a-f]{8}\]$/);
     const count = (await contactList(db)).length; mailer.failNext = true;
     expect((await call("POST", "/api/ops/contact/new", { to: "fail@example.org", subject: "Will fail", message: "A fine message." })).status).toBe(202);
     expect((await contactList(db)).length).toBe(count); // not a conversation until it has been sent

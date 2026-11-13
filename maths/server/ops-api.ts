@@ -4,7 +4,7 @@ import type { Repo } from "./db/repo";
 import type { Gateway } from "./billing";
 import type { Mailer } from "./mail";
 import { OpsAccess, actorOf } from "./ops-access";
-import { EMAIL, addContactReply, contactForReply, contactList, deleteContact, startConversation } from "./contact";
+import { EMAIL, addContactReply, contactForReply, contactList, deleteForever, emptyTrash, moveToTrash, restoreFromTrash } from "./contact";
 import type { Counters } from "./counters";
 import { cleanSignatureHtml } from "./signature-html";
 import { FOLDERS, deleteDraft, discardOutbox, folderCounts, getDraft, listFolder, markRead, markUnread, retryOne, saveDraft, sendOrQueue, type Folder } from "./mailbox";
@@ -137,7 +137,7 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
   // Conversations with parents: the Message us form and email to hello@. A reply goes to the address on the conversation.
   if (req.path === "/api/ops/contact" && req.method === "GET") {
     await audit(d.db, actor, "contact-view", "-");
-    return ok({ items: await contactList(d.db, { waiting: req.query.get("waiting") === "1" }), inbound: !!d.inboundOn, signatures: (await listSignatures(d.db)).map(({ id, name, isDefault }) => ({ id, name, isDefault })) });
+    return ok({ items: (await contactList(d.db, { waiting: req.query.get("waiting") === "1" })).filter((c) => !c.deletedAt), inbound: !!d.inboundOn, signatures: (await listSignatures(d.db)).map(({ id, name, isDefault }) => ({ id, name, isDefault })) });
   }
   if (req.path === "/api/ops/contact/reply" && req.method === "POST") {
     if (!(await withinLimit(d, who.userId, "reply", 60))) return TOO_MANY;
@@ -183,11 +183,31 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     await audit(d.db, actor, out.ok ? "contact-new" : "contact-new-queued", out.ok ? out.conversationId : out.id);
     return out.ok ? ok({ sent: true, id: out.conversationId }) : QUEUED;
   }
-  if (req.path === "/api/ops/contact/delete" && req.method === "POST") {
-    const id = typeof body.id === "string" ? body.id : "";
-    if (!(await deleteContact(d.db, id))) return NOT_FOUND;
-    await audit(d.db, actor, "contact-delete", id);
+  // Delete means the Trash. Restoring and removing for good are separate steps, and only what is already in the Trash can be removed for good.
+  if ((req.path === "/api/ops/contact/delete" || req.path === "/api/ops/mail/trash") && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "trash", 300))) return TOO_MANY;
+    const kind = body.kind === "feedback" ? "feedback" : "contact", id = typeof body.id === "string" ? body.id : "";
+    if (!(await moveToTrash(d.db, kind, id))) return NOT_FOUND;
+    await audit(d.db, actor, "mail-trash", id);
+    return ok({ trashed: true });
+  }
+  if (req.path === "/api/ops/mail/restore" && req.method === "POST") {
+    const kind = body.kind === "feedback" ? "feedback" : "contact", id = typeof body.id === "string" ? body.id : "";
+    if (!(await restoreFromTrash(d.db, kind, id))) return NOT_FOUND;
+    await audit(d.db, actor, "mail-restore", id);
+    return ok({ restored: true });
+  }
+  if (req.path === "/api/ops/mail/purge" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "trash", 300))) return TOO_MANY;
+    const kind = body.kind === "feedback" ? "feedback" : "contact", id = typeof body.id === "string" ? body.id : "";
+    if (!(await deleteForever(d.db, kind, id))) return NOT_FOUND;
+    await audit(d.db, actor, "mail-delete-forever", id);
     return ok({ deleted: true });
+  }
+  if (req.path === "/api/ops/mail/empty-trash" && req.method === "POST") {
+    const n = await emptyTrash(d.db);
+    await audit(d.db, actor, "mail-empty-trash", String(n));
+    return ok({ deleted: n });
   }
 
   // Signatures for replies. HTML is cleaned on the server (signature-html.ts); the preview endpoint shows exactly what would be saved and sent.

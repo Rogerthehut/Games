@@ -1,8 +1,8 @@
-import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, lt, sql } from "drizzle-orm";
 import type { Db } from "./db";
 import { schema } from "./db";
 import type { Counters } from "./counters";
-import { nextTicket, ticketInSubject } from "./ticket";
+import { nextTicket, stripTags, ticketInSubject } from "./ticket";
 
 /**
  * Messages from parents: the public "Message us" form, and email sent to hello@ (which arrives through Resend, see inbound.ts). Anyone can send
@@ -12,7 +12,7 @@ import { nextTicket, ticketInSubject } from "./ticket";
  * Everything is deleted 180 days after the last activity. See docs/OPS.md and docs/SECURITY.md.
  */
 export const CONTACT_TOPICS = ["question", "account", "billing", "bug", "other"] as const;
-export const CONTACT_MIN = 10, CONTACT_MAX = 2000, KEEP_DAYS = 180, BODY_MAX = 6000;
+export const CONTACT_MIN = 10, CONTACT_MAX = 2000, KEEP_DAYS = 180, BODY_MAX = 6000, TRASH_DAYS = 30;
 export const EMAIL = /^[^\s@<>"',;:()[\]\\]{1,64}@[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/i;
 
 export interface CleanContact { name: string | null; email: string; topic: string; message: string }
@@ -48,12 +48,16 @@ export async function saveContact(db: Db, c: CleanContact): Promise<string> {
 export async function purgeContact(db: Db, now = new Date()): Promise<void> {
   await db.delete(schema.contactMessages).where(lt(schema.contactMessages.updatedAt, new Date(now.getTime() - KEEP_DAYS * 86_400_000)));
   await db.delete(schema.inboundSeen).where(lt(schema.inboundSeen.at, new Date(now.getTime() - 30 * 86_400_000)));
+  // what has been in the Trash for 30 days goes for good
+  const gone = new Date(now.getTime() - TRASH_DAYS * 86_400_000);
+  await db.delete(schema.contactMessages).where(lt(schema.contactMessages.deletedAt, gone));
+  await db.delete(schema.feedback).where(lt(schema.feedback.deletedAt, gone));
 }
 
 export interface ContactEntry { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null; /** who wrote it, when it came by email */ fromEmail: string | null }
 export interface ContactRow {
   id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null;
-  ticket: number | null; unread: boolean;
+  ticket: number | null; unread: boolean; deletedAt: string | null;
   message: string; replies: ContactEntry[];
   /** True when nobody on the team has answered yet, or the sender has written again since the last answer. */
   waiting: boolean;
@@ -66,7 +70,7 @@ export async function contactList(db: Db, o: { waiting?: boolean; limit?: number
   const replies = ids.length ? await db.select().from(schema.contactReplies).where(inArray(schema.contactReplies.contactId, ids)).orderBy(schema.contactReplies.at) : [];
   const out = rows.map((r): ContactRow => {
     const thread = replies.filter((x) => x.contactId === r.id).map(entry);
-    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, ticket: r.ticket, unread: r.unread, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
+    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, ticket: r.ticket, unread: r.unread, deletedAt: r.deletedAt?.toISOString() ?? null, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
   });
   return o.waiting ? out.filter((r) => r.waiting) : out;
 }
@@ -95,6 +99,29 @@ export async function addContactReply(db: Db, contactId: string, actor: string, 
   await db.insert(schema.contactReplies).values({ contactId, actor: actor.slice(0, 80), message, direction: "out" });
   await db.update(schema.contactMessages).set({ updatedAt: new Date() }).where(eq(schema.contactMessages.id, contactId));
 }
+/** Delete means the Trash first: a conversation or a piece of feedback is hidden from the folders, and can be restored for 30 days. */
+export async function moveToTrash(db: Db, kind: "contact" | "feedback", id: string, now = new Date()): Promise<boolean> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return false;
+  const t = kind === "contact" ? schema.contactMessages : schema.feedback;
+  return (await db.update(t).set({ deletedAt: now }).where(and(eq(t.id, id), isNull(t.deletedAt))).returning({ id: t.id })).length > 0;
+}
+export async function restoreFromTrash(db: Db, kind: "contact" | "feedback", id: string): Promise<boolean> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return false;
+  const t = kind === "contact" ? schema.contactMessages : schema.feedback;
+  return (await db.update(t).set({ deletedAt: null }).where(and(eq(t.id, id), isNotNull(t.deletedAt))).returning({ id: t.id })).length > 0;
+}
+/** Removing for good: only for what is already in the Trash. */
+export async function deleteForever(db: Db, kind: "contact" | "feedback", id: string): Promise<boolean> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return false;
+  const t = kind === "contact" ? schema.contactMessages : schema.feedback;
+  return (await db.delete(t).where(and(eq(t.id, id), isNotNull(t.deletedAt))).returning({ id: t.id })).length > 0;
+}
+export async function emptyTrash(db: Db): Promise<number> {
+  const a = await db.delete(schema.contactMessages).where(isNotNull(schema.contactMessages.deletedAt)).returning({ id: schema.contactMessages.id });
+  const b = await db.delete(schema.feedback).where(isNotNull(schema.feedback.deletedAt)).returning({ id: schema.feedback.id });
+  return a.length + b.length;
+}
+
 export async function deleteContact(db: Db, id: string): Promise<boolean> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return false;
   return (await db.delete(schema.contactMessages).where(eq(schema.contactMessages.id, id)).returning({ id: schema.contactMessages.id })).length > 0;
@@ -119,9 +146,10 @@ export async function recordInbound(db: Db, m: InboundEmail, now = new Date()): 
       .where(and(eq(schema.contactMessages.email, m.from), sql`${schema.contactMessages.updatedAt} > ${since}`)).orderBy(desc(schema.contactMessages.updatedAt)).limit(1);
     if (thread) {
       await tx.insert(schema.contactReplies).values({ contactId: thread.id, actor: "sender", message: m.text, direction: "in", messageId: m.messageId, auth: m.auth, fromEmail: m.from });
-      await tx.update(schema.contactMessages).set({ updatedAt: now, unread: true }).where(eq(schema.contactMessages.id, thread.id));
+      // a reply to something in the Trash brings it back to the mailbox
+      await tx.update(schema.contactMessages).set({ updatedAt: now, unread: true, deletedAt: null }).where(eq(schema.contactMessages.id, thread.id));
     } else {
-      await tx.insert(schema.contactMessages).values({ name: m.name, email: m.from, topic: "other", message: m.text, source: "email", subject: m.subject, messageId: m.messageId, auth: m.auth, ticket: await nextTicket(tx, "contact"), unread: true });
+      await tx.insert(schema.contactMessages).values({ name: m.name, email: m.from, topic: "other", message: m.text, source: "email", subject: m.subject ? stripTags(m.subject) || null : null, messageId: m.messageId, auth: m.auth, ticket: await nextTicket(tx, "contact"), unread: true });
     }
     return true;
   });

@@ -9,7 +9,7 @@ const KEY = "quarter.ops.session";
 const read = () => { try { const v = JSON.parse(sessionStorage.getItem(KEY) ?? "null") as { s: string; exp: number } | null; return v && v.exp > Date.now() ? v : null; } catch { return null; } };
 const keep = (v: { s: string; exp: number } | null) => { try { v ? sessionStorage.setItem(KEY, JSON.stringify(v)) : sessionStorage.removeItem(KEY); } catch { /* ignore */ } };
 
-type Item = { ticket?: number | null; id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
+type Item = { deletedAt?: string | null; ticket?: number | null; id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
 type Tab = "mail" | "numbers" | "account" | "audit";
 
 export function OpsPage() {
@@ -128,11 +128,11 @@ function FeedbackCard({ item, call, onSent }: { item: Item; call: Call; onSent: 
 }
 
 type Entry = { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null; fromEmail?: string | null };
-type ContactItem = { id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null; ticket?: number | null; unread?: boolean; message: string; replies: Entry[]; waiting: boolean };
+type ContactItem = { deletedAt?: string | null; id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null; ticket?: number | null; unread?: boolean; message: string; replies: Entry[]; waiting: boolean };
 type SigLite = { id: string; name: string; isDefault: boolean };
 type SigFull = SigLite & { html: string };
-type Folder = "inbox" | "messages" | "feedback" | "drafts" | "sent" | "outbox";
-const FOLDERS: [Folder, string][] = [["inbox", "Inbox"], ["messages", "Messages"], ["feedback", "Feedback"], ["drafts", "Drafts"], ["sent", "Sent"], ["outbox", "Outbox"]];
+type Folder = "inbox" | "messages" | "feedback" | "drafts" | "sent" | "outbox" | "trash";
+const FOLDERS: [Folder, string][] = [["inbox", "Inbox"], ["messages", "Messages"], ["feedback", "Feedback"], ["drafts", "Drafts"], ["sent", "Sent"], ["outbox", "Outbox"], ["trash", "Trash"]];
 type MailItem = { kind: "contact" | "feedback" | "draft" | "outbox"; id: string; ref: string | null; who: string; subject: string; preview: string; at: string; unread: boolean; direction: "in" | "out" | null; draftKind?: string; conversationId?: string | null; status?: string; error?: string | null; attempts?: number };
 type Counts = Record<Folder, { total: number; unread: number }>;
 type Draft = { id: string; kind: string; conversationId: string | null; to: string; subject: string; message: string; signatureId: string | null };
@@ -182,6 +182,17 @@ function Mail({ call }: { call: Call }) {
     setNote(r.ok ? (r.data.message ?? (what === "retry" ? "Sent." : "Discarded.")) : r.data.message ?? "Couldn't do that.");
     load();
   };
+  const trashAct = async (what: "restore" | "purge", i: MailItem) => {
+    if (what === "purge" && !confirm("Delete this for good? It can't be brought back.")) return;
+    const r = await call<{ message?: string }>("POST", `/api/ops/mail/${what}`, { kind: i.kind, id: i.id });
+    setNote(r.ok ? (what === "restore" ? "Restored." : "Deleted for good.") : r.data.message ?? "Couldn't do that.");
+    load();
+  };
+  const emptyTrash = async () => {
+    if (!confirm("Delete everything in the Trash for good? It can't be brought back.")) return;
+    const r = await call<{ deleted?: number }>("POST", "/api/ops/mail/empty-trash", {});
+    setNote(r.ok ? `Deleted ${r.data.deleted ?? 0} for good.` : "Couldn't empty the Trash."); load();
+  };
   const showList = !open && !composing && !managing;
   return (
     <section class="card" data-testid="ops-messages">
@@ -206,6 +217,7 @@ function Mail({ call }: { call: Call }) {
       {open && <ThreadView key={open.id} call={call} sigs={sigs} open={open} onBack={() => { setOpen(null); load(); }} onChanged={() => load()} />}
       {showList && (
         <div data-testid="ops-mail-list">
+          {folder === "trash" && <p class="small muted">Deleted conversations stay here for 30 days, then are removed for good. A reply from the sender brings one back. {!!items?.length && <button class="btn small ghost" onClick={emptyTrash} data-testid="ops-empty-trash">Empty Trash</button>}</p>}
           {(folder === "inbox" || folder === "messages" || folder === "feedback") && <label class="small"><input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly((e.target as HTMLInputElement).checked)} /> Only unread</label>}
           {!items ? <p>Loading…</p> : !items.length ? <p class="muted">{folder === "outbox" ? "Nothing waiting to be sent." : folder === "drafts" ? "No drafts." : "Nothing here."}</p> : items.map((i, n) => (
             <div key={`${i.kind}${i.id}${n}`} class={`ops-mail-row${i.unread ? " unread" : ""}`} data-testid="ops-mail-row">
@@ -214,6 +226,7 @@ function Mail({ call }: { call: Call }) {
                 <span class="ops-mail-subject">{i.subject}</span>
                 <span class="small muted ops-mail-preview">{i.preview}</span>
               </button>
+              {folder === "trash" && <div class="small" style="margin:4px 0 8px"><button class="btn small" onClick={() => trashAct("restore", i)} data-testid="ops-trash-restore">Restore</button>{" "}<button class="btn small ghost" onClick={() => trashAct("purge", i)} data-testid="ops-trash-purge">Delete forever</button></div>}
               {i.kind === "outbox" && <div class="small" style="margin:4px 0 8px">
                 <span class="muted">{i.status === "failed" ? `Couldn't send (${i.error ?? "error"}), tried ${i.attempts} time${i.attempts === 1 ? "" : "s"}.` : "Waiting to send."}</span>{" "}
                 <button class="btn small" onClick={() => outbox("retry", i.id)} data-testid="ops-outbox-retry">Retry now</button>{" "}
@@ -234,12 +247,18 @@ function ThreadView({ call, sigs, open, onBack, onChanged }: { call: Call; sigs:
   useEffect(() => { load().then(onChanged); }, []); // opening it marks it read, so the folder counts are refreshed
   const after = () => { load(); onChanged(); };
   const unread = async () => { await call("POST", "/api/ops/mail/unread", { kind: open.kind, id: open.id }); onBack(); };
+  const trashed = !!thread && !!(thread as { deletedAt?: string | null }).deletedAt;
+  const act = async (path: string, ask?: string) => { if (ask && !confirm(ask)) return; await call("POST", `/api/ops/mail/${path}`, { kind: open.kind, id: open.id }); onBack(); };
   return (
     <div data-testid="ops-thread">
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
         <button class="btn small" onClick={onBack} data-testid="ops-mail-back"><span aria-hidden="true">←</span> Back</button>
-        <button class="btn small ghost" onClick={unread}>Mark unread</button>
+        {!trashed && <button class="btn small ghost" onClick={unread}>Mark unread</button>}
+        {thread && !trashed && <button class="btn small ghost" onClick={() => act("trash")} data-testid="ops-trash">Move to Trash</button>}
+        {trashed && <button class="btn small" onClick={() => act("restore")} data-testid="ops-restore">Restore</button>}
+        {trashed && <button class="btn small ghost" onClick={() => act("purge", "Delete this for good? It can't be brought back.")} data-testid="ops-purge">Delete forever</button>}
       </div>
+      {trashed && <p role="note" class="small muted">This is in the Trash. It's removed for good 30 days after it was deleted.</p>}
       {thread === null ? <p>Loading…</p> : thread === false ? <p class="muted">That conversation isn't there any more.</p>
         : open.kind === "feedback" ? <FeedbackCard item={thread as Item} call={call} onSent={after} />
         : <MessageCard item={thread as ContactItem} call={call} sigs={sigs} draftId={open.draftId} draftText={open.draftText} onChanged={after} />}
@@ -306,7 +325,6 @@ function MessageCard({ item, call, sigs, onChanged, draftId, draftText }: { item
     const r = await call<{ id?: string }>("POST", "/api/ops/drafts", { id: draft, kind: "reply", conversationId: item.id, message: text, signatureId: chosen || null });
     if (r.ok) { setDraft(r.data.id); setMsg("Draft saved."); } else setMsg(r.data.message ?? "Couldn't save the draft.");
   };
-  const remove = async () => { if (confirm("Delete this conversation for good?")) { await call("POST", "/api/ops/contact/delete", { id: item.id }); onChanged(); } };
   const unverified = item.source === "email" && item.auth && !/dmarc=pass/.test(item.auth);
   const bubble = (who: string, at: string, body: string, mine: boolean, key?: string, extra?: string) => (
     <blockquote key={key} style={`margin:8px 0;padding-left:12px;border-left:3px solid ${mine ? "#2f3a73" : "#ccc"}`}><span class="small muted">{who} · {at.slice(0, 16).replace("T", " ")}{extra ? ` · ${extra}` : ""}</span><br /><span style="white-space:pre-wrap">{body}</span></blockquote>
@@ -328,7 +346,6 @@ function MessageCard({ item, call, sigs, onChanged, draftId, draftText }: { item
         </label>
         <button class="btn small primary" disabled={busy || text.trim().length < 2} onClick={send} data-testid="ops-message-reply">Send reply</button>
         <button class="btn small" disabled={busy || !text.trim()} onClick={saveDraft} data-testid="ops-draft-save">Save draft</button>
-        <button class="btn small ghost" onClick={remove}>Delete</button>
         {msg && <span role="status"> {msg}</span>}
       </div>
       {picked && <details><summary class="small muted">Signature preview</summary><SignaturePreview html={picked.html} /></details>}

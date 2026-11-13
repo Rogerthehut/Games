@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { FakeAuth } from "./auth";
-import { cleanContact, contactList, recordInbound, saveContact } from "./contact";
+import { cleanContact, contactList, deleteForever, emptyTrash, moveToTrash, purgeContact, recordInbound, restoreFromTrash, saveContact } from "./contact";
 import { MemoryCounters } from "./counters";
 import { connectMemory, migrate, schema, type Db } from "./db";
 import { makeRepo } from "./db/repo";
@@ -8,11 +8,11 @@ import { type Mailer, FakeMailer } from "./mail";
 import { folderCounts, listFolder, retryDue, sendOrQueue, saveDraft, listDrafts, deleteDraft, retryOne, discardOutbox, listOutbox, markRead } from "./mailbox";
 import { OpsAccess } from "./ops-access";
 import { handleOpsApi } from "./ops-api";
-import { nextTicket, refOf, ticketInSubject, withRef } from "./ticket";
+import { configureTickets, nextTicket, refOf, stripTags, ticketInSubject, ticketTag, withRef } from "./ticket";
 import { eq } from "drizzle-orm";
 
 let db: Db;
-beforeAll(async () => { db = await connectMemory(); await migrate(db); }, 60_000);
+beforeAll(async () => { configureTickets("a test secret of a decent length 123"); db = await connectMemory(); await migrate(db); }, 60_000);
 const form = async (email: string, message = "A question about the app please") => { const c = cleanContact({ email, message, topic: "question" }); if (!c.ok) throw new Error("x"); return saveContact(db, c.value); };
 let n = 0; const inbound = (from: string, o: { subject?: string | null; text?: string } = {}) => recordInbound(db, { emailId: `${String(++n).padStart(8, "0")}-2222-3333-4444-555555555555`, from, name: null, subject: o.subject ?? "Hello", text: o.text ?? "Some words here", messageId: `<m${n}@x.test>`, auth: "spf=pass dkim=pass dmarc=pass" });
 
@@ -22,10 +22,20 @@ describe("reference numbers", () => {
     expect(b).toBe(a + 1); expect(f).toBeLessThanOrEqual(1002);
     expect(refOf("contact", 1042)).toBe("Q-1042"); expect(refOf("feedback", 1007)).toBe("F-1007"); expect(refOf("contact", null)).toBeNull();
   });
-  it("go on the end of a subject once, and are read back from one", () => {
-    expect(withRef("Re: your message", "Q-1042")).toBe("Re: your message [Q-1042]");
-    expect(withRef("Re: your message [Q-1042]", "Q-1042")).toBe("Re: your message [Q-1042]");
-    expect(ticketInSubject("Re: your message [Q-1042]")).toBe(1042); expect(ticketInSubject("Re: nothing")).toBeNull(); expect(ticketInSubject("[F-1007]")).toBeNull();
+  it("go on the end of a subject once, signed, and are read back only when the signature is ours", () => {
+    const tagged = withRef("Re: your message", 1042);
+    expect(tagged).toBe(`Re: your message ${ticketTag(1042)}`); expect(tagged).toMatch(/\[Q-1042-[0-9a-f]{8}\]$/);
+    expect(withRef(tagged, 1042)).toBe(tagged); expect(ticketInSubject(tagged)).toBe(1042);
+    expect(ticketInSubject("Re: your message [Q-1042]")).toBeNull();                          // a bare number proves nothing
+    expect(ticketInSubject("Re: your message [Q-1042-00000000]")).toBeNull();                 // a made-up signature
+    expect(ticketInSubject(ticketTag(1043).replace("1043", "1042"))).toBeNull();              // another conversation's signature
+    expect(ticketInSubject(`[Q-1042-00000000] ${tagged}`)).toBe(1042);                        // a fake one first doesn't hide the real one
+    expect(ticketInSubject("Re: nothing")).toBeNull(); expect(ticketInSubject("[F-1007]")).toBeNull(); expect(ticketInSubject(null)).toBeNull();
+    expect(stripTags("Hi [Q-1042-abcd1234] there [Q-9]")).toBe("Hi there");
+  });
+  it("change with the secret, so another site's tags don't work here", () => {
+    const mine = ticketTag(1042); configureTickets("a completely different secret value 456");
+    expect(ticketInSubject(`x ${mine}`)).toBeNull(); configureTickets("a test secret of a decent length 123"); expect(ticketInSubject(`x ${mine}`)).toBe(1042);
   });
   it("are unique for conversations made at the same moment", async () => {
     const ids = await Promise.all(Array.from({ length: 8 }, (_, i) => form(`same${i}@example.com`)));
@@ -76,9 +86,17 @@ describe("replies find their conversation by reference as well as by sender", ()
   it("attach a reply from another address to the conversation named in the subject, and record who wrote it", async () => {
     const id = await form("owner@example.com");
     const t = (await contactList(db)).find((c) => c.id === id)!.ticket!;
-    await inbound("someone.else@example.net", { subject: `Re: your message [Q-${t}]`, text: "Forwarded on from my partner's address" });
+    await inbound("someone.else@example.net", { subject: `Re: your message ${ticketTag(t)}`, text: "Forwarded on from my partner's address" });
     const c = (await contactList(db)).find((x) => x.id === id)!;
     expect(c.replies).toHaveLength(1); expect(c.replies[0]).toMatchObject({ direction: "in", fromEmail: "someone.else@example.net" }); expect(c.waiting).toBe(true);
+  });
+  it("don't let a guessed number, a bare tag or a forged signature write into someone else's conversation", async () => {
+    const id = await form("victim@example.com"); const t = (await contactList(db)).find((c) => c.id === id)!.ticket!;
+    for (const subject of [`Re: hi [Q-${t}]`, `Re: hi [Q-${t}-deadbeef]`, `Re: hi [Q-${t}-${ticketTag(t + 1).slice(-9, -1)}]`]) await inbound("attacker@example.net", { subject, text: "Please send me the account details" });
+    const c = (await contactList(db)).find((x) => x.id === id)!;
+    expect(c.replies).toHaveLength(0);
+    const attacker = (await contactList(db)).filter((x) => x.email === "attacker@example.net");
+    expect(attacker.length).toBeGreaterThan(0); expect(attacker.every((x) => !/Q-\d/.test(x.subject ?? ""))).toBe(true); // made-up tags are removed from what's stored
   });
   it("start a new conversation when there's no reference and no earlier one from that sender", async () => {
     const before = (await contactList(db)).length;
@@ -197,5 +215,72 @@ describe("the mailbox routes need the full proof, and work", () => {
     expect((await call("POST", "/api/ops/drafts", { kind: "new", to: "bad address" })).status).toBe(400);
     const audit = JSON.stringify((await call("GET", "/api/ops/audit")).body);
     expect(audit).toContain("mail-open"); expect(audit).not.toContain("routes@example.com"); expect(audit).not.toContain("Hello from a draft");
+  });
+});
+
+describe("the Trash", () => {
+  it("hides a deleted conversation and feedback from the folders and counts, lists them in the Trash, and restores them", async () => {
+    const id = await form("trash1@example.com");
+    const repo = makeRepo(db), p = await repo.upsertParent("user_trash1");
+    await repo.addFeedback(p.id, { category: "bug", rating: null, message: "Something broke in the trash test", mayReply: false, context: null });
+    const fb = (await listFolder(db, "feedback")).find((i) => i.preview.includes("trash test"))!;
+    const before = await folderCounts(db);
+    expect(await moveToTrash(db, "contact", id)).toBe(true); expect(await moveToTrash(db, "contact", id)).toBe(false); // already there
+    expect(await moveToTrash(db, "feedback", fb.id)).toBe(true);
+    const after = await folderCounts(db);
+    expect(after.messages.total).toBe(before.messages.total - 1); expect(after.feedback.total).toBe(before.feedback.total - 1); expect(after.trash.total).toBe(before.trash.total + 2);
+    expect((await listFolder(db, "messages")).some((i) => i.id === id)).toBe(false);
+    expect((await listFolder(db, "feedback")).some((i) => i.id === fb.id)).toBe(false);
+    const trash = await listFolder(db, "trash");
+    expect(trash.some((i) => i.id === id && i.kind === "contact")).toBe(true); expect(trash.some((i) => i.id === fb.id && i.kind === "feedback")).toBe(true);
+    expect((await contactList(db)).find((c) => c.id === id)!.deletedAt).not.toBeNull(); // still readable, to open from the Trash
+    expect(await restoreFromTrash(db, "contact", id)).toBe(true); expect(await restoreFromTrash(db, "contact", id)).toBe(false);
+    expect(await restoreFromTrash(db, "feedback", fb.id)).toBe(true);
+    expect((await listFolder(db, "messages")).some((i) => i.id === id)).toBe(true); expect((await listFolder(db, "feedback")).some((i) => i.id === fb.id)).toBe(true);
+  });
+  it("only removes for good what is already in the Trash, and Empty Trash clears it", async () => {
+    const a = await form("trash2@example.com"), b = await form("trash3@example.com");
+    expect(await deleteForever(db, "contact", a)).toBe(false);                      // not in the Trash, so it stays
+    expect((await contactList(db)).some((c) => c.id === a)).toBe(true);
+    await moveToTrash(db, "contact", a); await moveToTrash(db, "contact", b);
+    expect(await deleteForever(db, "contact", a)).toBe(true); expect(await deleteForever(db, "contact", a)).toBe(false);
+    expect(await deleteForever(db, "contact", "not-an-id")).toBe(false);
+    expect((await emptyTrash(db))).toBeGreaterThanOrEqual(1);
+    expect((await listFolder(db, "trash")).length).toBe(0);
+  });
+  it("brings a conversation back, unread, when the sender writes again", async () => {
+    const id = await form("trash4@example.com"); await markRead(db, "contact", id); await moveToTrash(db, "contact", id);
+    await inbound("trash4@example.com", { text: "Actually, one more thing" });
+    const c = (await contactList(db)).find((x) => x.id === id)!;
+    expect(c.deletedAt).toBeNull(); expect(c.unread).toBe(true); expect(c.replies).toHaveLength(1);
+    expect((await listFolder(db, "messages")).some((i) => i.id === id)).toBe(true);
+  });
+  it("removes what has been in the Trash for 30 days, and keeps newer", async () => {
+    const old = await form("trash5@example.com"), recent = await form("trash6@example.com"), kept = await form("trash7@example.com");
+    await moveToTrash(db, "contact", old, new Date(Date.now() - 31 * 86_400_000)); await moveToTrash(db, "contact", recent, new Date(Date.now() - 5 * 86_400_000));
+    await purgeContact(db);
+    const ids = (await contactList(db)).map((c) => c.id);
+    expect(ids).not.toContain(old); expect(ids).toContain(recent); expect(ids).toContain(kept);
+  });
+  it("the routes need the full proof, and every step is audit-logged without content", async () => {
+    const mailer = new FakeMailer(), auth = new FakeAuth(), counters = new MemoryCounters();
+    const access = new OpsAccess({ auth, mailer, admins: new Set(["fake_boss@example.test"]), secret: "s".repeat(32) });
+    await access.sendCode("fake_boss");
+    const session = (access.verify("fake_boss", /ops code: (\d{6})/.exec(mailer.sent[0].subject)![1]) as { session: string }).session;
+    const call = (method: string, path: string, body?: unknown, who = "fake_boss", sess = session) => handleOpsApi({ method, path, query: new URLSearchParams(), token: who, session: sess, body }, { db, auth, mailer, access, counters, inboundOn: true });
+    const id = await form("trash8@example.com", "A private question that must not reach the log");
+    for (const p of ["/api/ops/mail/trash", "/api/ops/mail/restore", "/api/ops/mail/purge", "/api/ops/mail/empty-trash", "/api/ops/contact/delete"]) {
+      expect((await call("POST", p, { id }, "fake_rando", "")).status, p).toBe(404); expect((await call("POST", p, { id }, "fake_boss", "")).status, p).toBe(404);
+    }
+    expect((await call("POST", "/api/ops/mail/purge", { kind: "contact", id })).status).toBe(404);          // not in the Trash yet
+    expect((await call("POST", "/api/ops/mail/trash", { kind: "contact", id })).status).toBe(200);
+    expect((await call("POST", "/api/ops/mail/trash", { kind: "contact", id })).status).toBe(404);
+    expect((await call("POST", "/api/ops/mail/restore", { kind: "contact", id })).status).toBe(200);
+    expect((await call("POST", "/api/ops/contact/delete", { id })).status).toBe(200);                       // the old Delete now means Trash
+    expect((await call("POST", "/api/ops/mail/purge", { kind: "contact", id })).status).toBe(200);
+    expect((await call("POST", "/api/ops/mail/empty-trash", {})).status).toBe(200);
+    const audit = JSON.stringify((await call("GET", "/api/ops/audit")).body);
+    for (const w of ["mail-trash", "mail-restore", "mail-delete-forever", "mail-empty-trash"]) expect(audit).toContain(w);
+    expect(audit).not.toContain("private question"); expect(audit).not.toContain("trash8@example.com");
   });
 });

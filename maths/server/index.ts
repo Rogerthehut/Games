@@ -10,6 +10,7 @@ import { handleOpsApi, isOpsRoute } from "./ops-api";
 import { cleanContact, contactAllowed, purgeContact, saveContact } from "./contact";
 import { INBOUND_MAX_BODY, handleInbound } from "./inbound";
 import { retryDue } from "./mailbox";
+import { configureTickets } from "./ticket";
 import type { Db } from "./db";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -83,6 +84,7 @@ if (accounts && !mailer.live) console.warn("Email is off: set RESEND_API_KEY (an
 // The team's ops page (/ops). Needs the allow-list, a secret to sign sessions with, and working email for the sign-in code.
 const opsAdmins = parseAdmins(process.env.OPS_ADMINS);
 const opsSecret = process.env.OPS_SESSION_SECRET ?? "";
+configureTickets(opsSecret); // signs the reference tags in the subject of our emails (server/ticket.ts)
 // in development with the fake sign-in nothing is really sent, so the subject (which holds the code) is printed to the server log
 const opsMailer: typeof mailer = AUTH_FAKE && !mailer.live ? { live: false, send: (e) => { console.log(`[dev email to ${e.to}] ${e.subject}`); return mailer.send(e); } } : mailer;
 // Email to hello@ arrives through Resend's receiving and a signed webhook (docs/OPS.md). Needs the API key and the webhook's signing secret.

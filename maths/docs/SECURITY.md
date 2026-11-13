@@ -85,3 +85,14 @@ Findings and what was done:
 - **Accepted:** the tutor is open to anyone (no account). Its cost is bounded by the per-address and global caps and Turnstile; a script can still use up the global daily cap, which only pauses the tutor for that day.
 - **www:** if the site answers on `www.` as well, requests there are redirected (301) to the main address from `APP_URL`, never from what the request says.
 - **Nothing safety-critical is exposed:** no route returns another family's data, a secret, a stack trace or a server path; errors are generic 500s with the error name logged, never request data.
+
+## Mailbox review (November 2026)
+
+The mailbox, the inbound-email webhook, drafts, the outbox, the Trash and the `www` redirect were reviewed route by route, with these results:
+- **Every `/api/ops/*` route** needs the parent sign-in, the admin allow-list, the emailed code and a live session (everyone else gets 404); ids are checked to be ids; every database query is parameterised; nothing from the browser is trusted as HTML (the only HTML is signatures, cleaned on the server and previewed in a sandboxed frame). There are no cookies, so no cross-site request forgery. Tests check that each route refuses a non-admin, a missing session and a bad session.
+- **Guessing a reference number can't write into a conversation.** Subject tags are signed (`[Q-1042-3fa9c1d2]`, with a key derived from the ops secret). A bare number, a made-up signature or another conversation's signature is ignored, and made-up tags are stripped from stored subjects. (Found and fixed in this review: the first version trusted the number alone.)
+- **Rate limits per person:** replies 60 an hour, new emails 30, trash actions 300, drafts 300, signature changes 60. New emails go to one address only, never our own domain.
+- **The webhook** verifies the Svix signature and a five-minute window before reading anything, handles each email once, fetches content itself, keeps plain text only and never replies automatically.
+- **The Trash** holds deleted items for 30 days, then they're removed. For an erasure request, use Delete forever, which removes them at once (only from the Trash, so it's a deliberate second step).
+- **Dependencies:** `npm audit --omit=dev` reports no known vulnerabilities.
+- **Still yours:** turn on `CSP_ENFORCE=1` after checking the console; keep `OPS_ADMINS` to people who need it; and use a long random `OPS_SESSION_SECRET`.

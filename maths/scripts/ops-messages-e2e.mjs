@@ -69,7 +69,7 @@ try {
   ok("opening the draft puts its words back in the reply box", (await boss.locator("textarea[aria-label='Your reply']").first().inputValue()) === "A reply I'm not sure about yet.");
   await boss.locator("textarea[aria-label='Your reply']").first().fill("You can add one under Parents' area, then Learners.");
   await boss.getByTestId("ops-message-reply").first().click(); await boss.waitForTimeout(900);
-  ok("the reply was emailed to the sender, with the reference in the subject", /dev email to kim@example.com\] Re: your message to quarter \[Q-\d{4,}\]/.test(log));
+  ok("the reply was emailed to the sender, with the reference in the subject", /dev email to kim@example.com\] Re: your message to quarter \[Q-\d{4,}-[0-9a-f]{8}\]/.test(log));
   await boss.getByTestId("ops-mail-back").click(); await boss.waitForTimeout(500);
   ok("sending removed the draft", (await boss.getByTestId("ops-count-drafts").count()) === 0);
   await boss.getByTestId("ops-folder-sent").click(); await boss.waitForTimeout(500);
@@ -85,10 +85,21 @@ try {
   await boss.getByTestId("ops-compose-to").fill("partner@example.org"); await boss.getByTestId("ops-compose-subject").fill("A quick hello");
   await boss.getByTestId("ops-compose-body").fill("Hi, a short note from quarter."); await boss.getByTestId("ops-compose-save").click(); await boss.waitForTimeout(500);
   await boss.getByTestId("ops-compose-send").click(); await boss.waitForTimeout(900);
-  ok("a new email is sent from the portal", /dev email to partner@example.org\] A quick hello \[Q-\d{4,}\]/.test(log));
+  ok("a new email is sent from the portal", /dev email to partner@example.org\] A quick hello \[Q-\d{4,}-[0-9a-f]{8}\]/.test(log));
   await boss.getByTestId("ops-folder-sent").click(); await boss.waitForTimeout(500);
   ok("it is in Sent", /To partner@example.org/.test(await body()));
   ok("and its draft is gone", (await boss.getByTestId("ops-count-drafts").count()) === 0);
+  // the Trash: move the form conversation there, restore it, and see it come back
+  await boss.getByTestId("ops-folder-messages").click(); await boss.waitForTimeout(400);
+  await boss.getByTestId("ops-mail-row").first().locator(".ops-mail-open").click(); await boss.getByTestId("ops-thread").waitFor();
+  await boss.getByTestId("ops-trash").click(); await boss.waitForTimeout(500);
+  ok("moving it to the Trash takes it out of Messages", !/How do I add a second child/.test(await body()));
+  await boss.getByTestId("ops-folder-trash").click(); await boss.waitForTimeout(500);
+  ok("it is in the Trash", /How do I add a second child|kim@example.com/.test(await body()));
+  await boss.getByTestId("ops-trash-restore").first().click(); await boss.waitForTimeout(500);
+  ok("restoring empties the Trash", /Nothing here/.test(await body()));
+  await boss.getByTestId("ops-folder-messages").click(); await boss.waitForTimeout(400);
+  ok("and it is back in Messages", /kim@example.com|How do I add a second child/.test(await body()));
   await boss.getByTestId("ops-tab-audit").click(); await boss.waitForTimeout(600);
   const audit = await boss.locator("body").innerText();
   ok("the audit log lists the signature and the reply, without their content", /signature-add/.test(audit) && /contact-reply/.test(audit) && !/second child/.test(audit));

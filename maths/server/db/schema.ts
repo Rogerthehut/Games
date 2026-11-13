@@ -61,6 +61,7 @@ export const feedback = pgTable("feedback", {
   context: text("context"),
   ticket: integer("ticket"),
   unread: boolean("unread").notNull().default(true),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -100,6 +101,7 @@ export const contactMessages = pgTable("contact_messages", {
   source: text("source").notNull().default("form"),
   ticket: integer("ticket"),
   unread: boolean("unread").notNull().default(true),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   subject: text("subject"),
   messageId: text("message_id"),
   auth: text("auth"),

@@ -96,6 +96,7 @@ The **Mail** tab is a normal-looking mailbox over everything people send us. Fol
 - **Feedback:** feedback from signed-in parents (Parents' area). Replies need the "may reply" tick, and go to their account email.
 - **Drafts:** unsent writing. **Save draft** is on every reply box and on New email; sending removes the draft.
 - **Sent:** every email we have sent, replies and new ones, including replies to feedback.
+- **Trash:** where Delete puts a conversation or piece of feedback. It stays 30 days (restore it any time, or a reply from the sender brings it back), then it's removed for good. **Delete forever** and **Empty Trash** remove things at once, for example for a request to erase someone's message.
 - **Outbox:** emails that couldn't be handed to the email service (for example it was down). They're retried every few minutes (5 minutes, then 15, an hour, then 4 hours, five tries in all), and you can **Retry now** or **Discard**. An email is only recorded in its conversation once it has gone.
 
 A conversation is one thread whichever folder lists it. It has a **reference number** (Q-1001, Q-1002...; feedback is F-1001...) shown on it and added to the subject of our emails ("Re: your message [Q-1042]"). When someone replies, the reference in the subject finds the conversation even if they write from a different address (the entry says it came from a different address); otherwise a reply is matched by the sender's address. Opening a conversation marks it read; a new reply marks it unread again (**Mark unread** is on each one).
