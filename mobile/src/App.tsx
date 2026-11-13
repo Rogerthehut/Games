@@ -10,6 +10,8 @@ import { WebView, type WebViewMessageEvent, type WebViewNavigation } from "react
 import { APP_HOST, APP_URL, APP_VERSION, BACKGROUND, USER_AGENT_SUFFIX } from "./config";
 import { decideNavigation, deepLink, isAppUrl } from "./links";
 import { parseMessage, type FromWeb } from "./messages";
+import { Dock } from "./Dock";
+import { isDockTab, type DockTab } from "./messages";
 import { askForReview, biometric, haptic, setReminders } from "./native";
 
 /**
@@ -20,7 +22,7 @@ import { askForReview, biometric, haptic, setReminders } from "./native";
 /** react-native-webview 14's own prop types don't resolve under React 19's JSX types (every prop becomes `never`), so the component is used through a plain props type. The handlers below are still typed. */
 const Web = WebView as unknown as ComponentType<Record<string, unknown> & { ref?: React.Ref<WebView> }>;
 /** What this build of the app can do. The site checks this list before asking, so an older app that was installed before a feature existed is never asked for it. */
-const FEATURES = ["haptics2", "biometric", "reminders", "review"];
+const FEATURES = ["haptics2", "biometric", "reminders", "review", "dock"];
 const NATIVE_INFO = JSON.stringify({ platform: Platform.OS, version: APP_VERSION, tablet: Platform.OS === "ios" ? Platform.isPad : false, features: FEATURES });
 const BEFORE_LOAD = `window.__quarterNative = ${NATIVE_INFO}; true;`;
 
@@ -30,6 +32,7 @@ export default function App() {
   const [failed, setFailed] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const [uri, setUri] = useState(APP_URL);
+  const [dock, setDock] = useState<{ visible: boolean; tab: DockTab }>({ visible: false, tab: "today" });
 
   // Links to the site (from Messages, Mail, Safari) open here, on the page they point to
   useEffect(() => {
@@ -67,6 +70,7 @@ export default function App() {
       case "biometric": tell({ type: "biometric-result", id: m.id, result: await biometric(m.reason) }); break;
       case "reminders": tell({ type: "reminders-result", result: await setReminders(m) }); break;
       case "review": await askForReview(); break;
+      case "dock": if (isDockTab(m.tab)) setDock({ visible: m.visible, tab: m.tab }); break;
     }
   }, [tell]);
 
@@ -114,6 +118,7 @@ export default function App() {
         originWhitelist={["https://*"]}
         backgroundColor={BACKGROUND}
       />
+      {dock.visible && !failed && <Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} />}
       {loading && !failed && <View style={styles.cover} pointerEvents="none"><ActivityIndicator size="large" color="#2f3a73" /></View>}
       {failed && (
         <View style={styles.cover}>

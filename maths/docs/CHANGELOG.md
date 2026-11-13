@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Ops accounts list, resizable side menu, and the app's own dock
+- **Ops portal:** the Accounts tab now lists every account (newest first, filterable, click one to open it) instead of starting blank, and an account is shown as a plain table: Yes/No instead of null, dates written out, plan and trial in words. Still account facts only, never a child's name or progress; viewing the list is written to the audit log.
+- **"Scroll for more"** on question pages now sits at the very bottom under Hint and Check; on other pages it sits just above the tab bar.
+- **Side menu (desktop and landscape iPad):** drag its edge to widen or narrow it, or press Enter on it; narrow enough and it becomes icons only, and ordinary pages use the extra room. Remembered on the device.
+- **iPhone/iPad app:** opens on Create an account (no welcome page), no cookies banner, and a floating Liquid Glass dock (Today, Skills, Plan, Me) with quarter pink on the selected tab replaces the page's tab bar (frosted blur before iOS 26). It needs a new EAS build, because it adds expo-glass-effect, expo-blur and react-native-svg; older builds keep the page's own tab bar.
+
 ## Two new kinds of question, and more boards checked
 - **Complete the table** (Year 4): a table with numbered dashed boxes for the missing cells and one answer box for each ("Box 1 =", …). Five levels: a pack row, a price table, an input/output rule, unit conversions, and a reading table with a total. Every filled table is tested against its own rule.
 - **Explain your answer** (Year 6) and **Explain with algebra** (Year 11): the child writes in words, presses "Compare with the model answer", then ticks the key points they included. The app can't read writing, so they mark it themselves, and the screen says so; a missed point is named in the feedback. Every claim in a model answer is worked out from the numbers in the question and re-checked by tests. These topics are left out of timed papers and check-ups, like the drawing topics.

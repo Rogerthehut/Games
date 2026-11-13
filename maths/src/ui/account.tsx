@@ -293,7 +293,7 @@ function likelySignedIn(): boolean {
 
 function SignedOut({ auth }: { auth: AuthClient | null }) {
   // Visitors land on the welcome page first. A hash means Clerk is mid-flow (Clerk mid-flow), so go straight to the form.
-  const [kind, setKind] = useState<"sign-up" | "sign-in" | null>(() => (location.hash.length > 1 ? "sign-in" : null));
+  const [kind, setKind] = useState<"sign-up" | "sign-in" | null>(() => (location.hash.length > 1 ? "sign-in" : isNativeApp() ? "sign-up" : null));
   const box = useRef<HTMLDivElement>(null);
   const [stuck, setStuck] = useState("");
   const [agreed, setAgreed] = useState(() => hasAgreed(TERMS_VERSION));
@@ -312,7 +312,7 @@ function SignedOut({ auth }: { auth: AuthClient | null }) {
   if (!kind) return <Landing onStart={setKind} />;
   return (
     <Shell wide>
-      <button type="button" class="linkish account-back" onClick={() => setKind(null)}>← Back to welcome page</button>
+      {!isNativeApp() && <button type="button" class="linkish account-back" onClick={() => setKind(null)}>← Back to welcome page</button>}
       <h1>Welcome to <Wordmark /></h1>
       <p class="onboard-sub">quarter is set up by a parent or guardian. Children don't need their own login: you add each learner after you sign in.</p>
       <div class="seg account-tabs" role="tablist" aria-label="Sign up or sign in">

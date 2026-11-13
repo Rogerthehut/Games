@@ -32,3 +32,8 @@ test("file names can't point anywhere else", () => {
   assert.equal(safeFilename(""), "quarter-file"); assert.equal(safeFilename("..."), "quarter-file"); assert.equal(safeFilename("my report (1).pdf"), "my report _1_.pdf");
   assert.ok(safeFilename("a".repeat(300)).length <= 80);
 });
+test("accepts the dock message only for the four real tabs", () => {
+  assert.deepEqual(parseMessage(j({ type: "dock", visible: true, tab: "skills" })), { type: "dock", visible: true, tab: "skills" });
+  assert.equal(parseMessage(j({ type: "dock", visible: true, tab: "admin" })), null);
+  assert.equal(parseMessage(j({ type: "dock", visible: "yes", tab: "me" })), null);
+});

@@ -1,0 +1,53 @@
+import { BlurView } from "expo-blur";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle, Path } from "react-native-svg";
+import { DOCK_TABS, type DockTab } from "./messages";
+
+/**
+ * The tab dock: Today, Skills, Plan, Me. A floating pill of Liquid Glass on iOS 26 (a frosted blur on older iPhones), with quarter's pink
+ * on the selected tab's icon and border. The page draws the screens; this only says which one to open. The icons are the same drawings as the site's.
+ */
+const PINK = "#d9477f", PINK_SOFT = "#f8dae6", INK = "#3b3a4f";
+const ICONS: Record<DockTab, (c: string) => React.ReactNode> = {
+  today: (c) => <><Path d="M3.5 11 12 3.5 20.5 11" stroke={c} /><Path d="M5.5 9.5V20h5v-5.5h3V20h5V9.5" stroke={c} /></>,
+  skills: (c) => <><Circle cx="6" cy="18" r="2.2" stroke={c} /><Circle cx="18" cy="6" r="2.2" stroke={c} /><Path d="M8.2 18H14a3 3 0 0 0 0-6h-3a3 3 0 0 1 0-6h4.8" stroke={c} /></>,
+  plan: (c) => <><Path d="M5.5 21V4" stroke={c} /><Path d="M5.5 4.5h11l-2.2 4 2.2 4h-11" stroke={c} /></>,
+  me: (c) => <><Circle cx="12" cy="8" r="3.8" stroke={c} /><Path d="M4.5 20.5c.6-3.6 3.8-5.5 7.5-5.5s6.9 1.9 7.5 5.5" stroke={c} /></>,
+};
+
+export function Dock({ tab, onSelect }: { tab: DockTab; onSelect: (t: DockTab) => void }) {
+  const inset = useSafeAreaInsets();
+  const glass = Platform.OS === "ios" && isLiquidGlassAvailable();
+  const items = DOCK_TABS.map((t) => {
+    const on = t.id === tab, colour = on ? PINK : INK;
+    return (
+      <Pressable key={t.id} onPress={() => onSelect(t.id)} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t.label} style={styles.item} hitSlop={4}>
+        <View style={[styles.iconWrap, on && styles.iconOn]}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">{ICONS[t.id](colour)}</Svg>
+        </View>
+        <Text style={[styles.label, { color: colour }, on && styles.labelOn]}>{t.label}</Text>
+      </Pressable>
+    );
+  });
+  const position = { bottom: Math.max(inset.bottom, 12) };
+  return (
+    <View style={[styles.wrap, position]} pointerEvents="box-none" accessibilityRole="tablist">
+      {glass
+        ? <GlassView glassEffectStyle="regular" isInteractive style={styles.pill}>{items}</GlassView>
+        : <BlurView intensity={70} tint="systemChromeMaterialLight" style={[styles.pill, styles.blurred]}>{items}</BlurView>}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  wrap: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  pill: { flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 34, gap: 2, minWidth: 280, justifyContent: "space-around", overflow: "hidden" },
+  blurred: { borderWidth: StyleSheet.hairlineWidth, borderColor: "#18192b22", shadowColor: "#18192b", shadowOpacity: 0.16, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
+  item: { alignItems: "center", justifyContent: "center", minWidth: 64, paddingVertical: 2, gap: 1 },
+  iconWrap: { paddingHorizontal: 16, paddingVertical: 5, borderRadius: 999, borderWidth: 1.5, borderColor: "transparent" },
+  iconOn: { backgroundColor: PINK_SOFT + "cc", borderColor: PINK },
+  label: { fontSize: 11, fontWeight: "700", letterSpacing: 0.2 },
+  labelOn: { fontWeight: "800" },
+});

@@ -1,7 +1,8 @@
 import { MoreBelow } from "./qshell";
+import { hasNativeDock, setDock } from "../native/bridge";
 import { StemNote, TablesNote, useWide } from "./tables-note";
 import type { ComponentChildren } from "preact";
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 import { primaryNav, type Tab } from "./navigation";
@@ -14,11 +15,40 @@ import { BrowserStorageNotice } from "./legal";
 import { ProfileHi } from "./profile-hi";
 import { RailSwitcher } from "./rail-switcher";
 
+
+const RAIL_KEY = "quarter.railWidth", RAIL_DEFAULT = 264, RAIL_MIN = 76, RAIL_MAX = 380, RAIL_SLIM = 150;
+const readRail = () => { try { const n = Number(localStorage.getItem(RAIL_KEY)); return n >= RAIL_MIN && n <= RAIL_MAX ? n : RAIL_DEFAULT; } catch { return RAIL_DEFAULT; } };
+/** Drag the edge of the side menu to make it wider or narrower; narrow enough and it shrinks to icons, so the page gets the room. Remembered on this device. */
+function useRailWidth() {
+  const [width, setWidth] = useState(readRail);
+  const set = (w: number, keep = true) => {
+    const v = Math.round(Math.min(RAIL_MAX, Math.max(RAIL_MIN, w)));
+    // below the slim line, snap to icons only
+    const snapped = v < RAIL_SLIM ? RAIL_MIN : v;
+    setWidth(snapped);
+    if (keep) try { localStorage.setItem(RAIL_KEY, String(snapped)); } catch { /* private mode: it just isn't remembered */ }
+  };
+  return { width, slim: width <= RAIL_SLIM, set };
+}
+
 /** Bottom tab bar on phones and tablets, side rail on wide screens. */
 export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren }) {
   const wide = useWide();
   const { go, profile } = useApp();
   const searchDialog = useRef<HTMLDialogElement>(null);
+  const rail = useRailWidth();
+  const dock = hasNativeDock();
+  // In the app, a glass dock drawn by the phone replaces the bottom tab bar (on a wide iPad the side menu is used instead)
+  useEffect(() => {
+    if (!dock) return;
+    const narrow = matchMedia("(max-width: 899px)"), send = (visible = true) => setDock(visible && narrow.matches, tab);
+    const nav = (e: Event) => { const hit = primaryNav.find((i) => i.id === (e as CustomEvent<string>).detail); if (hit) go(hit.route); };
+    send(); narrow.addEventListener("change", () => send());
+    window.addEventListener("quarter-native-nav", nav);
+    document.documentElement.classList.add("native-dock");
+    return () => { window.removeEventListener("quarter-native-nav", nav); document.documentElement.classList.remove("native-dock"); setDock(false, tab); };
+  }, [dock, tab]);
+  const dragging = useRef(false);
   const openSearch = () => {
     const dialog = searchDialog.current;
     if (dialog && !dialog.open && !document.querySelector("dialog[open]")) dialog.showModal();
@@ -76,7 +106,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
     </nav>
   );
   return (
-    <div class="app">
+    <div class={`app${rail.slim ? " rail-slim" : ""}`} style={{ "--rail-w": `${rail.width}px` } as never}>
       <aside class="rail">
         {brand()}
         {nav("rail-nav")}
@@ -86,6 +116,17 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
           : <div class="note-minis" aria-label="Quick links"><TablesNote variant="mini" /><StemNote variant="mini" /></div>)}
         <RailSwitcher tab={tab} />
         <RailParents tab={tab} />
+        <div class="rail-grip" role="separator" aria-orientation="vertical" tabIndex={0} aria-label="Side menu width. Drag, or use the arrow keys. Press Enter to switch between icons and full menu."
+          aria-valuemin={RAIL_MIN} aria-valuemax={RAIL_MAX} aria-valuenow={rail.width} data-testid="rail-grip"
+          onPointerDown={(e) => { dragging.current = true; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); e.preventDefault(); }}
+          onPointerMove={(e) => { if (dragging.current) rail.set(e.clientX, false); }}
+          onPointerUp={(e) => { if (dragging.current) { dragging.current = false; rail.set(e.clientX); } }}
+          onDblClick={() => rail.set(rail.slim ? RAIL_DEFAULT : RAIL_MIN)}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowLeft") { e.preventDefault(); rail.set(rail.width - 24); }
+            else if (e.key === "ArrowRight") { e.preventDefault(); rail.set(rail.slim ? RAIL_DEFAULT : rail.width + 24); }
+            else if (e.key === "Enter") { e.preventDefault(); rail.set(rail.slim ? RAIL_DEFAULT : RAIL_MIN); }
+          }} />
       </aside>
       <header class="mobile-wordmark">
         {brand()}
@@ -101,7 +142,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
       </main>
       <SearchDialog dialog={searchDialog} />
       <BrowserStorageNotice />
-      {nav("tabbar")}
+      {!dock && nav("tabbar")}
     </div>
   );
 }

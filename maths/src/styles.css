@@ -110,7 +110,7 @@ details[open] > summary::before { transform: rotate(90deg); }
 .nav-item.on { color: var(--accent); } .nav-item.on .icon { background: var(--accent-soft); }
 
 @media (min-width: 900px) {
-  .app { display: grid; grid-template-columns: 264px minmax(0, 1fr); }
+  .app { display: grid; grid-template-columns: var(--rail-w, 264px) minmax(0, 1fr); }
   .tabbar { display: none; }
   .rail { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; padding: 28px 16px 20px; background: var(--surface); border-right: 1px solid var(--line); }
   .rail .brand { display: flex; align-items: center; gap: 10px; border: 0; background: none; color: var(--accent); font-size: 1.25rem; cursor: pointer; padding: 6px 12px 22px; text-align: left; }
@@ -2869,7 +2869,7 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 }
 
 /* "Scroll for more": sticks to the bottom of what you can see while the page carries on below */
-.more-below { position: sticky; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); height: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; }
+.more-below { position: sticky; bottom: calc(68px + env(safe-area-inset-bottom, 0px)); height: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; }
 @media (min-width: 900px) { .more-below { bottom: 22px; } }
 .more-cue { position: absolute; bottom: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; min-height: 44px; padding-inline: 16px; opacity: .92; transition: opacity 320ms ease, transform 320ms var(--ease-out); border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); font: inherit; font-size: .92rem; font-weight: 750; box-shadow: 0 6px 18px #18192b26; cursor: pointer; animation: more-in 260ms var(--ease-out) backwards; }
 .more-cue.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
@@ -3646,3 +3646,35 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .explain-mark { display: grid; gap: 8px; margin-top: 12px; padding: 14px; border: 2px dashed var(--line); border-radius: 14px; }
 .explain-points { display: grid; gap: 8px; }
 .explain-points .check { align-items: flex-start; }
+
+/* ops: account facts and the account list */
+.ops-facts { border-collapse: collapse; margin: 8px 0 12px; }
+.ops-facts th { text-align: left; font-weight: 650; padding: 8px 16px 8px 0; color: var(--ink-soft, var(--muted)); border-bottom: 1px solid var(--line); }
+.ops-facts td { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.ops-table-wrap { overflow-x: auto; margin-top: 10px; }
+.ops-list { border-collapse: collapse; width: 100%; }
+.ops-list th, .ops-list td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.ops-list th { font-size: .85rem; color: var(--muted); }
+
+/* "Scroll for more" on a question page sits at the very bottom, under the Hint and Check buttons, rather than floating over the middle of the screen */
+.qpage .qbar-more { order: 2; min-height: 34px; padding-inline: 14px; font-size: .84rem; margin-top: -2px; }
+.qpage > .qbar { gap: 6px; }
+
+/* The side menu can be dragged wider or narrower; narrow, it shows icons only and the page uses the room */
+@media (min-width: 900px) {
+  .rail { position: sticky; }
+  .rail-grip { position: absolute; top: 0; right: -4px; bottom: 0; width: 9px; cursor: col-resize; touch-action: none; z-index: 12; }
+  .rail-grip::after { content: ""; position: absolute; top: 50%; left: 3px; width: 3px; height: 44px; margin-top: -22px; border-radius: 3px; background: var(--line); transition: background .15s, height .15s; }
+  .rail-grip:hover::after, .rail-grip:focus-visible::after { background: var(--accent); height: 64px; margin-top: -32px; }
+  .rail-grip:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .app { transition: grid-template-columns .18s ease; }
+  .rail-slim .rail { padding-inline: 8px; align-items: stretch; overflow-x: hidden; }
+  .rail-slim .rail .wordmark, .rail-slim .rail .nav-item > span, .rail-slim .rail-me > span, .rail-slim .rail-me-caret, .rail-slim .rail-lock > span, .rail-slim .rail-lock-chev,
+  .rail-slim .rail .tables-note-rail, .rail-slim .rail .note-minis, .rail-slim .rail-switch-label { display: none; }
+  .rail-slim .rail .brand { justify-content: center; padding-inline: 0; }
+  .rail-slim .rail .nav-item, .rail-slim .rail-me, .rail-slim .rail-lock { justify-content: center; padding-inline: 0; }
+  .rail-slim .rail-gate, .rail-slim .rail-switch-list { left: 0; right: auto; min-width: 240px; }
+  /* with the menu out of the way, ordinary pages may use more of the width */
+  .rail-slim .content:not(:has(.activity-section, .journey-wrap, .journey-wide, .qpage)) { max-width: 1040px; }
+}
+@media (prefers-reduced-motion: reduce) { .app { transition: none; } }

@@ -11,7 +11,7 @@ import { cleanSignatureHtml } from "./signature-html";
 import { searchMail } from "./mail-search";
 import { FOLDERS, deleteDraft, discardOutbox, folderCounts, getDraft, listFolder, markRead, markUnread, retryOne, saveDraft, sendOrQueue, setMark, type Folder } from "./mailbox";
 import { MAX_SIGNATURES, deleteSignature, getSignature, listSignatures, saveSignature, setDefaultSignature } from "./signatures";
-import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
+import { accountByClerkId, accountList, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
 
 /**
  * The team's ops page API (/api/ops/...). Every route needs the parent sign-in AND the allow-list AND the emailed code (see ops-access.ts).
@@ -256,6 +256,13 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     if (!(await deleteSignature(d.db, body.id))) return NOT_FOUND;
     await audit(d.db, actor, "signature-delete", String(body.id));
     return ok({ deleted: true });
+  }
+
+  if (req.path === "/api/ops/accounts" && req.method === "GET") {
+    const rows = await accountList(d.db, 100);
+    const items = await Promise.all(rows.map(async ({ clerkUserId, ...r }) => ({ ...r, email: (await d.auth.emailOf?.(clerkUserId)) ?? null })));
+    await audit(d.db, actor, "account-list", `${items.length}`);
+    return ok({ items });
   }
 
   if (req.path === "/api/ops/account" && req.method === "GET") {

@@ -1,3 +1,4 @@
+import { isNativeApp } from "../native/bridge";
 import { useState } from "preact/hooks";
 import { companyLine, cookiesSections, copyright, footerGroups, footerTagline, trustpilot, designer, icoComplaints, legalPages, legalTitles, legalUpdated, licencesSections, privacySections, termsSections, type LegalPage } from "../legal/content";
 import { CubeMark, Wordmark } from "./wordmark";
@@ -140,7 +141,7 @@ export function BrowserStorageNotice() {
     try { return localStorage.getItem(NOTICE_KEY) !== "seen"; }
     catch { return true; }
   });
-  if (!show) return null;
+  if (!show || isNativeApp()) return null;   // the app has no browser cookies to explain
 
   return (
     <aside class="browser-storage-notice" aria-label="Cookies and browser storage">

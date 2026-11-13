@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { biometric, haptic, hapticsOn, nativeHas, onNativeMessage, setHapticsOn, setReminders } from "./bridge";
+import { biometric, haptic, hasNativeDock, setDock, hapticsOn, nativeHas, onNativeMessage, setHapticsOn, setReminders } from "./bridge";
 import { clearDeviceSettings, faceIdOn, loadReminders, maybeAskForReview, saveReminders, setFaceIdOn } from "./device-settings";
 
 const sent: Record<string, unknown>[] = [];
@@ -10,6 +10,17 @@ const app = (features: string[] = ["haptics2", "biometric", "reminders", "review
 };
 beforeEach(() => { store.clear(); g.localStorage = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v), removeItem: (k: string) => void store.delete(k) }; });
 afterEach(() => { delete g.window; delete g.localStorage; sent.length = 0; vi.useRealTimers(); });
+
+describe("the app's own tab dock", () => {
+  it("is only used by a build that has it, and only a known tab navigates", () => {
+    setDock(true, "today"); expect(sent).toEqual([]);                    // a browser
+    app(["review"]); expect(hasNativeDock()).toBe(false); setDock(true, "today"); expect(sent).toEqual([]);   // an older app: the page keeps its own tab bar
+    app(["dock"]); expect(hasNativeDock()).toBe(true); setDock(true, "skills"); expect(sent).toEqual([{ type: "dock", visible: true, tab: "skills" }]);
+    const seen: string[] = []; g.dispatchEvent = (e: CustomEvent) => seen.push(e.detail); g.CustomEvent = class { detail: unknown; constructor(_t: string, o: { detail: unknown }) { this.detail = o.detail; } };
+    onNativeMessage(JSON.stringify({ type: "navigate", tab: "plan" })); expect(seen).toEqual(["plan"]);
+    delete g.dispatchEvent; delete g.CustomEvent;
+  });
+});
 
 describe("features of the app", () => {
   it("are only asked of an app build that has them", async () => {

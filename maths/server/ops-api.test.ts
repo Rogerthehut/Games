@@ -137,6 +137,17 @@ describe("deleting an account for someone who can't sign in", () => {
 });
 
 describe("account lookup and audit", () => {
+  it("lists accounts, newest first, with an email and no child's name", async () => {
+    const p = await repo.upsertParent("fake_lister");
+    await repo.createLearner(p.id, { id: "y", name: "Hidden-Kid", year: 3, skills: {}, points: 0 } as never);
+    const session = await signIn();
+    const r = await call("GET", "/api/ops/accounts", "fake_boss", { session });
+    const items = (r.body as { items: { email: string; learners: number; subscribed: boolean }[] }).items;
+    const mine = items.find((i) => i.email === "fake_lister@example.test");
+    expect(mine).toMatchObject({ learners: 1, subscribed: false });
+    expect(JSON.stringify(r.body)).not.toContain("Hidden-Kid");
+    expect(JSON.stringify(r.body)).not.toContain("clerkUserId");
+  });
   it("finds an account by email, is audited, and shows no child's name", async () => {
     const p = await repo.upsertParent("fake_maya");
     await repo.createLearner(p.id, { id: "x", name: "Secret-Kid", year: 5, skills: {}, points: 0 } as never);

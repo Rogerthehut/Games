@@ -125,3 +125,18 @@ export async function feedbackById(db: Db, id: string) {
 export async function addReply(db: Db, feedbackId: string, actor: string, message: string): Promise<void> {
   await db.insert(schema.feedbackReplies).values({ feedbackId, actor: actor.slice(0, 80), message });
 }
+
+export interface AccountRow { parentId: string; clerkUserId: string; createdAt: string; agreed: boolean; subscribed: boolean; learners: number; lastActive: string | null }
+/** The newest accounts, for the ops page's list. Account facts only, like the lookup: no child's name or progress. Email addresses are added by the caller, from the sign-in service. */
+export async function accountList(db: Db, limit = 100): Promise<AccountRow[]> {
+  const { parents, learners, learnerProgress, subscriptions } = schema;
+  const ps = await db.select().from(parents).orderBy(desc(parents.createdAt)).limit(Math.min(limit, 200));
+  if (!ps.length) return [];
+  const ids = ps.map((p) => p.id);
+  const subs = await db.select({ id: subscriptions.parentId, status: subscriptions.status }).from(subscriptions).where(inArray(subscriptions.parentId, ids));
+  const kids = await db.select({ parent: learners.parentId, active: learnerProgress.updatedAt }).from(learners).leftJoin(learnerProgress, eq(learnerProgress.learnerId, learners.id)).where(inArray(learners.parentId, ids));
+  return ps.map((p) => {
+    const mine = kids.filter((k) => k.parent === p.id), last = mine.map((k) => k.active).filter((d): d is Date => !!d).sort((a, b) => b.getTime() - a.getTime())[0];
+    return { parentId: p.id, clerkUserId: p.clerkUserId, createdAt: p.createdAt.toISOString(), agreed: !!p.consentedAt, subscribed: subs.some((s) => s.id === p.id && ["active", "trialing"].includes(s.status)), learners: mine.length, lastActive: last?.toISOString() ?? null };
+  });
+}

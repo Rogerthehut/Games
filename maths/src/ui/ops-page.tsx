@@ -88,7 +88,7 @@ function Code({ call, onDone, signOut }: { call: Call; onDone: (s: { s: string; 
 
 function Dashboard({ call, leave }: { call: Call; leave: () => void }) {
   const [tab, setTab] = useState<Tab>("mail");
-  const tabs: [Tab, string][] = [["mail", "Mail"], ["numbers", "Numbers"], ["account", "Account lookup"], ["audit", "Audit log"]];
+  const tabs: [Tab, string][] = [["mail", "Mail"], ["numbers", "Numbers"], ["account", "Accounts"], ["audit", "Audit log"]];
   return (
     <>
       <div class="seg" role="tablist" aria-label="Ops sections">
@@ -472,42 +472,85 @@ function Numbers({ call }: { call: Call }) {
   );
 }
 
+const yn = (b: unknown) => (b ? "Yes" : "No");
+const stamp = (iso: unknown) => { if (typeof iso !== "string") return "Never"; const d = new Date(iso); return isNaN(d.getTime()) ? "Never" : d.toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); };
+const day = (iso: unknown) => (typeof iso === "string" && !isNaN(new Date(iso).getTime()) ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Never");
+const PLAN: Record<string, string> = { monthly: "Monthly", yearly: "Yearly", annual: "Yearly" };
+const STATUS: Record<string, string> = { active: "Active", trialing: "Free trial", past_due: "Payment overdue", canceled: "Cancelled", incomplete: "Not finished", none: "None", unpaid: "Unpaid" };
+
+/** An account's facts as plain rows: Yes or No instead of null and true, dates written out, no ids to read. */
+export function accountRows(a: Record<string, any>): [string, string][] {
+  const sub = a.subscription as Record<string, any> | null, kids = a.learners as { count: number; years: number[]; lastActive: string | null };
+  const rows: [string, string][] = [
+    ["Joined", stamp(a.createdAt)],
+    ["Agreed to the terms", a.consent?.at ? `Yes, on ${day(a.consent.at)}` : "No"],
+    ["Has a subscription", yn(sub && ["active", "trialing", "past_due"].includes(sub.status))],
+  ];
+  if (sub) rows.push(
+    ["Subscription status", STATUS[sub.status] ?? String(sub.status)], ["Plan", PLAN[String(sub.plan)] ?? String(sub.plan ?? "None")],
+    ["Free trial ends", sub.trialEnd ? day(sub.trialEnd) : "Not on a trial"], ["Paid up to", sub.periodEnd ? day(sub.periodEnd) : "Not applicable"],
+    ["Cancelling at the end of the period", yn(sub.cancelAtPeriodEnd)], ["Has subscribed before", yn(sub.everSubscribed)],
+  );
+  rows.push(
+    ["Children", kids.count === 0 ? "None" : `${kids.count} (${kids.years.map((y) => `Year ${y}`).join(", ")})`],
+    ["Last active", kids.lastActive ? stamp(kids.lastActive) : "Never"], ["Feedback sent", String(a.feedbackCount ?? 0)],
+  );
+  return rows;
+}
+
+interface AccountItem { parentId: string; email: string | null; createdAt: string; agreed: boolean; subscribed: boolean; learners: number; lastActive: string | null }
+
 function Lookup({ call }: { call: Call }) {
   const [email, setEmail] = useState("");
   const [found, setFound] = useState<{ email: string; account: Record<string, any> } | null>(null);
   const [msg, setMsg] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
-  const go = async (e: Event) => {
-    e.preventDefault(); setMsg(""); setFound(null); setConfirm("");
-    const r = await call<{ account: Record<string, any> | null }>("GET", `/api/ops/account?email=${encodeURIComponent(email)}`);
+  const [list, setList] = useState<AccountItem[] | null>(null);
+  const [filter, setFilter] = useState("");
+  useEffect(() => { call<{ items: AccountItem[] }>("GET", "/api/ops/accounts").then((r) => setList(r.ok ? r.data.items : [])); }, []);
+  const find = async (addr: string) => {
+    setMsg(""); setFound(null); setConfirm("");
+    const r = await call<{ account: Record<string, any> | null }>("GET", `/api/ops/account?email=${encodeURIComponent(addr)}`);
     if (!r.ok) setMsg(r.data.message ?? "Couldn't look that up.");
     else if (!r.data.account) setMsg("No quarter account for that address.");
-    else setFound({ email: email.trim().toLowerCase(), account: r.data.account });
+    else setFound({ email: addr.trim().toLowerCase(), account: r.data.account });
   };
+  const go = (e: Event) => { e.preventDefault(); void find(email); };
   const phrase = found ? `delete ${found.email}` : "";
   const remove = async () => {
     if (!found || confirm !== phrase) return;
     setBusy(true);
     const r = await call("POST", "/api/ops/account/delete", { email: found.email, confirm });
     setBusy(false);
-    if (r.ok) { setFound(null); setConfirm(""); setMsg("That account and everything under it has been deleted, and the parent has been emailed."); }
+    if (r.ok) { setFound(null); setConfirm(""); setMsg("That account and everything under it has been deleted, and the parent has been emailed."); setList((l) => l?.filter((x) => x.email?.toLowerCase() !== found.email) ?? l); }
     else setMsg(r.data.message ?? "It couldn't be deleted.");
   };
-  const a = found?.account;
+  const a = found?.account, shown = (list ?? []).filter((x) => !filter.trim() || (x.email ?? "").toLowerCase().includes(filter.trim().toLowerCase()));
   return (
-    <section class="card"><h2>Account lookup</h2>
-      <form onSubmit={go}><input type="email" value={email} onInput={(e) => setEmail((e.target as HTMLInputElement).value)} aria-label="Parent's email address" /> <button class="btn primary">Look up</button></form>
+    <section class="card"><h2>Accounts</h2>
+      <form onSubmit={go}><input type="email" value={email} onInput={(e) => setEmail((e.target as HTMLInputElement).value)} aria-label="Parent's email address" placeholder="Look up an email address" /> <button class="btn primary">Look up</button></form>
       <p class="small muted">Shows account facts only: never a child's name, answers or progress. Each lookup is written to the audit log.</p>
       {msg && <p role="status" data-testid="ops-msg">{msg}</p>}
       {a && <>
-        <pre data-testid="ops-account" style="white-space:pre-wrap">{JSON.stringify(a, null, 2)}</pre>
+        <h3 data-testid="ops-account-title">{found!.email}</h3>
+        <table class="ops-facts" data-testid="ops-account"><tbody>{accountRows(a).map(([k, v]) => <tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody></table>
         <div class="card" style="border:2px solid #b3261e;margin-top:12px" data-testid="ops-delete">
           <h3>Delete this account</h3>
           <p>This permanently deletes the parent's account, their learners' progress, their feedback and their subscription, and removes their sign-in. It can't be undone. Use it when they've asked and can't do it themselves in the Parents' area.</p>
           <label>To confirm, type <b>{phrase}</b><br /><input style="width:100%" value={confirm} onInput={(e) => setConfirm((e.target as HTMLInputElement).value)} autoComplete="off" spellcheck={false} data-testid="ops-delete-confirm" /></label>
           <p><button class="btn" style="border-color:#b3261e;color:#b3261e" disabled={busy || confirm !== phrase} onClick={remove} data-testid="ops-delete-go">Delete this account for good</button></p>
         </div>
+      </>}
+      <h3>All accounts{list ? ` (${list.length}, newest first)` : ""}</h3>
+      {!list ? <p>Loading…</p> : list.length === 0 ? <p class="muted">No accounts yet.</p> : <>
+        <input type="search" value={filter} onInput={(e) => setFilter((e.target as HTMLInputElement).value)} aria-label="Filter the list by email" placeholder="Filter the list" />
+        <div class="ops-table-wrap"><table class="ops-list" data-testid="ops-list">
+          <thead><tr><th>Email</th><th>Joined</th><th>Agreed to terms</th><th>Subscribed</th><th>Children</th><th>Last active</th></tr></thead>
+          <tbody>{shown.map((x) => (
+            <tr key={x.parentId}><td>{x.email ? <button type="button" class="linkish" onClick={() => { setEmail(x.email!); void find(x.email!); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{x.email}</button> : "Unknown"}</td>
+              <td>{day(x.createdAt)}</td><td>{yn(x.agreed)}</td><td>{yn(x.subscribed)}</td><td>{x.learners}</td><td>{x.lastActive ? day(x.lastActive) : "Never"}</td></tr>
+          ))}</tbody></table></div>
       </>}
     </section>
   );

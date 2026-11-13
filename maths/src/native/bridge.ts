@@ -9,7 +9,9 @@ export interface NativeInfo { platform: "ios" | "android"; version: string; tabl
 export type FromNative =
   | { type: "print-done" }
   | { type: "biometric-result"; id: string; result: BiometricResult }
-  | { type: "reminders-result"; result: "scheduled" | "off" | "denied" };
+  | { type: "reminders-result"; result: "scheduled" | "off" | "denied" }
+  /** A tap on the app's own tab dock. */
+  | { type: "navigate"; tab: string };
 export type BiometricResult = "ok" | "cancelled" | "failed" | "unavailable";
 /** What the page asks the shell to do. */
 export type ToNative =
@@ -19,7 +21,9 @@ export type ToNative =
   | { type: "haptic"; kind: "tap" | "soft" | "success" | "error" }
   | { type: "biometric"; id: string; reason: string }
   | { type: "reminders"; enabled: boolean; hour: number; minute: number; days: number[] }
-  | { type: "review" };
+  | { type: "review" }
+  /** Shows, hides or updates the app's own tab dock (Today, Skills, Plan, Me), which stands in for the page's bottom tab bar. */
+  | { type: "dock"; visible: boolean; tab: string };
 
 interface NativeWindow { __quarterNative?: NativeInfo; ReactNativeWebView?: { postMessage(message: string): void } }
 const win = (): (NativeWindow & Window) | null => (typeof window === "undefined" ? null : (window as unknown as NativeWindow & Window));
@@ -121,6 +125,11 @@ export function setReminders(r: { enabled: boolean; hour: number; minute: number
 /** Asks Apple to show its rating prompt (it decides whether to). Only ever for a grown-up, never for a child. */
 export function askForReview(): void { if (nativeHas("review")) toNative({ type: "review" }); }
 
+/** True when this build of the app draws its own glass tab dock, so the page should not draw its tab bar. */
+export const hasNativeDock = (): boolean => nativeHas("dock");
+/** Tells the app which tab is current, and whether its dock should show (it is hidden during questions and wherever the page has no tab bar). */
+export function setDock(visible: boolean, tab: string): void { if (hasNativeDock()) toNative({ type: "dock", visible, tab }); }
+
 /** Messages from the app: when the print sheet closes, behave as a browser does after printing; and the answers to the questions above. */
 export function onNativeMessage(raw: unknown): void {
   let m: FromNative | null = null;
@@ -128,6 +137,7 @@ export function onNativeMessage(raw: unknown): void {
   if (m?.type === "print-done") dispatchEvent(new Event("afterprint"));
   else if (m?.type === "biometric-result") waiting.get(m.id)?.(m.result);
   else if (m?.type === "reminders-result") remindersWaiting?.(m.result);
+  else if (m?.type === "navigate" && typeof m.tab === "string") dispatchEvent(new CustomEvent("quarter-native-nav", { detail: m.tab }));
 }
 if (typeof window !== "undefined") {
   // iOS delivers messages on `window`; Android on `document`
