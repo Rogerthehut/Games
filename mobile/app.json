@@ -43,6 +43,12 @@
     },
     "plugins": [
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a9181036-70dd-4e68-abea-3e7ea4a03ab1"
+      }
+    },
+    "owner": "wristed"
   }
 }
