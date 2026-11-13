@@ -1,7 +1,7 @@
 # Accounts
 
 Parents create an account and sign in; children never have logins. A learner is a profile under a parent. Sign-up is required: without
-an account the app does not start. Email, Google and Apple sign-in are provided by Clerk.
+an account the app does not start. Sign-in is by email only (a one-time code), provided by Clerk. There is no Google or Apple sign-in.
 
 ## Settings
 
@@ -13,8 +13,7 @@ an account the app does not start. Email, Google and Apple sign-in are provided 
 | `CLERK_AUTHORIZED_PARTIES` | optional | Origins whose tokens are accepted, for example `https://yourapp.replit.app`. |
 | `AUTH_FAKE`, `VITE_FAKE_AUTH` | development only | A fake sign-in and in-memory database. Ignored in production. |
 
-In the Clerk dashboard: enable email, Google and Apple, and set the app's URL as an allowed origin. Apple sign-in needs an Apple
-developer account. Replit's secrets are available to both the build and the server; check `VITE_CLERK_PUBLISHABLE_KEY` is present at build.
+In the Clerk dashboard: use **Email verification code** (not the link: a link opened from a mail app lands in a different browser and leaves the original tab signed out), turn off every social connection (Google, Apple), and set the app's URL as an allowed origin. The app also hides social buttons in case one is left on. Replit's secrets are available to both the build and the server; check `VITE_CLERK_PUBLISHABLE_KEY` is present at build.
 
 ## What is stored
 

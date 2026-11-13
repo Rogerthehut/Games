@@ -14,13 +14,13 @@ The app lives in `/mobile` (an Expo project, TypeScript). It is a thin shell: th
 | An offline / can't-reach-us screen with Try again | `App.tsx` | Built |
 | iPad: full screen, all orientations, Split View, no zoom tricks | `mobile/app.json` | Built |
 | Card payments hidden inside the app (Apple requires the App Store for in-app subscriptions) | web app: `isNativeApp()` in `account.tsx`, `account-section.tsx` | Built. The paywall shows "Subscriptions are coming to the app". |
-| Google sign-in hidden inside the app (Google refuses embedded web views) | `src/account/auth.ts` | Built |
+| Sign-in is email only, so there is no Google sign-in to hide in the app | `src/account/auth.ts` | Decided |
 | App icon and splash | `mobile/assets` | Made from the site icon. Check them on a device. |
 
 ## Not built yet (in order)
 
 1. **In-app subscriptions (RevenueCat).** Needed before the app can ship with a paywall. Plan: RevenueCat entitlements (monthly and yearly, with the free trial), a webhook to the server that records the entitlement against the parent so web and app agree, a native paywall, and Restore Purchases. Apple takes its commission on these.
-2. **Sign in with Apple.** Apple requires it if the app offers any other third-party sign-in. Email code sign-in alone doesn't trigger that rule, and Google is hidden in the app, so check this when deciding which sign-in methods the app offers. If Apple sign-in is added, use Clerk's Expo SDK for the native sheet and give the web page the session token.
+2. **Sign in with Apple is not needed.** Apple only requires it when an app offers another third-party sign-in (Google, Facebook and so on). quarter signs in by email code only, so the rule doesn't apply. Keep it that way, or add Apple at the same time as any social sign-in.
 3. **Voice input for the AI tutor** (on-device, parent opt-in, transcript shown, nothing recorded or stored).
 4. **A bundled offline copy of the site.** Not possible as things stand: sign-in, the human check and payments all need a real web address. The site keeps a learner's progress on the device, but the page itself needs a connection to load.
 5. **Push notifications**, if wanted (weekly summary).

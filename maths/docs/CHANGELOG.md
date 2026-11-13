@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Sign-in by email only
+No Google or Apple sign-in. The Clerk forms hide any social buttons, the "open in Safari" notice for in-app browsers is gone (it only existed for Google), and the privacy notice no longer mentions Google or Apple. In the Clerk dashboard, use email verification code, not link, and turn off the social connections. This also means the App Store's Sign in with Apple rule doesn't apply to the app. `ACCOUNTS.md` and `MOBILE.md` updated. The privacy wording changed slightly: have your solicitor see it in the final review.
+
 ## Blank avatar for new learners
 A learner who hasn't chosen a character yet now shows a plain purple circle with a simple head and shoulders (instead of the Explorer), until they pick one in Me. The Me picker says so and no portrait is shown as selected until one is chosen. Learners who already have a character are unchanged; an older profile that never picked one shows the purple circle too.
 

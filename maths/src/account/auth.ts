@@ -1,4 +1,3 @@
-import { isNativeApp } from "../native/bridge";
 import { CLERK_KEY, FAKE_AUTH } from "./config";
 
 export interface AuthUser { id: string; email?: string }
@@ -26,9 +25,9 @@ async function clerkAuth(key: string): Promise<AuthClient> {
     appearance: {
       variables: { colorPrimary: "#2f3a73", colorText: "#1e2140", fontFamily: "Figtree, system-ui, sans-serif", borderRadius: "14px", fontSize: "16px" },
       // our own tabs switch between sign in and sign up, so hide Clerk's link between them
+      // our own tabs switch between sign in and sign up, so hide Clerk's link between them. Sign-in is by email only, so any social buttons stay hidden even if the dashboard still has them on.
       elements: { footerAction: { display: "none" }, cardBox: { boxShadow: "none", width: "100%" }, rootBox: { width: "100%" },
-        // Google refuses to sign people in from inside another app's web view, so the app offers the other ways in
-        ...(isNativeApp() ? { socialButtonsBlockButton__google: { display: "none" }, socialButtonsIconButton__google: { display: "none" } } : {}) },
+        socialButtons: { display: "none" }, socialButtonsRoot: { display: "none" }, dividerRow: { display: "none" } },
     },
   });
   return {
