@@ -3,7 +3,7 @@ import { SKILL_BY_ID } from ".";
 import { mulberry32 } from "../engine/rng";
 import type { Figure, Question } from "../engine/types";
 import { hasWorkedBuilder } from "./worked-skills";
-import { roundSig, traceOrder } from "./worked-final";
+import { exactValue, roundSig, traceOrder } from "./worked-final";
 
 const many = (id: string, per = 80) => [1, 2, 3].flatMap((level) => Array.from({ length: per }, (_, i) => SKILL_BY_ID[id].generate(mulberry32(12000 + i * 11 + level), level)));
 const fig = <T extends Figure["type"]>(q: Question, t: T) => (q.worked?.type === t ? (q.worked as Extract<Figure, { type: T }>) : undefined);
@@ -109,6 +109,76 @@ describe("final worked pictures, batch 2 (Year 10 algebra)", () => {
       const t = fig(q, "table")!, last = String(t.rows[t.rows.length - 1][1]).replace(/−/g, "-");
       if (/discriminant/.test(q.prompt)) expect(Number(last.split("= ").pop()), q.prompt).toBe(value(q));
       else expect(Math.max(...(last.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)), q.prompt).toBe(value(q));
+    }
+  });
+});
+
+const ID_BATCH3 = ["exact-trig", "surds", "composite-functions", "inverse-functions", "iteration", "recurring-decimals", "conditional-probability"];
+describe("final worked pictures, batch 3 (Years 10 and 11)", () => {
+  it("every topic has a builder, and covers its questions", () => { for (const id of ID_BATCH3) { expect(hasWorkedBuilder(id), id).toBe(true); expectCovered(id, undefined, 40); } });
+  it("exact trigonometry: the table's exact values are the real values", () => {
+    for (const [fn, deg, want] of [["sin", 30, 0.5], ["cos", 60, 0.5], ["tan", 45, 1], ["sin", 45, Math.SQRT1_2], ["cos", 30, Math.sqrt(3) / 2], ["tan", 60, Math.sqrt(3)], ["cos", 90, 0], ["sin", 90, 1], ["tan", 30, 1 / Math.sqrt(3)]] as const) expect(exactValue(fn, deg), `${fn} ${deg}`).toBeCloseTo(want, 12);
+    for (const [fn, deg] of [["sin", 30], ["sin", 45], ["sin", 60], ["cos", 30], ["cos", 45], ["cos", 60], ["tan", 30], ["tan", 45], ["tan", 60], ["sin", 0], ["cos", 0], ["sin", 90]] as const) expect(exactValue(fn, deg), `${fn} ${deg}`).toBeCloseTo(Math[fn]((deg * Math.PI) / 180), 12);
+    for (const q of many("exact-trig")) {
+      if (q.worked?.type === "table") { const t = q.worked as Extract<Figure, { type: "table" }>; expect(t.head).toEqual(["Angle", "sin", "cos", "tan"]); expect(t.rows.map((r) => r[0])).toEqual(["0°", "30°", "45°", "60°", "90°"]); } else expect(q.worked?.type, q.prompt).toBe("rtriangle");
+    }
+  });
+  it("surds: each simplification multiplies back, and the sum is the answer", () => {
+    for (const q of many("surds")) {
+      const t = fig(q, "table")!;
+      for (const r of t.rows) { const m = String(r[1]).match(/^(\d+) = (\d+) × (\d+)$/); if (m) expect(Number(m[2]) * Number(m[3]), q.prompt).toBe(Number(m[1])); }
+      const last = String(t.rows[t.rows.length - 1][1]), end = last.match(/(\d+)√\d+$/)!;
+      expect(Number(end[1]), q.prompt).toBe(value(q));
+    }
+  });
+  it("composite and inverse functions: the boxes end on the answer", () => {
+    for (const id of ["composite-functions", "inverse-functions"]) for (const q of many(id)) { const f = fig(q, "flow")!; expect(f.steps[0].kind).toBe("in"); expect(Number(f.steps[f.steps.length - 1].text.split("= ").pop()!.replace("−", "-")), q.prompt).toBe(value(q)); }
+  });
+  it("iteration: the table runs from x1 to the term asked for", () => {
+    for (const q of many("iteration")) { const t = fig(q, "table")!, last = t.rows[t.rows.length - 1]; expect(Number(String(last[1]).replace("−", "-")), q.prompt).toBe(value(q)); expect(last[0], q.prompt).toBe(Number(q.prompt.match(/What is \$x_(\d+)/)![1])); }
+  });
+  it("recurring decimals: the fraction is the decimal", () => {
+    for (const q of many("recurring-decimals")) { const t = fig(q, "table")!, [n, d] = String(t.rows[t.rows.length - 1][1]).split("/").map(Number); expect(n / d, q.prompt).toBeCloseTo(value(q), 9); }
+  });
+  it("conditional probability: the counters add up and the picture matches the question", () => {
+    for (const q of many("conditional-probability")) {
+      const b = fig(q, "bar-model")!, m = q.prompt.match(/(\d+) red and (\d+) blue/)!;
+      expect(b.rows[0].segments.map((s) => s.size)).toEqual([Number(m[1]), Number(m[2])]);
+      expect(b.rows[1].segments[0].size, q.prompt).toBe(Number(m[1]) - 1); expect(b.rows[1].segments[1].size).toBe(Number(m[2]));
+    }
+  });
+});
+
+const ID_BATCH4 = ["arithmetic-series", "exp-growth", "log-laws", "partial-fractions", "proof-counterexample", "sigma-series", "factor-theorem", "modulus"];
+describe("final worked pictures, batch 4 (Year 12, first part)", () => {
+  it("every topic has a builder, and covers its questions", () => { for (const id of ID_BATCH4) { expect(hasWorkedBuilder(id), id).toBe(true); expectCovered(id, undefined, 50); } });
+  it("arithmetic series: the hops end on the term, the running total ends on the sum", () => {
+    for (const q of many("arithmetic-series")) {
+      const j = fig(q, "jump-line"), t = fig(q, "table");
+      if (j) expect(j.marks.find((m) => m.tone === "end")!.v, q.prompt).toBe(value(q));
+      else expect(Number(String(t!.rows[t!.rows.length - 1][2]).replace("−", "-")), q.prompt).toBe(value(q));
+    }
+  });
+  it("exponential growth and logs: the table reaches the figure the question asks for", () => {
+    for (const q of many("exp-growth")) { const t = fig(q, "table")!, last = t.rows[t.rows.length - 1]; if (/Solve/.test(q.prompt)) expect(String(last[0]).split("^")[1], q.prompt).toBe(String(value(q))); else if (/What is \$N/.test(q.prompt)) expect(last[1], q.prompt).toBe(value(q)); else expect(last[0], q.prompt).toBe(value(q)); }
+    for (const q of many("log-laws")) { const t = fig(q, "table")!, last = String(t.rows[t.rows.length - 1][1]).replace(/−/g, "-"); expect(Number(last.match(/(-?\d+(?:\.\d+)?)\s*$/)![1]), q.prompt).toBe(value(q)); }
+  });
+  it("proof by counter-example: every table has a case marked as the counter-example, and the rest hold", () => {
+    for (const q of many("proof-counterexample")) { const t = fig(q, "table")!; const marked = t.rows.filter((r) => String(r[r.length - 1]).startsWith("NO")); expect(marked.length, q.prompt).toBeGreaterThanOrEqual(1); expect(t.rows.some((r) => r[r.length - 1] === "yes"), q.prompt).toBe(true); }
+  });
+  it("sigma notation: the running total ends on the sum", () => { for (const q of many("sigma-series")) { const t = fig(q, "table")!; expect(t.rows[t.rows.length - 1][2], q.prompt).toBe(value(q)); } });
+  it("the factor theorem: the remainder or k comes out as the answer", () => {
+    for (const q of many("factor-theorem", 120)) {
+      const t = fig(q, "table")!, last = String(t.rows[t.rows.length - 1][1]).replace(/−/g, "-");
+      if (/remainder/.test(q.prompt)) expect(Number(last.split("= ").pop()), q.prompt).toBe(value(q)); else expect(Number(last.replace("k = ", "")), q.prompt).toBe(value(q));
+    }
+  });
+  it("the modulus: the graph meets the line at the solutions, the number line spans the interval", () => {
+    for (const q of many("modulus", 80)) {
+      const g = fig(q, "function-graph"), j = fig(q, "jump-line"), t = fig(q, "table");
+      if (g) expect(Math.max(...g.marks!.map((m) => m.x)), q.prompt).toBe(value(q));
+      else if (j) { expect(Math.round(j.jumps[0].to - j.jumps[0].from) - 1, q.prompt).toBe(value(q)); }
+      else expect(Number(String(t!.rows[t!.rows.length - 1][1]).replace(/−/g, "-").split("= ").pop()), q.prompt).toBe(value(q));
     }
   });
 });

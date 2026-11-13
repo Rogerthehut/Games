@@ -268,9 +268,109 @@ const quadraticFormula: Builder = (q) => {
   return Math.max(x1, x2) === a ? { figure: table(["Step", "Working"], rows, `The quadratic formula with a = ${A}, b = ${B}, c = ${C}: the discriminant is ${disc}, its square root is ${root}, and x = ${x1} or ${x2}.`) } : null;
 };
 
+// ---------------------------------------------------------------------------------------------- Year 10 and 11: trigonometry, surds, functions, iteration
+const EXACT: Record<string, [string, number][]> = {
+  sin: [["0", 0], ["1/2", 0.5], ["√2/2", Math.SQRT1_2], ["√3/2", Math.sqrt(3) / 2], ["1", 1]],
+  cos: [["1", 1], ["√3/2", Math.sqrt(3) / 2], ["√2/2", Math.SQRT1_2], ["1/2", 0.5], ["0", 0]],
+  tan: [["0", 0], ["1/√3", 1 / Math.sqrt(3)], ["1", 1], ["√3", Math.sqrt(3)], ["not defined", NaN]],
+};
+const ANGLES = [0, 30, 45, 60, 90];
+export const exactValue = (fn: string, deg: number) => EXACT[fn]?.[ANGLES.indexOf(deg)]?.[1] ?? NaN;
+const exactTrig: Builder = (q) => {
+  const p = plain(q.prompt), a = val(q);
+  if (a === null) return null;
+  const ladder = p.match(/A ladder (\d+) m long .* angle of (\d+)° with the wall/);
+  if (ladder) {
+    const hyp = Number(ladder[1]);
+    return { figure: { type: "rtriangle", base: "?", height: "wall", hyp: `${hyp} m`, angle: `${ladder[2]}°`, alt: `A ladder ${hyp} m long leaning on a wall, making ${ladder[2]}° with the wall. The distance from the wall to the foot of the ladder is opposite the ${ladder[2]}° angle, so it is ${hyp} × sin ${ladder[2]}° = ${a} m.` } };
+  }
+  const fns = [...p.matchAll(/(sin|cos|tan) (\d+)°/g)].map((m) => [m[1], Number(m[2])] as const);
+  if (!fns.length || !/exact value|Work out/.test(p)) return null;
+  const rows = ANGLES.map((d, i) => [`${d}°`, EXACT.sin[i][0], EXACT.cos[i][0], EXACT.tan[i][0]]);
+  const asked = fns.map(([f, d]) => `${f} ${d}° = ${EXACT[f][ANGLES.indexOf(d)][0]}`).join(", ");
+  return { figure: table(["Angle", "sin", "cos", "tan"], rows, `The exact values to learn. In this question: ${asked}. The full table: ${rows.map((r) => `${r[0]}: sin ${r[1]}, cos ${r[2]}, tan ${r[3]}`).join("; ")}.`) };
+};
+
+const squareFactor = (n: number) => { let best = 1; for (let s = 2; s * s <= n; s++) if (n % (s * s) === 0) best = s; return best; };
+const surds: Builder = (q) => {
+  const p = plain(q.prompt), a = val(q), ns = [...p.matchAll(/(?<![a-z])\\sqrt\{(\d+)\}/g)].map((m) => Number(m[1]));
+  if (a === null || !ns.length) return null;
+  const parts = ns.map((n) => { const sq = squareFactor(n); return { n, sq, rest: n / (sq * sq) }; });
+  if (parts.some((x) => x.sq === 1)) return null;
+  const once = parts.filter((x, i) => parts.findIndex((y) => y.n === x.n) === i); // the same surd twice is only worked out once
+  const rows: (string | number)[][] = once.map((x) => [`√${x.n}: biggest square factor`, `${x.n} = ${x.sq * x.sq} × ${x.rest}`]);
+  once.forEach((x) => rows.push([`Take the square root of ${x.sq * x.sq}`, `√${x.n} = √${x.sq * x.sq} × √${x.rest} = ${x.sq}√${x.rest}`]));
+  if (parts.length === 2) {
+    if (parts[0].rest !== parts[1].rest) return null;
+    const k = parts[0].sq + parts[1].sq;
+    rows.push(["Add like terms", `${parts[0].sq}√${parts[0].rest} + ${parts[1].sq}√${parts[0].rest} = ${k}√${parts[0].rest}`]);
+    return k === a ? { figure: table(["Step", "Working"], rows, `Simplify each surd first: ${parts.map((x) => `√${x.n} = ${x.sq}√${x.rest}`).join(" and ")}. Adding gives ${k}√${parts[0].rest}.`) } : null;
+  }
+  return parts[0].sq === a ? { figure: table(["Step", "Working"], rows, `√${parts[0].n} = √${parts[0].sq * parts[0].sq} × √${parts[0].rest} = ${parts[0].sq}√${parts[0].rest}.`) } : null;
+};
+
+const composite: Builder = (q) => {
+  const m = plain(q.prompt).match(/Work out ([fg])\(([fg])\((-?\d+)\)\)/), a = val(q);
+  if (!m || a === null) return null;
+  const lines = q.solution.map((l) => flat(l).replace(/\.$/, "")).filter(Boolean);
+  if (lines.length < 2) return null;
+  return { figure: { type: "flow", steps: [{ text: `Start with ${m[3].replace("-", "−")}`, kind: "in" }, { text: `${m[2]} first: ${lines[0]}`.length > 28 ? lines[0] : `${m[2]} first: ${lines[0]}`, kind: "step" }, { text: lines[1], kind: "step" }, { text: String(a).replace("-", "−"), kind: "out" }], alt: `Work from the inside out. ${lines.join(". ")}. The answer is ${a}.` } };
+};
+
+const inverseFunctions: Builder = (q) => {
+  const p = plain(q.prompt), a = val(q), inp = p.match(/f\^\{-1\}\((-?\d+)\)/)?.[1];
+  if (a === null || inp === undefined) return null;
+  const v = Number(inp);
+  let m = p.match(/f\(x\) = (\d*)x \+ (\d+)\./);
+  if (m) {
+    const k = m[1] === "" ? 1 : Number(m[1]), c = Number(m[2]), t = v - c;
+    if (t / k !== a) return null;
+    return { figure: { type: "flow", steps: [{ text: `Start with f⁻¹ input: ${v}`, kind: "in" }, { text: `Undo + ${c}: ${v} − ${c} = ${t}`, kind: "step" }, { text: k === 1 ? "Undo × 1: no change" : `Undo × ${k}: ${t} ÷ ${k} = ${a}`, kind: "step" }, { text: `f⁻¹(${v}) = ${a}`, kind: "out" }], alt: `f(x) = ${k === 1 ? "" : k}x + ${c} multiplies by ${k} then adds ${c}. To undo it, start from ${v}, take away ${c} to get ${t}, then divide by ${k} to get ${a}.` } };
+  }
+  m = p.match(/f\(x\) = \\frac\{x \+ (\d+)\}\{(\d+)\}/);
+  if (m) {
+    const c = Number(m[1]), d = Number(m[2]), t = v * d;
+    if (t - c !== a) return null;
+    return { figure: { type: "flow", steps: [{ text: `Start with f⁻¹ input: ${v}`, kind: "in" }, { text: `Undo ÷ ${d}: ${v} × ${d} = ${t}`, kind: "step" }, { text: `Undo + ${c}: ${t} − ${c} = ${a}`, kind: "step" }, { text: `f⁻¹(${v}) = ${a}`, kind: "out" }], alt: `f(x) adds ${c} then divides by ${d}. To undo it, start from ${v}, multiply by ${d} to get ${t}, then take away ${c} to get ${a}.` } };
+  }
+  return null;
+};
+
+const iteration: Builder = (q) => {
+  const m = plain(q.prompt).match(/x_\{n\+1\} = (-?\d*)x_n ([+-]) (\d+) and x_1 = (-?\d+)\. What is x_(\d+)\?/), a = val(q);
+  if (!m || a === null) return null;
+  const k = m[1] === "" ? 1 : m[1] === "-" ? -1 : Number(m[1]), c = (m[2] === "-" ? -1 : 1) * Number(m[3]), last = Number(m[5]);
+  let x = Number(m[4]); const rows: (string | number)[][] = [[1, num(x), "the start"]];
+  for (let n = 2; n <= last && n < 9; n++) { const next = k * x + c; rows.push([n, num(next), `${k === 1 ? "" : `${k} × `}${num(x)} ${c < 0 ? "−" : "+"} ${Math.abs(c)}`]); x = next; }
+  return x === a && rows.length === last ? { figure: table(["n", "xₙ", "Working"], rows, `Starting at ${m[4]}, use the rule each time: ${rows.map((r) => `x${r[0]} = ${r[1]}`).join(", ")}.`) } : null;
+};
+
+const recurringDecimals: Builder = (q) => {
+  const m = plain(q.prompt).match(/0\.((?:\\dot\{\d\})+)/), a = val(q);
+  if (!m || a === null) return null;
+  const digits = [...m[1].matchAll(/\\dot\{(\d)\}/g)].map((x) => x[1]).join(""), n = digits.length, mult = 10 ** n, top = Number(digits), bottom = mult - 1, g = gcd(top, bottom);
+  if (Math.abs(top / bottom - a) > 1e-9) return null;
+  const rep = digits.repeat(4);
+  const rows: (string | number)[][] = [["Call it x", `x = 0.${rep}…`], [`Multiply by ${mult} (${n} repeating digit${n > 1 ? "s" : ""})`, `${mult}x = ${digits}.${rep}…`], ["Subtract: the repeating parts cancel", `${mult}x − x = ${digits}, so ${bottom}x = ${digits}`], ["Divide by " + bottom, `x = ${digits}/${bottom}`]];
+  rows.push(g > 1 ? [`Simplify (divide both by ${g})`, `${top / g}/${bottom / g}`] : ["Already in its simplest form", `${top}/${bottom}`]);
+  return { figure: table(["Step", "Working"], rows, `0.${rep}… times ${mult}, minus itself, leaves ${digits}, so ${bottom}x = ${digits} and x = ${top / g}/${bottom / g}.`) };
+};
+
+const conditional: Builder = (q) => {
+  const m = plain(q.prompt).match(/A bag has (\d+) red and (\d+) blue counters\. Two counters are taken at random without replacement\. What is the probability that (both are red|they are different colours)/), a = val(q);
+  if (!m || a === null) return null;
+  const r = Number(m[1]), b = Number(m[2]), t = r + b, both = m[3] === "both are red";
+  const seg = (red: number, blue: number) => [{ label: `${red} red`, size: red, tone: "a" as const }, { label: `${blue} blue`, size: blue, tone: "b" as const }];
+  const rows = [{ label: "1st counter", segments: seg(r, b), note: `${r} red out of ${t}` }, { label: "2nd, if the 1st was red", segments: seg(r - 1, b), note: `${r - 1} red out of ${t - 1}` }];
+  if (!both) rows.push({ label: "2nd, if the 1st was blue", segments: seg(r, b - 1), note: `${r} red out of ${t - 1}` });
+  const prob = both ? (r / t) * ((r - 1) / (t - 1)) : (2 * r * b) / (t * (t - 1));
+  return Math.abs(prob - a) < 1e-9 ? { figure: { type: "bar-model", rows, alt: `The bag has ${r} red and ${b} blue counters. After a red is taken there are ${r - 1} red and ${b} blue left, so the chances for the second counter change${both ? "" : "; after a blue is taken there are " + r + " red and " + (b - 1) + " blue"}.` } } : null;
+};
+
 export const FINAL_BUILDERS: Record<string, Builder> = {
   "quadratic-sequences": quadraticSequence, "completing-square": completingSquare, "rearrange-formulae": rearrange, "algebraic-fractions": algebraicFractions,
   simultaneous, "solve-quad": solveQuadratic, "quadratic-formula": quadraticFormula,
+  "exact-trig": exactTrig, surds, "composite-functions": composite, "inverse-functions": inverseFunctions, iteration, "recurring-decimals": recurringDecimals, "conditional-probability": conditional,
   "time-facts": timeFacts, "multiply-three": multiplyThree, "using-formulae": usingFormulae, "order-ops": orderOps,
   "mixed-number-ops": mixedNumbers, "sig-figs": sigFigs, "word-problems": wordProblems,
 };

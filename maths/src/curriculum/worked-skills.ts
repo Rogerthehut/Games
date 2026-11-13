@@ -13,6 +13,7 @@ import { MORE_BUILDERS } from "./worked-more";
 import { SECONDARY_BUILDERS } from "./worked-secondary";
 import { ALGEBRA_BUILDERS } from "./worked-algebra";
 import { FINAL_BUILDERS } from "./worked-final";
+import { ADVANCED_BUILDERS } from "./worked-advanced";
 
 // ---------------------------------------------------------------------------------------------- place value
 const placeValueBuilder: Builder = (q) => {
@@ -185,7 +186,7 @@ const chunkingBuilder: Builder = (q) => {
 };
 
 const BUILDERS: Record<string, Builder> = {
-  ...FRACTION_BUILDERS, ...MORE_BUILDERS, ...SECONDARY_BUILDERS, ...ALGEBRA_BUILDERS, ...FINAL_BUILDERS,
+  ...FRACTION_BUILDERS, ...MORE_BUILDERS, ...SECONDARY_BUILDERS, ...ALGEBRA_BUILDERS, ...FINAL_BUILDERS, ...ADVANCED_BUILDERS,
   "place-value": placeValueBuilder, "place-value-millions": placeValueBuilder, "large-numbers": (q) => (/[×÷]/.test(clean(q.prompt)) ? shiftBuilder(q) : placeValueBuilder(q)),
   "divide-10-100": shiftBuilder, hundredths: decimalNumberBuilder, thousandths: decimalNumberBuilder,
   rounding: roundingBuilder, "count-steps": countingBuilder, "count-steps-more": countingBuilder, "count-through-zero": (q) => (temperatureBuilder(q) ?? countingBuilder(q)),
