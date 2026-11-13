@@ -14,7 +14,7 @@ beforeEach(async () => { await db.execute("TRUNCATE parents CASCADE" as never); 
 describe("migrations", () => {
   it("run once and are remembered", async () => {
     const fresh = await connectMemory();
-    expect(await migrate(fresh)).toEqual(["0001_accounts.sql", "0002_billing.sql", "0003_feedback.sql", "0004_ops_audit.sql", "0005_email_prefs.sql", "0006_feedback_replies.sql", "0007_rate_counters.sql", "0008_contact_messages.sql", "0009_inbound_and_signatures.sql", "0010_mailbox.sql", "0011_trash.sql", "0012_pin_flag.sql","0013_question_stats.sql"]);
+    expect(await migrate(fresh)).toEqual(["0001_accounts.sql", "0002_billing.sql", "0003_feedback.sql", "0004_ops_audit.sql", "0005_email_prefs.sql", "0006_feedback_replies.sql", "0007_rate_counters.sql", "0008_contact_messages.sql", "0009_inbound_and_signatures.sql", "0010_mailbox.sql", "0011_trash.sql", "0012_pin_flag.sql","0013_question_stats.sql","0014_app_entitlements.sql"]);
     expect(await migrate(fresh)).toEqual([]);
   });
 });

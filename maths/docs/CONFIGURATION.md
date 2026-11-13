@@ -22,6 +22,7 @@ Every setting the app reads, in one table. On Replit, set them in **Secrets** (n
 | `STRIPE_WEBHOOK_SECRET` | S | Signing secret for `/api/stripe/webhook` (`whsec_…`). |
 | `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_YEARLY` | S | Price ids (`price_…`). |
 | `TRIAL_DAYS` | O | Free-trial length (default 7). |
+| `REVENUECAT_WEBHOOK_AUTH` | S/O | At least 24 characters. The Authorization value RevenueCat's webhook sends; without it `/api/revenuecat/webhook` answers 404. See `MOBILE.md`. |
 
 ## AI tutor and parents' assistant
 
@@ -50,6 +51,7 @@ Every setting the app reads, in one table. On Replit, set them in **Secrets** (n
 | Setting | Kind | Meaning |
 | --- | --- | --- |
 | `RESEND_API_KEY` | S | Sends email. Needs permission to read received email for the inbound mailbox. |
+| `RESEND_RECEIVING_API_KEY` | S/O | A second Resend key used only to fetch inbound mail, so the sending key doesn't need read access. Falls back to `RESEND_API_KEY`. |
 | `RESEND_WEBHOOK_SECRET` | S | Verifies inbound webhooks (`whsec_…`). |
 | `MAIL_FROM` | O | Sender address (default hello@yourquarter.co.uk). |
 | `MAIL_REPLY_TO` | O | Leave unset so replies come back to hello@. |

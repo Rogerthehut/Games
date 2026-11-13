@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { JSX } from "preact";
 import { Icon } from "./icons";
-import { ColumnSheetTool, FractionWallTool, HundredSquareTool, NumberLineTool, PaperInstrument, type Placement } from "./working-sheets";
+import { AlgebraTilesTool, ColumnSheetTool, GraphPaperTool, FractionWallTool, HundredSquareTool, NumberLineTool, PaperInstrument, type Placement } from "./working-sheets";
 
-export type ToolId = "counters" | "abacus" | "paper" | "numberline" | "hundred" | "wall" | "column";
-export const TOOL_NAMES: Record<ToolId, string> = { counters: "Count with beans", abacus: "Count with abacus", paper: "Work it out (paper)", numberline: "Number line", hundred: "Hundred square", wall: "Fraction wall", column: "Column method" };
+export type ToolId = "counters" | "abacus" | "paper" | "numberline" | "hundred" | "wall" | "column" | "graph" | "algebra";
+export const TOOL_NAMES: Record<ToolId, string> = { counters: "Count with beans", abacus: "Count with abacus", paper: "Work it out (paper)", numberline: "Number line", hundred: "Hundred square", wall: "Fraction wall", column: "Column method", graph: "Graph paper", algebra: "Algebra tiles" };
 
 /** The tool that suits a topic, opened first in the working-out panel. */
 export function suggestedTool(skillId: string, strand: string, year: number): ToolId {
@@ -13,6 +13,8 @@ export function suggestedTool(skillId: string, strand: string, year: number): To
   if (/^(times-tables|factors-multiples|count-steps|primes-squares-cubes|divide-10-100)/.test(skillId)) return "hundred";
   if (/^(count-through-zero|negative-numbers|elapsed-time|convert-time|time-facts|roman-numerals)$/.test(skillId)) return "numberline";
   if (/angle|shapes|protractor/.test(skillId)) return "paper";
+  if (/^(collect-terms|expand-single|expand-double|factorise-quad|factorise-common|substitute|substitute-negatives|quadratic-sequences)$/.test(skillId)) return "algebra";
+  if (/^(linear-gradient|line-equation|quadratic-graphs|transformations|graph-transformations|simultaneous|coordinates|trig-graphs)/.test(skillId)) return "graph";
   return year <= 6 && strand === "Number" ? "counters" : "paper";
 }
 type Counter = "rose" | "mint";
@@ -146,10 +148,12 @@ export function WorkingOut({ suggest = "paper" }: { /** the tool that opens firs
         <button type="button" class="btn" aria-pressed={tool === "numberline"} onClick={() => setTool("numberline")}><Icon name="route" size={22} /> Number line</button>
         <button type="button" class="btn" aria-pressed={tool === "hundred"} onClick={() => setTool("hundred")}><Icon name="grid" size={22} /> Hundred square</button>
         <button type="button" class="btn" aria-pressed={tool === "wall"} onClick={() => setTool("wall")}><Icon name="list" size={22} /> Fraction wall</button>
+        <button type="button" class="btn" aria-pressed={tool === "graph"} onClick={() => setTool("graph")}><Icon name="grid" size={22} /> Graph paper</button>
+        <button type="button" class="btn" aria-pressed={tool === "algebra"} onClick={() => setTool("algebra")}><Icon name="list" size={22} /> Algebra tiles</button>
         <button type="button" class="btn tool-wide" aria-pressed={tool === "paper"} onClick={() => setTool("paper")}><Icon name="pencil" size={22} /> Work it out</button>
       </div>
 
-      {tool === "column" ? <ColumnSheetTool /> : tool === "numberline" ? <NumberLineTool /> : tool === "hundred" ? <HundredSquareTool /> : tool === "wall" ? <FractionWallTool /> : tool === "abacus" ? <>
+      {tool === "column" ? <ColumnSheetTool /> : tool === "numberline" ? <NumberLineTool /> : tool === "hundred" ? <HundredSquareTool /> : tool === "wall" ? <FractionWallTool /> : tool === "graph" ? <GraphPaperTool /> : tool === "algebra" ? <AlgebraTilesTool /> : tool === "abacus" ? <>
         <p class="small muted">Tap + to add a bead. Tap − to take one away.</p>
         <p class="abacus-number" aria-live="polite">Your number: <strong>{Number(digits.join("")).toLocaleString("en-GB")}</strong></p>
         <div class="abacus">

@@ -3,7 +3,7 @@ import { and, asc, eq, gt, sql } from "drizzle-orm";
 import type { Db } from "./index";
 import { randomBytes } from "node:crypto";
 import { nextTicket } from "../ticket";
-import { emailPrefs, feedback, learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
+import { appEntitlements, emailPrefs, feedback, learnerProgress, learners, parents, revenuecatEvents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
 import { MAX_LEARNERS, cleanProfile } from "./profile-check";
 
 export interface StoredLearner { id: string; version: number; data: Record<string, unknown> }
@@ -95,6 +95,27 @@ export function makeRepo(db: Db) {
     /** Deletes the account and everything under it. */
     async deleteParent(parentId: string): Promise<void> {
       await db.delete(parents).where(eq(parents.id, parentId));
+    },
+
+    /** The subscription to judge access by: Stripe's if it gives access, else a stand-in built from an active App Store entitlement, else Stripe's row. */
+    async effectiveSubscription(parentId: string, now = Date.now()): Promise<Subscription | null> {
+      const stripeSub = await this.getSubscription(parentId);
+      if (stripeSub && ["active", "trialing", "past_due"].includes(stripeSub.status)) return stripeSub;
+      const [e] = await db.select().from(appEntitlements).where(eq(appEntitlements.parentId, parentId));
+      if (e?.expiresAt && e.expiresAt.getTime() > now) {
+        return { parentId, stripeCustomerId: "", stripeSubscriptionId: null, status: e.inTrial ? "trialing" : "active", plan: e.product?.toLowerCase().includes("year") ? "yearly" : "monthly", trialEnd: e.inTrial ? e.expiresAt : null, currentPeriodEnd: e.expiresAt, cancelAtPeriodEnd: !e.willRenew, everSubscribed: true, updatedAt: e.updatedAt };
+      }
+      return stripeSub;
+    },
+
+    /** Records what RevenueCat says about a parent's App Store purchase. Returns false for a duplicate event. */
+    async applyEntitlement(eventId: string, clerkUserId: string, e: { product: string | null; store: string | null; expiresAt: Date | null; willRenew: boolean; inTrial: boolean }): Promise<"applied" | "duplicate"> {
+      const seen = await db.insert(revenuecatEvents).values({ id: eventId }).onConflictDoNothing().returning({ id: revenuecatEvents.id });
+      if (!seen.length) return "duplicate";
+      const parent = await this.upsertParent(clerkUserId);
+      await db.insert(appEntitlements).values({ parentId: parent.id, ...e })
+        .onConflictDoUpdate({ target: appEntitlements.parentId, set: { ...e, updatedAt: new Date() } });
+      return "applied";
     },
 
     async getSubscription(parentId: string): Promise<Subscription | null> {

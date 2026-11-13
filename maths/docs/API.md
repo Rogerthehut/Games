@@ -39,6 +39,7 @@ A valid Clerk session token. Every query is scoped to that parent. Writes also n
 | Method and path | Caller | Protection |
 | --- | --- | --- |
 | `POST /api/stripe/webhook` | Stripe | signature verified, 1 MB limit, events de-duplicated in `stripe_events` |
+| `POST /api/revenuecat/webhook` | RevenueCat | `REVENUECAT_WEBHOOK_AUTH` in the Authorization header, constant-time compare, 404 without it, events de-duplicated in `revenuecat_events` |
 | `POST /api/inbound/resend` | Resend | Svix signature (HMAC-SHA256, 5-minute tolerance), de-duplicated in `inbound_seen`, tiny body limit |
 | `POST /api/internal/digest` | the scheduler | `CRON_SECRET`, constant-time compare, 404 without it |
 

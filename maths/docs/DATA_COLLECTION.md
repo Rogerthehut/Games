@@ -12,7 +12,7 @@ The plan, the check-ups and the question sets are built from curriculum knowledg
 
 ## What is collected
 
-When a learner answers a practice question, the app queues one record, sends it in a batch, and the server adds it to a weekly count:
+When a learner answers a question in practice, a check-up or an in-app practice paper (lessons aren't counted: their questions are guided teaching), the app queues one record, sends it in a batch, and the server adds it to a weekly count:
 
 | Field | Example | Notes |
 | --- | --- | --- |
@@ -42,4 +42,4 @@ Keep it counts only. If we ever want per-question or per-child data (for example
 
 ## Where it lives
 
-`src/account/question-stats.ts` (queue and sender), `src/ui/practice.tsx` (one call when an answer settles), `server/question-stats.ts` (validation, weekly counts, summaries), `POST /api/stats/questions`, migration `0013_question_stats.sql`. Tests: `server/question-stats.test.ts`, `src/account/question-stats.test.ts`.
+`src/account/question-stats.ts` (queue and sender), `src/ui/practice.tsx`, `checkup.tsx` and `mock.tsx` (one call per answer; papers give each question an even share of the time because single questions aren't timed), `server/question-stats.ts` (validation, weekly counts, summaries), `POST /api/stats/questions`, migration `0013_question_stats.sql`. Tests: `server/question-stats.test.ts`, `src/account/question-stats.test.ts`.

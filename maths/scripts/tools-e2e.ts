@@ -66,6 +66,17 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   await page.mouse.move(box.x + 40, box.y + 30); await page.mouse.down(); await page.mouse.move(box.x + 120, box.y + 60, { steps: 6 }); await page.mouse.up();
   const painted = await page.evaluate(() => { const c = document.querySelector("canvas.scrap-paper") as HTMLCanvasElement; const d = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; });
   ok(`${label}: a straight line is drawn`, painted > 200);
+  // graph paper and algebra tiles
+  await page.getByRole("button", { name: /Graph paper/ }).click();
+  const gp = page.getByTestId("graph-paper"); await gp.scrollIntoViewIfNeeded(); const gb = await gp.boundingBox();
+  const at = (x: number, y: number) => ({ x: gb.x + gb.width * ((26 + (x + 10) * 24) / 532), y: gb.y + gb.height * ((26 + (10 - y) * 24) / 532) });
+  for (const [x, y] of [[2, 3], [-4, 5], [0, -6]]) { const c = at(x, y); await page.mouse.click(c.x, c.y); }
+  ok(`${label}: graph paper plots points at the crossings tapped`, /1: \(2, 3\)\s+2: \(-4, 5\)\s+3: \(0, -6\)/.test(await page.getByTestId("graph-points").innerText()), await page.getByTestId("graph-points").innerText());
+  const c0 = at(2, 3); await page.mouse.click(c0.x, c0.y);
+  ok(`${label}: tapping a point again removes it`, !/\(2, 3\)/.test(await page.getByTestId("graph-points").innerText()));
+  await page.getByRole("button", { name: /Algebra tiles/ }).click();
+  for (const id of ["tile-x2-plus", "tile-x2-plus", "tile-x-minus", "tile-one-plus", "tile-one-plus", "tile-one-plus"]) await page.getByTestId(id).click();
+  ok(`${label}: algebra tiles read as an expression`, (await page.getByTestId("tiles-expression").innerText()).trim() === "2x² − x + 3", await page.getByTestId("tiles-expression").innerText());
   await page.screenshot({ path: `${process.env.OUT ?? tmpdir()}/tools-${label}.png` });
   ok(`${label}: no errors`, errors.length === 0, errors.join("; "));
   await ctx.close();

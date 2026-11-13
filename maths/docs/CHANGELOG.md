@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Check-up and paper statistics, graph paper and algebra tiles, RevenueCat webhook, second Resend key
+- **Question statistics** now also count check-up and in-app practice paper answers (not lessons). Privacy notice and Parents' area wording say so.
+- **Working-out tools:** *Graph paper* (plot points on a -10 to 10 grid, join them, close a shape, undo) and *Algebra tiles* (x², x, 1, with hatched negative tiles and the expression they make). They open first for the matching secondary topics. Browser checks in `scripts/tools-e2e.ts`.
+- **App Store purchases, server side:** `POST /api/revenuecat/webhook` records RevenueCat entitlements (migration `0014_app_entitlements.sql`: two new tables) and a parent has access if Stripe or the App Store says so. Off until `REVENUECAT_WEBHOOK_AUTH` is set. The native paywall still needs your Apple account (see `MOBILE.md`).
+- **`RESEND_RECEIVING_API_KEY`** (optional): a second Resend key used only to fetch inbound mail, so the sending key needn't be able to read it.
+
 ## Anonymous question statistics, a swipeable avatar step, and IndexNow
 - **Question statistics.** Practice now adds one anonymous tally per answered question (topic, level, age band, right / right with help / wrong, seconds, and the code of the mistake). The server keeps only weekly totals (`question_stats`, `misconception_stats`, migration `0013_question_stats.sql`): no parent, learner, device, address, question text or exact time. Parents can switch it off per learner in Parents' area, and the privacy notice says what it is (so the terms version moved to 2026-11-13: everyone is asked to agree again). The team sees it in the ops Numbers tab (hardest topics first), `npm run ops -- questions`, and `--csv` for a spreadsheet. See `docs/DATA_COLLECTION.md`.
 - **Avatar step** is now a sideways carousel: pick Explorer, Scholar, Artist or Skater, then swipe through that character's portraits.

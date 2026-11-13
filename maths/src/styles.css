@@ -3620,3 +3620,17 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .ob-arrow:hover, .ob-arrow:focus-visible { background: rgba(0, 0, 0, .06); }
 .ob-swipe { text-align: center; margin: 0 0 12px; }
 @media (hover: none) { .ob-arrow { display: none; } }
+
+/* working-out tools: graph paper and algebra tiles */
+.graph-paper { width: 100%; max-width: 540px; display: block; margin: 8px auto; background: #fff; border: 2px solid var(--line); border-radius: 12px; touch-action: manipulation; cursor: crosshair; }
+.gp-grid { stroke: #cfd8e6; stroke-width: 1; } .gp-axis { stroke: #121522; stroke-width: 2; }
+.gp-num { font: 600 11px system-ui, sans-serif; fill: #4b5565; } .gp-pt { font: 800 11px system-ui, sans-serif; fill: #2f3a73; }
+.gp-dot { fill: #d8557f; stroke: #fff; stroke-width: 2; } .gp-line { fill: rgba(47, 58, 115, .12); stroke: #2f3a73; stroke-width: 2.5; stroke-linejoin: round; }
+.tiles-expression { font: 800 1.6rem/1.2 Figtree, system-ui, sans-serif; text-align: center; margin: 8px 0; min-height: 1.9rem; }
+.tiles-board { display: grid; gap: 8px; justify-items: start; padding: 10px; border: 2px dashed var(--line); border-radius: 12px; min-height: 80px; background: #fff; }
+.tiles-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tile { display: inline-grid; place-items: center; border-radius: 4px; font: 800 .8rem system-ui, sans-serif; color: #fff; border: 2px solid rgba(0, 0, 0, .25); }
+.tile-x2 { background: #2f3a73; } .tile-x { background: #2fb28a; } .tile-one { background: #e6b422; color: #121522; }
+.tile.neg { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 4px, transparent 4px 8px); outline: 2px dashed #c2410c; outline-offset: -4px; }
+.tiles-controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 10px; }
+.tiles-ctl { display: inline-flex; align-items: center; gap: 8px; }

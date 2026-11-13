@@ -197,3 +197,18 @@ export const misconceptionStats = pgTable("misconception_stats", {
   band: text("band").notNull(),
   n: integer("n").notNull().default(0),
 }, (t) => ({ pk: primaryKey({ columns: [t.week, t.skill, t.tag, t.band] }) }));
+
+/** Access bought in the App Store, as reported by RevenueCat (server/revenuecat.ts). */
+export const appEntitlements = pgTable("app_entitlements", {
+  parentId: uuid("parent_id").primaryKey().references(() => parents.id, { onDelete: "cascade" }),
+  product: text("product"),
+  store: text("store"),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  willRenew: boolean("will_renew").notNull().default(true),
+  inTrial: boolean("in_trial").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export const revenuecatEvents = pgTable("revenuecat_events", {
+  id: text("id").primaryKey(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+});

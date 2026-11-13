@@ -93,7 +93,7 @@ New tools in the working-out panel, which opens the one that suits the topic: a 
 
 Three topics use them to close the two KS2 outcomes that were only partly covered: **Measuring angles with a protractor** (read a drawn protractor, using the right scale), **Drawing angles with a protractor** (turn an arm to the size asked for) and **Drawing shapes from measurements** (rectangles and right-angled triangles on a centimetre grid). The two drawing topics are marked `interactive`: they are practised and taught, but left out of timed papers, check-ups and pathway tests, where the figure can't be drawn on. Code: `src/ui/working-sheets.tsx`, `src/ui/instrument-figures.tsx`, `src/curriculum/ks2-instruments.ts`; checks: `npm run e2e:instruments`, `npm run e2e:tools`.
 
-Still to do: tools for secondary topics (graph paper with plotting, a calculator-free long-division frame with remainders, algebra tiles), and fully constructing triangles from three given sides or two angles and a side.
+Done: **graph paper** (tap crossings to plot points, join or close a shape) and **algebra tiles** (x², x and 1, with negative tiles) are in the working-out panel and open first for the matching secondary topics. Still to do: fully constructing triangles from three given sides or two angles and a side.
 
 ## Learning report for parents (built)
 

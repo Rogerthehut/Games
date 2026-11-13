@@ -201,3 +201,86 @@ export function PaperInstrument({ kind, at, onChange }: { kind: "ruler" | "protr
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------------------------- graph paper
+type Pt = { x: number; y: number };
+const G = 10; // the axes run from -10 to 10
+
+/** Graph paper: tap a grid crossing to plot a point (tap it again to take it away). Join the points in the order they were plotted to draw a line or a shape. */
+export function GraphPaperTool() {
+  const [pts, setPts] = useState<Pt[]>([]);
+  const [join, setJoin] = useState(true);
+  const [close, setClose] = useState(false);
+  const svg = useRef<SVGSVGElement>(null);
+  const U = 24, M = 26, W = 2 * G * U + 2 * M;           // 24 units to a square, with a margin for the numbers
+  const px = (v: number) => M + (v + G) * U, py = (v: number) => M + (G - v) * U;
+  const tap = (e: PointerEvent) => {
+    const r = svg.current!.getBoundingClientRect(), k = W / r.width;
+    const x = Math.round(((e.clientX - r.left) * k - M) / U - G), y = Math.round(G - ((e.clientY - r.top) * k - M) / U);
+    if (x < -G || x > G || y < -G || y > G) return;
+    setPts((p) => (p.some((q) => q.x === x && q.y === y) ? p.filter((q) => !(q.x === x && q.y === y)) : [...p, { x, y }].slice(0, 40)));
+  };
+  const line = pts.map((p) => `${px(p.x)},${py(p.y)}`).join(" ");
+  const lbl = Array.from({ length: 2 * G + 1 }, (_, i) => i - G);
+  return (
+    <div class="sheet-tool graph-tool">
+      <p class="small muted">Tap a crossing to plot a point. Tap it again to take it away.</p>
+      <svg ref={svg} class="graph-paper" viewBox={`0 0 ${W} ${W}`} role="img" aria-label={`Graph paper from minus ${G} to ${G}. ${pts.length ? `Points: ${pts.map((p) => `(${p.x}, ${p.y})`).join(", ")}.` : "No points yet."}`} onPointerDown={tap} data-testid="graph-paper">
+        {lbl.map((v) => <g key={v}>
+          <line x1={px(v)} y1={M} x2={px(v)} y2={W - M} class={v === 0 ? "gp-axis" : "gp-grid"} />
+          <line x1={M} y1={py(v)} x2={W - M} y2={py(v)} class={v === 0 ? "gp-axis" : "gp-grid"} />
+          {v !== 0 && v % 2 === 0 && <><text x={px(v)} y={py(0) + 14} class="gp-num" text-anchor="middle">{v}</text><text x={px(0) - 5} y={py(v) + 4} class="gp-num" text-anchor="end">{v}</text></>}
+        </g>)}
+        <text x={W - M + 2} y={py(0) - 6} class="gp-num">x</text><text x={px(0) + 6} y={M - 8} class="gp-num">y</text>
+        {join && pts.length > 1 && (close && pts.length > 2 ? <polygon points={line} class="gp-line" /> : <polyline points={line} class="gp-line" />)}
+        {pts.map((p, i) => <g key={`${p.x},${p.y}`}><circle cx={px(p.x)} cy={py(p.y)} r="5" class="gp-dot" /><text x={px(p.x) + 8} y={py(p.y) - 8} class="gp-pt">{i + 1}</text></g>)}
+      </svg>
+      <p class="small" aria-live="polite" data-testid="graph-points">{pts.length ? pts.map((p, i) => `${i + 1}: (${p.x}, ${p.y})`).join("   ") : "No points yet."}</p>
+      <div class="working-tools" role="group" aria-label="Graph paper options">
+        <button type="button" class="btn ghost" aria-pressed={join} onClick={() => setJoin(!join)}>Join the points</button>
+        <button type="button" class="btn ghost" aria-pressed={close} disabled={!join || pts.length < 3} onClick={() => setClose(!close)}>Close the shape</button>
+        <button type="button" class="btn ghost" disabled={!pts.length} onClick={() => setPts((p) => p.slice(0, -1))}>Undo</button>
+        <button type="button" class="btn ghost" disabled={!pts.length} onClick={() => setPts([])}>Clear</button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------------------------- algebra tiles
+const TILES: { key: "x2" | "x" | "one"; label: string; w: number; h: number }[] = [
+  { key: "x2", label: "x²", w: 54, h: 54 }, { key: "x", label: "x", w: 54, h: 22 }, { key: "one", label: "1", w: 22, h: 22 },
+];
+
+/** Algebra tiles: add or take away x², x and 1 tiles (negative ones are shown hatched) and read the expression they make. */
+export function AlgebraTilesTool() {
+  const [n, setN] = useState({ x2: 0, x: 0, one: 0 });
+  const bump = (k: "x2" | "x" | "one", d: number) => setN((c) => ({ ...c, [k]: Math.max(-9, Math.min(9, c[k] + d)) }));
+  const term = (v: number, sym: string, first: boolean) => {
+    if (!v) return "";
+    const mag = Math.abs(v) === 1 && sym ? "" : String(Math.abs(v));
+    return `${v < 0 ? (first ? "−" : " − ") : first ? "" : " + "}${mag}${sym}`;
+  };
+  const text = [term(n.x2, "x²", true), term(n.x, "x", !n.x2), term(n.one, "", !n.x2 && !n.x)].join("") || "0";
+  return (
+    <div class="sheet-tool tiles-tool">
+      <p class="small muted">Add tiles with +, take them away with −. Go below zero to get hatched negative tiles.</p>
+      <p class="tiles-expression" aria-live="polite" data-testid="tiles-expression">{text}</p>
+      <div class="tiles-board" role="img" aria-label={`Tiles showing ${text}`}>
+        {TILES.map((t) => {
+          const v = n[t.key], neg = v < 0;
+          return <div key={t.key} class="tiles-row">{Array.from({ length: Math.abs(v) }, (_, i) => <span key={i} class={`tile tile-${t.key}${neg ? " neg" : ""}`} style={{ width: t.w, height: t.h }}>{t.label}</span>)}</div>;
+        })}
+      </div>
+      <div class="tiles-controls">
+        {TILES.map((t) => (
+          <div key={t.key} class="tiles-ctl" role="group" aria-label={`${t.label} tiles`}>
+            <button type="button" class="btn small" aria-label={`Take away a ${t.label} tile`} onClick={() => bump(t.key, -1)} data-testid={`tile-${t.key}-minus`}>−</button>
+            <strong>{t.label}</strong>
+            <button type="button" class="btn small" aria-label={`Add a ${t.label} tile`} onClick={() => bump(t.key, 1)} data-testid={`tile-${t.key}-plus`}>+</button>
+          </div>
+        ))}
+        <button type="button" class="btn ghost small" disabled={!n.x2 && !n.x && !n.one} onClick={() => setN({ x2: 0, x: 0, one: 0 })}>Clear</button>
+      </div>
+    </div>
+  );
+}

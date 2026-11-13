@@ -79,7 +79,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   // the account itself
   if (req.path === "/api/account" && req.method === "GET") {
     const learners = consented ? await deps.repo.loadLearners(parent.id) : [];
-    const billing = await summarise(deps.billing, await deps.repo.getSubscription(parent.id));
+    const billing = await summarise(deps.billing, await deps.repo.effectiveSubscription(parent.id));
     return reply(200, { termsVersion: TERMS_VERSION, consented, learners, billing }, { "Cache-Control": "no-store" });
   }
   if (req.path === "/api/account/consent" && req.method === "POST") {
@@ -107,7 +107,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     if (!deps.assistant) return err(503, "assistant-off", "The assistant is not available right now.");
     if (deps.humanPassOk && !deps.humanPassOk(req.humanPass)) return err(401, "human-required", "Please complete the quick check and try again.");
     if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
-    if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to use the assistant.");
+    if (deps.billing && !hasAccess(await deps.repo.effectiveSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to use the assistant.");
     const out = await handleAssistant(req.body, parent.id, deps.assistant);
     return reply(out.status, out.body, { "Cache-Control": "no-store" });
   }
@@ -115,7 +115,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   // the curriculum booklet (PDF): signed in, agreed to the terms and, where payments are on, subscribed
   if (req.path === "/api/account/booklet" && req.method === "GET") {
     if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
-    if (deps.billing && !hasAccess(await deps.repo.getSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to download the booklet.");
+    if (deps.billing && !hasAccess(await deps.repo.effectiveSubscription(parent.id))) return err(402, "subscription-required", "A subscription is needed to download the booklet.");
     if (deps.limiter && !(await deps.limiter.allowBooklet(parent.id))) return SLOW_DOWN("The booklet has been downloaded a few times today. Please try again tomorrow.");
     return { status: 200, body: null, file: { name: "quarter-curriculum.pdf", type: "application/pdf", downloadAs: "quarter-curriculum.pdf" } };
   }
@@ -161,7 +161,8 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
       const plan = body.plan as Plan;
       if (plan !== "monthly" && plan !== "yearly") return err(400, "invalid", "Choose monthly or yearly.");
       let sub = await deps.repo.getSubscription(parent.id);
-      if (hasAccess(sub) && sub?.status !== "past_due") return err(409, "already-subscribed", "This account already has a subscription. Use Manage subscription.");
+      const effective = await deps.repo.effectiveSubscription(parent.id);
+      if (hasAccess(effective) && effective?.status !== "past_due") return err(409, "already-subscribed", "This account already has a subscription. Use Manage subscription.");
       try {
         if (!sub) sub = await deps.repo.setCustomer(parent.id, await deps.billing.createCustomer(parent.id));
         const trial = !sub.everSubscribed;
@@ -181,7 +182,7 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
   }
 
   // learners: nothing is saved until the parent has agreed to the current terms and, where payments are on, has a subscription
-  const paid = !deps.billing || hasAccess(await deps.repo.getSubscription(parent.id));
+  const paid = !deps.billing || hasAccess(await deps.repo.effectiveSubscription(parent.id));
   if (req.path === "/api/learners" && req.method === "POST") {
     if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
     if (!paid) return err(402, "subscription-required", "A subscription is needed to add learners.");

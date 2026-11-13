@@ -1,3 +1,4 @@
+import { handleRevenueCat } from "./revenuecat";
 import { timingSafeEqual } from "node:crypto";
 import { startMonitoring, reportError } from "./monitoring";
 import { clientIp, looksLive, resolveStatic, securityHeaders, wwwRedirect } from "./http-safety";
@@ -88,7 +89,9 @@ configureTickets(opsSecret); // signs the reference tags in the subject of our e
 // in development with the fake sign-in nothing is really sent, so the subject (which holds the code) is printed to the server log
 const opsMailer: typeof mailer = AUTH_FAKE && !mailer.live ? { live: false, send: (e) => { console.log(`[dev email to ${e.to}] ${e.subject}`); return mailer.send(e); } } : mailer;
 // Email to hello@ arrives through Resend's receiving and a signed webhook (docs/OPS.md). Needs the API key and the webhook's signing secret.
-const inboundOn = !!process.env.RESEND_API_KEY && (process.env.RESEND_WEBHOOK_SECRET ?? "").startsWith("whsec_");
+// RESEND_RECEIVING_API_KEY is optional: a separate key that can only read received email, so the key that sends mail needn't be able to read it.
+const receivingKey = process.env.RESEND_RECEIVING_API_KEY?.trim() || process.env.RESEND_API_KEY;
+const inboundOn = !!receivingKey && (process.env.RESEND_WEBHOOK_SECRET ?? "").startsWith("whsec_");
 const opsAccess = accounts && opsDb && opsAdmins.size && opsSecret.length >= 24 && (mailer.live || AUTH_FAKE) ? new OpsAccess({ auth: accounts.auth, mailer: opsMailer, admins: opsAdmins, secret: opsSecret }) : null;
 // emails that could not be sent (the Outbox) are tried again every few minutes
 if (opsDb && opsAccess) setInterval(() => { void retryDue(opsDb!, opsMailer).catch((e) => console.error("outbox retry failed:", (e as Error).name)); }, 5 * 60_000).unref();
@@ -204,7 +207,7 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
     const chunks: Buffer[] = []; let size = 0;
     try { for await (const c of req as AsyncIterable<Buffer>) { size += c.length; if (size > INBOUND_MAX_BODY) throw new Error("too large"); chunks.push(c); } } catch { return send(res, 413, { error: "too-large" }); }
     try {
-      const out = await handleInbound(Buffer.concat(chunks).toString("utf8"), { id: String(req.headers["svix-id"] ?? ""), timestamp: String(req.headers["svix-timestamp"] ?? ""), signature: String(req.headers["svix-signature"] ?? "") }, { db: opsDb, counters, apiKey: process.env.RESEND_API_KEY!, secret: process.env.RESEND_WEBHOOK_SECRET!, log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), ...e })) });
+      const out = await handleInbound(Buffer.concat(chunks).toString("utf8"), { id: String(req.headers["svix-id"] ?? ""), timestamp: String(req.headers["svix-timestamp"] ?? ""), signature: String(req.headers["svix-signature"] ?? "") }, { db: opsDb, counters, apiKey: receivingKey!, secret: process.env.RESEND_WEBHOOK_SECRET!, log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), ...e })) });
       return send(res, out.status, out.body);
     } catch (e) { console.error("inbound email failed:", (e as Error).name); reportError(e, "inbound"); return send(res, 500, { error: "server-error" }); }
   }
@@ -253,6 +256,18 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
   if (url.pathname === "/ops" && (req.method === "GET" || req.method === "HEAD") && existsSync(join(DIST, "index.html"))) {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" });
     return res.end(req.method === "HEAD" ? undefined : readFileSync(join(DIST, "index.html")));
+  }
+
+  // RevenueCat (App Store purchases). Off unless REVENUECAT_WEBHOOK_AUTH is set; answers 404 without the right Authorization value.
+  if (url.pathname === "/api/revenuecat/webhook" && req.method === "POST") {
+    const rcSecret = process.env.REVENUECAT_WEBHOOK_AUTH ?? "";
+    if (!accounts || rcSecret.length < 24) return send(res, 404, { error: "not-found" });
+    const chunks: Buffer[] = []; let size = 0;
+    try { for await (const c of req as AsyncIterable<Buffer>) { size += c.length; if (size > 100_000) throw new Error("too large"); chunks.push(c); } } catch { return send(res, 413, { error: "too-large" }); }
+    try {
+      const out = await handleRevenueCat(Buffer.concat(chunks).toString("utf8"), String(req.headers.authorization ?? "") || undefined, rcSecret, accounts.repo);
+      return send(res, out.status, out.body);
+    } catch (e) { console.error("revenuecat webhook failed:", (e as Error).name); reportError(e, "revenuecat-webhook"); return send(res, 500, { error: "server-error" }); }
   }
 
   if (url.pathname === "/api/stripe/webhook" && req.method === "POST") {

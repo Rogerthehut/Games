@@ -1,3 +1,4 @@
+import { noteQuestion } from "../account/question-stats";
 import { useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import { recordWrongOnce } from "../engine/wrong-log";
@@ -63,6 +64,7 @@ export function Checkup() {
   const record = (correct: boolean, typed: string[] = [], tag?: string, message?: string) => {
     if (!q) return;
     const resp = { skillId: q.skill, level, correct, ms: Date.now() - shownAt.current };
+    noteQuestion({ skill: q.skill, level, year: profile.year, kind: correct ? "right" : "wrong", secs: resp.ms / 1000, tags: tag ? [tag] : [] }, profile.shareStats !== false);
     if (!correct) update((p) => recordWrongOnce(p, q, typed, "check-up", tag, message));
     const next = applyResponse(state, resp);
     setState(next);

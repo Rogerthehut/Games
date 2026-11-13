@@ -1,3 +1,4 @@
+import { noteQuestion } from "../account/question-stats";
 import { Solution } from "./solution";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
@@ -107,6 +108,8 @@ export function Mock({ pathway }: { pathway?: Stage }) {
       paper: kind, bySection: bySection.size > 1 ? [...bySection].map(([section, v]) => ({ section, ...v })) : undefined,
     };
     const attempted = secondsAtEnd === format.seconds ? taken : all;
+    const each = attempted.length ? seconds / attempted.length : 0; // the paper doesn't time single questions, so each gets an even share
+    for (const t of attempted) noteQuestion({ skill: t.q.skill, level: t.q.level, year: profile.year, kind: t.correct ? "right" : "wrong", secs: each, tags: !t.correct && t.tag ? [t.tag] : [] }, profile.shareStats !== false);
     update((p) => {
       let n = p;
       for (const t of attempted) {

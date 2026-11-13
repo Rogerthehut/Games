@@ -11,6 +11,7 @@ What protects quarter's server, what to set, and what is still open. Reviewed 12
 | `/api/ops/...` and `/ops` | The team only | Clerk sign-in, an allow-list of email addresses, an emailed one-time code, a one-hour signed session; anyone else gets "not found"; everything is audit-logged (`docs/OPS.md`) |
 | `/api/internal/digest` | The scheduler | A shared secret (`CRON_SECRET`), compared in constant time; "not found" without it |
 | `/api/stats/questions` | A signed-in parent who has agreed to the terms | Same account limits; strict validation (ids, ranges, at most 100 events); only counts are stored, never who sent them |
+| `/api/revenuecat/webhook` | RevenueCat | Authorization value compared in constant time against `REVENUECAT_WEBHOOK_AUTH` (24+ characters); 404 without it or if unset; 100 KB limit; events de-duplicated; only a few fields are read |
 | `/api/stripe/webhook` | Stripe | The signature is checked; 1 MB limit |
 | `/unsubscribe` | Anyone with the link | A long random token per parent; a GET only shows a button, the POST does the change |
 | `/api/outcode` | Anyone | Only the first half of a postcode is accepted; rate limited |
