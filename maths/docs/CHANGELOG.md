@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Message us: the Back to quarter button
+The button shown after a message is sent had the browser's blue underlined link style. It now matches the other buttons.
+
 ## Skills map: the symbols key is always in view
 On wide screens the right-hand column on Skills had three cards stacked taller than the window, so "What the symbols mean" was cut off until you scrolled down the path. The key now sits directly under the skill card (above "Jump to a world"), is laid out in two columns, and the column stays beside the map. On windows under 960px tall the short descriptions are dropped (they stay as tooltips) so the key and "Jump to a world" both still fit beside the map at the top of the page (checked at 1280×720, 1366×768, 1440×900 and 1920×1080); the column is a little wider; very short windows scroll the column on its own.
 

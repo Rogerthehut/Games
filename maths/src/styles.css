@@ -3565,3 +3565,4 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
   .journey-sidebar .journey-world-link { min-height: 30px; }
   .journey-sidebar .journey-sheet-hint, .journey-sidebar .sheet { }
 }
+.contact-done a.btn[href], .contact-done a.btn:visited, .contact-done a.btn:hover { display: inline-flex; align-items: center; background-image: none; text-decoration: none; color: var(--ink); }
