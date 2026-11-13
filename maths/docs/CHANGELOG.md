@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Full-bleed app icon
+The icon had a thin clear border and rounded corners, so on the iPhone home screen it showed a pale edge around the black tile. `public/icon.svg` is now a full-bleed dark square to the very edge, and every icon is drawn from it (`scripts/make-icons.mjs`): the iOS app icon (`mobile/assets/icon.png`, 1024 square, no transparency), the home-screen icon, the PWA and maskable icons, the favicons, and the logo that search engines and AI tools read. The favicon link carries a new version so browsers fetch the new one. Needs a new EAS build for the app icon.
+
 ## Ops accounts list, resizable side menu, and the app's own dock
 - **Ops portal:** the Accounts tab now lists every account (newest first, filterable, click one to open it) instead of starting blank, and an account is shown as a plain table: Yes/No instead of null, dates written out, plan and trial in words. Still account facts only, never a child's name or progress; viewing the list is written to the audit log.
 - **"Scroll for more"** on question pages now sits at the very bottom under Hint and Check; on other pages it sits just above the tab bar.

@@ -11,19 +11,19 @@ const svg = readFileSync(resolve(pub, "icon.svg"), "utf8");
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const chromium = pw.chromium ?? pw.default.chromium;
 
-// the maskable icon fills the whole square and keeps the tiles inside the central 80% that every device keeps
-const maskable = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#121522"/><g transform="translate(4.8 4.8) scale(.9)">${svg.replace(/<svg[^>]*>|<\/svg>|<rect x="3" y="3" width="90" height="90"[^>]*\/>/g, "")}</g></svg>`;
+// every icon is the full-bleed square: dark to the very edge, no rounded corners and no clear border, so app stores, search results and AI tools can round or crop it themselves
+const maskable = svg;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
 async function png(markup, size) {
   await page.setViewportSize({ width: size, height: size });
   await page.setContent(`<style>html,body{margin:0;background:transparent}svg{display:block;width:${size}px;height:${size}px}</style>${markup}`);
-  return page.screenshot({ type: "png", omitBackground: true, clip: { x: 0, y: 0, width: size, height: size } });
+  return page.screenshot({ type: "png", omitBackground: false, clip: { x: 0, y: 0, width: size, height: size } });
 }
 const out = {
   "favicon-16.png": await png(svg, 16), "favicon-32.png": await png(svg, 32), "apple-touch-icon.png": await png(svg, 180),
-  "icon-192.png": await png(svg, 192), "icon-512.png": await png(svg, 512), "icon-maskable-512.png": await png(maskable, 512),
+  "icon-192.png": await png(svg, 192), "icon-512.png": await png(svg, 512), "../../mobile/assets/icon.png": await png(svg, 1024), "icon-maskable-512.png": await png(maskable, 512),
 };
 const icoSizes = [16, 32, 48], icoImages = await Promise.all(icoSizes.map((s) => png(svg, s)));
 await browser.close();
