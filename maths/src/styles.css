@@ -1719,7 +1719,7 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .content:has(.journey-wide) { max-width: 1660px; padding-inline: clamp(24px, 3vw, 52px); }
 .journey-wide .journey-board {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(200px, 17vw, 280px);
+  grid-template-columns: minmax(0, 1fr) clamp(236px, 18vw, 290px);
   align-items: start;
   gap: clamp(18px, 2vw, 32px);
   margin-top: 20px;
@@ -3550,7 +3550,7 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .contact-error { color: #b42318; font-weight: 700; }
 .contact-form .btn.primary { margin-top: 8px; }
 .contact-done { padding: 8px 0 24px; }
-@media (max-height: 800px) {
+@media (max-height: 960px) {
   .journey-sidebar { gap: 8px; }
   .journey-sidebar .journey-world-link { min-height: 32px; padding-block: 1px; }
   .journey-sidebar .journey-world-nav { padding-block: 8px; }
@@ -3558,6 +3558,10 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
   /* on short windows, the short labels go (they stay as tooltips) so the whole key still fits beside the map */
   .journey-sidebar .journey-world-link small, .journey-sidebar .journey-key small { display: none; }
   .journey-sidebar .journey-key li { align-items: center; }
-  .journey-sidebar .journey-key ul { grid-template-columns: 1fr; gap: 4px; }
-  .journey-sidebar .journey-key .key-glyph { flex-basis: 30px; width: 30px; height: 30px; min-width: 30px; border-radius: 9px; }
+  .journey-sidebar .journey-key ul { grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+  .journey-sidebar .journey-key li { gap: 6px; }
+  .journey-sidebar .journey-key strong { font-size: .8rem; }
+  .journey-sidebar .journey-key .key-glyph { flex-basis: 26px; width: 26px; height: 26px; min-width: 26px; border-radius: 8px; font-size: .8rem; }
+  .journey-sidebar .journey-world-link { min-height: 30px; }
+  .journey-sidebar .journey-sheet-hint, .journey-sidebar .sheet { }
 }
