@@ -22,6 +22,8 @@ This snapshot includes the Skills and Parents’ area filters, the searchable 11
 
 ## Documentation
 
+- [Architecture](docs/ARCHITECTURE.md), [Requirements](docs/REQUIREMENTS.md), [Decision log](docs/DECISIONS.md)
+- [Configuration reference](docs/CONFIGURATION.md), [API reference](docs/API.md), [Testing](docs/TESTING.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Qualifications and accreditation](docs/QUALIFICATIONS.md)
 - [Design notes](docs/DESIGN.md)

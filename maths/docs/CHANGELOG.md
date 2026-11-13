@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Technical documentation
+New: `ARCHITECTURE.md` (the pieces, data, request flows), `REQUIREMENTS.md` (users, functional and non-functional requirements, scope), `DECISIONS.md` (why things are built this way), `CONFIGURATION.md` (every setting), `API.md` (endpoints) and `TESTING.md`. `REPLIT.md` no longer says the database isn't set up.
+
 ## Mailbox search, pin and flag
 The ops Mail tab has a **search box** that looks through every folder at once (Inbox, Messages, Feedback, Drafts, Sent, Outbox and Trash): names, addresses, subjects, whole threads, and reference numbers (`Q-1042`). It forgives slips (`recieve`, `jhon`), matches the start or middle of a word, ignores capitals and accents, and needs every word you type to appear. Results show which folder they're in and highlight the matched words. **Pin** keeps a conversation at the top of its folder; **Flag** collects conversations from any folder into a **Flagged** folder. Search is audit-logged without what was searched for. Migration `0012_pin_flag.sql` (two `ADD COLUMN` lines only; on a Replit publish there should be no DROP). Tests in `server/mail-search.test.ts`; browser checks in `scripts/ops-messages-e2e.mjs`.
 

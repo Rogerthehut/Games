@@ -5,7 +5,7 @@
 1. In Replit choose **Import from GitHub** and pick `Rogerthehut/games`, branch `main`.
 2. The repo's `.replit` file does the rest. Press Run. It installs, builds the app, and starts one server that serves the app and the tutor API on port 5000 (shown as port 80 in the preview).
 
-The app lives in `maths/`, which is why `.replit` starts with `cd maths`. Nothing else is needed for the app to work: progress is stored in each learner's browser.
+The app lives in `maths/`, which is why `.replit` starts with `cd maths`. Without a database or Clerk keys a development build runs local-only; production needs them (see `docs/CONFIGURATION.md`).
 
 ## Secrets (optional)
 
@@ -27,9 +27,9 @@ Add these in the Secrets tool, never in files:
 
 `.replit` asks for Node 20. The code was developed on Node 22. If the install or build complains, switch the module to `nodejs-22`.
 
-## Database (not set up yet)
+## Database
 
-The app has no database today. The plan is Replit's managed Postgres, using Drizzle, starting with reference data (schools, test providers, areas) which holds no personal information. Learner accounts and progress sync come later, after the privacy review. See the roadmap.
+Learner accounts and progress are stored in Postgres (Replit's managed database, `DATABASE_URL`) through Drizzle. Migrations in `server/db/migrations/` run on start and are idempotent. When you publish, Replit shows its own generated migration SQL: read it for `DROP`, `TRUNCATE` or `DELETE` and don't approve one. See `docs/ACCOUNTS.md` and `docs/ARCHITECTURE.md`. Every setting is in `docs/CONFIGURATION.md`.
 
 ## Not needed on Replit
 
