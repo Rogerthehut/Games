@@ -9,7 +9,20 @@ import { graph } from "./figures";
  */
 export const plain = (t: string) => t.replace(/\$/g, "");
 /** LaTeX from our own generators, read as plain text for a table cell or a label. */
-export const flat = (t: string) => plain(t).replace(/\\left|\\right/g, "").replace(/\\times/g, "×").replace(/\\div/g, "÷").replace(/\\le\b/g, "≤").replace(/\\ge\b/g, "≥").replace(/\\pi\s*(?=[a-z])/g, "π").replace(/\\pi/g, "π").replace(/\\approx/g, "≈").replace(/\\sqrt\{([^}]*)\}/g, "√$1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, (_m, a: string, b: string) => `${/[+−-]/.test(a.trim().replace(/^-/, "")) ? `(${a})` : a}/${/^(?:[a-zA-Z]|\d+)$/.test(b.trim()) ? b : `(${b})`}`).replace(/\^\{2\}/g, "²").replace(/\^\{3\}/g, "³").replace(/\^\{(\d+)\}/g, "^$1").replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/\\\\/g, "").replace(/\\,|\\;|\\ /g, " ").replace(/(\d)-(?=\d)/g, "$1−").replace(/ - /g, " − ").replace(/^-(?=\d)/, "−").replace(/\s+/g, " ").trim();
+/** \frac{a}{b} with the braces matched properly (so a fraction can sit inside another), written as a/b with brackets only where needed. */
+function fracs(t: string): string {
+  for (let guard = 0; guard < 12; guard++) {
+    const i = t.indexOf("\\frac{");
+    if (i < 0) return t;
+    const grab = (from: number): [string, number] | null => { let depth = 0; for (let k = from; k < t.length; k++) { if (t[k] === "{") depth++; else if (t[k] === "}" && --depth === 0) return [t.slice(from + 1, k), k + 1]; } return null; };
+    const n = grab(i + 5), d = n && t[n[1]] === "{" ? grab(n[1]) : null;
+    if (!n || !d) return t;
+    const a = fracs(n[0]), b = fracs(d[0]);
+    t = `${t.slice(0, i)}${/[+−-]/.test(a.trim().replace(/^-/, "")) ? `(${a})` : a}/${/^(?:[a-zA-Z]|\d+)$/.test(b.trim()) ? b : `(${b})`}${t.slice(d[1])}`;
+  }
+  return t;
+}
+export const flat = (t: string) => fracs(plain(t)).replace(/\\left|\\right/g, "").replace(/\\times/g, "×").replace(/\\div/g, "÷").replace(/\\le\b/g, "≤").replace(/\\ge\b/g, "≥").replace(/\\pi\s*(?=[a-z])/g, "π").replace(/\\pi/g, "π").replace(/\\approx/g, "≈").replace(/\\sqrt\{([^}]*)\}/g, "√$1").replace(/\^\{2\}/g, "²").replace(/\^\{3\}/g, "³").replace(/\^\{(\d+)\}/g, "^$1").replace(/\^\{([^}]*)\}/g, "^($1)").replace(/\\(sin|cos|tan|ln|log)\b/g, "$1").replace(/\\ldots/g, "…").replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/\\\\/g, "").replace(/\\,|\\;|\\ /g, " ").replace(/(\d)-(?=\d)/g, "$1−").replace(/ - /g, " − ").replace(/^-(?=\d)/, "−").replace(/\s+/g, " ").trim();
 export const table = (head: string[], rows: (string | number)[][], alt: string): Figure => ({ type: "table", head, rows, alt });
 const num = (n: number) => dec(n).replace("-", "−");
 const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : Math.abs(a));

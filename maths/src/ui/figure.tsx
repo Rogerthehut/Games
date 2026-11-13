@@ -188,10 +188,11 @@ function VennFigure({ labelA, labelB, a, both, b, alt }: Of<"venn">) {
   );
 }
 
-function FunctionGraphFigure({ xMin, xMax, yMin, yMax, xStep, yStep, curves, marks, strips, alt }: Of<"function-graph">) {
+function FunctionGraphFigure({ xMin, xMax, yMin, yMax, xStep, xOrigin, yStep, curves, marks, strips, alt }: Of<"function-graph">) {
   const L = 40, R = 288, T = 14, B = 186, px = (x: number) => L + ((x - xMin) / (xMax - xMin)) * (R - L), py = (y: number) => B - ((y - yMin) / (yMax - yMin)) * (B - T);
   const xs: number[] = [], ys: number[] = [];
-  for (let x = Math.ceil(xMin / xStep) * xStep; x <= xMax + 1e-9; x += xStep) xs.push(r2(x));
+  const xo = xOrigin ?? 0; // ticks sit at xOrigin + k × xStep (a bell curve puts them on the mean and each standard deviation)
+  for (let x = xo + Math.ceil((xMin - xo) / xStep - 1e-9) * xStep; x <= xMax + 1e-9; x += xStep) xs.push(r2(x));
   for (let y = Math.ceil(yMin / yStep) * yStep; y <= yMax + 1e-9; y += yStep) ys.push(r2(y));
   const x0 = Math.min(Math.max(0, xMin), xMax), y0 = Math.min(Math.max(0, yMin), yMax);
   return (

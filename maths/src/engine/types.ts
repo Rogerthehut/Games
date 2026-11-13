@@ -33,7 +33,7 @@ export type Figure =
   | { type: "line-graph"; xs: string[]; ys: number[]; xLabel: string; yLabel: string; yMax: number; alt: string }
   | { type: "scatter"; points: [number, number][]; xLabel: string; yLabel: string; alt: string }
   | { type: "coord-grid"; max: number; min?: number; points: { x: number; y: number; label: string }[]; poly?: [number, number][]; mirror?: { axis: "x" | "y"; value: number }; alt: string }
-  | { type: "function-graph"; xMin: number; xMax: number; yMin: number; yMax: number; xStep: number; yStep: number; curves: { pts: [number, number][]; label?: string; dashed?: boolean }[]; marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][]; alt: string }
+  | { type: "function-graph"; xMin: number; xMax: number; yMin: number; yMax: number; xStep: number; xOrigin?: number; yStep: number; curves: { pts: [number, number][]; label?: string; dashed?: boolean }[]; marks?: { x: number; y: number; label?: string }[]; strips?: [number, number][]; alt: string }
   | { type: "polygon"; pts: [number, number][]; more?: [number, number][][]; labels: { x: number; y: number; text: string; anchor?: "start" | "middle" | "end" }[]; dashed?: [number, number, number, number][]; rights?: [number, number, number, number, number, number][]; alt: string }
   | { type: "circle-diagram"; mode: "radius" | "diameter" | "sector"; label: string; angle?: number; angleLabel?: string; alt: string }
   | { type: "pie"; slices: { label: string; value: number }[]; alt: string }

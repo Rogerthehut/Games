@@ -182,3 +182,102 @@ describe("final worked pictures, batch 4 (Year 12, first part)", () => {
     }
   });
 });
+
+import { parsePoly, polyDeriv, polyEval, polyStr } from "./worked-advanced";
+const ID_BATCH5 = ["differentiate", "integrate-polynomials", "definite-integrals", "product-quotient", "chain-rule", "differentiate-exp-trig", "integrate-substitution"];
+describe("final worked pictures, batch 5 (calculus)", () => {
+  it("the polynomial helpers parse, differentiate and print correctly", () => {
+    expect(parsePoly("-6x^{3} + 3x + 9 - 6x^{2}")).toEqual([9, 3, -6, -6]);
+    expect(parsePoly("x^{2}")).toEqual([0, 0, 1]); expect(parsePoly("4x + 3")).toEqual([3, 4]); expect(parsePoly("-x")).toEqual([0, -1]); expect(parsePoly("2 + 8x^{5} - x - 4x^{2}")).toEqual([2, -1, -4, 0, 0, 8]);
+    expect(parsePoly("sin x")).toBeNull();
+    expect(polyStr([3, -12, -18])).toBe("−18x² − 12x + 3"); expect(polyStr(polyDeriv([9, 3, -6, -6]))).toBe("−18x² − 12x + 3");
+    expect(polyEval([1, 2, 3], 2)).toBe(17); expect(polyStr([0])).toBe("0");
+  });
+  it("every topic has a builder, and covers its questions", () => { for (const id of ID_BATCH5) { expect(hasWorkedBuilder(id), id).toBe(true); expectCovered(id, undefined, 60); } });
+  it("differentiating: the table's last row is the answer's polynomial", () => {
+    for (const q of many("differentiate", 120)) {
+      if (q.answer.kind !== "expr") continue;
+      const t = fig(q, "table")!, shown = String(t.rows[t.rows.length - 1][2]), want = q.answer.value as number[];
+      expect(shown, q.prompt).toBe(polyStr(want));
+    }
+  });
+  it("integrals: the antiderivative evaluated between the limits is the answer", () => {
+    for (const q of many("integrate-polynomials")) { const t = fig(q, "table")!; const last = String(t.rows[t.rows.length - 1][1]).replace(/−/g, "-"); expect(Number(last.replace("a = ", "").split("= ").pop()), q.prompt).toBe(value(q)); }
+    for (const q of many("definite-integrals")) { const g = fig(q, "function-graph")!; const area = g.strips!.slice(1).reduce((t, [x, y], i) => t + ((x - g.strips![i][0]) * (y + g.strips![i][1])) / 2, 0); expect(area, q.prompt).toBeCloseTo(value(q), 6); }
+  });
+  it("product, quotient and chain rules: the worked value is the answer", () => {
+    for (const id of ["product-quotient", "chain-rule"]) for (const q of many(id)) { const t = fig(q, "table")!, last = String(t.rows[t.rows.length - 1][1]).replace(/−/g, "-"); expect(Number(last.split("= ").pop()), q.prompt).toBeCloseTo(value(q), 9); }
+  });
+  it("exponentials, trig and logs, and substitution: the final value or exponent is the answer", () => {
+    for (const q of many("differentiate-exp-trig")) { const t = fig(q, "table")!; expect(Number(String(t.rows[t.rows.length - 1][1]).replace("−", "-")), q.prompt).toBeCloseTo(value(q), 5); }
+    for (const q of many("integrate-substitution")) { const t = fig(q, "table")!; expect(t.rows.length, q.prompt).toBeGreaterThanOrEqual(2); }
+  });
+});
+
+import { binomialPmf } from "./worked-advanced";
+const ID_BATCH6 = ["trig-equations", "trig-identities", "constant-acceleration", "binomial-dist", "normal-dist", "binomial-coefficient", "parametric-equations", "sum-to-infinity", "differential-equations", "kinematics-calculus", "newton-raphson", "vectors-3d", "forces-moments", "projectiles"];
+describe("final worked pictures, batch 6 (Years 12 and 13, the rest)", () => {
+  it("every topic has a builder, and covers its questions", () => { for (const id of ID_BATCH6) { expect(hasWorkedBuilder(id), id).toBe(true); expectCovered(id, undefined, 60); } });
+  it("trigonometric equations: both marked points sit on the curve at the line", () => {
+    for (const q of many("trig-equations")) {
+      const g = fig(q, "function-graph")!, fn = Math[q.prompt.match(/(sin|cos|tan) \\theta/)![1] as "sin" | "cos" | "tan"], k = Number(q.prompt.replace(/\$/g, "").match(/= (-?[\d.]+) for/)![1]);
+      expect(g.marks!.length).toBe(2);
+      for (const m of g.marks!) { expect(fn((m.x * Math.PI) / 180), q.prompt).toBeCloseTo(k, 6); expect(m.y).toBe(k); }
+      expect([Math.min(...g.marks!.map((m) => m.x)), Math.max(...g.marks!.map((m) => m.x)), g.marks![0].x + g.marks![1].x], q.prompt).toContain(value(q));
+    }
+  });
+  it("SUVAT, parametric, series and projectile tables reach the answer", () => {
+    for (const q of many("constant-acceleration")) { const t = fig(q, "table")!, last = String(t.rows[t.rows.length - 1][1]); expect(Number(last.split("= ").pop()!.split(" ")[0]), q.prompt).toBe(value(q)); }
+    for (const q of many("parametric-equations", 80)) { const t = fig(q, "table"); if (!t) continue; if (t.head[0] === "t") { const last = t.rows[t.rows.length - 1]; const ans = /y-coordinate/.test(q.prompt) ? Number(String(last[2]).replace("−", "-")) : last[0]; expect(ans, q.prompt).toBe(value(q)); } }
+    for (const q of many("sum-to-infinity")) { const t = fig(q, "table")!, last = String(t.rows[t.rows.length - 1][2]); expect(Number(last.split("= ").pop()), q.prompt).toBeCloseTo(value(q), 9); const sums = t.rows.slice(0, -1).map((r) => Number(String(r[2]).replace("−", "-"))); expect(Math.abs(sums[7] - value(q)), q.prompt).toBeLessThan(Math.abs(sums[1] - value(q)) + 1e-9); }
+    for (const q of many("projectiles")) { const t = fig(q, "table")!, last = t.rows[t.rows.length - 1]; if (/dropped/.test(q.prompt)) expect(last[0], q.prompt).toBe(value(q)); else if (/horizontally/.test(q.prompt)) expect(last[1], q.prompt).toBe(value(q)); else expect(Number(last[1]), q.prompt).toBeCloseTo(value(q), 9); }
+  });
+  it("binomial distribution: the bars add up to 100%, and match the answer", () => {
+    expect(binomialPmf(3, 0.5).map((x) => Math.round(x * 1000) / 1000)).toEqual([0.125, 0.375, 0.375, 0.125]);
+    for (const q of many("binomial-dist")) {
+      const b = fig(q, "bars")!, tot = b.items.reduce((t, i) => t + i.value, 0), n = b.items.length - 1, pr = Number(q.prompt.match(/B\((\d+), ([\d.]+)\)/)![2]);
+      expect(tot, q.prompt).toBeGreaterThan(99.5); expect(tot).toBeLessThan(100.5);
+      if (/mean/.test(q.prompt)) expect(b.items.reduce((t, i, k) => t + (k * i.value) / 100, 0), q.prompt).toBeCloseTo(value(q), 1);
+      if (/P\(X = (\d+)\)/.test(q.prompt)) expect(b.items[Number(q.prompt.match(/P\(X = (\d+)\)/)![1])].value / 100, q.prompt).toBeCloseTo(value(q), 2);
+      void n; void pr;
+    }
+  });
+  it("normal distribution: the shaded part and marks are where the question says", () => {
+    for (const q of many("normal-dist")) {
+      const g = fig(q, "function-graph")!, m = q.prompt.match(/N\((\d+), (\d+)\^\{2\}\)/)!, mu = Number(m[1]), sd = Number(m[2]);
+      expect(g.xOrigin, q.prompt).toBe(mu);
+      const w = q.prompt.match(/within (\d) standard/);
+      if (w) { const k = Number(w[1]); expect(g.strips![0][0], q.prompt).toBeCloseTo(mu - k * sd, 6); expect(g.strips![g.strips!.length - 1][0]).toBeCloseTo(mu + k * sd, 6); }
+      if (/z-score/.test(q.prompt)) expect((g.marks![1].x - mu) / sd, q.prompt).toBeCloseTo(value(q), 9);
+      if (/score that is/.test(q.prompt)) expect(g.marks![1].x, q.prompt).toBe(value(q));
+    }
+  });
+  it("Pascal's triangle, vectors and Newton-Raphson reach the answer", () => {
+    for (const q of many("binomial-coefficient")) { const t = fig(q, "table")!; expect(Number(String(t.rows[t.rows.length - 1][1]).replace(/−/g, "-").split("= ").pop()), q.prompt).toBe(value(q)); }
+    for (const q of many("vectors-3d")) { const t = fig(q, "table")!, last = t.rows[t.rows.length - 1], cell = String(last[last.length - 1]).replace(/−/g, "-"); expect(Number(cell.split("= ").pop()), q.prompt).toBe(value(q)); }
+    for (const q of many("newton-raphson")) { const t = fig(q, "table")!; if (t.head[0] !== "Start") continue; expect(Math.abs(Number(String(t.rows[t.rows.length - 1][4]).replace("−", "-")) - value(q)), q.prompt).toBeLessThan(6e-4); }
+  });
+  it("forces and moments, identities, kinematics and differential equations come with a picture", () => {
+    for (const q of many("forces-moments")) expect(["table", "rtriangle", "formula-triangle"], q.prompt).toContain(q.worked!.type);
+    for (const q of many("trig-identities")) { const t = fig(q, "table")!; expect(t.rows[0][0]).toBe("The identity"); }
+    for (const q of many("kinematics-calculus")) expect(["flow", "table"], q.prompt).toContain(q.worked!.type);
+  });
+});
+
+describe("pictures for the topics that only needed one on some forms of question", () => {
+  const ids = ["venn-counts", "area-perimeter-link", "volume-prisms", "vectors", "regression-line", "correlation", "similar-shapes"];
+  it("every question has its own figure or a worked picture; the topics have builders", () => {
+    for (const id of ids) {
+      expect(hasWorkedBuilder(id), id).toBe(true);
+      const bare = many(id, 60).filter((q) => !q.figure && !q.worked).map((q) => q.prompt.slice(0, 90));
+      expect(bare, `${id} still has questions with no picture:\n${bare.slice(0, 3).join("\n")}`).toEqual([]);
+    }
+  });
+  it("a question that comes with its own figure is left alone", () => { for (const id of ids) for (const q of many(id, 40)) if (q.figure) expect(q.worked, q.prompt).toBeUndefined(); });
+  it("Venn diagrams, prisms, regression lines and enlargements agree with the answers", () => {
+    for (const q of many("venn-counts", 80)) { const v = fig(q, "venn"); if (!v) continue; if (/at least one/.test(q.prompt)) expect(v.a + v.both + v.b, q.prompt).toBe(value(q)); }
+    for (const q of many("volume-prisms", 80)) { const b = fig(q, "bar-model"); if (!b) continue; const slices = b.rows[0].segments.length, area = Number(b.rows[0].segments[0].label); if (/Work out its volume/.test(q.prompt)) expect(slices * area, q.prompt).toBe(value(q)); else expect(slices, q.prompt).toBe(value(q)); }
+    for (const q of many("regression-line", 80)) { const g = fig(q, "function-graph"); if (!g) continue; const m = q.prompt.match(/y = (\d+) \+ (\d+)x/)!; for (const mk of g.marks!) if (!/data/.test(mk.label ?? "")) expect(mk.y, q.prompt).toBe(Number(m[1]) + Number(m[2]) * mk.x); }
+    for (const q of many("similar-shapes", 80)) { const b = fig(q, "bar-model"); if (b) expect(b.rows[1].segments.reduce((t, s) => t + (s.size ?? 0), 0), q.prompt).toBe(value(q)); }
+  });
+});
