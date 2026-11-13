@@ -139,7 +139,7 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
           <ol class="l-steps">
             <li><span class="l-num" aria-hidden="true">01</span><div><h3>A short check-up</h3><p>A few questions find the starting point and any gaps, so practice isn’t too easy or too hard.</p></div></li>
             <li><span class="l-num" aria-hidden="true">02</span><div><h3>A plan that targets the gaps</h3><p>The check-up builds a plan of focused questions on the topics your child finds tricky. Repeat the check-up every few weeks to see how they’ve moved.</p></div></li>
-            <li><span class="l-num" aria-hidden="true">03</span><div><h3>Little and often</h3><p>Ten-minute sessions with worked explanations, hints and a skills map. No timers, apart from the clearly labelled timed paper.</p></div></li>
+            <li><span class="l-num" aria-hidden="true">03</span><div><h3>Little and often</h3><p>Ten-minute sessions with worked explanations, hints and a skills map. No timers in normal practice. The only timed activities, the 11+ practice papers and the times tables challenge, are clearly labelled.</p></div></li>
             <li><span class="l-num" aria-hidden="true">04</span><div><h3>See exactly where they’re stuck</h3><p>The grown-ups’ area lists the questions your child got wrong, what they answered and why that may be happening, with methods to try together.</p></div></li>
           </ol>
         </div>

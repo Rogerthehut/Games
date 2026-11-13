@@ -8,7 +8,7 @@ How MathPath is meant to look, read and behave, so changes keep the same feel.
 2. **Inputs fit the answer.** A fraction is two stacked boxes. A number is one big box with its unit or letter attached. On a touch screen the phone's keyboard stays closed and a number pad built for the job appears. On a desktop you just type. No permanent row of symbol buttons.
 3. **Actions live where a thumb is.** Question screens have a bar at the bottom. The main action is on the right and changes in place (Check becomes Next).
 4. **Say it plainly.** Short sentences, concrete verbs, no apology and no explanation of the interface. If a line needs a footnote, cut it or move the footnote behind "About this score". Status words are friendly for children (New, Learning, Getting there, Got it) and exact for parents (Assumed known, Secure).
-5. **Effort, not speed.** No timers in practice. Stars reward finishing, carrying on and bouncing back. A missed day costs nothing.
+5. **Effort, not speed.** No timers in normal practice; the only timed activities are the clearly labelled practice papers and the times tables challenge. Stars reward finishing, carrying on and bouncing back. A missed day costs nothing.
 6. **Grown-ups get their own place.** It is behind a maths sum (children can't do it quickly), not a tab, and split into Progress, Tutor and Settings.
 
 ## Structure

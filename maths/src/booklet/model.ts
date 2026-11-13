@@ -85,7 +85,7 @@ export function bookletPages(): BookletPage[] {
       <div class="bk-card mint"><h3>What you'll find</h3><ul class="bk-list"><li>Maths from Year 3 to A-level, topic by topic.</li><li>The 11+ strand and practice papers.</li><li>The STEM lab: computing, data, AI and quantum ideas.</li><li>The study library, tools and the parents' area.</li></ul></div>
     </div>
     <div class="bk-callout">Short, regular practice beats long sessions. Ten minutes most days is plenty.</div>
-    <div class="bk-card"><h3>The idea behind quarter</h3><p>Every question works out its own answer, so hints, worked steps and feedback always match the question. Topics come back later, a little at a time, so what's learned stays learned. Children are never rushed on normal practice, and the only timed activity is the clearly labelled 11+ practice paper.</p></div>`, "Welcome"));
+    <div class="bk-card"><h3>The idea behind quarter</h3><p>Every question works out its own answer, so hints, worked steps and feedback always match the question. Topics come back later, a little at a time, so what's learned stays learned. Children are never rushed on normal practice. The only timed activities are clearly labelled: the 11+ practice papers and the times tables challenge.</p></div>`, "Welcome"));
 
   // ---- how it works (the contents page is slotted in after this)
   pages.push(page("How quarter works", "How quarter works", `
