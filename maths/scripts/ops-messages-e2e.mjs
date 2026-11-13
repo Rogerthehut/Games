@@ -100,6 +100,17 @@ try {
   ok("restoring empties the Trash", /Nothing here/.test(await body()));
   await boss.getByTestId("ops-folder-messages").click(); await boss.waitForTimeout(400);
   ok("and it is back in Messages", /kim@example.com|How do I add a second child/.test(await body()));
+  // pin and flag, then search across every folder with a spelling slip
+  await boss.getByTestId("ops-mail-row").first().locator(".ops-mail-open").click(); await boss.getByTestId("ops-thread").waitFor();
+  await boss.getByTestId("ops-pin").click(); await boss.waitForTimeout(400); await boss.getByTestId("ops-flag").click(); await boss.waitForTimeout(400);
+  ok("pin and flag buttons flip", /Unpin/.test(await boss.getByTestId("ops-pin").innerText()) && /Remove flag/.test(await boss.getByTestId("ops-flag").innerText()));
+  await boss.getByTestId("ops-folder-flagged").click(); await boss.waitForTimeout(500);
+  ok("a flagged conversation shows in Flagged, marked", (await boss.getByTestId("ops-mail-row").count()) >= 1 && /⚑/.test(await body()));
+  await boss.getByTestId("ops-search").fill("partnr helo"); await boss.waitForTimeout(900);
+  ok("search finds it across folders with typos", /1 result|results/.test(await boss.getByTestId("ops-search-status").innerText()) && /Sent/.test(await boss.getByTestId("ops-hit-folder").first().innerText()));
+  ok("matched words are highlighted", (await boss.locator(".ops-mail-list mark, [data-testid=ops-mail-list] mark").count()) >= 1);
+  await boss.getByTestId("ops-search").press("Escape"); await boss.waitForTimeout(400);
+  ok("Escape clears the search", (await boss.getByTestId("ops-search").inputValue()) === "");
   await boss.getByTestId("ops-tab-audit").click(); await boss.waitForTimeout(600);
   const audit = await boss.locator("body").innerText();
   ok("the audit log lists the signature and the reply, without their content", /signature-add/.test(audit) && /contact-reply/.test(audit) && !/second child/.test(audit));

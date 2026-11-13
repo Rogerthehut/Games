@@ -9,7 +9,7 @@ const KEY = "quarter.ops.session";
 const read = () => { try { const v = JSON.parse(sessionStorage.getItem(KEY) ?? "null") as { s: string; exp: number } | null; return v && v.exp > Date.now() ? v : null; } catch { return null; } };
 const keep = (v: { s: string; exp: number } | null) => { try { v ? sessionStorage.setItem(KEY, JSON.stringify(v)) : sessionStorage.removeItem(KEY); } catch { /* ignore */ } };
 
-type Item = { deletedAt?: string | null; ticket?: number | null; id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
+type Item = { pinned?: boolean; flagged?: boolean; deletedAt?: string | null; ticket?: number | null; id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
 type Tab = "mail" | "numbers" | "account" | "audit";
 
 export function OpsPage() {
@@ -128,12 +128,12 @@ function FeedbackCard({ item, call, onSent }: { item: Item; call: Call; onSent: 
 }
 
 type Entry = { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null; fromEmail?: string | null };
-type ContactItem = { deletedAt?: string | null; id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null; ticket?: number | null; unread?: boolean; message: string; replies: Entry[]; waiting: boolean };
+type ContactItem = { pinned?: boolean; flagged?: boolean; deletedAt?: string | null; id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null; ticket?: number | null; unread?: boolean; message: string; replies: Entry[]; waiting: boolean };
 type SigLite = { id: string; name: string; isDefault: boolean };
 type SigFull = SigLite & { html: string };
-type Folder = "inbox" | "messages" | "feedback" | "drafts" | "sent" | "outbox" | "trash";
-const FOLDERS: [Folder, string][] = [["inbox", "Inbox"], ["messages", "Messages"], ["feedback", "Feedback"], ["drafts", "Drafts"], ["sent", "Sent"], ["outbox", "Outbox"], ["trash", "Trash"]];
-type MailItem = { kind: "contact" | "feedback" | "draft" | "outbox"; id: string; ref: string | null; who: string; subject: string; preview: string; at: string; unread: boolean; direction: "in" | "out" | null; draftKind?: string; conversationId?: string | null; status?: string; error?: string | null; attempts?: number };
+type Folder = "inbox" | "messages" | "feedback" | "flagged" | "drafts" | "sent" | "outbox" | "trash";
+const FOLDERS: [Folder, string][] = [["inbox", "Inbox"], ["messages", "Messages"], ["feedback", "Feedback"], ["flagged", "Flagged"], ["drafts", "Drafts"], ["sent", "Sent"], ["outbox", "Outbox"], ["trash", "Trash"]];
+type MailItem = { pinned?: boolean; flagged?: boolean; folder?: Folder; snippet?: string; marks?: string[]; kind: "contact" | "feedback" | "draft" | "outbox"; id: string; ref: string | null; who: string; subject: string; preview: string; at: string; unread: boolean; direction: "in" | "out" | null; draftKind?: string; conversationId?: string | null; status?: string; error?: string | null; attempts?: number };
 type Counts = Record<Folder, { total: number; unread: number }>;
 type Draft = { id: string; kind: string; conversationId: string | null; to: string; subject: string; message: string; signatureId: string | null };
 
@@ -143,6 +143,14 @@ function SignaturePreview({ html }: { html: string }) {
   return <iframe class="ops-sig-preview" sandbox="" referrerpolicy="no-referrer" srcdoc={doc} title="Signature preview" style="width:100%;height:170px;border:1px solid #ccc;border-radius:8px;background:#fff" />;
 }
 
+
+/** Wraps the words a search matched in <mark>, without ever treating text as markup. */
+function Marked({ text, marks }: { text: string; marks?: string[] }) {
+  const words = (marks ?? []).filter((m) => m.length > 1).map((m) => m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  if (!words.length) return <>{text}</>;
+  const parts = text.split(new RegExp(`(${words.join("|")})`, "i"));
+  return <>{parts.map((x, i) => (i % 2 ? <mark key={i}>{x}</mark> : x))}</>;
+}
 
 const when = (iso: string) => { const d = new Date(iso), now = new Date(); return d.toDateString() === now.toDateString() ? d.toTimeString().slice(0, 5) : iso.slice(0, 10); };
 
@@ -158,6 +166,17 @@ function Mail({ call }: { call: Call }) {
   const [managing, setManaging] = useState(false);
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [note, setNote] = useState("");
+  const [q, setQ] = useState("");
+  const [hits, setHits] = useState<MailItem[] | null>(null);
+  const searching = q.trim().length >= 2;
+  useEffect(() => {
+    if (!searching) { setHits(null); return; }
+    const t = setTimeout(async () => {
+      const r = await call<{ hits: MailItem[] }>("GET", `/api/ops/mail/search?q=${encodeURIComponent(q.trim())}`);
+      setHits(r.ok ? r.data.hits : []);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q]);
   const load = async (f: Folder = folder) => {
     const r = await call<{ items: MailItem[]; counts: Counts; inbound: boolean }>("GET", `/api/ops/mail?folder=${f}${unreadOnly ? "&unread=1" : ""}`);
     if (r.ok) { setItems(r.data.items); setCounts(r.data.counts); setInbound(r.data.inbound); } else setItems([]);
@@ -165,7 +184,7 @@ function Mail({ call }: { call: Call }) {
   const loadSigs = async () => { const r = await call<{ items: SigFull[] }>("GET", "/api/ops/signatures"); if (r.ok) setSigs(r.data.items); };
   useEffect(() => { load(); }, [folder, unreadOnly]);
   useEffect(() => { loadSigs(); }, []);
-  const go = (f: Folder) => { setFolder(f); setOpen(null); setComposing(null); setManaging(false); setNote(""); setItems(null); void load(f); };
+  const go = (f: Folder) => { setQ(""); setFolder(f); setOpen(null); setComposing(null); setManaging(false); setNote(""); setItems(null); void load(f); };
   const pick = async (i: MailItem) => {
     if (i.kind === "outbox") return;
     if (i.kind === "draft") {
@@ -193,6 +212,8 @@ function Mail({ call }: { call: Call }) {
     const r = await call<{ deleted?: number }>("POST", "/api/ops/mail/empty-trash", {});
     setNote(r.ok ? `Deleted ${r.data.deleted ?? 0} for good.` : "Couldn't empty the Trash."); load();
   };
+  const shown = searching ? hits : items;
+  const folderName = (f?: Folder) => FOLDERS.find(([k]) => k === f)?.[1] ?? "";
   const pane = !!open || !!composing || managing;
   return (
     <section class="card" data-testid="ops-messages">
@@ -213,19 +234,22 @@ function Mail({ call }: { call: Call }) {
         ))}
       </nav>
         <div class="ops-mail-listcol">
+          <div class="ops-mail-search"><input type="search" value={q} maxLength={80} placeholder="Search all mail" aria-label="Search all mail" onInput={(e) => setQ((e.target as HTMLInputElement).value)} onKeyDown={(e) => { if (e.key === "Escape") setQ(""); }} data-testid="ops-search" /></div>
+          {searching && <p class="small muted" role="status" data-testid="ops-search-status">{hits === null ? "Searching…" : hits.length ? `${hits.length} result${hits.length === 1 ? "" : "s"} in every folder. Small slips in spelling are fine.` : "Nothing found. Try fewer or shorter words."}</p>}
           {note && <p role="status" class="small">{note}</p>}
       <div data-testid="ops-mail-list">
-            {folder === "trash" && <p class="small muted">Deleted conversations stay here for 30 days, then are removed for good. A reply from the sender brings one back. {!!items?.length && <button class="btn small ghost" onClick={emptyTrash} data-testid="ops-empty-trash">Empty Trash</button>}</p>}
-            {(folder === "inbox" || folder === "messages" || folder === "feedback") && <label class="small"><input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly((e.target as HTMLInputElement).checked)} /> Only unread</label>}
-            {!items ? <p>Loading…</p> : !items.length ? <p class="muted">{folder === "outbox" ? "Nothing waiting to be sent." : folder === "drafts" ? "No drafts." : "Nothing here."}</p> : items.map((i, n) => (
+            {folder === "trash" && <p class="small muted">Deleted conversations stay here for 30 days, then are removed for good. A reply from the sender brings one back. {!!items?.length && !searching && <button class="btn small ghost" onClick={emptyTrash} data-testid="ops-empty-trash">Empty Trash</button>}</p>}
+            {!searching && (folder === "inbox" || folder === "messages" || folder === "feedback") && <label class="small"><input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly((e.target as HTMLInputElement).checked)} /> Only unread</label>}
+            {!shown ? <p>Loading…</p> : !shown.length ? <p class="muted">{searching ? "" : folder === "flagged" ? "Nothing flagged. Flag a conversation to keep it here." : folder === "outbox" ? "Nothing waiting to be sent." : folder === "drafts" ? "No drafts." : "Nothing here."}</p> : shown.map((i, n) => (
               <div key={`${i.kind}${i.id}${n}`} class={`ops-mail-row${i.unread ? " unread" : ""}${open && open.id === i.id ? " selected" : ""}`} data-testid="ops-mail-row">
                 <button type="button" class="ops-mail-open" onClick={() => pick(i)} aria-label={`${i.unread ? "Unread: " : ""}${i.who}: ${i.subject}`}>
-                  <span class="ops-mail-top"><strong class="ops-mail-who">{i.who}</strong><span class="small muted">{i.ref ? `${i.ref} · ` : ""}{when(i.at)}</span></span>
-                  <span class="ops-mail-subject">{i.subject}</span>
-                  <span class="small muted ops-mail-preview">{i.preview}</span>
+                  <span class="ops-mail-top"><strong class="ops-mail-who">{i.pinned && <span title="Pinned" aria-label="Pinned">📌 </span>}{i.flagged && <span title="Flagged" aria-label="Flagged" style="color:#c2410c">⚑ </span>}{searching ? <Marked text={i.who} marks={i.marks} /> : i.who}</strong><span class="small muted">{i.ref ? `${i.ref} · ` : ""}{when(i.at)}</span></span>
+                  <span class="ops-mail-subject">{searching ? <Marked text={i.subject} marks={i.marks} /> : i.subject}</span>
+                  <span class="small muted ops-mail-preview">{searching ? <Marked text={i.snippet ?? i.preview} marks={i.marks} /> : i.preview}</span>
+                  {searching && i.folder && <span class="ops-mail-chip" data-testid="ops-hit-folder">{folderName(i.folder)}</span>}
                 </button>
-                {folder === "trash" && <div class="small" style="margin:4px 0 8px"><button class="btn small" onClick={() => trashAct("restore", i)} data-testid="ops-trash-restore">Restore</button>{" "}<button class="btn small ghost" onClick={() => trashAct("purge", i)} data-testid="ops-trash-purge">Delete forever</button></div>}
-                {i.kind === "outbox" && <div class="small" style="margin:4px 0 8px">
+                {(searching ? i.folder === "trash" : folder === "trash") && <div class="small" style="margin:4px 0 8px"><button class="btn small" onClick={() => trashAct("restore", i)} data-testid="ops-trash-restore">Restore</button>{" "}<button class="btn small ghost" onClick={() => trashAct("purge", i)} data-testid="ops-trash-purge">Delete forever</button></div>}
+                {!searching && i.kind === "outbox" && <div class="small" style="margin:4px 0 8px">
                   <span class="muted">{i.status === "failed" ? `Couldn't send (${i.error ?? "error"}), tried ${i.attempts} time${i.attempts === 1 ? "" : "s"}.` : "Waiting to send."}</span>{" "}
                   <button class="btn small" onClick={() => outbox("retry", i.id)} data-testid="ops-outbox-retry">Retry now</button>{" "}
                   <button class="btn small ghost" onClick={() => { if (confirm("Discard this email without sending it?")) outbox("discard", i.id); }} data-testid="ops-outbox-discard">Discard</button>
@@ -252,6 +276,8 @@ function ThreadView({ call, sigs, open, onBack, onChanged }: { call: Call; sigs:
   useEffect(() => { load().then(onChanged); }, []); // opening it marks it read, so the folder counts are refreshed
   const after = () => { load(); onChanged(); };
   const unread = async () => { await call("POST", "/api/ops/mail/unread", { kind: open.kind, id: open.id }); onBack(); };
+  const t = (thread || {}) as { pinned?: boolean; flagged?: boolean };
+  const toggle = async (what: "pin" | "flag") => { await call("POST", `/api/ops/mail/${what}`, { kind: open.kind, id: open.id, on: !(what === "pin" ? t.pinned : t.flagged) }); await load(); onChanged(); };
   const trashed = !!thread && !!(thread as { deletedAt?: string | null }).deletedAt;
   const act = async (path: string, ask?: string) => { if (ask && !confirm(ask)) return; await call("POST", `/api/ops/mail/${path}`, { kind: open.kind, id: open.id }); onBack(); };
   return (
@@ -259,6 +285,8 @@ function ThreadView({ call, sigs, open, onBack, onChanged }: { call: Call; sigs:
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
         <button class="btn small" onClick={onBack} data-testid="ops-mail-back"><span aria-hidden="true">←</span> Back</button>
         {!trashed && <button class="btn small ghost" onClick={unread}>Mark unread</button>}
+        {thread && !trashed && <button class="btn small ghost" aria-pressed={!!t.pinned} onClick={() => toggle("pin")} data-testid="ops-pin">{t.pinned ? "Unpin" : "Pin"}</button>}
+        {thread && !trashed && <button class="btn small ghost" aria-pressed={!!t.flagged} onClick={() => toggle("flag")} data-testid="ops-flag">{t.flagged ? "Remove flag" : "Flag"}</button>}
         {thread && !trashed && <button class="btn small ghost" onClick={() => act("trash")} data-testid="ops-trash">Move to Trash</button>}
         {trashed && <button class="btn small" onClick={() => act("restore")} data-testid="ops-restore">Restore</button>}
         {trashed && <button class="btn small ghost" onClick={() => act("purge", "Delete this for good? It can't be brought back.")} data-testid="ops-purge">Delete forever</button>}

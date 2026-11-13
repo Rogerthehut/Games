@@ -12,42 +12,45 @@ import { nextTicket, refOf, stripTags, withRef } from "./ticket";
  *   Drafts    unsent writing, saved                                         Outbox    emails that couldn't be sent yet, retried for a while
  * A conversation stays one thread whichever folder lists it. See docs/OPS.md.
  */
-export type Folder = "inbox" | "messages" | "feedback" | "drafts" | "sent" | "outbox" | "trash";
-export const FOLDERS: Folder[] = ["inbox", "messages", "feedback", "drafts", "sent", "outbox", "trash"];
+export type Folder = "inbox" | "messages" | "feedback" | "flagged" | "drafts" | "sent" | "outbox" | "trash";
+export const FOLDERS: Folder[] = ["inbox", "messages", "feedback", "flagged", "drafts", "sent", "outbox", "trash"];
 export interface MailItem {
-  kind: "contact" | "feedback" | "draft" | "outbox"; id: string; ref: string | null; who: string; subject: string; preview: string; at: string; unread: boolean;
+  kind: "contact" | "feedback" | "draft" | "outbox"; id: string; ref: string | null; who: string; subject: string; preview: string; at: string; unread: boolean; pinned?: boolean; flagged?: boolean;
   direction: "in" | "out" | null; draftKind?: string; conversationId?: string | null; status?: string; error?: string | null; attempts?: number;
 }
 const snip = (t: string, n = 140) => t.replace(/\s+/g, " ").trim().slice(0, n);
 const TOPICS: Record<string, string> = { question: "A question", account: "My account", billing: "Billing", bug: "Something isn't working", other: "Message" };
 
-async function contactItems(db: Db): Promise<{ inbox: MailItem[]; messages: MailItem[]; sent: MailItem[]; trash: MailItem[] }> {
+async function contactItems(db: Db): Promise<{ inbox: MailItem[]; messages: MailItem[]; sent: MailItem[]; trash: MailItem[]; flagged: MailItem[] }> {
   const rows = await db.select().from(schema.contactMessages).orderBy(desc(schema.contactMessages.updatedAt)).limit(400);
   const ids = rows.map((r) => r.id);
   const replies = ids.length ? await db.select().from(schema.contactReplies).where(inArray(schema.contactReplies.contactId, ids)).orderBy(asc(schema.contactReplies.at)) : [];
-  const inbox: MailItem[] = [], messages: MailItem[] = [], sent: MailItem[] = [], trash: MailItem[] = [];
+  const inbox: MailItem[] = [], messages: MailItem[] = [], sent: MailItem[] = [], trash: MailItem[] = [], flagged: MailItem[] = [];
   for (const r of rows) {
     const thread = replies.filter((x) => x.contactId === r.id), last = thread[thread.length - 1];
     const lastText = last ? last.message : r.message, lastIn = last ? last.direction === "in" : r.source !== "sent";
-    const item: MailItem = { kind: "contact", id: r.id, ref: refOf("contact", r.ticket), who: r.name || r.email, subject: r.subject || TOPICS[r.topic] || "Message", preview: snip(lastText), at: r.updatedAt.toISOString(), unread: r.unread, direction: lastIn ? "in" : "out" };
+    const item: MailItem = { kind: "contact", id: r.id, ref: refOf("contact", r.ticket), who: r.name || r.email, subject: r.subject || TOPICS[r.topic] || "Message", preview: snip(lastText), at: r.updatedAt.toISOString(), unread: r.unread, pinned: r.pinned, flagged: r.flagged, direction: lastIn ? "in" : "out" };
     if (r.deletedAt) { trash.push({ ...item, who: r.source === "sent" ? `To ${r.email}` : item.who, at: r.deletedAt.toISOString(), unread: false }); continue; }
+    if (r.flagged) flagged.push(item);
     if (r.source === "form") messages.push(item);
     else if (r.source === "email" || thread.some((x) => x.direction === "in")) inbox.push(item);
     // everything we have sent: our first email, and each of our replies
     if (r.source === "sent") sent.push({ ...item, who: `To ${r.email}`, preview: snip(r.message), at: r.createdAt.toISOString(), unread: false, direction: "out" });
     for (const x of thread) if (x.direction === "out") sent.push({ kind: "contact", id: r.id, ref: refOf("contact", r.ticket), who: `To ${r.email}`, subject: r.subject || TOPICS[r.topic] || "Message", preview: snip(x.message), at: x.at.toISOString(), unread: false, direction: "out" });
   }
-  return { inbox, messages, sent, trash };
+  const first = (a: MailItem[]) => a.sort((x, y) => Number(!!y.pinned) - Number(!!x.pinned)); // pinned conversations stay at the top (the sort keeps the date order otherwise)
+  return { inbox: first(inbox), messages: first(messages), sent, trash, flagged };
 }
 
-async function feedbackItems(db: Db): Promise<{ items: MailItem[]; sent: MailItem[]; trash: MailItem[] }> {
+async function feedbackItems(db: Db): Promise<{ items: MailItem[]; sent: MailItem[]; trash: MailItem[]; flagged: MailItem[] }> {
   const rows = await db.select().from(schema.feedback).orderBy(desc(schema.feedback.createdAt)).limit(300);
   const ids = rows.map((r) => r.id);
   const replies = ids.length ? await db.select().from(schema.feedbackReplies).where(inArray(schema.feedbackReplies.feedbackId, ids)).orderBy(asc(schema.feedbackReplies.at)) : [];
   const live = rows.filter((r) => !r.deletedAt), trash = rows.filter((r) => r.deletedAt).map((r): MailItem => ({ kind: "feedback", id: r.id, ref: refOf("feedback", r.ticket), who: "Signed-in parent", subject: `${r.category}${r.rating ? ` · ${r.rating}/5` : ""}`, preview: snip(r.message), at: r.deletedAt!.toISOString(), unread: false, direction: "in" }));
-  const items = live.map((r): MailItem => ({ kind: "feedback", id: r.id, ref: refOf("feedback", r.ticket), who: `Signed-in parent${r.mayReply ? " (may reply)" : ""}`, subject: `${r.category}${r.rating ? ` · ${r.rating}/5` : ""}${r.context ? ` · ${r.context}` : ""}`, preview: snip(r.message), at: r.createdAt.toISOString(), unread: r.unread, direction: "in" }));
+  const items = live.map((r): MailItem => ({ kind: "feedback", id: r.id, ref: refOf("feedback", r.ticket), who: `Signed-in parent${r.mayReply ? " (may reply)" : ""}`, subject: `${r.category}${r.rating ? ` · ${r.rating}/5` : ""}${r.context ? ` · ${r.context}` : ""}`, preview: snip(r.message), at: r.createdAt.toISOString(), unread: r.unread, pinned: r.pinned, flagged: r.flagged, direction: "in" }));
   const sent = replies.filter((x) => live.some((r) => r.id === x.feedbackId)).map((x): MailItem => { const f = rows.find((r) => r.id === x.feedbackId)!; return { kind: "feedback", id: x.feedbackId, ref: refOf("feedback", f?.ticket), who: "To a signed-in parent", subject: `Re: your feedback on quarter`, preview: snip(x.message), at: x.at.toISOString(), unread: false, direction: "out" }; });
-  return { items, sent, trash };
+  items.sort((x, y) => Number(!!y.pinned) - Number(!!x.pinned));
+  return { items, sent, trash, flagged: items.filter((i) => i.flagged) };
 }
 
 export async function listDrafts(db: Db): Promise<MailItem[]> {
@@ -64,6 +67,7 @@ export async function listFolder(db: Db, folder: Folder, o: { unread?: boolean }
   if (folder === "inbox") items = (await contactItems(db)).inbox;
   else if (folder === "messages") items = (await contactItems(db)).messages;
   else if (folder === "feedback") items = (await feedbackItems(db)).items;
+  else if (folder === "flagged") items = [...(await contactItems(db)).flagged, ...(await feedbackItems(db)).flagged].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.at.localeCompare(a.at));
   else if (folder === "drafts") items = await listDrafts(db);
   else if (folder === "outbox") items = await listOutbox(db);
   else if (folder === "trash") items = [...(await contactItems(db)).trash, ...(await feedbackItems(db)).trash].sort((a, b) => b.at.localeCompare(a.at));
@@ -75,7 +79,14 @@ export type Counts = Record<Folder, { total: number; unread: number }>;
 export async function folderCounts(db: Db): Promise<Counts> {
   const c = await contactItems(db), f = await feedbackItems(db), drafts = await listDrafts(db), outbox = await listOutbox(db);
   const n = (a: MailItem[]) => ({ total: a.length, unread: a.filter((i) => i.unread).length });
-  return { inbox: n(c.inbox), messages: n(c.messages), feedback: n(f.items), drafts: n(drafts), sent: { total: c.sent.length + f.sent.length, unread: 0 }, outbox: { total: outbox.length, unread: outbox.filter((o) => o.status === "failed").length }, trash: { total: c.trash.length + f.trash.length, unread: 0 } };
+  return { inbox: n(c.inbox), messages: n(c.messages), feedback: n(f.items), flagged: { total: c.flagged.length + f.flagged.length, unread: 0 }, drafts: n(drafts), sent: { total: c.sent.length + f.sent.length, unread: 0 }, outbox: { total: outbox.length, unread: outbox.filter((o) => o.status === "failed").length }, trash: { total: c.trash.length + f.trash.length, unread: 0 } };
+}
+
+/** Pin (stay at the top of its folder) or flag (follow up, and listed under Flagged) a conversation or a piece of feedback. */
+export async function setMark(db: Db, kind: "contact" | "feedback", id: string, what: "pinned" | "flagged", on: boolean): Promise<boolean> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return false;
+  const t = kind === "contact" ? schema.contactMessages : schema.feedback;
+  return (await db.update(t).set({ [what]: on }).where(eq(t.id, id)).returning({ id: t.id })).length > 0;
 }
 
 /** Opening a conversation (or a piece of feedback) marks it read. */

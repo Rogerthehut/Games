@@ -7,7 +7,8 @@ import { OpsAccess, actorOf } from "./ops-access";
 import { EMAIL, addContactReply, contactForReply, contactList, deleteForever, emptyTrash, moveToTrash, restoreFromTrash } from "./contact";
 import type { Counters } from "./counters";
 import { cleanSignatureHtml } from "./signature-html";
-import { FOLDERS, deleteDraft, discardOutbox, folderCounts, getDraft, listFolder, markRead, markUnread, retryOne, saveDraft, sendOrQueue, type Folder } from "./mailbox";
+import { searchMail } from "./mail-search";
+import { FOLDERS, deleteDraft, discardOutbox, folderCounts, getDraft, listFolder, markRead, markUnread, retryOne, saveDraft, sendOrQueue, setMark, type Folder } from "./mailbox";
 import { MAX_SIGNATURES, deleteSignature, getSignature, listSignatures, saveSignature, setDefaultSignature } from "./signatures";
 import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
 
@@ -105,6 +106,20 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     if (!t) return NOT_FOUND;
     await markRead(d.db, "contact", id); await audit(d.db, actor, "mail-open", id);
     return ok({ kind, thread: { ...t, unread: false } });
+  }
+  if (req.path === "/api/ops/mail/search" && req.method === "GET") {
+    if (!(await withinLimit(d, who.userId, "search", 600))) return TOO_MANY;
+    const q = (req.query.get("q") ?? "").trim().slice(0, 80);
+    if (q.length < 2) return bad("Type at least two letters to search.");
+    await audit(d.db, actor, "mail-search", "-"); // that a search was made, never what for
+    return ok({ q, hits: await searchMail(d.db, q) });
+  }
+  if ((req.path === "/api/ops/mail/pin" || req.path === "/api/ops/mail/flag") && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "trash", 300))) return TOO_MANY;
+    const what = req.path.endsWith("pin") ? "pinned" : "flagged", kind = body.kind === "feedback" ? "feedback" : "contact", id = typeof body.id === "string" ? body.id : "";
+    if (!(await setMark(d.db, kind, id, what, body.on === true))) return NOT_FOUND;
+    await audit(d.db, actor, `mail-${what === "pinned" ? "pin" : "flag"}${body.on === true ? "" : "-off"}`, id);
+    return ok({ done: true });
   }
   if (req.path === "/api/ops/mail/unread" && req.method === "POST") {
     const kind = body.kind === "feedback" ? "feedback" : "contact";

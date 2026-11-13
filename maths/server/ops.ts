@@ -74,14 +74,14 @@ export async function accountByClerkId(db: Db, clerkUserId: string): Promise<Acc
   };
 }
 
-export interface FeedbackRow { ticket: number | null; unread: boolean; deletedAt: string | null; id: string; at: string; replies: { at: string; actor: string; message: string }[]; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; clerkUserId: string }
+export interface FeedbackRow { ticket: number | null; unread: boolean; deletedAt: string | null; pinned: boolean; flagged: boolean; id: string; at: string; replies: { at: string; actor: string; message: string }[]; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; clerkUserId: string }
 export async function feedbackList(db: Db, o: { days?: number; category?: string; replyable?: boolean; limit?: number; now?: Date } = {}): Promise<FeedbackRow[]> {
   const { feedback, parents } = schema, now = o.now ?? new Date();
   const where = [o.days ? gte(feedback.createdAt, new Date(now.getTime() - o.days * DAY)) : undefined, o.category ? eq(feedback.category, o.category) : undefined, o.replyable ? eq(feedback.mayReply, true) : undefined].filter((w) => w !== undefined);
   const rows = await db.select({ f: feedback, clerk: parents.clerkUserId }).from(feedback).innerJoin(parents, eq(parents.id, feedback.parentId)).where(where.length ? and(...where) : undefined).orderBy(desc(feedback.createdAt)).limit(Math.min(o.limit ?? 100, 500));
   const ids = rows.map((r) => r.f.id);
   const replies = ids.length ? await db.select().from(schema.feedbackReplies).where(inArray(schema.feedbackReplies.feedbackId, ids)).orderBy(schema.feedbackReplies.at) : [];
-  return rows.map(({ f, clerk }) => ({ ticket: f.ticket, unread: f.unread, deletedAt: f.deletedAt?.toISOString() ?? null, id: f.id, replies: replies.filter((r) => r.feedbackId === f.id).map((r) => ({ at: r.at.toISOString(), actor: r.actor, message: r.message })), at: f.createdAt.toISOString(), category: f.category, rating: f.rating, context: f.context, message: f.message, mayReply: f.mayReply, clerkUserId: clerk }));
+  return rows.map(({ f, clerk }) => ({ ticket: f.ticket, unread: f.unread, deletedAt: f.deletedAt?.toISOString() ?? null, pinned: f.pinned, flagged: f.flagged, id: f.id, replies: replies.filter((r) => r.feedbackId === f.id).map((r) => ({ at: r.at.toISOString(), actor: r.actor, message: r.message })), at: f.createdAt.toISOString(), category: f.category, rating: f.rating, context: f.context, message: f.message, mayReply: f.mayReply, clerkUserId: clerk }));
 }
 
 /** Writes down that someone looked at an account. The target is the internal id, never an email address. */

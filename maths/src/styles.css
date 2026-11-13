@@ -3577,6 +3577,9 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .ops-mail-folder { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border: 2px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 700; cursor: pointer; }
 .ops-mail-folder.on { border-color: var(--ink, #121522); background: var(--accent-soft); }
 .ops-mail-count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #121522; color: #fff; font-size: .75rem; }
+.ops-mail-search input { width: 100%; min-height: 44px; margin: 4px 0 8px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 10px; font: inherit; }
+.ops-mail-chip { align-self: flex-start; margin-top: 4px; padding: 1px 8px; border-radius: 999px; background: var(--accent-soft); font-size: .78rem; font-weight: 700; }
+.ops-mail-preview mark, .ops-mail-subject mark, .ops-mail-who mark { background: #fde68a; color: inherit; border-radius: 3px; padding: 0 1px; }
 .ops-mail-row { border-bottom: 1px solid var(--line); }
 .ops-mail-open { display: grid; gap: 2px; width: 100%; padding: 10px 4px; border: 0; background: transparent; text-align: left; cursor: pointer; }
 .ops-mail-open:hover { background: color-mix(in srgb, var(--accent-soft) 55%, transparent); }

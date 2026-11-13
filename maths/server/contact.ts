@@ -57,7 +57,7 @@ export async function purgeContact(db: Db, now = new Date()): Promise<void> {
 export interface ContactEntry { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null; /** who wrote it, when it came by email */ fromEmail: string | null }
 export interface ContactRow {
   id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null;
-  ticket: number | null; unread: boolean; deletedAt: string | null;
+  ticket: number | null; unread: boolean; deletedAt: string | null; pinned: boolean; flagged: boolean;
   message: string; replies: ContactEntry[];
   /** True when nobody on the team has answered yet, or the sender has written again since the last answer. */
   waiting: boolean;
@@ -70,7 +70,7 @@ export async function contactList(db: Db, o: { waiting?: boolean; limit?: number
   const replies = ids.length ? await db.select().from(schema.contactReplies).where(inArray(schema.contactReplies.contactId, ids)).orderBy(schema.contactReplies.at) : [];
   const out = rows.map((r): ContactRow => {
     const thread = replies.filter((x) => x.contactId === r.id).map(entry);
-    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, ticket: r.ticket, unread: r.unread, deletedAt: r.deletedAt?.toISOString() ?? null, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
+    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, ticket: r.ticket, unread: r.unread, deletedAt: r.deletedAt?.toISOString() ?? null, pinned: r.pinned, flagged: r.flagged, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
   });
   return o.waiting ? out.filter((r) => r.waiting) : out;
 }
