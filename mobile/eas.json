@@ -5,5 +5,5 @@
     "preview": { "distribution": "internal", "env": { "EXPO_PUBLIC_APP_URL": "https://yourquarter.co.uk" } },
     "production": { "autoIncrement": true, "env": { "EXPO_PUBLIC_APP_URL": "https://yourquarter.co.uk" } }
   },
-  "submit": { "production": { "ios": { "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID" } } }
+  "submit": { "production": { "ios": { "ascAppId": "6834493859" } } }
 }
