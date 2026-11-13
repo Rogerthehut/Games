@@ -26,7 +26,7 @@ function MapKey({ strands }: { strands: Set<string> }) {
       <h2>What the symbols mean</h2>
       <ul>
         {GLYPH_MEANING.filter(([, strand]) => strands.has(strand)).map(([sym, strand, text]) => (
-          <li key={strand}><span class="key-glyph" aria-hidden="true">{sym}</span><span><strong>{strand}</strong><small>{text}</small></span></li>
+          <li key={strand} title={`${strand}: ${text}`}><span class="key-glyph" aria-hidden="true">{sym}</span><span><strong>{strand}</strong><small>{text}</small></span></li>
         ))}
         <li><span class="key-glyph key-tick" aria-hidden="true">✓</span><span><strong>Secure</strong><small>you know this one well</small></span></li>
       </ul>
@@ -193,10 +193,11 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
         {wide ? (
           <aside class="journey-sidebar">
             {skillSheet}
+            <MapKey strands={strandsHere} />
             <nav class="journey-world-nav" aria-label="Jump to a world">
               <h2>Jump to a world</h2>
               {worlds.map(({ stage }) => (
-                <button type="button" class={`journey-world-link terrain-${stage.toLowerCase()}`} key={stage}
+                <button type="button" class={`journey-world-link terrain-${stage.toLowerCase()}`} key={stage} title={`${WORLDS[stage]}: ${STAGE_LABEL[stage]}`}
                   onClick={() => {
                     const heading = document.getElementById(`journey-world-${stage}`);
                     heading?.scrollIntoView({ block: "start" });
@@ -207,7 +208,6 @@ export function Journey({ heading, picked, setPicked }: { heading: ComponentChil
                 </button>
               ))}
             </nav>
-            <MapKey strands={strandsHere} />
           </aside>
         ) : <>{skillSheet}<details class="journey-key-fold"><summary>What the symbols mean</summary><MapKey strands={strandsHere} /></details></>}
       </div>

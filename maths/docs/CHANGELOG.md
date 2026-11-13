@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Skills map: the symbols key is always in view
+On wide screens the right-hand column on Skills had three cards stacked taller than the window, so "What the symbols mean" was cut off until you scrolled down the path. The key now sits directly under the skill card (above "Jump to a world"), is laid out in two columns, and the column stays beside the map. On short windows (under 800px tall) the short descriptions are dropped (they stay as tooltips) so the whole key still fits; very short windows scroll the column on its own.
+
 ## "Message us" replaces the email address
 The footer no longer shows `hello@yourquarter.co.uk` (which isn't an inbox yet). It has a **Message us** link to a short contact page (`/?info=contact`) on every page, including the blog and guides. Messages are stored (sender's email kept only to reply, deleted after 180 days) and answered from a new **Messages** tab in the ops portal, emailed from hello@yourquarter.co.uk through Resend. Protected by the human check, a hidden bot field and per-address and per-email limits. The privacy notice, terms, My data page and the booklet now point people to the Message us page instead of the address. The sitemap lists the page. Migration `0008_contact_messages.sql`. See `docs/OPS.md`.
 

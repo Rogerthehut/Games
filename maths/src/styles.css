@@ -1728,13 +1728,23 @@ a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-under
 .journey-wide .node-label { width: clamp(92px, 10cqi, 132px); }
 .journey-sidebar {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   padding: 4px 4px 8px;
   margin: -4px -4px 0;
+  /* always stays beside the map, with the symbols key in view; scrolls on its own only if the window is very short */
+  position: sticky; top: 66px;
+  max-height: calc(100dvh - 74px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
 }
-@media (min-height: 780px) {
-  .journey-sidebar { position: sticky; top: 66px; }
-}
+.journey-sidebar .journey-key { margin-top: 0; padding: 10px 12px; }
+.journey-sidebar .journey-key h2 { margin-bottom: 8px; }
+.journey-sidebar .journey-key ul { grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+.journey-sidebar .journey-key li { align-items: flex-start; gap: 8px; min-width: 0; }
+.journey-sidebar .journey-key .key-glyph { flex: 0 0 34px; width: 34px; height: 34px; min-width: 34px; }
+.journey-sidebar .journey-key li span:last-child { min-width: 0; }
+.journey-sidebar .journey-key strong { font-size: .88rem; }
+.journey-sidebar .journey-key small { font-size: .72rem; line-height: 1.25; }
+.journey-sidebar .journey-world-nav { padding: 10px 12px; gap: 0; }
+.journey-sidebar .journey-world-link { min-height: 38px; padding-block: 3px; }
 .journey-wide .journey-sidebar .sheet {
   position: static;
   width: 100%;
@@ -3540,3 +3550,14 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .contact-error { color: #b42318; font-weight: 700; }
 .contact-form .btn.primary { margin-top: 8px; }
 .contact-done { padding: 8px 0 24px; }
+@media (max-height: 800px) {
+  .journey-sidebar { gap: 8px; }
+  .journey-sidebar .journey-world-link { min-height: 32px; padding-block: 1px; }
+  .journey-sidebar .journey-world-nav { padding-block: 8px; }
+  .journey-sidebar .journey-world-nav h2, .journey-sidebar .journey-key h2 { margin-bottom: 4px; }
+  /* on short windows, the short labels go (they stay as tooltips) so the whole key still fits beside the map */
+  .journey-sidebar .journey-world-link small, .journey-sidebar .journey-key small { display: none; }
+  .journey-sidebar .journey-key li { align-items: center; }
+  .journey-sidebar .journey-key ul { grid-template-columns: 1fr; gap: 4px; }
+  .journey-sidebar .journey-key .key-glyph { flex-basis: 30px; width: 30px; height: 30px; min-width: 30px; border-radius: 9px; }
+}
