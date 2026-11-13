@@ -37,6 +37,7 @@ export class AccountApi implements SyncApi {
   }
 
   async getAccount(): Promise<AccountInfo> { return (await this.request<AccountInfo>("GET", "/api/account")).data; }
+  async sendQuestionStats(events: unknown[]) { await this.request("POST", "/api/stats/questions", { events }); }
   async consent(version: string) { await this.request("POST", "/api/account/consent", { version }); }
   async createLearner(profile: Profile): Promise<{ id: string; version: number }> {
     return (await this.request<{ id: string; version: number }>("POST", "/api/learners", { profile: forServer(profile) })).data;

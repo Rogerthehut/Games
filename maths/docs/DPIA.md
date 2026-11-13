@@ -23,9 +23,10 @@ Children's data and an AI tutor make this worth assessing, but the amount of dat
 | Rate-limit counters | Our database. A count of requests per hour or day for a keyed hash of a device id, parent id or visitor address (never the value itself, never message text); rows are removed within a day | Keep the AI tutor and the free endpoints from being overused or abused |
 | Ops audit log | Admin tag (not a name or email), action and the internal id looked at. Kept even after a parent is deleted | Show who on the team looked at what |
 | AI assistant questions (parent) | Not saved anywhere. Sent with the recent chat and the learner's school year (not nickname or account id) to the AI provider for a reply | Parent help |
+| Anonymous question tallies (weekly counts by topic, level, age band and result; no identifiers) | Our database (`question_stats`, `misconception_stats`) | Finding questions that are too hard, too easy or confusing; improving and extending question sets. See `DATA_COLLECTION.md` |
 | AI tutor chats | The child's browser only. Sent to the tutor service and AI provider to get a reply; not saved to our database | Tutoring |
 
-**Not collected:** real names, birthdays, photos, addresses, emails in our database, location beyond an optional coarse area, tracking or analytics.
+**Not collected:** real names, birthdays, photos, addresses, emails in our database, location beyond an optional coarse area, tracking or analytics. The anonymous question tallies are the one exception to "no analytics": counts only, nothing that identifies a person (see `DATA_COLLECTION.md`).
 Up to 3 learners per account. Database held in **Europe (EU)**.
 
 ## Who else handles it

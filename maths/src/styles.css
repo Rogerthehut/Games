@@ -3606,3 +3606,17 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 /* the placeholder portrait for a learner who hasn't chosen a character yet */
 .avatar-blank { display: inline-block; overflow: hidden; border-radius: 50%; background: linear-gradient(160deg, #8b5cf6, #6d3fd1); flex: none; }
 .avatar-blank svg { display: block; width: 100%; height: 100%; fill: rgba(255, 255, 255, .88); }
+
+/* setup wizard: pick a look in a sideways carousel, one character at a time */
+.ob-roles { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
+.ob-roles .btn:first-child { margin-left: auto; } .ob-roles .btn:last-child { margin-right: auto; }
+.ob-roles::-webkit-scrollbar { display: none; }
+.ob-roles .btn { flex: none; }
+.ob-carousel-wrap { display: flex; align-items: center; gap: 4px; margin: 6px -8px; }
+.ob-carousel { flex: 1; min-width: 0; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 8px 14px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.ob-carousel::-webkit-scrollbar { display: none; }
+.ob-portrait { flex: none; scroll-snap-align: center; padding: 8px; border-radius: 18px; min-height: 0; }
+.ob-arrow { flex: none; width: 36px; height: 44px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; color: inherit; border-radius: 12px; }
+.ob-arrow:hover, .ob-arrow:focus-visible { background: rgba(0, 0, 0, .06); }
+.ob-swipe { text-align: center; margin: 0 0 12px; }
+@media (hover: none) { .ob-arrow { display: none; } }

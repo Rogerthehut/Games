@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.server.json",
     "test": "vitest run",
     "server": "node --enable-source-maps dist-server/index.mjs",
+    "indexnow": "tsx scripts/indexnow.ts",
     "booklet": "tsx scripts/build-booklet.ts",
     "audit:worked": "tsx scripts/audit-worked.ts",
     "paper-sample": "tsx scripts/build-paper-sample.ts",

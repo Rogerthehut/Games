@@ -254,6 +254,14 @@ export function Parent() {
             <p>Maths papers in the style of the 11+, ready to print on A4, with an answer sheet and a mark scheme with the steps. Every paper has a number, so you can print it again or give the same one to a brother or sister.</p>
             <div class="actions"><button class="btn primary" onClick={() => go({ name: "print-paper" }, { name: "parent" })} data-testid="papers-open">Choose a paper</button></div>
           </section>
+          {account && (
+            <section class="card" aria-labelledby="stats-h" data-testid="stats-section">
+              <h2 id="stats-h">Help improve quarter's questions</h2>
+              <p>When {profile.name} answers a practice question, quarter adds one anonymous tally: the topic, the level, an age band (such as Key Stage 2), whether it was right, right with help or wrong, how many seconds it took, and the short code of the mistake if there was one. It never includes {profile.name}'s name, who you are, the question text or anything typed, and it's added to weekly totals with everyone else's, so it can't be traced back to your child. We use the totals to find questions that are too hard, too easy or confusing, and to build better question sets.</p>
+              <label class="check"><input type="checkbox" checked={profile.shareStats !== false} onChange={(e) => update((p) => ({ ...p, shareStats: (e.target as HTMLInputElement).checked }))} data-testid="stats-toggle" /> Share anonymous question tallies for {profile.name}</label>
+              <p class="small muted">Turning it off stops any more being sent. Tallies already added to the totals can't be taken back out, because they don't say whose they are.</p>
+            </section>
+          )}
           {account && <WeeklyEmailSection />}
           {account && <SubscriptionSection />}
           {account && <AccountSection />}

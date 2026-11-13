@@ -123,6 +123,8 @@ export interface Profile {
   fractionsLessonAnswer?: string;
   narrationVoice?: "female" | "male";
   avatar?: AvatarChoice;
+  /** The grown-up has switched off the anonymous question statistics for this learner (docs/DATA_COLLECTION.md). On unless this is false. */
+  shareStats?: boolean;
   id: string;
   name: string;
   year: number;

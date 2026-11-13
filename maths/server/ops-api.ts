@@ -1,3 +1,4 @@
+import { questionStats, questionStatsCsv } from "./question-stats";
 import type { AuthProvider } from "./auth";
 import type { Db } from "./db";
 import type { Repo } from "./db/repo";
@@ -60,6 +61,11 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
   if (!(await d.access.sessionOk(who.userId, req.session))) return NOT_FOUND;
 
   if (req.path === "/api/ops/stats" && req.method === "GET") return ok(await stats(d.db));
+  if (req.path === "/api/ops/question-stats" && req.method === "GET") {
+    await audit(d.db, actor, "question-stats", "-");
+    if (req.query.get("format") === "csv") return ok({ csv: await questionStatsCsv(d.db) });
+    return ok(await questionStats(d.db));
+  }
 
   if (req.path === "/api/ops/feedback" && req.method === "GET") {
     const days = Number(req.query.get("days")) || undefined;

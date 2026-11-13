@@ -19,6 +19,8 @@ Everything public is plain HTML, generated at build time from the same data the 
 | `robots.txt` (allows everything except `/api/` and `/ops`; the ops page also sends `noindex`), `/.well-known/security.txt` | `public/` |
 | Icons: `favicon.ico`, 16, 32, 180 (Apple), 192, 512 and a maskable 512, plus the web manifest | `npm run icons` redraws them from `public/icon.svg` |
 
+**Bing and IndexNow:** `public/<key>.txt` proves we own the site, and `npm run indexnow` sends every sitemap URL (or just the ones you pass it) to the IndexNow engines, which share them with Bing. Run it after a deploy that adds or changes public pages. A 200 or 202 means accepted; 403 means the key file isn't live yet. IndexNow doesn't replace submitting `sitemap.xml` in Bing Webmaster Tools.
+
 The booklet PDF, the learning app and the account pages are deliberately not in the sitemap.
 
 ## Adding and updating content

@@ -88,6 +88,9 @@ Every code sent, sign-in, failed code, inbox view, reply and account lookup is w
 
 Under **Account lookup**, find the parent by email and a **Delete this account** section appears. Type exactly `delete <their email>` and press the button. It does what the parent's own Delete button does: cancels the subscription first (and stops if that fails, so nobody is billed for something deleted), deletes the account, their learners' progress and their feedback, removes their sign-in, and emails them to say so. The audit log records `account-delete` with the internal id, written before the deletion, and never the email address.
 
+## Question statistics
+The Numbers tab shows anonymous question tallies: which topics and levels children get right first time least often, how long they take, and the commonest mistake. Levels need at least 30 answers to appear. `DATABASE_URL=... npm run ops -- questions` prints the same, and `-- questions --csv` prints every weekly row for a spreadsheet. Counts only: nothing says whose answer it was. See `DATA_COLLECTION.md`.
+
 ## The mailbox (ops page, Mail tab)
 
 The **Mail** tab is a normal-looking mailbox over everything people send us. Folders (with unread counts):

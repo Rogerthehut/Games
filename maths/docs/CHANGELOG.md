@@ -2,6 +2,11 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Anonymous question statistics, a swipeable avatar step, and IndexNow
+- **Question statistics.** Practice now adds one anonymous tally per answered question (topic, level, age band, right / right with help / wrong, seconds, and the code of the mistake). The server keeps only weekly totals (`question_stats`, `misconception_stats`, migration `0013_question_stats.sql`): no parent, learner, device, address, question text or exact time. Parents can switch it off per learner in Parents' area, and the privacy notice says what it is (so the terms version moved to 2026-11-13: everyone is asked to agree again). The team sees it in the ops Numbers tab (hardest topics first), `npm run ops -- questions`, and `--csv` for a spreadsheet. See `docs/DATA_COLLECTION.md`.
+- **Avatar step** is now a sideways carousel: pick Explorer, Scholar, Artist or Skater, then swipe through that character's portraits.
+- **IndexNow** for Bing: key file in `public/` and `npm run indexnow` (see `docs/SEO.md`).
+
 ## Setting up on behalf of a child, up to three children, and a fuller setup wizard
 The create-account tick box now says the parent or guardian is setting the account up on behalf of their child (or children), and the consent step says the same. The setup wizard asks for **your child's** nickname (not a full name) and says up to 3 children can be added, here or later from the Me page. After the school year there is a new optional step to **choose a character and portrait** (or skip), then a "ready" screen that lets you add another child (nickname, year, look) up to the limit, then **Start learning** opens the first child. An account is now **capped at 3 children** (it was 8): the server refuses a fourth, Me shows "up to 3 children" instead of the add button, and an account that already has more keeps them. `src/account/limits.ts` and `MAX_LEARNERS` hold the number. The wording change is consent-related: show it to your solicitor in the final review.
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { MAX_CHILDREN } from "../account/limits";
 import { AVATAR_ROLES, avatarBand, type AvatarChoice, type AvatarRole } from "../engine/avatar";
 import { newProfile, type Profile } from "../engine/progress";
@@ -20,19 +20,27 @@ const YEARS: { y: number; age: string; stage: string }[] = [
 /** Pick a character and a portrait for one child. Optional: the child can choose later in Me. */
 function AvatarStep({ year, name, value, onPick }: { year: number; name: string; value?: AvatarChoice; onPick: (a: AvatarChoice) => void }) {
   const [role, setRole] = useState<AvatarRole>(typeof value === "object" && value && "role" in value ? value.role : "explorer");
+  const strip = useRef<HTMLDivElement>(null);
   const band = avatarBand(year);
+  const choose = (id: AvatarRole) => { setRole(id); strip.current?.scrollTo({ left: 0 }); };
+  const nudge = (dir: 1 | -1) => strip.current?.scrollBy({ left: dir * (strip.current.clientWidth * 0.8), behavior: "smooth" });
   return (
     <>
-      <div class="avatar-roles" role="group" aria-label="Character">
-        {AVATAR_ROLES.map(({ id, label }) => <button key={id} type="button" class="btn small" aria-pressed={role === id} onClick={() => setRole(id)}>{label}</button>)}
+      <div class="ob-roles" role="group" aria-label="Character">
+        {AVATAR_ROLES.map(({ id, label }) => <button key={id} type="button" class="btn small" aria-pressed={role === id} onClick={() => choose(id)}>{label}</button>)}
       </div>
-      <div class="avatar-choices" role="group" aria-label={`Portraits for ${name}`}>
-        {avatarVariants(role, band).map((variant) => {
-          const choice: AvatarChoice = { role, variant, band };
-          const on = typeof value === "object" && !!value && "role" in value && value.role === role && value.variant === variant;
-          return <button key={variant} type="button" class="btn" aria-pressed={on} aria-label={`${role}, look ${variant}`} onClick={() => onPick(choice)} data-testid={`ob-avatar-${variant}`}><Avatar choice={choice} year={year} size={72} showProp /></button>;
-        })}
+      <div class="ob-carousel-wrap">
+        <button type="button" class="ob-arrow" aria-label="Previous portraits" onClick={() => nudge(-1)}><Icon name="back" size={20} /></button>
+        <div class="ob-carousel" ref={strip} role="group" aria-label={`Portraits for ${name}. Swipe sideways to see more.`} tabIndex={0}>
+          {avatarVariants(role, band).map((variant) => {
+            const choice: AvatarChoice = { role, variant, band };
+            const on = typeof value === "object" && !!value && "role" in value && value.role === role && value.variant === variant;
+            return <button key={`${role}${variant}`} type="button" class="btn ob-portrait" aria-pressed={on} aria-label={`${role}, look ${variant}`} onClick={() => onPick(choice)} data-testid={`ob-avatar-${variant}`}><Avatar choice={choice} year={year} size={104} showProp /></button>;
+          })}
+        </div>
+        <button type="button" class="ob-arrow" aria-label="More portraits" onClick={() => nudge(1)}><Icon name="chevron" size={20} /></button>
       </div>
+      <p class="small muted ob-swipe">Swipe sideways to see more looks.</p>
     </>
   );
 }

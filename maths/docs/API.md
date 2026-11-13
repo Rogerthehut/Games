@@ -31,6 +31,7 @@ A valid Clerk session token. Every query is scoped to that parent. Writes also n
 | `POST /api/billing/checkout` | Start Stripe Checkout |
 | `POST /api/billing/portal` | Open Stripe's customer portal |
 | `POST /api/feedback` | Send feedback (a few a day) |
+| `POST /api/stats/questions` | Anonymous question tallies (202). Stored as weekly counts only; the sender isn't recorded |
 | `POST /api/assistant` | Parents' AI assistant (subscribers, per-parent limits) |
 
 ## Machine callers

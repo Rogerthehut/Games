@@ -1,3 +1,4 @@
+import { cleanEvents } from "./question-stats";
 import { MemoryCounters, type Counters } from "./counters";
 import { TERMS_VERSION } from "../src/legal/terms-version";
 import type { AuthProvider } from "./auth";
@@ -57,7 +58,7 @@ export const MAX_BODY = MAX_PROFILE_BYTES + 20_000;
 const reply = (status: number, body: unknown, headers?: Record<string, string>): ApiResponse => ({ status, body, headers });
 const err = (status: number, code: string, message: string) => reply(status, { error: code, message });
 const LEARNER = /^\/api\/learners\/([^/]+)$/;
-export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/assistant" || path === "/api/feedback" || path === "/api/learners" || LEARNER.test(path);
+export const isAccountRoute = (path: string) => path === "/api/account" || path.startsWith("/api/account/") || path.startsWith("/api/billing/") || path === "/api/assistant" || path === "/api/feedback" || path === "/api/stats/questions" || path === "/api/learners" || LEARNER.test(path);
 
 /**
  * Parents' accounts and their learners' saved progress. Signed-in parents only; every query is scoped to the parent.
@@ -128,6 +129,15 @@ export async function handleAccountApi(req: ApiRequest, deps: AccountDeps): Prom
     if ((await deps.repo.recentFeedbackCount(parent.id)) >= FEEDBACK_PER_DAY) return err(429, "slow-down", "Thanks, we have plenty from you today. Please try again tomorrow.");
     await deps.repo.addFeedback(parent.id, f);
     return reply(201, { saved: true });
+  }
+
+  // anonymous question statistics (docs/DATA_COLLECTION.md): the sender is only used to stop floods and is never stored
+  if (req.path === "/api/stats/questions" && req.method === "POST") {
+    if (!consented) return err(403, "consent-required", "Please agree to the privacy notice and terms first.");
+    const events = cleanEvents(body);
+    if (!events.length) return err(400, "invalid", "Nothing to record.");
+    await deps.repo.recordQuestionStats(events);
+    return reply(202, { recorded: events.length });
   }
 
   // the weekly email: a parent's own choice, off until they turn it on

@@ -10,6 +10,7 @@ What protects quarter's server, what to set, and what is still open. Reviewed 12
 | `/api/tutor` | Anyone with a human-check pass | Cloudflare Turnstile pass, rate limits per device, per address and a daily global cap, and screening of messages and replies |
 | `/api/ops/...` and `/ops` | The team only | Clerk sign-in, an allow-list of email addresses, an emailed one-time code, a one-hour signed session; anyone else gets "not found"; everything is audit-logged (`docs/OPS.md`) |
 | `/api/internal/digest` | The scheduler | A shared secret (`CRON_SECRET`), compared in constant time; "not found" without it |
+| `/api/stats/questions` | A signed-in parent who has agreed to the terms | Same account limits; strict validation (ids, ranges, at most 100 events); only counts are stored, never who sent them |
 | `/api/stripe/webhook` | Stripe | The signature is checked; 1 MB limit |
 | `/unsubscribe` | Anyone with the link | A long random token per parent; a GET only shows a button, the POST does the change |
 | `/api/outcode` | Anyone | Only the first half of a postcode is accepted; rate limited |

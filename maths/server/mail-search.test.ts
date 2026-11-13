@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { FakeAuth } from "./auth";
-import { cleanContact, contactList, moveToTrash, recordInbound, saveContact } from "./contact";
+import { cleanContact, moveToTrash, recordInbound, saveContact } from "./contact";
 import { MemoryCounters } from "./counters";
 import { connectMemory, migrate, type Db } from "./db";
 import { makeRepo } from "./db/repo";
@@ -26,7 +26,7 @@ describe("distance and wordScore", () => {
   it("ignore case and accents", () => { expect(normalise("Ünïcode ÉCOLE")).toBe("unicode ecole"); expect(wordScore("ecole", ["ecole"], "ecole").score).toBe(1); });
 });
 
-const doc = (o: Partial<SearchDoc> & { who: string; subject: string; body: string; ref?: string }): SearchDoc => ({ kind: "contact", id: Math.random().toString(16).slice(2), ref: o.ref ?? null, who: o.who, subject: o.subject, preview: o.body.slice(0, 40), at: "2026-11-13T10:00:00Z", unread: false, direction: "in", folder: "inbox", fields: { ref: o.ref ?? "", who: o.who, subject: o.subject, body: o.body }, ...o } as SearchDoc);
+const doc = (o: Partial<SearchDoc> & { who: string; subject: string; body: string; ref?: string }): SearchDoc => { const { body, ...rest } = o; return { kind: "contact", id: Math.random().toString(16).slice(2), ref: o.ref ?? null, preview: body.slice(0, 40), at: "2026-11-13T10:00:00Z", unread: false, direction: "in", folder: "inbox", ...rest, fields: { ref: o.ref ?? "", who: o.who, subject: o.subject, body } } as SearchDoc; };
 describe("searchDocs", () => {
   const docs = [
     doc({ who: "Sam Parent sam@example.com", subject: "Billing question", body: "I was charged twice this month, please refund", ref: "Q-1001" }),

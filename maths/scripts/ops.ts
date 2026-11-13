@@ -10,6 +10,7 @@
 import { userInfo } from "node:os";
 import { createClerkClient } from "@clerk/backend";
 import { connect } from "../server/db";
+import { questionStats, questionStatsCsv } from "../server/question-stats";
 import { accountByClerkId, audit, auditLog, feedbackList, formatAccount, formatStats, stats } from "../server/ops";
 
 const [command, ...rest] = process.argv.slice(2);
@@ -20,6 +21,7 @@ const usage = `Usage: npm run ops -- <command>
   stats                          how many parents, subscriptions, learners and feedback items there are
   account <email> | --id <user>  support facts about one parent (logged)
   feedback [--days N] [--category X] [--replyable] [--limit N]   what parents have sent (with --replyable and a Clerk key, shows their email, logged)
+  questions [--csv]              anonymous question statistics (docs/DATA_COLLECTION.md); --csv prints every row
   audit [--limit N]              who has looked at what`;
 
 if (!command || command === "help") { console.log(usage); process.exit(0); }
@@ -49,6 +51,13 @@ try {
         try { const u = await c.users.getUser(r.clerkUserId); reply = `may reply: ${u.primaryEmailAddress?.emailAddress ?? "no email"}`; await audit(db, actor, "feedback-email", `clerk:${r.clerkUserId.slice(-8)}`); } catch { reply = "may reply (email lookup failed)"; }
       }
       console.log(`\n${r.at} | ${r.category} | ${r.rating ? `${r.rating}/5` : "no rating"} | ${r.context ?? ""} | ${reply}\n${r.message}`);
+    }
+  } else if (command === "questions") {
+    if (rest.includes("--csv")) console.log(await questionStatsCsv(db));
+    else {
+      const s = await questionStats(db);
+      console.log(`${s.totalAttempts} answers over ${s.weeks} week(s), ${s.topics} topics. Hardest first (levels with at least 30 answers):`);
+      for (const r of s.rows.slice(0, 40)) console.log(`${r.skill.padEnd(28)} L${r.level}  ${String(r.rightPct).padStart(3)}% right first time  ${r.attempts} answers  ${r.avgSecs}s${r.hardest ? `  common mistake: ${r.hardest}` : ""}`);
     }
   } else if (command === "audit") {
     const rows = await auditLog(db, flag("limit") ? Number(flag("limit")) : 50);

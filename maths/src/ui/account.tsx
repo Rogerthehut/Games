@@ -1,3 +1,4 @@
+import { flushQuestionStats, setQuestionStatsSender } from "../account/question-stats";
 import { isNativeApp, saveFile } from "../native/bridge";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { clearAllPins } from "./pin";
@@ -151,9 +152,10 @@ export function AccountGate() {
         auth.current = a;
         setAuthReady(a);
         api.current = new AccountApi(() => a.getToken());
+        setQuestionStatsSender((events) => api.current!.sendQuestionStats(events));
         off = a.subscribe(() => {
           const now = a.user();
-          if (!now) { sync.current?.dispose(); sync.current = null; handlers.current = null; setPhase({ name: "signed-out" }); }
+          if (!now) { setQuestionStatsSender(null); sync.current?.dispose(); sync.current = null; handlers.current = null; setPhase({ name: "signed-out" }); }
           else if (now.id !== userId.current || phaseRef.current === "signed-out") void boot();
         });
         await boot();
@@ -162,7 +164,7 @@ export function AccountGate() {
       }
     })();
     const online = () => void sync.current?.flushNow();
-    const hide = () => { if (document.visibilityState === "hidden") void sync.current?.flushNow(); };
+    const hide = () => { if (document.visibilityState === "hidden") { void sync.current?.flushNow(); void flushQuestionStats(); } };
     addEventListener("online", online);
     document.addEventListener("visibilitychange", hide);
     return () => { alive = false; off(); removeEventListener("online", online); document.removeEventListener("visibilitychange", hide); };
@@ -173,6 +175,7 @@ export function AccountGate() {
   const signOut = async () => {
     try { await sync.current?.flushNow(); } catch { /* signing out matters more than a last save */ }
     sync.current?.dispose(); sync.current = null;
+    setQuestionStatsSender(null);
     clearCaches();           // nothing about the account stays on a shared device
     clearAllPins();
     await auth.current?.signOut();

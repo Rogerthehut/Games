@@ -435,12 +435,29 @@ function SignatureManager({ call, sigs, onChanged }: { call: Call; sigs: SigFull
   );
 }
 
+type QRow = { skill: string; level: number; attempts: number; rightPct: number; helped: number; wrong: number; avgSecs: number; hardest?: string };
+/** Anonymous question statistics: which topics and levels children find hardest. Counts only (docs/DATA_COLLECTION.md). */
+function QuestionNumbers({ call }: { call: Call }) {
+  const [q, setQ] = useState<{ totalAttempts: number; topics: number; weeks: number; rows: QRow[] } | null>(null);
+  useEffect(() => { call<{ totalAttempts: number; topics: number; weeks: number; rows: QRow[] }>("GET", "/api/ops/question-stats").then((r) => setQ(r.ok ? r.data : { totalAttempts: 0, topics: 0, weeks: 0, rows: [] })); }, []);
+  if (!q) return null;
+  return (
+    <section class="card" data-testid="ops-question-stats"><h2>Question statistics</h2>
+      <p class="small muted">Anonymous tallies from practice: {q.totalAttempts} answers over {q.weeks} week{q.weeks === 1 ? "" : "s"}, {q.topics} topics. Levels with at least 30 answers, lowest first-time-right first.</p>
+      {q.rows.length ? <div style="overflow-x:auto"><table><thead><tr><th scope="col" style="text-align:left">Topic</th><th scope="col">Level</th><th scope="col">Right first time</th><th scope="col">Answers</th><th scope="col">Seconds</th><th scope="col" style="text-align:left">Common mistake</th></tr></thead>
+        <tbody>{q.rows.slice(0, 30).map((r) => <tr key={`${r.skill}${r.level}`}><th scope="row" style="text-align:left;padding-right:12px">{r.skill}</th><td>{r.level}</td><td>{r.rightPct}%</td><td>{r.attempts}</td><td>{r.avgSecs}</td><td>{r.hardest ?? ""}</td></tr>)}</tbody></table></div>
+        : <p class="muted">Not enough answers yet.</p>}
+    </section>
+  );
+}
+
 function Numbers({ call }: { call: Call }) {
   const [s, setS] = useState<Record<string, any> | null>(null);
   useEffect(() => { call<Record<string, any>>("GET", "/api/ops/stats").then((r) => setS(r.ok ? r.data : {})); }, []);
   if (!s) return <p>Loading…</p>;
   const row = (k: string, v: unknown) => <tr key={k}><th scope="row" style="text-align:left;padding-right:16px">{k}</th><td>{String(v)}</td></tr>;
   return (
+    <>
     <section class="card" data-testid="ops-numbers"><h2>Numbers</h2>
       {s.parents && <table><tbody>
         {row("Parents", s.parents.total)}{row("New in 7 days", s.parents.newLast7)}{row("New in 30 days", s.parents.newLast30)}
@@ -450,6 +467,8 @@ function Numbers({ call }: { call: Call }) {
         {row("Feedback in 7 days", s.feedback.last7)}
       </tbody></table>}
     </section>
+    <QuestionNumbers call={call} />
+    </>
   );
 }
 

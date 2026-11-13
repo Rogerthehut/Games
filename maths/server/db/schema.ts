@@ -1,4 +1,4 @@
-import { bigint, boolean, integer, jsonb, pgTable, primaryKey, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, integer, jsonb, pgTable, primaryKey, smallint, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 /** The tables, mirrored from migrations/. The SQL files are the source of truth; this is for typed queries. */
 export const parents = pgTable("parents", {
@@ -176,3 +176,24 @@ export const opsOutbox = pgTable("ops_outbox", {
   nextAttempt: timestamp("next_attempt", { withTimezone: true }).notNull().defaultNow(),
   actor: text("actor").notNull(),
 });
+
+/** Anonymous counts of how questions went, by week, topic, level and age band. No identifiers of any kind. See server/question-stats.ts. */
+export const questionStats = pgTable("question_stats", {
+  week: date("week", { mode: "string" }).notNull(),
+  skill: text("skill").notNull(),
+  level: smallint("level").notNull(),
+  band: text("band").notNull(),
+  attempts: integer("attempts").notNull().default(0),
+  rightN: integer("right_n").notNull().default(0),
+  helped: integer("helped").notNull().default(0),
+  wrong: integer("wrong").notNull().default(0),
+  secs: bigint("secs", { mode: "number" }).notNull().default(0),
+}, (t) => ({ pk: primaryKey({ columns: [t.week, t.skill, t.level, t.band] }) }));
+
+export const misconceptionStats = pgTable("misconception_stats", {
+  week: date("week", { mode: "string" }).notNull(),
+  skill: text("skill").notNull(),
+  tag: text("tag").notNull(),
+  band: text("band").notNull(),
+  n: integer("n").notNull().default(0),
+}, (t) => ({ pk: primaryKey({ columns: [t.week, t.skill, t.tag, t.band] }) }));

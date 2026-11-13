@@ -1,3 +1,4 @@
+import { recordEvents, type QEvent } from "../question-stats";
 import { and, asc, eq, gt, sql } from "drizzle-orm";
 import type { Db } from "./index";
 import { randomBytes } from "node:crypto";
@@ -28,6 +29,8 @@ export function makeRepo(db: Db) {
   }
 
   return {
+    /** Anonymous question counts (see server/question-stats.ts). Nothing here says who. */
+    recordQuestionStats: (events: QEvent[]) => recordEvents(db, events),
     async upsertParent(clerkUserId: string): Promise<Parent> {
       await db.insert(parents).values({ clerkUserId }).onConflictDoNothing({ target: parents.clerkUserId });
       const [p] = await db.select().from(parents).where(eq(parents.clerkUserId, clerkUserId));
