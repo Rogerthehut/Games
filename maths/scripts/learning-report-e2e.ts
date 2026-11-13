@@ -42,7 +42,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   await page.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
   const tap = async (digits: string) => { for (const d of digits) await page.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); };
   const rail = page.locator("[data-testid=rail-parents]:visible");
-  if (await rail.count()) await rail.click(); else { const t = page.locator("[data-testid=nav-me]:visible").first(); await t.click(); await page.waitForTimeout(300); await page.getByTestId("open-parents").click(); }
+  if (await rail.count()) await rail.click(); else { await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("rail-open-me").click(); await page.waitForTimeout(300); await page.getByTestId("open-parents").click(); }
   await page.waitForTimeout(300);
   const m = /(\d+)\s*×\s*(\d+)/.exec(await page.locator(".gate-sum").innerText())!; await tap(String(+m[1] * +m[2])); await page.getByTestId("gate-go").click(); await page.waitForTimeout(400);
   if (await page.getByTestId("pin-input").count()) { const rounds = /Make a PIN/.test(await page.getByTestId("pin-prompt").innerText()) ? 2 : 1; for (let k = 0; k < rounds; k++) { await tap("482915"); await page.getByTestId("pin-go").click(); await page.waitForTimeout(450); } }

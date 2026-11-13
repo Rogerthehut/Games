@@ -11,7 +11,7 @@ import { APP_HOST, APP_URL, APP_VERSION, BACKGROUND, USER_AGENT_SUFFIX } from ".
 import { decideNavigation, deepLink, isAppUrl } from "./links";
 import { parseMessage, type FromWeb } from "./messages";
 import { Dock } from "./Dock";
-import { isDockTab, type DockTab } from "./messages";
+import { isDockSelection, isDockTab, type DockTab } from "./messages";
 import { askForReview, biometric, haptic, setReminders } from "./native";
 
 /**
@@ -32,7 +32,7 @@ export default function App() {
   const [failed, setFailed] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const [uri, setUri] = useState(APP_URL);
-  const [dock, setDock] = useState<{ visible: boolean; tab: DockTab }>({ visible: false, tab: "today" });
+  const [dock, setDock] = useState<{ visible: boolean; tab: DockTab | "none" }>({ visible: false, tab: "today" });
 
   // Links to the site (from Messages, Mail, Safari) open here, on the page they point to
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function App() {
       case "biometric": tell({ type: "biometric-result", id: m.id, result: await biometric(m.reason) }); break;
       case "reminders": tell({ type: "reminders-result", result: await setReminders(m) }); break;
       case "review": await askForReview(); break;
-      case "dock": if (isDockTab(m.tab)) setDock({ visible: m.visible, tab: m.tab }); break;
+      case "dock": if (isDockSelection(m.tab)) setDock({ visible: m.visible, tab: m.tab }); break;
     }
   }, [tell]);
 
@@ -118,7 +118,7 @@ export default function App() {
         originWhitelist={["https://*"]}
         backgroundColor={BACKGROUND}
       />
-      {dock.visible && !failed && <Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} />}
+      {dock.visible && !failed && <Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} />}
       {loading && !failed && <View style={styles.cover} pointerEvents="none"><ActivityIndicator size="large" color="#2f3a73" /></View>}
       {failed && (
         <View style={styles.cover}>

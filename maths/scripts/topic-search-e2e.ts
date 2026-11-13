@@ -45,7 +45,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
 
   // the Parents' area
   const rail = page.locator("[data-testid=rail-parents]:visible");
-  if (await rail.count()) await rail.click(); else { await page.locator("[data-testid=nav-me]:visible").first().click(); await page.waitForTimeout(300); await page.getByTestId("open-parents").click(); }
+  if (await rail.count()) await rail.click(); else { await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("rail-open-me").click(); await page.waitForTimeout(300); await page.getByTestId("open-parents").click(); }
   await page.waitForTimeout(300);
   const tap = async (digits: string) => { for (const d of digits) await page.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); };
   const m = /(\d+)\s*×\s*(\d+)/.exec(await page.locator(".gate-sum").innerText())!; await tap(String(+m[1] * +m[2])); await page.getByTestId("gate-go").click(); await page.waitForTimeout(400);

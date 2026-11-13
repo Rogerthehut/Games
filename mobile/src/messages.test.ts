@@ -35,5 +35,6 @@ test("file names can't point anywhere else", () => {
 test("accepts the dock message only for the four real tabs", () => {
   assert.deepEqual(parseMessage(j({ type: "dock", visible: true, tab: "skills" })), { type: "dock", visible: true, tab: "skills" });
   assert.equal(parseMessage(j({ type: "dock", visible: true, tab: "admin" })), null);
+  assert.deepEqual(parseMessage(j({ type: "dock", visible: true, tab: "none" })), { type: "dock", visible: true, tab: "none" });
   assert.equal(parseMessage(j({ type: "dock", visible: "yes", tab: "me" })), null);
 });

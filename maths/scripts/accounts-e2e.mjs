@@ -49,7 +49,7 @@ await addLearner(p, "Ella", 5);
 ok("the learner reaches Today", /Ella/.test(await text(p)));
 
 // 2. progress is saved to the account
-await p.locator("[data-testid=nav-me]:visible").first().click(); await p.waitForTimeout(3500);
+await p.locator("[data-testid=top-me]:visible").first().click(); await p.getByTestId("rail-open-me").click(); await p.waitForTimeout(3500);
 const chip = await p.getByTestId("sync-chip").innerText().catch(() => "");
 ok("Me says progress is saved to the account", /Saved to your account/.test(chip), chip);
 const acct = await api("maya", "/api/account");
@@ -73,7 +73,7 @@ await p2.screenshot({ path: `${dir}/acct-4-second-device.png` });
 
 // 5. grown-ups' area: account section, download, sign out
 const openParents = async (page) => {
-  await page.locator("[data-testid=nav-me]:visible").first().click(); await page.waitForTimeout(500);
+  await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("rail-open-me").click(); await page.waitForTimeout(500);
   { const rail = page.locator("[data-testid=rail-parents]:visible"); if (await rail.count()) await rail.click(); else await page.getByTestId("open-parents").click(); }
   await page.waitForTimeout(500);
   const q = await text(page); const m = q.match(/(\d+)\s*\+\s*(\d+)/) ?? q.match(/(\d+)\s*[×x]\s*(\d+)/);
@@ -104,7 +104,7 @@ ok("another device saves newer progress", other.version === cur.version + 1, JSO
 await d1.getByTestId("start-practice").click(); await d1.getByTestId("intro-skip").click(); await d1.waitForTimeout(300);
 await d1.locator("input:visible").first().fill("2"); await d1.getByTestId("check").click(); await d1.waitForTimeout(3800);   // device 1 saves, against the old version
 await d1.getByTestId("close").click().catch(() => {}); await d1.getByRole("button", { name: /^(Leave|Save and leave|Yes)/i }).first().click().catch(() => {}); await d1.waitForTimeout(600);
-await d1.locator("[data-testid=nav-me]:visible").first().click(); await d1.waitForTimeout(400);
+await d1.locator("[data-testid=top-me]:visible").first().click(); await d1.getByTestId("rail-open-me").click(); await d1.waitForTimeout(400);
 const afterClash = (await api("maya", "/api/account")).learners[0];
 ok("the newer copy is kept on the server, not overwritten", afterClash.data.points === 777 && afterClash.version === cur.version + 1, `points ${afterClash.data.points}, v${afterClash.version}`);
 const shown = await d1.evaluate(() => JSON.parse(localStorage.getItem("quarter.cache.fake_maya")).store.profiles[0].points);

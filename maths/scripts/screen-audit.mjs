@@ -56,7 +56,7 @@ const reasoningList = async (p) => {
 const openMe = async (p) => {
   const rail = p.getByTestId("rail-me");
   if (await rail.isVisible().catch(() => false)) { await rail.click(); await wait(p, 250); await p.getByTestId("rail-open-me").click(); await wait(p, 600); return; }
-  await navTab(p, "me").catch(async () => { await p.getByRole("button", { name: /Maya/ }).first().click(); await wait(p, 600); });
+  await p.getByTestId("top-me").click(); await wait(p, 250); await p.getByTestId("rail-open-me").click(); await wait(p, 600);
 };
 const skillList = async (p) => { await navTab(p, "skills"); await p.getByRole("button", { name: /^(Show as a list|List)$/ }).first().click().catch(() => {}); await wait(p, 300); };
 const practiseSkill = async (p, id) => { await p.locator(`#skill-${id} button:has-text("Practise")`).click(); await wait(p, 600); };

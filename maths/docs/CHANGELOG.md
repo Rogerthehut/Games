@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Phone header and tab bar tidy-up
+On phones and small tablets (and in the iPhone/iPad app) the top right now holds just the learner's avatar, without the "hi" name or the search button. Tapping it opens the same quick menu as the desktop side panel: switch learner (asking for their PIN if one is set), Me and settings, the Parents' area (sum and PIN, or Face ID in the app), and add a child. The Me tab is gone from the bottom bar and Search takes its place; the app's glass dock changed the same way, and shows with nothing selected on Me and the Parents' area. Browser-test scripts that opened Me through the tab were updated to use the avatar menu.
+
 ## Full-bleed app icon
 The icon had a thin clear border and rounded corners, so on the iPhone home screen it showed a pale edge around the black tile. `public/icon.svg` is now a full-bleed dark square to the very edge, and every icon is drawn from it (`scripts/make-icons.mjs`): the iOS app icon (`mobile/assets/icon.png`, 1024 square, no transparency), the home-screen icon, the PWA and maskable icons, the favicons, and the logo that search engines and AI tools read. The favicon link carries a new version so browsers fetch the new one. Needs a new EAS build for the app icon.
 

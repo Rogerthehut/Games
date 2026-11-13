@@ -3678,3 +3678,11 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
   .rail-slim .content:not(:has(.activity-section, .journey-wrap, .journey-wide, .qpage)) { max-width: 1040px; }
 }
 @media (prefers-reduced-motion: reduce) { .app { transition: none; } }
+
+/* phone and small tablet: the learner's avatar at the top right opens the quick menu (switch learner, Me, Parents' area); search lives in the tab bar */
+.rail-switch.top { margin: 0 0 0 auto; position: relative; }
+.rail-switch.top .rail-switch-list { top: calc(100% + 8px); bottom: auto; left: auto; right: 0; width: min(300px, calc(100vw - 32px)); z-index: 40; }
+.top-me { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.top-me:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mobile-wordmark .rail-switch.top { flex: none; }
+.rail-switch.top .rail-switch-row { font-size: .95rem; } .rail-switch.top .rail-switch-label small { font-size: .8rem; }

@@ -14,10 +14,10 @@ const ICONS: Record<DockTab, (c: string) => React.ReactNode> = {
   today: (c) => <><Path d="M3.5 11 12 3.5 20.5 11" stroke={c} /><Path d="M5.5 9.5V20h5v-5.5h3V20h5V9.5" stroke={c} /></>,
   skills: (c) => <><Circle cx="6" cy="18" r="2.2" stroke={c} /><Circle cx="18" cy="6" r="2.2" stroke={c} /><Path d="M8.2 18H14a3 3 0 0 0 0-6h-3a3 3 0 0 1 0-6h4.8" stroke={c} /></>,
   plan: (c) => <><Path d="M5.5 21V4" stroke={c} /><Path d="M5.5 4.5h11l-2.2 4 2.2 4h-11" stroke={c} /></>,
-  me: (c) => <><Circle cx="12" cy="8" r="3.8" stroke={c} /><Path d="M4.5 20.5c.6-3.6 3.8-5.5 7.5-5.5s6.9 1.9 7.5 5.5" stroke={c} /></>,
+  search: (c) => <><Circle cx="11" cy="11" r="6.5" stroke={c} /><Path d="m16 16 4.5 4.5" stroke={c} /></>,
 };
 
-export function Dock({ tab, onSelect }: { tab: DockTab; onSelect: (t: DockTab) => void }) {
+export function Dock({ tab, onSelect }: { tab: DockTab | "none"; onSelect: (t: DockTab) => void }) {
   const inset = useSafeAreaInsets();
   const glass = Platform.OS === "ios" && isLiquidGlassAvailable();
   const items = DOCK_TABS.map((t) => {

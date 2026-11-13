@@ -30,7 +30,7 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   await page.goto(B); await page.waitForTimeout(800);
   await page.getByRole("button", { name: /^Continue/ }).click({ timeout: 1500 }).catch(() => {});
   await page.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
-  const nav = page.locator("[data-testid=nav-me]:visible").first(); if (await nav.count()) await nav.click(); else await page.locator(".rail-me").click(); await page.waitForTimeout(400);
+  const nav = page.locator("[data-testid=top-me]:visible").first(); if (await nav.count()) { await nav.click(); await page.getByTestId("rail-open-me").click(); } else { await page.locator(".rail-me").click(); await page.getByTestId("rail-open-me").click(); } await page.waitForTimeout(400);
 
   // the icon buttons say what they are: on hover, on keyboard focus, and on a long press (which doesn't open anything)
   const tip = page.locator(".me-head-actions .tip-wrap").nth(1).locator(".tip");

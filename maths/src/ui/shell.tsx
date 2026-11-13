@@ -6,13 +6,11 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 import { primaryNav, type Tab } from "./navigation";
-import { Avatar } from "./avatar";
 import { RailParents } from "./rail-parents";
 import { SearchDialog } from "./search";
 
 import { CubeMark, Wordmark } from "./wordmark";
 import { BrowserStorageNotice } from "./legal";
-import { ProfileHi } from "./profile-hi";
 import { RailSwitcher } from "./rail-switcher";
 
 
@@ -34,15 +32,15 @@ function useRailWidth() {
 /** Bottom tab bar on phones and tablets, side rail on wide screens. */
 export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren }) {
   const wide = useWide();
-  const { go, profile } = useApp();
+  const { go } = useApp();
   const searchDialog = useRef<HTMLDialogElement>(null);
   const rail = useRailWidth();
   const dock = hasNativeDock();
   // In the app, a glass dock drawn by the phone replaces the bottom tab bar (on a wide iPad the side menu is used instead)
   useEffect(() => {
     if (!dock) return;
-    const narrow = matchMedia("(max-width: 899px)"), send = (visible = true) => setDock(visible && narrow.matches, tab);
-    const nav = (e: Event) => { const hit = primaryNav.find((i) => i.id === (e as CustomEvent<string>).detail); if (hit) go(hit.route); };
+    const narrow = matchMedia("(max-width: 899px)"), send = (visible = true) => setDock(visible && narrow.matches, tab === "me" ? "none" : tab);
+    const nav = (e: Event) => { if ((e as CustomEvent<string>).detail === "search") { openSearch(); return; } const hit = primaryNav.find((i) => i.id === (e as CustomEvent<string>).detail); if (hit) go(hit.route); };
     send(); narrow.addEventListener("change", () => send());
     window.addEventListener("quarter-native-nav", nav);
     document.documentElement.classList.add("native-dock");
@@ -97,12 +95,13 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
   );
   const nav = (cls: string) => (
     <nav class={cls} aria-label="Main">
-      {primaryNav.filter((item) => cls !== "rail-nav" || item.id !== "me").map((it) => (
+      {primaryNav.filter((item) => item.id !== "me").map((it) => (
         <button key={it.id} class={`nav-item ${tab === it.id ? "on" : ""}`} aria-current={tab === it.id ? "page" : undefined} data-testid={`nav-${it.id}`} onClick={() => go(it.route)}>
           <Icon name={it.icon} size={24} />
           <span>{it.label}</span>
         </button>
       ))}
+      {cls === "tabbar" && <button class="nav-item" aria-haspopup="dialog" data-testid="nav-search" onClick={openSearch}><Icon name="search" size={24} /><span>Search</span></button>}
     </nav>
   );
   return (
@@ -130,11 +129,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
       </aside>
       <header class="mobile-wordmark">
         {brand()}
-        {searchButton(true)}
-        <button class="mobile-profile" onClick={() => go({ name: "me" })} aria-label={`${profile.name}, open Me`}>
-          <span class="mobile-profile-label"><ProfileHi /><span class="mobile-profile-name">{profile.name}</span></span>
-          <Avatar choice={profile.avatar} year={profile.year} size={32} />
-        </button>
+        <RailSwitcher tab={tab} top />
       </header>
       <main class="content" id="main">
         {children}

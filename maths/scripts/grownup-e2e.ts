@@ -31,7 +31,7 @@ const openParents = async () => {
   if (await rail.count()) await rail.click(); else await page.getByTestId("open-parents").click();
   await page.waitForTimeout(300);
 };
-const toMe = async () => { const t = page.locator("[data-testid=nav-me]:visible").first(); if (await t.count()) await t.click(); else await page.locator(".rail-me").click(); await page.waitForTimeout(400); };
+const toMe = async () => { const t = page.locator("[data-testid=top-me]:visible").first(); if (await t.count()) { await t.click(); await page.getByTestId("rail-open-me").click(); } else { await page.locator(".rail-me").click(); await page.getByTestId("rail-open-me").click(); } await page.waitForTimeout(400); };
 const gateUp = async () => (await page.getByTestId("gate-input").count()) === 1;
 const tap = async (digits: string) => { for (const d of digits) await page.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); };
 const solveSum = async () => { const m = /(\d+)\s*×\s*(\d+)/.exec(await page.locator(".gate-sum").innerText())!; await tap(String(+m[1] * +m[2])); await page.getByTestId("gate-go").click(); await page.waitForTimeout(400); };

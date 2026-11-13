@@ -13,9 +13,11 @@ export type FromWeb =
   /** Show, hide or update the app's own tab dock. */
   | { type: "dock"; visible: boolean; tab: string };
 
-export const DOCK_TABS = [{ id: "today", label: "Today" }, { id: "skills", label: "Skills" }, { id: "plan", label: "Plan" }, { id: "me", label: "Me" }] as const;
+export const DOCK_TABS = [{ id: "today", label: "Today" }, { id: "skills", label: "Skills" }, { id: "plan", label: "Plan" }, { id: "search", label: "Search" }] as const;
 export type DockTab = (typeof DOCK_TABS)[number]["id"];
 export const isDockTab = (v: unknown): v is DockTab => DOCK_TABS.some((t) => t.id === v);
+/** "none" is sent on screens that belong to none of the tabs (Me, the Parents' area): the dock shows with nothing selected. */
+export const isDockSelection = (v: unknown): v is DockTab | "none" => v === "none" || isDockTab(v);
 
 export const MAX_HTML = 3_000_000;
 export const MAX_FILE_CHARS = 40_000_000; // about 30 MB of file in base64
@@ -53,7 +55,7 @@ export function parseMessage(raw: string): FromWeb | null {
       return { type: "reminders", enabled: m.enabled, hour, minute, days: (days as number[]).sort((a, b) => a - b) };
     }
     case "review": return { type: "review" };
-    case "dock": return typeof m.visible === "boolean" && isDockTab(m.tab) ? { type: "dock", visible: m.visible, tab: m.tab } : null;
+    case "dock": return typeof m.visible === "boolean" && isDockSelection(m.tab) ? { type: "dock", visible: m.visible, tab: m.tab } : null;
     default: return null;
   }
 }
