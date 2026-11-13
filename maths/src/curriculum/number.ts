@@ -7,27 +7,36 @@ function fracAdd(r: () => number, level: number): Question {
   if (level === 1) d1 = d2 = int(r, 3, 9);
   else if (level === 2) { d1 = int(r, 2, 6); d2 = d1 * int(r, 2, 3); }
   else do { d1 = int(r, 3, 9); d2 = int(r, 3, 9); } while (d1 === d2 || d1 % d2 === 0 || d2 % d1 === 0);
-  const a = int(r, 1, d1 - 1), b = int(r, 1, d2 - 1);
+  // from level 2 on, half the questions take one fraction away from another, as the Year 6 tests do; levels 4 and 5 start with a mixed number
+  const sub = level >= 2 && r() < 0.5, whole = level >= 4 ? int(r, 1, 3) : 0;
   const L = lcm(d1, d2);
-  const n = a * (L / d1) + b * (L / d2);
+  let a: number, b: number;
+  do { a = int(r, 1, d1 - 1); b = int(r, 1, d2 - 1); } while (sub && !whole && a * (L / d1) === b * (L / d2)); // never take away to leave nothing
+  if (sub && !whole && a * (L / d1) < b * (L / d2)) [a, d1, b, d2] = [b, d2, a, d1]; // keep the answer above zero
+  const x = a * (L / d1) + whole * L, y = b * (L / d2);
+  const n = sub ? x - y : x + y;
   const g = gcd(n, L);
   const num = n / g, den = L / g;
-  const naive = (a + b) / (d1 + d2);
+  const naive = sub ? (a - b) / Math.abs(d1 - d2 || 1) : (a + b) / (d1 + d2);
+  const sign = sub ? "-" : "+";
+  const first = whole ? `${whole}\\,\\frac{${a}}{${d1}}` : `\\frac{${a}}{${d1}}`;
   const steps: string[] = [];
+  if (whole) steps.push(`Change the mixed number into an improper fraction: $${first}=\\frac{${whole * d1 + a}}{${d1}}$.`);
+  const top1 = whole ? whole * d1 + a : a;
   if (d1 !== d2)
-    steps.push(`The lowest common denominator is $${L}$. Rewrite both: $\\frac{${a}}{${d1}}=\\frac{${a * (L / d1)}}{${L}}$ and $\\frac{${b}}{${d2}}=\\frac{${b * (L / d2)}}{${L}}$.`);
-  steps.push(`Add the numerators and keep the denominator: $\\frac{${a * (L / d1)}}{${L}}+\\frac{${b * (L / d2)}}{${L}}=\\frac{${n}}{${L}}$.`);
+    steps.push(`The lowest common denominator is $${L}$. Rewrite both: $\\frac{${top1}}{${d1}}=\\frac{${x}}{${L}}$ and $\\frac{${b}}{${d2}}=\\frac{${y}}{${L}}$.`);
+  steps.push(`${sub ? "Subtract" : "Add"} the numerators and keep the denominator: $\\frac{${x}}{${L}}${sign}\\frac{${y}}{${L}}=\\frac{${n}}{${L}}$.`);
   if (g > 1) steps.push(`Simplify by dividing top and bottom by $${g}$: $\\frac{${n}}{${L}}=${frac(num, den)}$.`);
   return {
     skill: "frac-add", level,
-    prompt: `Work out $\\frac{${a}}{${d1}} + \\frac{${b}}{${d2}}$. Give your answer as a fraction in its simplest form.`,
+    prompt: `Work out $${first} ${sign} \\frac{${b}}{${d2}}$. Give your answer as ${whole && n / L > 1 ? "an improper fraction" : "a fraction"} in its simplest form.`,
     answer: { kind: "number", value: n / L, simplestFraction: true },
     hint: d1 === d2
-      ? "The denominators already match. Add the numerators and keep the denominator the same."
+      ? `The denominators already match. ${sub ? "Subtract" : "Add"} the numerators and keep the denominator the same.`
       : `Make the denominators the same first. What is the smallest number that both ${d1} and ${d2} go into?`,
     solution: steps,
     shown: `$${frac(num, den)}$`,
-    wrong: dedupeWrong([{ tag: "add-denominators", number: naive, message: "It looks like the denominators were added too. The denominator tells you the size of the pieces, so it only changes when you rewrite with a common denominator." }], n / L),
+    wrong: dedupeWrong([{ tag: sub ? "subtract-denominators" : "add-denominators", number: naive, message: `It looks like the denominators were ${sub ? "subtracted" : "added"} too. The denominator tells you the size of the pieces, so it only changes when you rewrite both fractions with the same denominator.` }], n / L),
   };
 }
 

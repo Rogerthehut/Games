@@ -62,10 +62,17 @@ const fracAmount: Builder = (q) => {
 };
 
 const fracAdd: Builder = (q) => {
+  const text = clean(q.prompt);
+  if (/\d\\frac/.test(text)) return null;                // a mixed number: no picture is drawn
   const f = fracs(q.prompt).map(([n, d]) => [num(n), num(d)]);
   if (f.length < 2) return null;
   const [[a, b], [c, d]] = f, L = lcm(b, d);
   if (!ok(L) || L > 72) return null;
+  if (/\\frac\{\d+\}\{\d+\}\s*-\s*\\frac/.test(text)) {   // taking one fraction from another: the same bars, with the second taken off the first
+    const x = (a * L) / b, y = (c * L) / d;
+    if (x < y) return null;
+    return { figure: bars([fracBar(`${a}/${b}`, b, a, "a"), fracBar(`= ${x}/${L}`, L, x, "a"), fracBar(`${c}/${d}`, d, c, "b"), fracBar(`= ${y}/${L}`, L, y, "b"), { label: "What is left", segments: Array.from({ length: L }, (_, i) => ({ label: "", tone: i < x - y ? ("a" as const) : i < x ? ("b" as const) : ("none" as const) })), note: `${x - y}/${L}` }], `Bars to take ${c}/${d} away from ${a}/${b}. Cut into ${L} equal parts, they become ${x}/${L} and ${y}/${L}. Taking ${y} parts from ${x} leaves ${x - y} out of ${L}.`) };
+  }
   if (b === d) return sameDenom(q);
   const x = (a * L) / b, y = (c * L) / d;
   return { figure: bars([fracBar(`${a}/${b}`, b, a, "a"), fracBar(`= ${x}/${L}`, L, x, "a"), fracBar(`${c}/${d}`, d, c, "b"), fracBar(`= ${y}/${L}`, L, y, "b"), { label: "Together", segments: Array.from({ length: L }, (_, i) => ({ label: "", tone: i < x ? ("a" as const) : i < x + y ? ("b" as const) : ("none" as const) })), note: `${x + y}/${L}` }], `Bars to add ${a}/${b} and ${c}/${d}. Cut into ${L} equal parts, they become ${x}/${L} and ${y}/${L}. Together that is ${x + y} out of ${L}.`) };

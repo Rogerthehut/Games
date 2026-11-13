@@ -77,12 +77,13 @@ function placeValue(r: R, level: number): Question {
 function addSub(r: R, level: number): Question {
   const add = r() < 0.5;
   const [lo, hi] = level === 1 ? [100, 899] : level === 2 ? [1000, 8999] : [10000, 89999];
-  let a = int(r, lo, hi), b = int(r, lo, hi);
+  const digits = String(hi).length, bDigits = r() < 0.5 ? digits : int(r, 2, digits);   // half the time the second number has fewer digits
+  let a = int(r, lo, hi), b = int(r, 10 ** (bDigits - 1), 10 ** bDigits - 1);
   if (!add && a < b) [a, b] = [b, a];
   if (!add && a === b) a += 1;
   const ans = add ? a + b : a - b;
   const work = columnWork(a, b, add ? "+" : "-");
-  const est = (x: number) => (level === 1 ? Math.round(x / 100) * 100 : level === 2 ? Math.round(x / 1000) * 1000 : Math.round(x / 10000) * 10000);
+  const est = (x: number) => { const unit = 10 ** (String(x).length - 1); return Math.round(x / unit) * unit; };   // round to the first digit
   return {
     skill: "add-sub", level,
     prompt: `Work out $${n$(a)} ${add ? "+" : "-"} ${n$(b)}$.`,
@@ -120,12 +121,14 @@ function multWritten(r: R, level: number): Question {
   let a: number, b: number;
   if (level === 1) { a = int(r, 12, 49); b = int(r, 2, 9); }
   else if (level === 2) { a = int(r, 110, 499); b = int(r, 2, 9); }
-  else { a = int(r, 12, 49); b = int(r, 12, 39); }
+  else if (level === 3) { a = int(r, 12, 49); b = int(r, 12, 39); }
+  else if (level === 4) { a = int(r, 110, 799); b = int(r, 12, 49); }       // three digits by two digits, as in the Year 6 tests
+  else { a = int(r, 1100, 7999); b = int(r, 12, 49); }                      // four digits by two digits
   const ans = a * b;
   const grid = gridWork(a, b);
   return {
     skill: "mult-written", level,
-    prompt: `Work out $${a} \\times ${b}$.`,
+    prompt: `Work out $${a.toLocaleString("en-GB")} \\times ${b}$.`,
     answer: { kind: "number", value: ans },
     hint: "Split one number into tens and ones (or hundreds, tens and ones), multiply each part, then add.",
     solution: grid.steps, worked: grid.figure, shown: `$${n$(ans)}$`,
@@ -133,6 +136,19 @@ function multWritten(r: R, level: number): Question {
 }
 
 function division(r: R, level: number): Question {
+  if (level >= 4) {
+    const b = int(r, 3, 9), q = int(r, Math.ceil(1000 / b), Math.floor(9999 / b) - 1), rem = level === 5 ? int(r, 1, b - 1) : 0;
+    const n = b * q + rem, bus = busStopWork(n, b);
+    return {
+      skill: "division", level,
+      prompt: rem ? `Work out $${n.toLocaleString("en-GB")} \\div ${b}$. Give the whole-number answer and the remainder.` : `Work out $${n.toLocaleString("en-GB")} \\div ${b}$.`,
+      answer: rem ? { kind: "multi", fields: [{ label: "quotient =", value: q }, { label: "remainder =", value: rem }] } : { kind: "number", value: q },
+      hint: `Work from the left, one digit at a time. How many ${b}s fit into each part, and what is carried to the next digit?`,
+      solution: [...bus.steps, `Check: $${b} \\times ${q.toLocaleString("en-GB")}${rem ? ` + ${rem}` : ""} = ${n.toLocaleString("en-GB")}$.`],
+      worked: bus.figure,
+      shown: rem ? `$${q}$ remainder $${rem}$` : `$${q}$`,
+    };
+  }
   if (level === 2) {
     const b = int(r, 3, 9), q = int(r, 10, 40), rem = int(r, 1, b - 1);
     const n = b * q + rem;
@@ -481,7 +497,7 @@ export const primarySkills: Skill[] = [
     parentNote: "Line digits up by place value and work from the right. Estimating first (round and add) catches most slips.", talkAbout: "How could you check your answer is sensible before you work it out exactly?", generate: addSub },
   { id: "times-tables", name: "Times tables", stage: "KS2", year: 3, strand: "Number", blurb: "Multiplication and division facts to 12 × 12.", prereqs: [],
     parentNote: "Fluency matters for almost everything later. Short daily practice beats long sessions. Link facts: if 6 × 7 = 42, then 42 ÷ 7 = 6.", talkAbout: "If you know 6 × 8, how can you quickly work out 7 × 8?", generate: timesTables },
-  { id: "mult-written", name: "Multiplying", stage: "KS2", year: 4, strand: "Number", blurb: "Multiply 2- and 3-digit numbers.", prereqs: ["times-tables", "add-sub"],
+  { id: "mult-written", name: "Multiplying", stage: "KS2", year: 4, strand: "Number", blurb: "Multiply 2-, 3- and 4-digit numbers, by one and two digits.", prereqs: ["times-tables", "add-sub"],
     parentNote: "Split a number into tens and ones, multiply each part, then add. It is the same idea as the column method.", talkAbout: "How would you split 23 × 14 into easier multiplications?", generate: multWritten },
   { id: "division", name: "Dividing", stage: "KS2", year: 4, strand: "Number", blurb: "Short and long division, with remainders.", prereqs: ["times-tables"],
     parentNote: "Division asks 'how many lots of this fit in?'. A remainder is what's left over. Chunking (taking away easy multiples) is the friendliest method for bigger numbers.", talkAbout: "What does 'remainder 3' mean in a real situation, like sharing sweets?", generate: division },

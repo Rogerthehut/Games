@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Lining quarter up with the Key Stage 2 tests
+Read the published 2024 and 2025 KS2 maths papers and mark schemes (gov.uk) against our question generators, code by code (`docs/SATS_COVERAGE.md`, data in `src/curriculum/sats-map.ts`, no test questions copied). It found real gaps, now fixed: **long multiplication** (levels 4 and 5 of *Multiplying* are three and four digits by two digits), **four-digit short division** (levels 4 and 5 of *Dividing*, the second with a remainder), **adding and subtracting numbers of different lengths** (and the estimate rounds each number to its first digit), and **taking fractions away and mixed numbers** in *Adding fractions* (from level 2, half the questions are takeaways; levels 4 and 5 start with a mixed number; a bar picture is drawn for takeaways). Two outcome claims that were overstated are now true. 124 test codes: 117 fully practised, 7 partly. Tests in `sats-shapes.test.ts` and `sats-map.test.ts`.
+
 ## Licence
 Added a `LICENSE` file at the repository root: proprietary, all rights reserved by Wristed Ltd trading as quarter™ (company details taken from the legal pages), with third-party components and exam-board material kept under their owners' terms. `package.json` files say `UNLICENSED`. Have your solicitor look over the wording.
 
