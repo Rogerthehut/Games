@@ -1,4 +1,4 @@
-export type ActivityKind = "practice" | "skills" | "checkup" | "plan" | "tutor";
+export type ActivityKind = "practice" | "skills" | "checkup" | "plan" | "tutor" | "report";
 
 /** The small drawings on the Today tiles and the welcome page. Kept on its own so the welcome page does not load the whole app. */
 export function ActivityArt({ kind }: { kind: ActivityKind }) {
@@ -21,6 +21,11 @@ export function ActivityArt({ kind }: { kind: ActivityKind }) {
         <path d="M60 29c-13-10-27-12-45-9v58c19-3 33 1 45 10 12-9 26-13 45-10V20c-18-3-32-1-45 9zm0 0v59" />
         <path d="M27 35c7 0 14 2 21 6m-21 8c7 0 14 2 21 6m24-14c7-4 14-6 21-6m-21 20c7-4 14-6 21-6" fill="none" />
       </>}
+      {kind === "report" && <>
+        <path d="M22 12h50l16 16v58H22z" /><path d="M72 12v16h16" fill="none" />
+        <path d="M33 62v12m10-22v22m10-16v16" fill="none" />
+        <circle cx="76" cy="62" r="15" /><path d="m87 73 14 14" fill="none" />
+      </>}
       {kind === "tutor" && <>
         <path d="M18 18h84v52H52L32 88V70H18z" />
         <path d="M34 38h52M34 52h34" fill="none" />
@@ -30,6 +35,7 @@ export function ActivityArt({ kind }: { kind: ActivityKind }) {
         {kind === "skills" && <path d="M14 17l-4-6m11 3 1-7m74 82 4 5m3-10 7 3" />}
         {kind === "checkup" && <path d="M103 43l8-3m-10 11 8 2M17 22l-5-5m11 1-1-7" />}
         {kind === "tutor" && <path d="M104 22l6-5m-3 14 8 1M12 92l-4 5" />}
+        {kind === "report" && <path d="M100 18l6-4m-2 12 8 1M10 40l-5-3m3 14-6 3" />}
         {kind === "plan" && <path d="M60 7c0 6 2 8 8 8-6 0-8 2-8 8 0-6-2-8-8-8 6 0 8-2 8-8zM17 90l6-4m76 3 6 4" />}
       </g>
     </svg>

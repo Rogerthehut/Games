@@ -1,5 +1,5 @@
 /**
- * The landing page's "See how it explains it" card: present, plays, switches scene, pauses, no sideways scroll on phones, no script errors.
+ * The landing page's "See how quarter explains tricky problems" card: present, plays, switches scene, pauses, no sideways scroll on phones, no script errors.
  *   VITE_FAKE_AUTH=1 npx vite --port 5173 &
  *   PLAYWRIGHT_MODULE=/path/to/playwright/index.js npx tsx scripts/explain-card-e2e.ts
  */

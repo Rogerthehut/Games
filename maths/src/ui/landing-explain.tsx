@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 
 /**
- * "See how it explains it": a quiet, self-playing panel on the marketing page that draws three worked examples step by step (taking away
+ * "See how quarter explains tricky problems": a quiet, self-playing panel on the marketing page that draws three worked examples step by step (taking away
  * with an exchange, adding fractions, sharing with a bus stop), the way the app shows the method under every answer. Nothing to click.
  * It moves only position and opacity, plays only while on screen, can be paused, and stands still for people who prefer reduced motion.
  */
@@ -139,8 +139,8 @@ export function ExplainCard({ onStart }: { onStart(kind: "sign-up" | "sign-in"):
     <div class={`ex-card${live ? "" : " ex-off"}`} ref={box} data-testid="explain-card">
       <div class="ex-head">
         <p class="ex-kicker">06 / Explained</p>
-        <h3 class="ex-title">See how it explains it</h3>
-        <p class="ex-sub">Every answer comes with the method, drawn out step by step.</p>
+        <h3 class="ex-title">See how quarter explains tricky problems</h3>
+        <p class="ex-sub">Every answer comes with the method drawn out step by step, so your child learns why it works, not just what the answer is.</p>
       </div>
       <div class="ex-stage" role="img" aria-label={s.alt}>
         <div class="ex-scene" key={`${s.id}-${scene}`}>{f.svg}</div>

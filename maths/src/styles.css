@@ -680,6 +680,7 @@ h1, h2, h3, .q-topic {
 .activity-skills { --card-colour: #c1c5ee; }
 .activity-checkup { --card-colour: #f0be65; }
 .activity-plan { --card-colour: #84d8ba; }
+.activity-report { --card-colour: #a6d3f2; }
 .activity-label { padding: 5px 8px; border: 1px solid #18192b30; border-radius: 999px; background: #fff8; font-size: .72rem; }
 .activity-title { margin-top: 5px; font: 720 clamp(1.15rem, 2.3vw, 2.3rem)/1.02 var(--workbook-heading); letter-spacing: -.035em; overflow-wrap: anywhere; }
 .activity-detail { font-size: .83rem; line-height: 1.4; }
@@ -3514,7 +3515,7 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 .rail-switch-row.plain { color: var(--muted); }
 .rail-switch-row.plain .rail-switch-label { flex-direction: row; }
 
-/* Landing: "See how it explains it" self-playing worked examples. Moves only opacity and transform, and only while on screen. */
+/* Landing: "See how quarter explains tricky problems" self-playing worked examples. Moves only opacity and transform, and only while on screen. */
 .l-explain-cell { display: flex; }
 .ex-card { position: relative; display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 22px 22px 18px; border: 2px solid var(--ink, #121522); border-radius: 22px; text-align: left;
   background-color: #fffdf6; background-image: linear-gradient(rgba(47, 58, 115, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(47, 58, 115, .07) 1px, transparent 1px); background-size: 22px 22px; box-shadow: 0 6px 0 rgba(18, 21, 34, .12); }

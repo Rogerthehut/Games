@@ -178,11 +178,11 @@ export function Landing({ onStart }: { onStart(kind: "sign-up" | "sign-in"): voi
               <ActivityArt kind="tutor" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
-            <li><button type="button" class="activity-card activity-checkup" onClick={() => onStart("sign-up")}>
+            <li><button type="button" class="activity-card activity-report" onClick={() => onStart("sign-up")}>
               <span class="activity-label">05 / Learning report</span>
               <span class="activity-title">Drill down into where they’re struggling</span>
               <span class="activity-detail">Pick any week or month and see the exact questions your child got wrong, the likely reasons, and the methods to work through together, with study guides and lessons to match.</span>
-              <ActivityArt kind="checkup" />
+              <ActivityArt kind="report" />
               <span class="activity-action">Get started<span aria-hidden="true">↗</span></span>
             </button></li>
             <li class="l-explain-cell"><ExplainCard onStart={onStart} /></li>
