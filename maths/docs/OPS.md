@@ -115,6 +115,10 @@ If nothing arrives: Resend's **Emails, Receiving** tab shows what it received; t
 - **Spoofing shows.** Each email carries Resend's SPF, DKIM and DMARC results for the sender. If DMARC didn't pass, the conversation shows a red warning.
 - **The team side needs the full proof** (sign-in, allow-list, emailed code, session), is rate limited per person, and every view, reply, signature change and delete is audit-logged without the content.
 
+### Writing a new email (not a reply)
+
+**Messages, New email** sends an email from hello@yourquarter.co.uk to one person: their address, a subject, your message, and a signature from the menu. It's kept as a conversation like any other (shown as "sent by you"), so if they reply, the reply appears under it, and it counts as waiting again. It only goes to a single address, never to another quarter address, and is limited to 30 a hour per person; every send is audit-logged without the address or the text. It's for one-to-one messages (a school, a partner, a parent), not mailing lists: bulk marketing needs its own consent and unsubscribe handling.
+
 ### Signatures
 
 **Messages, Signatures** (a small button at the top) is where you add, edit, choose a default and delete signatures, like a mail program's signature settings. Paste the HTML (the file `docs/email/signature.html` is a starting point); the preview shows exactly what will be sent. Under each reply there's a **Signature** menu (the default is pre-selected; choose None to send without one). Up to 10 signatures, shared by everyone on the allow-list.

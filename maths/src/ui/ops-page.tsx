@@ -160,6 +160,7 @@ function Messages({ call }: { call: Call }) {
   const [inbound, setInbound] = useState(false);
   const [sigs, setSigs] = useState<SigFull[]>([]);
   const [managing, setManaging] = useState(false);
+  const [composing, setComposing] = useState(false);
   const loadSigs = async () => { const r = await call<{ items: SigFull[] }>("GET", "/api/ops/signatures"); if (r.ok) setSigs(r.data.items); };
   const load = async () => { const r = await call<{ items: ContactItem[]; inbound: boolean }>("GET", `/api/ops/contact${only ? "?waiting=1" : ""}`); setItems(r.ok ? r.data.items : []); if (r.ok) setInbound(r.data.inbound); };
   useEffect(() => { load(); }, [only]);
@@ -168,13 +169,51 @@ function Messages({ call }: { call: Call }) {
     <section class="card" data-testid="ops-messages">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
         <h2 style="margin:0">Messages</h2>
-        <button class="btn small ghost" onClick={() => setManaging(!managing)} aria-expanded={managing} data-testid="ops-signatures-toggle">Signatures</button>
+        <span style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn small" onClick={() => setComposing(!composing)} aria-expanded={composing} data-testid="ops-compose-toggle">New email</button>
+          <button class="btn small ghost" onClick={() => setManaging(!managing)} aria-expanded={managing} data-testid="ops-signatures-toggle">Signatures</button>
+        </span>
       </div>
       <p class="small muted">From the Message us page{inbound ? " and email to hello@yourquarter.co.uk" : ""}. Replies are sent from hello@yourquarter.co.uk. Deleted automatically 180 days after the last message.{!inbound && " Email to hello@ isn't being received yet: see docs/OPS.md."}</p>
+      {composing && <ComposeEmail call={call} sigs={sigs} onSent={() => { setComposing(false); setOnly(false); load(); }} />}
       {managing && <SignatureManager call={call} sigs={sigs} onChanged={loadSigs} />}
       <label><input type="checkbox" checked={only} onChange={(e) => setOnly((e.target as HTMLInputElement).checked)} /> Only ones waiting for a reply</label>
       {!items ? <p>Loading…</p> : !items.length ? <p class="muted">Nothing here.</p> : items.map((i) => <MessageCard key={i.id} item={i} call={call} sigs={sigs} onChanged={load} />)}
     </section>
+  );
+}
+
+/** Write a new email to one person, from hello@. A reply from them joins the same conversation. For one-to-one messages, not bulk mail. */
+function ComposeEmail({ call, sigs, onSent }: { call: Call; sigs: SigFull[]; onSent: () => void }) {
+  const [to, setTo] = useState(""), [subject, setSubject] = useState(""), [text, setText] = useState(""), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
+  const [sigId, setSigId] = useState<string | null | undefined>(undefined);
+  const chosen = sigId === undefined ? sigs.find((x) => x.isDefault)?.id ?? "" : sigId ?? "";
+  const picked = sigs.find((x) => x.id === chosen);
+  const send = async () => {
+    setBusy(true); setMsg("");
+    const r = await call("POST", "/api/ops/contact/new", { to, subject, message: text, signatureId: chosen || null });
+    setBusy(false);
+    if (r.ok) onSent(); else setMsg(r.data.message ?? "Couldn't send.");
+  };
+  return (
+    <div class="card" style="margin:10px 0" data-testid="ops-compose">
+      <h3 style="margin-top:0">New email</h3>
+      <p class="small muted">Sent from hello@yourquarter.co.uk to one person. If they reply, it appears here as a conversation. Please use it for one-to-one messages, not mailing lists.</p>
+      <label class="small">To<input type="email" style="width:100%" maxLength={254} value={to} onInput={(e) => setTo((e.target as HTMLInputElement).value)} data-testid="ops-compose-to" autocomplete="off" /></label>
+      <label class="small">Subject<input type="text" style="width:100%" maxLength={150} value={subject} onInput={(e) => setSubject((e.target as HTMLInputElement).value)} data-testid="ops-compose-subject" /></label>
+      <label class="small">Message<textarea rows={6} style="width:100%" maxLength={6000} value={text} onInput={(e) => setText((e.target as HTMLTextAreaElement).value)} data-testid="ops-compose-body" /></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0">
+        <label class="small">Signature{" "}
+          <select value={chosen} onChange={(e) => setSigId((e.target as HTMLSelectElement).value || null)} aria-label="Signature">
+            <option value="">None</option>
+            {sigs.map((x) => <option key={x.id} value={x.id}>{x.name}{x.isDefault ? " (default)" : ""}</option>)}
+          </select>
+        </label>
+        <button class="btn small primary" disabled={busy || !to.trim() || subject.trim().length < 2 || text.trim().length < 2} onClick={send} data-testid="ops-compose-send">Send email</button>
+        {msg && <span role="alert"> {msg}</span>}
+      </div>
+      {picked && <details><summary class="small muted">Signature preview</summary><SignaturePreview html={picked.html} /></details>}
+    </div>
   );
 }
 
@@ -198,10 +237,10 @@ function MessageCard({ item, call, sigs, onChanged }: { item: ContactItem; call:
   );
   return (
     <article class="card" style="margin:12px 0" data-testid="ops-message">
-      <p class="small muted">{item.at.slice(0, 16).replace("T", " ")} · {item.source === "email" ? "email" : "form"}{item.source === "form" ? ` · ${item.topic}` : ""} · {item.name ? `${item.name} · ` : ""}{item.email}{item.waiting ? " · waiting for a reply" : ""}</p>
+      <p class="small muted">{item.at.slice(0, 16).replace("T", " ")} · {item.source === "email" ? "email" : item.source === "sent" ? "sent by you" : "form"}{item.source === "form" ? ` · ${item.topic}` : ""} · {item.name ? `${item.name} · ` : ""}{item.email}{item.waiting ? " · waiting for a reply" : ""}</p>
       {item.subject && <p><strong>{item.subject}</strong></p>}
       {unverified && <p role="note" class="small" style="color:#b42318">The sender couldn't be verified ({item.auth}). It may not really be from this address, so don't act on it without checking.</p>}
-      <p style="white-space:pre-wrap">{item.message}</p>
+      {item.source === "sent" ? bubble("You", item.at, item.message, true) : <p style="white-space:pre-wrap">{item.message}</p>}
       {item.replies.map((r, n) => bubble(r.direction === "in" ? item.email : "You", r.at, r.message, r.direction === "out", String(n)))}
       <textarea rows={3} style="width:100%" value={text} maxLength={6000} onInput={(e) => setText((e.target as HTMLTextAreaElement).value)} aria-label="Your reply" placeholder="Write a reply. It's emailed to them from hello@yourquarter.co.uk." />
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0">

@@ -73,7 +73,7 @@ Every route in `server/index.ts` was checked for who can call it and what it ret
 | `POST /api/stripe/webhook` | Stripe | Nothing is read before the signature is verified (`constructEvent`). 1 MB cap. |
 | `POST /api/internal/digest` | the scheduler | Needs `CRON_SECRET` (constant-time compare). Anyone else gets a plain 404. |
 | `/unsubscribe` | anyone with the emailed link | 24-byte random token; GET only shows a button, POST acts. Per-address limit added in this audit. |
-| `/api/ops/*`, `/ops` | team only | (Includes conversations, replies and signatures: reply 60/hour and signature changes 60/hour per person; signature HTML is cleaned on the server and previewed in a sandboxed frame.) |
+| `/api/ops/*`, `/ops` | team only | (Includes conversations, replies, new emails and signatures: replies 60/hour, new emails 30/hour (one address only, never our own domain) and signature changes 60/hour per person; signature HTML is cleaned on the server and previewed in a sandboxed frame.) |
 | `/api/ops/*`, `/ops` (sign-in) | team only | Clerk sign-in, the `OPS_ADMINS` allow-list and an emailed code; everyone else gets 404. Every view and action is audit-logged. Replies never include the parent's sign-in id. |
 | static files | anyone | Only from `dist/`; `..`, encoded and NUL paths are refused. No source maps or dotfiles are built. |
 

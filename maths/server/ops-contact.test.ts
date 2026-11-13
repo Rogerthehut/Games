@@ -22,7 +22,7 @@ beforeAll(async () => {
 
 describe("conversation and signature routes need the full proof", () => {
   it("answer 404 to anyone who isn't signed in, allowed and code-checked", async () => {
-    const routes: [string, string][] = [["GET", "/api/ops/contact"], ["POST", "/api/ops/contact/reply"], ["POST", "/api/ops/contact/delete"], ["GET", "/api/ops/signatures"], ["POST", "/api/ops/signatures"], ["POST", "/api/ops/signatures/preview"], ["POST", "/api/ops/signatures/default"], ["POST", "/api/ops/signatures/delete"]];
+    const routes: [string, string][] = [["GET", "/api/ops/contact"], ["POST", "/api/ops/contact/reply"], ["POST", "/api/ops/contact/delete"], ["POST", "/api/ops/contact/new"], ["GET", "/api/ops/signatures"], ["POST", "/api/ops/signatures"], ["POST", "/api/ops/signatures/preview"], ["POST", "/api/ops/signatures/default"], ["POST", "/api/ops/signatures/delete"]];
     for (const [m, p] of routes) {
       expect((await call(m, p, {}, "fake_rando", "")).status, `${m} ${p} (not an admin)`).toBe(404);
       expect((await call(m, p, {}, "fake_boss", "")).status, `${m} ${p} (no session)`).toBe(404);
@@ -108,5 +108,46 @@ describe("replies", () => {
   it("shows whether email to hello@ is being received", async () => {
     const out = (await call("GET", "/api/ops/contact")).body as { inbound: boolean; signatures: unknown[] };
     expect(out.inbound).toBe(true); expect(out.signatures.length).toBeGreaterThan(0);
+  });
+});
+
+describe("new emails written by the team", () => {
+  beforeAll(() => { counters = new MemoryCounters(); }); // the limits above were used up by the tests before this group
+  it("go to one address under the chosen signature, start a conversation that counts as answered, and a reply joins it as waiting", async () => {
+    const sigs = (await call("GET", "/api/ops/signatures")).body as { items: { id: string; name: string }[] };
+    const sig = sigs.items.find((x) => x.name === "Roger (long)")!;
+    const before = mailer.sent.length;
+    const out = await call("POST", "/api/ops/contact/new", { to: "  Partner@Example.org ", subject: "Hello from  quarter", message: "Hi, a quick question about a school visit.", signatureId: sig.id });
+    expect(out.status).toBe(200);
+    const mail = mailer.sent[before];
+    expect(mail.to).toBe("partner@example.org"); expect(mail.subject).toBe("Hello from quarter");
+    expect(mail.html).toContain("Roger Richman"); expect(mail.text).toContain("Roger Richman"); expect(mail.headers).toBeUndefined();
+    const convo = (await contactList(db)).find((c) => c.email === "partner@example.org")!;
+    expect(convo.source).toBe("sent"); expect(convo.waiting).toBe(false); expect(convo.subject).toBe("Hello from quarter");
+    expect((await contactList(db, { waiting: true })).some((c) => c.id === convo.id)).toBe(false);
+    await recordInbound(db, { emailId: "cccccccc-2222-3333-4444-555555555555", from: "partner@example.org", name: null, subject: "Re: Hello", text: "Yes, Tuesday works.", messageId: "<p1@mail.example.org>", auth: null });
+    const after = (await contactList(db)).find((c) => c.id === convo.id)!;
+    expect(after.waiting).toBe(true); expect(after.replies[0]).toMatchObject({ direction: "in", message: "Yes, Tuesday works." });
+    await call("POST", "/api/ops/contact/reply", { id: convo.id, message: "Great, see you then." });
+    expect((await contactList(db)).find((c) => c.id === convo.id)!.waiting).toBe(false);
+  });
+  it("refuse more than one address, our own domain, bad subjects, empty messages and unknown signatures, and send nothing", async () => {
+    const n = mailer.sent.length;
+    const bad = [
+      { to: "a@example.org, b@example.org" }, { to: "a@example.org\nbcc: x@example.org" }, { to: "hello@yourquarter.co.uk" }, { to: "x@mail.yourquarter.co.uk" }, { to: "not an address" }, { to: "" },
+      { subject: "x" }, { subject: "y".repeat(151) }, { message: "x" }, { message: "z".repeat(6001) }, { signatureId: "11111111-2222-3333-4444-555555555555" },
+    ];
+    for (const b of bad) expect((await call("POST", "/api/ops/contact/new", { to: "ok@example.org", subject: "A fine subject", message: "A fine message.", ...b })).status, JSON.stringify(b)).toBe(400);
+    expect(mailer.sent.length).toBe(n);
+  });
+  it("keep line breaks out of the subject, record nothing if the email fails, and are limited to 30 an hour", async () => {
+    await call("POST", "/api/ops/contact/new", { to: "line@example.org", subject: "Two\r\nBcc: x@example.org", message: "A fine message." });
+    expect(mailer.sent.at(-1)!.subject).toBe("Two Bcc: x@example.org");
+    const count = (await contactList(db)).length; mailer.failNext = true;
+    expect((await call("POST", "/api/ops/contact/new", { to: "fail@example.org", subject: "Will fail", message: "A fine message." })).status).toBe(502);
+    expect((await contactList(db)).length).toBe(count);
+    let blocked = 0;
+    for (let i = 0; i < 40; i++) if ((await call("POST", "/api/ops/contact/new", { to: `bulk${i}@example.org`, subject: "Bulk test", message: "A fine message." })).status === 429) blocked++;
+    expect(blocked).toBeGreaterThan(0);
   });
 });

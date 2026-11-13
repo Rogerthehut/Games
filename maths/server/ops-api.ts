@@ -4,7 +4,7 @@ import type { Repo } from "./db/repo";
 import type { Gateway } from "./billing";
 import type { Mailer } from "./mail";
 import { OpsAccess, actorOf } from "./ops-access";
-import { addContactReply, contactForReply, contactList, deleteContact } from "./contact";
+import { EMAIL, addContactReply, contactForReply, contactList, deleteContact, startConversation } from "./contact";
 import type { Counters } from "./counters";
 import { cleanSignatureHtml } from "./signature-html";
 import { MAX_SIGNATURES, deleteSignature, getSignature, listSignatures, saveSignature, setDefaultSignature } from "./signatures";
@@ -112,6 +112,28 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     await addContactReply(d.db, c.id, actor, message);
     await audit(d.db, actor, "contact-reply", c.id);
     return ok({ sent: true });
+  }
+  // A new email from the team to one person (not a reply). One address only, never our own domain, rate limited, audit-logged without the address.
+  if (req.path === "/api/ops/contact/new" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "newmail", 30))) return TOO_MANY;
+    const to = typeof body.to === "string" ? body.to.trim().toLowerCase() : "";
+    const subject = typeof body.subject === "string" ? body.subject.replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim() : "";
+    const message = typeof body.message === "string" ? body.message.replace(/\r\n/g, "\n").trim() : "";
+    if (to.length > 254 || !EMAIL.test(to)) return bad("Enter one email address to send to.");
+    if (/@(?:[a-z0-9-]+\.)*yourquarter\.co\.uk$/.test(to)) return bad("That's one of our own addresses. Write to someone outside quarter.");
+    if (subject.length < 2 || subject.length > 150) return bad("Give it a subject of 2 to 150 characters.");
+    if (message.length < 2 || message.length > 6000) return bad("Write a message of 2 to 6000 characters.");
+    let sig: { html: string; text: string } | null = null;
+    if (body.signatureId !== undefined && body.signatureId !== null && body.signatureId !== "") {
+      sig = await getSignature(d.db, body.signatureId);
+      if (!sig) return bad("That signature no longer exists.");
+    }
+    const html = `<div style="font:16px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(message)}</div>${sig ? `<div style="margin-top:16px">${sig.html}</div>` : ""}`;
+    const sent = await d.mailer.send({ to, subject, text: `${message}${sig ? `\n\n${sig.text}` : ""}`, html });
+    if (!sent.ok) return { status: 502, body: { error: "mail-failed", message: "The email couldn't be sent. Nothing was recorded; try again." } };
+    const id = await startConversation(d.db, { to, subject, text: message });
+    await audit(d.db, actor, "contact-new", id);
+    return ok({ sent: true, id });
   }
   if (req.path === "/api/ops/contact/delete" && req.method === "POST") {
     const id = typeof body.id === "string" ? body.id : "";

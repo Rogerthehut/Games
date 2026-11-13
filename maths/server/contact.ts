@@ -64,7 +64,7 @@ export async function contactList(db: Db, o: { waiting?: boolean; limit?: number
   const replies = ids.length ? await db.select().from(schema.contactReplies).where(inArray(schema.contactReplies.contactId, ids)).orderBy(schema.contactReplies.at) : [];
   const out = rows.map((r): ContactRow => {
     const thread = replies.filter((x) => x.contactId === r.id).map(entry);
-    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, message: r.message, replies: thread, waiting: !thread.length || thread[thread.length - 1].direction === "in" };
+    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
   });
   return o.waiting ? out.filter((r) => r.waiting) : out;
 }
@@ -78,6 +78,15 @@ export async function contactForReply(db: Db, id: string): Promise<ContactForRep
   const inbound = await db.select().from(schema.contactReplies).where(and(eq(schema.contactReplies.contactId, id), eq(schema.contactReplies.direction, "in"))).orderBy(desc(schema.contactReplies.at)).limit(1);
   const last = inbound[0];
   return { id: r.id, email: r.email, subject: r.subject, lastMessage: last ? last.message : r.message, lastMessageId: last ? last.messageId : r.messageId };
+}
+
+/**
+ * An email the team writes first, from the ops page, to someone who hasn't been in touch. It is kept as a conversation like any other (source "sent"),
+ * so if they reply, their reply joins it. Counts as answered until they write back.
+ */
+export async function startConversation(db: Db, m: { to: string; subject: string; text: string }): Promise<string> {
+  const [row] = await db.insert(schema.contactMessages).values({ name: null, email: m.to, topic: "other", message: m.text, source: "sent", subject: m.subject }).returning({ id: schema.contactMessages.id });
+  return row.id;
 }
 
 export async function addContactReply(db: Db, contactId: string, actor: string, message: string): Promise<void> {

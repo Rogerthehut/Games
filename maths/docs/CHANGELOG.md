@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## New email from the ops portal
+**Messages, New email** writes to one person from hello@ without waiting for them to get in touch first, with a signature. It's saved as a conversation ("sent by you") so their reply threads under it. One address only, never our own domain, 30 an hour per person, audit-logged without the address. Tests in `server/ops-contact.test.ts` and `scripts/ops-messages-e2e.mjs`.
+
 ## Worked pictures: finished
 The topics without a picture under the answer went from 53 to 3 (the three left are conceptual multiple-choice topics: loci and constructions, one- or two-tailed tests, and sampling methods). Every picture is worked out from the question's own numbers and checked against its answer in `src/curriculum/worked-final.test.ts` (about 40 tests across 8 batches, 1,283 tests in all).
 - **Years 3 to 7:** time facts (a bar of blocks, or the months), multiplying three numbers (boxes), using a formula (drawn on the rectangle), order of operations (traced one operation at a time by evaluating the expression), mixed numbers, significant figures (counted digits marked), multi-step word problems.

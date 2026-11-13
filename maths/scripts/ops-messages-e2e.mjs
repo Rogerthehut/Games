@@ -62,6 +62,12 @@ try {
   await boss.getByTestId("ops-signature-html").fill("<p>" + "Roger Richman, quarter. ".repeat(1300) + "</p>");
   await boss.getByTestId("ops-signature-save").click(); await boss.waitForTimeout(900);
   ok("a 30,000-character signature saves", /Big/.test(await boss.getByTestId("ops-signatures").innerText()));
+  // a brand new email to someone who hasn't been in touch
+  await boss.getByTestId("ops-compose-toggle").click();
+  await boss.getByTestId("ops-compose-to").fill("partner@example.org"); await boss.getByTestId("ops-compose-subject").fill("A quick hello");
+  await boss.getByTestId("ops-compose-body").fill("Hi, a short note from quarter."); await boss.getByTestId("ops-compose-send").click(); await boss.waitForTimeout(900);
+  ok("a new email is sent from the portal", /dev email to partner@example.org\] A quick hello/.test(log));
+  ok("it appears as a conversation sent by us", /partner@example.org/.test(await boss.getByTestId("ops-messages").innerText()) && /sent by you/.test(await boss.getByTestId("ops-messages").innerText()));
   await boss.getByTestId("ops-tab-audit").click(); await boss.waitForTimeout(600);
   const audit = await boss.locator("body").innerText();
   ok("the audit log lists the signature and the reply, without their content", /signature-add/.test(audit) && /contact-reply/.test(audit) && !/second child/.test(audit));
