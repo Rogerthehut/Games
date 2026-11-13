@@ -1,4 +1,6 @@
-import { useRef, useState } from "preact/hooks";
+import { DeviceSection } from "./device-section";
+import { useEffect, useRef, useState } from "preact/hooks";
+import { maybeAskForReview } from "../native/device-settings";
 import { useRemembered } from "./memory";
 import { ALL_SKILLS, SKILLS, STAGE_LABEL } from "../curriculum";
 import { buildRefresher, canRefresh, refresherTopics } from "../engine/refresher";
@@ -42,6 +44,7 @@ export function Parent() {
   const [nameDraft, setNameDraft] = useState(profile.name);
   const [nameSaved, setNameSaved] = useState(false);
   const tutorUp = useTutorAvailable();
+  useEffect(() => { maybeAskForReview(profile.sessions.length); }, []);
   const log = profile.tutorLog ?? [];
   const flagLabel: Record<string, string> = { "personal-info": "Personal details", "off-topic": "Off topic", limit: "Daily limit", unavailable: "Tutor unavailable" };
 
@@ -262,6 +265,7 @@ export function Parent() {
               <p class="small muted">Turning it off stops any more being sent. Tallies already added to the totals can't be taken back out, because they don't say whose they are.</p>
             </section>
           )}
+          <DeviceSection />
           {account && <WeeklyEmailSection />}
           {account && <SubscriptionSection />}
           {account && <AccountSection />}

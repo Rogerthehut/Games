@@ -1,3 +1,4 @@
+import { clearDeviceSettings } from "../native/device-settings";
 import { flushQuestionStats, setQuestionStatsSender } from "../account/question-stats";
 import { isNativeApp, saveFile } from "../native/bridge";
 import { useEffect, useRef, useState } from "preact/hooks";
@@ -178,6 +179,7 @@ export function AccountGate() {
     setQuestionStatsSender(null);
     clearCaches();           // nothing about the account stays on a shared device
     clearAllPins();
+    clearDeviceSettings();
     await auth.current?.signOut();
   };
 
@@ -193,7 +195,7 @@ export function AccountGate() {
     downloadBooklet: async () => {
       await saveFile("quarter-curriculum.pdf", await api.current!.booklet(), "application/pdf");
     },
-    deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearAllPins(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
+    deleteAccount: async () => { await api.current!.deleteAccount(); clearCaches(); clearAllPins(); clearDeviceSettings(); clearLegacy(); await auth.current?.signOut().catch(() => undefined); },
   };
 
   if (phase.name === "ready")

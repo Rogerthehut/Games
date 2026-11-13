@@ -35,6 +35,9 @@ const PAPER_H = 846;
 export function WorkingOut({ suggest = "paper" }: { /** the tool that opens first: the one that suits the topic */ suggest?: ToolId }) {
   const [tool, setTool] = useState<ToolId>(suggest);
   const [lineMode, setLineMode] = useState(false);
+  // Apple Pencil (or any stylus): once a pen has been used, fingers and palms resting on the paper stop drawing, unless the grown-up or child turns that off
+  const [penSeen, setPenSeen] = useState(false);
+  const [pencilOnly, setPencilOnly] = useState(true);
   const [ruler, setRuler] = useState<Placement | null>(null);
   const [protractor, setProtractor] = useState<Placement | null>(null);
   const [digits, setDigits] = useState(EMPTY_ABACUS);
@@ -248,10 +251,13 @@ export function WorkingOut({ suggest = "paper" }: { /** the tool that opens firs
             </button>
           ))}
         </div>
+        {penSeen && <label class="check small pencil-only"><input type="checkbox" checked={pencilOnly} onChange={(e) => setPencilOnly((e.target as HTMLInputElement).checked)} data-testid="pencil-only" /> Pencil only: fingers and palms won't draw</label>}
         <div class="paper-wrap">
         <canvas ref={canvas} class={`scrap-paper ${squared ? "squared" : ""} ${expanded ? "expanded" : ""}`} style={paperHeight === undefined ? undefined : { height: `${paperHeight}px` }} width={1200} height={PAPER_H} role="img" aria-label={eraser ? "Drawing area, eraser on" : "Drawing area"}
           onPointerDown={(event) => {
             if (event.button !== 0 || drawing.current !== null) return;
+            if (event.pointerType === "pen" && !penSeen) setPenSeen(true);
+            if (event.pointerType === "touch" && penSeen && pencilOnly) return; // a palm or finger while writing with a pencil
             const focused = document.activeElement;
             if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement) focused.blur();
             const point = paperPoint(event);

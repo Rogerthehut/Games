@@ -1,5 +1,4 @@
 import * as FileSystem from "expo-file-system/legacy";
-import * as Haptics from "expo-haptics";
 import * as Linking from "expo-linking";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
@@ -9,8 +8,9 @@ import { useCallback, useEffect, useRef, useState, type ComponentType } from "re
 import { ActivityIndicator, BackHandler, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from "react-native-webview";
 import { APP_HOST, APP_URL, APP_VERSION, BACKGROUND, USER_AGENT_SUFFIX } from "./config";
-import { decideNavigation, isAppUrl } from "./links";
+import { decideNavigation, deepLink, isAppUrl } from "./links";
 import { parseMessage, type FromWeb } from "./messages";
+import { askForReview, biometric, haptic, setReminders } from "./native";
 
 /**
  * quarter on iPhone and iPad: the site in a web view, with the few things a web view can't do handed to the phone
@@ -19,7 +19,9 @@ import { parseMessage, type FromWeb } from "./messages";
  */
 /** react-native-webview 14's own prop types don't resolve under React 19's JSX types (every prop becomes `never`), so the component is used through a plain props type. The handlers below are still typed. */
 const Web = WebView as unknown as ComponentType<Record<string, unknown> & { ref?: React.Ref<WebView> }>;
-const NATIVE_INFO = JSON.stringify({ platform: Platform.OS, version: APP_VERSION, tablet: Platform.OS === "ios" ? Platform.isPad : false });
+/** What this build of the app can do. The site checks this list before asking, so an older app that was installed before a feature existed is never asked for it. */
+const FEATURES = ["haptics2", "biometric", "reminders", "review"];
+const NATIVE_INFO = JSON.stringify({ platform: Platform.OS, version: APP_VERSION, tablet: Platform.OS === "ios" ? Platform.isPad : false, features: FEATURES });
 const BEFORE_LOAD = `window.__quarterNative = ${NATIVE_INFO}; true;`;
 
 export default function App() {
@@ -27,6 +29,15 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
+  const [uri, setUri] = useState(APP_URL);
+
+  // Links to the site (from Messages, Mail, Safari) open here, on the page they point to
+  useEffect(() => {
+    const open = (url: string | null) => { const next = url && deepLink(url, APP_URL, APP_HOST); if (next) setUri(next); };
+    void Linking.getInitialURL().then(open);
+    const sub = Linking.addEventListener("url", (e) => open(e.url));
+    return () => sub.remove();
+  }, []);
 
   // Android's back button goes back in the page before it leaves the app
   useEffect(() => {
@@ -52,10 +63,10 @@ export default function App() {
         break;
       }
       case "open-url": await WebBrowser.openBrowserAsync(m.url); break;
-      case "haptic":
-        if (m.kind === "tap") await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        else await Haptics.notificationAsync(m.kind === "success" ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error);
-        break;
+      case "haptic": await haptic(m.kind); break;
+      case "biometric": tell({ type: "biometric-result", id: m.id, result: await biometric(m.reason) }); break;
+      case "reminders": tell({ type: "reminders-result", result: await setReminders(m) }); break;
+      case "review": await askForReview(); break;
     }
   }, [tell]);
 
@@ -72,7 +83,7 @@ export default function App() {
       <StatusBar style="auto" />
       <Web
         ref={web}
-        source={{ uri: APP_URL }}
+        source={{ uri }}
         style={styles.web}
         applicationNameForUserAgent={USER_AGENT_SUFFIX}
         injectedJavaScriptBeforeContentLoaded={BEFORE_LOAD}
@@ -90,6 +101,10 @@ export default function App() {
         onHttpError={(e: { nativeEvent: { statusCode: number } }) => { if (e.nativeEvent.statusCode >= 500) { setFailed(true); setLoading(false); } }}
         contentInsetAdjustmentBehavior="never"
         allowsBackForwardNavigationGestures
+        allowsLinkPreview={false}
+        dataDetectorTypes="none"
+        keyboardDisplayRequiresUserAction={false}
+        automaticallyAdjustContentInsets={false}
         allowsInlineMediaPlayback
         mediaPlaybackRequiresUserAction={false}
         setSupportMultipleWindows={false}

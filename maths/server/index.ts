@@ -1,3 +1,4 @@
+import { appSiteAssociation } from "./aasa";
 import { handleRevenueCat } from "./revenuecat";
 import { timingSafeEqual } from "node:crypto";
 import { startMonitoring, reportError } from "./monitoring";
@@ -251,6 +252,12 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
       const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess, repo: accounts.repo, billing: accounts.billing, counters, inboundOn });
       return send(res, out.status, out.body);
     } catch (e) { console.error("ops route failed:", (e as Error).name); reportError(e, "ops"); return send(res, 500, { error: "server-error" }); }
+  }
+
+  // Lets the iPhone and iPad app open links to this site (server/aasa.ts). Public, and must come with no redirect.
+  if (url.pathname === "/.well-known/apple-app-site-association" && (req.method === "GET" || req.method === "HEAD")) {
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "public, max-age=3600" });
+    return res.end(req.method === "HEAD" ? undefined : JSON.stringify(appSiteAssociation()));
   }
 
   if (url.pathname === "/ops" && (req.method === "GET" || req.method === "HEAD") && existsSync(join(DIST, "index.html"))) {

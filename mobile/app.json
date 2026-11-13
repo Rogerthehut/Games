@@ -31,8 +31,12 @@
           "UIInterfaceOrientationPortraitUpsideDown",
           "UIInterfaceOrientationLandscapeLeft",
           "UIInterfaceOrientationLandscapeRight"
-        ]
-      }
+        ],
+        "NSFaceIDUsageDescription": "quarter uses Face ID so a grown-up can open the Parents' area without typing a sum and PIN."
+      },
+      "associatedDomains": [
+        "applinks:yourquarter.co.uk"
+      ]
     },
     "android": {
       "package": "uk.co.yourquarter.app",

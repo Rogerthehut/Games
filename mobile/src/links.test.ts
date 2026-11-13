@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decideNavigation, isAppUrl } from "./links";
+import { decideNavigation, deepLink, isAppUrl } from "./links";
 
 const H = "yourquarter.co.uk";
 test("the site itself stays in the app", () => {
@@ -23,4 +23,16 @@ test("local development over http works only for the same local host", () => { a
 test("only the site's own pages are trusted to send messages", () => {
   assert.equal(isAppUrl("https://yourquarter.co.uk/x", H), true); assert.equal(isAppUrl("https://www.yourquarter.co.uk/", H), true);
   assert.equal(isAppUrl("https://evil.com/", H), false); assert.equal(isAppUrl("https://yourquarter.co.uk.evil.com/", H), false); assert.equal(isAppUrl("javascript:1", H), false);
+});
+
+const APP = "https://yourquarter.co.uk";
+test("links to the site open in the app on the page they point to", () => {
+  assert.equal(deepLink("https://yourquarter.co.uk/", APP, H), "https://yourquarter.co.uk/");
+  assert.equal(deepLink("https://www.yourquarter.co.uk/blog/x/?a=1#top", APP, H), "https://yourquarter.co.uk/blog/x/?a=1#top");
+  assert.equal(deepLink("https://YOURQUARTER.co.uk/?info=privacy", APP, H), "https://yourquarter.co.uk/?info=privacy");
+});
+test("other links, other paths and odd links are not opened", () => {
+  for (const u of ["https://example.com/", "https://yourquarter.co.uk.evil.com/", "http://yourquarter.co.uk/", "javascript:alert(1)", "not a url", "quarter://x", "https://user:pw@yourquarter.co.uk/",
+    "https://yourquarter.co.uk/ops", "https://yourquarter.co.uk/ops/", "https://yourquarter.co.uk/api/account", "https://yourquarter.co.uk/unsubscribe?t=1", "https://yourquarter.co.uk/.well-known/x"]) assert.equal(deepLink(u, APP, H), null, u);
+  assert.equal(deepLink("https://yourquarter.co.uk/operations", APP, H), "https://yourquarter.co.uk/operations"); // only the real /ops is kept out
 });

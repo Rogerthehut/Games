@@ -26,3 +26,20 @@ export function decideNavigation(url: string, appHost: string, opts: { isTopFram
 export function isAppUrl(url: string, appHost: string): boolean {
   try { const u = new URL(url); return u.protocol === "https:" || u.hostname === "localhost" ? u.hostname === appHost || u.hostname === `www.${appHost}` : false; } catch { return false; }
 }
+
+/** Paths on the site that stay out of the app when a link to them is tapped: the team's page, the API and the unsubscribe page. */
+const NOT_IN_APP = /^\/(ops|api|unsubscribe|\.well-known)(\/|$)/i;
+
+/**
+ * The address to show when the app is opened from a link to the site, or null if the link isn't one the app should open: another site, a path in
+ * NOT_IN_APP, or a link with a user name or password in it. Only the path, query and hash are kept, on the app's own address.
+ */
+export function deepLink(link: string, appUrl: string, appHost: string): string | null {
+  let u: URL;
+  try { u = new URL(link); } catch { return null; }
+  if (u.protocol !== "https:" || u.username || u.password) return null;
+  const host = u.hostname.toLowerCase();
+  if (host !== appHost.toLowerCase() && host !== `www.${appHost.toLowerCase()}`) return null;
+  if (NOT_IN_APP.test(u.pathname)) return null;
+  return `${appUrl.replace(/\/$/, "")}${u.pathname}${u.search}${u.hash}`;
+}

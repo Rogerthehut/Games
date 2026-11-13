@@ -37,6 +37,7 @@
     "ops:feedback": "tsx scripts/ops.ts feedback",
     "ops:audit": "tsx scripts/ops.ts audit",
     "e2e:ops": "node scripts/ops-e2e.mjs",
+    "e2e:native": "node scripts/native-features-e2e.mjs",
     "e2e:ops-messages": "node scripts/ops-messages-e2e.mjs",
     "e2e:memory": "tsx scripts/memory-e2e.ts",
     "e2e:idle": "tsx scripts/idle-e2e.ts",

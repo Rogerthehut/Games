@@ -1,8 +1,10 @@
 import { Portal } from "./portal";
 import type { ComponentChildren } from "preact";
-import { useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import { useAccount } from "./account-context";
 import { applyKey, Keypad, useDigitKeys } from "./answer-input";
+import { biometric, nativeHas } from "../native/bridge";
+import { faceIdOn } from "../native/device-settings";
 import { checkPin, hasPin, pinProblem, setPin } from "./pin";
 
 /** The grown-ups' area stays open while someone is using it, and locks after this long with nothing touched. */
@@ -49,6 +51,16 @@ export function ParentGate({ onPass, onCancel, embedded = false }: { onPass: () 
   const [busy, setBusy] = useState(false);
   const [forgot, setForgot] = useState(false);
   const making = !hasPin(key);
+  // In the app, a grown-up who has switched on Face ID or Touch ID opens the area with it, in place of the sum and PIN. Anything else (cancelled, no match,
+  // not set up on the phone) falls straight back to the sum and PIN. A PIN must already exist, so there is always something to fall back on.
+  const useBio = nativeHas("biometric") && faceIdOn() && !making;
+  const [bio, setBio] = useState<"asking" | "done">(useBio ? "asking" : "done");
+  useEffect(() => {
+    if (!useBio) return;
+    let live = true;
+    void biometric("Open the Parents' area").then((r) => { if (!live) return; if (r === "ok") { unlock(); onPass(); } else setBio("done"); });
+    return () => { live = false; };
+  }, []);
 
   const shake = () => { setWrong(true); setTimeout(() => setWrong(false), 500); };
   const submitSum = () => {
@@ -81,7 +93,12 @@ export function ParentGate({ onPass, onCancel, embedded = false }: { onPass: () 
   return frame(
     <>
         <h2 id="gate-h">Parents' area</h2>
-        {step === "sum" ? (
+        {bio === "asking" ? (
+          <>
+            <p data-testid="gate-bio">Use Face ID or Touch ID to open this.</p>
+            <div class="actions"><button class="btn" onClick={() => setBio("done")} data-testid="gate-bio-skip">Use the sum and PIN instead</button></div>
+          </>
+        ) : step === "sum" ? (
           <>
             <p>Ask a grown-up to answer this.</p>
             <p class="gate-sum">{sum.a} × {sum.b} =</p>

@@ -17,7 +17,7 @@ const ok = (name: string, cond: boolean, extra = "") => { results.push(cond); co
 const p0 = newProfile("Maya", 6, Date.now() - 86_400_000 * 5); p0.toured = true; p0.skillsView = "list";
 const browser = await chromium.launch();
 for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as const) {
-  const ctx = await browser.newContext({ viewport: { width: w, height: h } });
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: label === "phone" });
   await ctx.addInitScript((s: string) => { try { if (!localStorage.getItem("mathpath.v1")) localStorage.setItem("mathpath.v1", s); } catch { /* private mode */ } }, JSON.stringify({ version: 1, profiles: [p0], activeId: p0.id }));
   const page = await ctx.newPage(); page.setDefaultTimeout(8000);
   const errors: string[] = []; page.on("pageerror", (e: Error) => errors.push(e.message));
@@ -66,6 +66,41 @@ for (const [label, w, h] of [["desktop", 1280, 900], ["phone", 390, 800]] as con
   await page.mouse.move(box.x + 40, box.y + 30); await page.mouse.down(); await page.mouse.move(box.x + 120, box.y + 60, { steps: 6 }); await page.mouse.up();
   const painted = await page.evaluate(() => { const c = document.querySelector("canvas.scrap-paper") as HTMLCanvasElement; const d = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; });
   ok(`${label}: a straight line is drawn`, painted > 200);
+  // Apple Pencil: once a pen has drawn, a finger or palm on the paper doesn't
+  if (label === "phone") {
+    await page.getByRole("button", { name: "Work it out" }).click(); await page.waitForTimeout(300);
+    const cdp = await ctx.newCDPSession(page);
+    await page.locator("canvas.scrap-paper").scrollIntoViewIfNeeded();
+    const pb = await page.locator("canvas.scrap-paper").boundingBox();
+    const ink = () => page.evaluate(() => { const c = document.querySelector("canvas.scrap-paper") as HTMLCanvasElement; const d = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; });
+    const before = await ink();
+    const x0 = pb.x + 60, y0 = pb.y + 40;
+    await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0, y: y0 });
+    await cdp.send("Input.dispatchMouseEvent", { type: "mousePressed", x: x0, y: y0, button: "left", pointerType: "pen", buttons: 1, clickCount: 1 });
+    for (let i = 1; i <= 6; i++) await cdp.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x0 + i * 12, y: y0 + i * 6, button: "left", pointerType: "pen", buttons: 1 });
+    await cdp.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: x0 + 72, y: y0 + 36, button: "left", pointerType: "pen", clickCount: 1 });
+    await page.waitForTimeout(400); // the paper redraws a moment after the last point
+    const afterPen = await ink();
+    ok(`${label}: the pencil draws`, afterPen > before + 100, `${before} -> ${afterPen}`);
+    ok(`${label}: a "Pencil only" switch appears once a pencil has been used`, await page.getByTestId("pencil-only").isVisible());
+    await page.locator("canvas.scrap-paper").scrollIntoViewIfNeeded();
+    const pb2 = await page.locator("canvas.scrap-paper").boundingBox(); // the switch appeared above the paper and moved it
+    const tx = pb2.x + 60, ty = pb2.y + 160;
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: tx, y: ty }] });
+    for (let i = 1; i <= 6; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: tx + i * 12, y: ty + i * 6 }] });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await page.waitForTimeout(400);
+    ok(`${label}: a finger or palm doesn't draw while "Pencil only" is on`, (await ink()) === afterPen, `${afterPen} -> ${await ink()}`);
+    await page.getByTestId("pencil-only").uncheck();
+    await page.locator("canvas.scrap-paper").scrollIntoViewIfNeeded();
+    const pb3 = await page.locator("canvas.scrap-paper").boundingBox(); // unticking can scroll the page
+    const ux = pb3.x + 60, uy = pb3.y + 160;
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: ux, y: uy }] });
+    for (let i = 1; i <= 6; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: ux + i * 12, y: uy + i * 6 }] });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await page.waitForTimeout(400);
+    ok(`${label}: with it off, a finger draws again`, (await ink()) > afterPen + 100);
+  }
   // graph paper and algebra tiles
   await page.getByRole("button", { name: /Graph paper/ }).click();
   const gp = page.getByTestId("graph-paper"); await gp.scrollIntoViewIfNeeded(); const gb = await gp.boundingBox();

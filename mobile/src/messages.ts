@@ -3,7 +3,13 @@ export type FromWeb =
   | { type: "print"; html: string }
   | { type: "share-file"; filename: string; mime: string; base64: string }
   | { type: "open-url"; url: string }
-  | { type: "haptic"; kind: "tap" | "success" | "error" };
+  | { type: "haptic"; kind: "tap" | "soft" | "success" | "error" }
+  /** Ask for Face ID / Touch ID (the Parents' area). The answer comes back as a `biometric-result` with the same id. */
+  | { type: "biometric"; id: string; reason: string }
+  /** The parent's practice reminders: weekly local notifications on chosen days (1 = Sunday ... 7 = Saturday) at a chosen time. */
+  | { type: "reminders"; enabled: boolean; hour: number; minute: number; days: number[] }
+  /** Show Apple's rating prompt (Apple decides whether it appears; at most three times a year). */
+  | { type: "review" };
 
 export const MAX_HTML = 3_000_000;
 export const MAX_FILE_CHARS = 40_000_000; // about 30 MB of file in base64
@@ -29,7 +35,18 @@ export function parseMessage(raw: string): FromWeb | null {
       return { type: "share-file", filename: safeFilename(m.filename), mime: m.mime, base64: m.base64 };
     }
     case "open-url": return typeof m.url === "string" && /^https:\/\//i.test(m.url) && m.url.length < 2000 ? { type: "open-url", url: m.url } : null;
-    case "haptic": return m.kind === "tap" || m.kind === "success" || m.kind === "error" ? { type: "haptic", kind: m.kind } : null;
+    case "haptic": return m.kind === "tap" || m.kind === "soft" || m.kind === "success" || m.kind === "error" ? { type: "haptic", kind: m.kind } : null;
+    case "biometric": return typeof m.id === "string" && /^[\w-]{1,40}$/.test(m.id) && typeof m.reason === "string" ? { type: "biometric", id: m.id, reason: m.reason.replace(/[\r\n]+/g, " ").slice(0, 120) || "Unlock the Parents' area" } : null;
+    case "reminders": {
+      if (typeof m.enabled !== "boolean") return null;
+      const int = (v: unknown, lo: number, hi: number) => (typeof v === "number" && Number.isInteger(v) && v >= lo && v <= hi ? v : null);
+      const hour = int(m.hour, 0, 23), minute = int(m.minute, 0, 59);
+      if (hour === null || minute === null || !Array.isArray(m.days) || m.days.length > 7) return null;
+      const days = [...new Set(m.days.map((d) => int(d, 1, 7)))];
+      if (days.includes(null)) return null;
+      return { type: "reminders", enabled: m.enabled, hour, minute, days: (days as number[]).sort((a, b) => a - b) };
+    }
+    case "review": return { type: "review" };
     default: return null;
   }
 }

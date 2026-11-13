@@ -10,8 +10,10 @@ import { ContactScreen } from "./ui/contact";
 import { applyTheme, getTheme } from "./ui/skin";
 import { tintScrollbars } from "./ui/scrollbars";
 import { OpsPage } from "./ui/ops-page";
+import { installButtonHaptics } from "./native/bridge";
 
 tintScrollbars();
+installButtonHaptics();
 
 const page = getInformationPage(location.search);
 if (page) {

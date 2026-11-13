@@ -17,6 +17,27 @@ The app lives in `/mobile` (an Expo project, TypeScript). It is a thin shell: th
 | Sign-in is email only, so there is no Google sign-in to hide in the app | `src/account/auth.ts` | Decided |
 | App icon and splash | `mobile/assets` | Made from the site icon. Check them on a device. |
 
+## Native features (second build)
+
+Built in the app and on the site, and **not yet seen on a real device** (the site side is tested with a faked app: `npm run e2e:native`):
+
+| Feature | Where | Notes |
+| --- | --- | --- |
+| Face ID / Touch ID for the Parents' area | `mobile/src/native.ts`, `src/ui/gate.tsx`, Parents' area → Settings → "On this device" | Opt-in per device. Replaces the sum and PIN; cancelling or a failed match falls back to them. A PIN must already exist. Biometrics only, never the device passcode (children often know it). |
+| Haptics | `src/native/bridge.ts` | A light tap on every button, key and tab; a success tap for a right answer and a softer one for a miss. Can be switched off in the same settings card. |
+| Edge-swipe back/forward, no link previews, no phone-number detection, keyboard behaviour | `mobile/src/App.tsx` (web view props) | `dataDetectorTypes="none"` stops digits in questions turning into phone links. |
+| Practice reminders | `mobile/src/native.ts`, `src/native/device-settings.ts` | Local weekly notifications at the parent's chosen days and time. Off by default, no server, fixed gentle wording ("A little quarter?"), never a child's name. Cancelled when someone signs out. |
+| Apple Pencil | `src/ui/working-out.tsx` | After a pen has drawn, "Pencil only" stops fingers and palms drawing (can be switched off). |
+| Links open the app | `server/aasa.ts`, `mobile/app.json` (`associatedDomains`), `mobile/src/links.ts` | `/.well-known/apple-app-site-association` is served by the site. `/ops`, `/api` and `/unsubscribe` stay in the browser. Needs the Associated Domains capability on the App ID (EAS adds it on the next build). Apple caches the file, so it can take a day to start working. |
+| Rating prompt | `src/native/device-settings.ts` | Grown-ups only, from the Parents' area, after ten practice sessions, at most every 90 days; Apple decides whether to show it. |
+
+How the site knows what the installed app can do: the app announces a `features` list (`FEATURES` in `App.tsx`), and the site checks it before asking. An older app that was installed before a feature existed is simply never asked, so web changes are safe to publish before everyone updates.
+
+**Deliberately not built yet (needs Swift that can't be compiled or tried from the cloud build setup here):**
+- **Native tab bar (Liquid Glass).** The tab-bar library gives each tab its own native screen, but quarter is one web page, so it can't share a single web view between tabs. It needs a small custom native view over the web view. Plan: a local Expo module with a `UITabBar` (it takes the Liquid Glass look automatically on iOS 26 builds), behind a feature flag and a separate preview build.
+- **Home-screen widget** (streak or today's practice). `expo-widgets` exists for SDK 58 but adds a second app target (its own App ID and App Group), a metro config change and SwiftUI-style layouts. Better added on its own once the first build is in TestFlight.
+- **Siri shortcuts / home-screen quick actions.** Need App Intents (Swift). Quick actions are the simpler first step.
+
 ## Not built yet (in order)
 
 1. **In-app subscriptions (RevenueCat).** *Server side is built; the native purchase screen is not.* Done: `POST /api/revenuecat/webhook` (server/revenuecat.ts) records a parent's App Store entitlement from RevenueCat's events (purchase, renewal, cancel, expiry) in `app_entitlements`, and access is the later of that and the Stripe subscription, so web and app agree. To switch it on: in RevenueCat create the project, an iOS app, the monthly and yearly products (with the free trial) and one entitlement; add a webhook to `https://yourquarter.co.uk/api/revenuecat/webhook` with an Authorization header value you make up (24+ characters) and set the same value as `REVENUECAT_WEBHOOK_AUTH`. The app must log in to RevenueCat with the parent's **sign-in id as the app user id** (that is how a purchase finds its account). Still to build once the Apple account and products exist: the native paywall (`react-native-purchases`), the Restore Purchases button, and showing it in place of "Subscriptions are coming to the app". It needs a development build on a real device to test.

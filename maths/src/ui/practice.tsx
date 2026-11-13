@@ -1,3 +1,4 @@
+import { haptic } from "../native/bridge";
 import { noteQuestion } from "../account/question-stats";
 import { Solution } from "./solution";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
@@ -145,6 +146,7 @@ export function Practice({ plan, resume }: { plan: Pick[]; resume?: boolean }) {
     const t = tally.current;
     t.answered++; t.skills.add(q.skill);
     t.activeMs += Math.min(180_000, Date.now() - t.shownAt);
+    haptic(kind === "wrong" ? "soft" : "success"); // a warm tap for a right answer, a gentler one for a miss
     noteQuestion({ skill: q.skill, level: q.level, year: profile.year, kind, secs: (Date.now() - t.shownAt) / 1000, tags: [...misses.current.tags] }, profile.shareStats !== false);
     if (kind !== "wrong") t.correct++;
     const pts = kind === "right" ? 10 : kind === "helped" ? 7 : 4;

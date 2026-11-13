@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## iPhone and iPad app: Face ID, haptics, reminders, Pencil, links (needs a new build)
+New in the app shell and on the site: Face ID / Touch ID for the Parents' area (opt-in, with the PIN as back-up), haptic taps on buttons and answers, edge-swipe back and forward and other web-view settings (no accidental phone-number links), weekly practice reminders as local notifications chosen by the parent (off by default), "Pencil only" palm rejection for the working-out sheet, links to yourquarter.co.uk that open the app (`/.well-known/apple-app-site-association`), and a rating prompt for grown-ups. The site checks which features the installed app has, so nothing breaks for people who haven't updated. Native tab bar, widget and Siri are not built yet; see `docs/MOBILE.md`. Also: `mobile/node_modules` is no longer tracked in git. Browser checks: `npm run e2e:native`, `scripts/tools-e2e.ts`.
+
 ## Check-up and paper statistics, graph paper and algebra tiles, RevenueCat webhook, second Resend key
 - **Question statistics** now also count check-up and in-app practice paper answers (not lessons). Privacy notice and Parents' area wording say so.
 - **Working-out tools:** *Graph paper* (plot points on a -10 to 10 grid, join them, close a shape, undo) and *Algebra tiles* (x², x, 1, with hatched negative tiles and the expression they make). They open first for the matching secondary topics. Browser checks in `scripts/tools-e2e.ts`.
