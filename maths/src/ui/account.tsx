@@ -322,7 +322,7 @@ function SignedOut({ auth }: { auth: AuthClient | null }) {
               setAgreed(on);
               if (on) rememberAgreement(TERMS_VERSION); else forgetAgreement();
             }} />
-            <span>I agree to the <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a> and have read the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a>.</span>
+            <span>I’m a parent or guardian, setting this account up on behalf of my child (or children). I agree to the <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a> and have read the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a>.</span>
           </label>
           {!agreed && <p class="small muted">Please tick the box to create your account.</p>}
         </div>
@@ -354,7 +354,7 @@ function Consent({ onAgree, onSignOut }: { onAgree(): Promise<void>; onSignOut()
       </ul>
       <label class="account-check">
         <input type="checkbox" checked={ok} onChange={() => setOk(!ok)} data-testid="consent-check" />
-        <span>I'm a parent or guardian, and I agree to the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a> and <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a>.</span>
+        <span>I'm a parent or guardian, setting this up on behalf of my child (or children), and I agree to the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a> and <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a>.</span>
       </label>
       {err && <p class="error" role="alert">{err}</p>}
       <button class="btn primary big" disabled={!ok || busy} onClick={go} data-testid="consent-go">Agree and continue <Icon name="arrow" size={20} /></button>

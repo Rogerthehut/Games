@@ -1,3 +1,4 @@
+import { MAX_CHILDREN } from "../account/limits";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { Avatar } from "./avatar";
 import { useApp } from "./context";
@@ -45,7 +46,7 @@ export function RailSwitcher({ tab }: { tab: string }) {
             </li>
           ))}
           <li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); go({ name: "me" }); }} data-testid="rail-open-me"><Icon name="user" size={20} /><span class="rail-switch-label">Me and settings</span></button></li>
-          <li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); if (parentUnlocked()) go({ name: "onboard" }); else setAddGate(true); }} data-testid="rail-add-learner"><Icon name="plus" size={20} /><span class="rail-switch-label">Add someone, or change year</span></button></li>
+          {profiles.length < MAX_CHILDREN && (<li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); if (parentUnlocked()) go({ name: "onboard" }); else setAddGate(true); }} data-testid="rail-add-learner"><Icon name="plus" size={20} /><span class="rail-switch-label">Add another child, or change year</span></button></li>)}
         </ul>
       )}
       <button class="rail-me" aria-expanded={open} aria-haspopup="menu" aria-current={tab === "me" ? "page" : undefined} onClick={() => setOpen(!open)} aria-label={`${profile.name}, switch learner`} data-testid="rail-me">

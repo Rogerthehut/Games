@@ -39,7 +39,7 @@ export interface AppCtx {
   update: (fn: (p: Profile) => Profile) => void;
   go: (r: Route, returnTo?: Route) => void;
   leave: (fallback: Route) => void;
-  addProfile: (p: Profile) => void;
+  addProfile: (p: Profile, makeActive?: boolean) => void;
   replaceProfile: (p: Profile) => void;
   removeProfile: (id: string) => void;
   switchTo: (id: string) => void;

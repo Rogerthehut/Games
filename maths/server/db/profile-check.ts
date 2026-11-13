@@ -1,4 +1,5 @@
-export const MAX_LEARNERS = 8;
+/** The same number as MAX_CHILDREN in src/account/limits.ts. An account that already has more keeps them; only adding is refused. */
+export const MAX_LEARNERS = 3;
 export const MAX_PROFILE_BYTES = 400_000;
 
 export type Cleaned = { ok: true; data: Record<string, unknown>; nickname: string; year: number } | { ok: false; error: string };

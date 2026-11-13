@@ -52,7 +52,7 @@ One `http` server in `server/index.ts` routes to handlers. Main areas:
 
 | Area | Files | Notes |
 | --- | --- | --- |
-| Accounts and learner data | `accounts.ts`, `auth.ts`, `db/repo.ts` | Clerk token checked server-side; every query scoped to the parent; up to 8 learners, 400 KB each; optimistic versioning. See [ACCOUNTS.md](ACCOUNTS.md). |
+| Accounts and learner data | `accounts.ts`, `auth.ts`, `db/repo.ts` | Clerk token checked server-side; every query scoped to the parent; up to 3 learners, 400 KB each; optimistic versioning. See [ACCOUNTS.md](ACCOUNTS.md). |
 | Billing | `billing.ts` | Stripe Checkout and customer portal; webhook updates `subscriptions`; no subscription means writes return 402. See [BILLING.md](BILLING.md). |
 | AI tutor and assistant | `tutor/`, `assistant/` | Screening, a prompt that treats child text as data, answer-leak checking, layered rate limits, stores nothing. See [TUTOR.md](TUTOR.md). |
 | Contact and mailbox | `contact.ts`, `inbound.ts`, `svix.ts`, `mail.ts`, `mailbox.ts`, `mail-search.ts`, `ticket.ts`, `signatures.ts`, `signature-html.ts` | Website contact form, inbound mail to hello@ via Resend webhook (signature-verified), threads with signed ticket tags, drafts, outbox with retries, trash, fuzzy search, pin/flag. See [OPS.md](OPS.md). |

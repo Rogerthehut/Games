@@ -31,7 +31,7 @@ const signIn = async (p, who) => { await p.getByTestId("fake-auth").locator("inp
 const api = async (who, path, init = {}) => (await fetch(`http://localhost:8787${path}`, { ...init, headers: { Authorization: `Bearer fake_${who}`, "Content-Type": "application/json", ...(init.headers ?? {}) } })).json();
 const consent = async (p) => { await p.getByTestId("consent-check").check(); await p.getByTestId("consent-go").click(); await p.waitForTimeout(1200); await p.waitForFunction(() => !document.querySelector(".boot-splash"), null, { timeout: 10000 }).catch(() => {}); };
 let tourSeen = 0; // a brand-new learner is offered the welcome tour, which is skipped here
-const addLearner = async (p, name, year = 5) => { await p.fill("#name", name); await p.getByTestId("name-next").click(); await p.getByTestId(`year-${year}`).click(); await p.getByTestId("year-go").click(); await p.waitForTimeout(900); if (await p.getByTestId("tour-skip").count()) { tourSeen++; await p.getByTestId("tour-skip").click(); await p.waitForTimeout(500); } };
+const addLearner = async (p, name, year = 5) => { await p.fill("#name", name); await p.getByTestId("name-next").click(); await p.getByTestId(`year-${year}`).click(); await p.getByTestId("year-go").click(); await p.getByTestId("avatar-next").click(); await p.getByTestId("setup-done").click(); await p.waitForTimeout(900); if (await p.getByTestId("tour-skip").count()) { tourSeen++; await p.getByTestId("tour-skip").click(); await p.waitForTimeout(500); } };
 
 // 1. a new parent signs up
 let { ctx, p } = await open();

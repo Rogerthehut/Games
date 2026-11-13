@@ -82,10 +82,10 @@ describe("learners", () => {
     expect((await call("fake_a", "PUT", `/api/learners/${id}`, { profile: profile(), baseVersion: "1" })).status).toBe(400);
     expect((await call("fake_a", "PUT", `/api/learners/${id}`, { profile: { name: "" }, baseVersion: 1 })).status).toBe(400);
   });
-  it("are capped at eight per account", async () => {
+  it("are capped at three per account", async () => {
     await agree("fake_a");
-    for (let i = 0; i < 8; i++) expect((await call("fake_a", "POST", "/api/learners", { profile: profile(`K${i}`) })).status).toBe(201);
-    expect((await call("fake_a", "POST", "/api/learners", { profile: profile("K9") })).status).toBe(409);
+    for (let i = 0; i < 3; i++) expect((await call("fake_a", "POST", "/api/learners", { profile: profile(`K${i}`) })).status).toBe(201);
+    expect((await call("fake_a", "POST", "/api/learners", { profile: profile("K4") })).status).toBe(409);
   });
   it("never keep the tutor chat log", async () => {
     const id = await make("fake_a", profile("Maya", { tutorLog: [{ question: "q", tutor: "t" }] }));

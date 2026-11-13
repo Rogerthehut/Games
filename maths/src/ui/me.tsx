@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import { MAX_CHILDREN } from "../account/limits";
 import { MyProgress } from "./progress-shelf";
 import { AVATAR_ROLES, GLASSES, avatarBand, avatarForYear, type AvatarRole } from "../engine/avatar";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
@@ -111,7 +112,9 @@ export function Me() {
               </button>
             </li>
           ))}
-          <li><button class="row add" onClick={() => (parentUnlocked() ? go({ name: "onboard" }) : setGate("add"))} data-testid="add-learner"><Icon name="plus" /><span>Add someone, or change year</span></button></li>
+          {profiles.length < MAX_CHILDREN
+            ? <li><button class="row add" onClick={() => (parentUnlocked() ? go({ name: "onboard" }) : setGate("add"))} data-testid="add-learner"><Icon name="plus" /><span>Add another child</span></button></li>
+            : <li><p class="small muted" data-testid="learner-cap">An account can have up to {MAX_CHILDREN} children.</p></li>}
         </ul>
       </section>
       )}

@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Setting up on behalf of a child, up to three children, and a fuller setup wizard
+The create-account tick box now says the parent or guardian is setting the account up on behalf of their child (or children), and the consent step says the same. The setup wizard asks for **your child's** nickname (not a full name) and says up to 3 children can be added, here or later from the Me page. After the school year there is a new optional step to **choose a character and portrait** (or skip), then a "ready" screen that lets you add another child (nickname, year, look) up to the limit, then **Start learning** opens the first child. An account is now **capped at 3 children** (it was 8): the server refuses a fourth, Me shows "up to 3 children" instead of the add button, and an account that already has more keeps them. `src/account/limits.ts` and `MAX_LEARNERS` hold the number. The wording change is consent-related: show it to your solicitor in the final review.
+
 ## Sign-in by email only
 No Google or Apple sign-in. The Clerk forms hide any social buttons, the "open in Safari" notice for in-app browsers is gone (it only existed for Google), and the privacy notice no longer mentions Google or Apple. In the Clerk dashboard, use email verification code, not link, and turn off the social connections. This also means the App Store's Sign in with Apple rule doesn't apply to the app. `ACCOUNTS.md` and `MOBILE.md` updated. The privacy wording changed slightly: have your solicitor see it in the final review.
 

@@ -30,7 +30,7 @@ the grown-up to read there, and the server removes it if it is ever sent. A pare
 - **Signing out** removes every local copy of the family's data from the device, so a shared device keeps nothing.
 - **Existing local progress** (from before accounts) is offered to the parent on first sign-in and removed from the device once it is safely in the account.
 - **Rights:** the grown-ups' area has "Download my family's data" and "Delete my account" (which also deletes the Clerk user).
-- **Limits:** up to 8 learners per account, 400 KB per learner, and a cap on how often one parent can write.
+- **Limits:** up to 3 learners per account, 400 KB per learner, and a cap on how often one parent can write.
 - **Isolation:** every learner query carries the parent's id; the tests check that one family cannot read, change or delete another's.
 
 ## Tests

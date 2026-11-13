@@ -180,7 +180,7 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
     },
     update: (fn: (p: Profile) => Profile) =>
       setStore((s) => ({ ...s, profiles: s.profiles.map((p) => (p.id === (s.activeId ?? s.profiles[0]?.id) ? fn(p) : p)) })),
-    addProfile: (p: Profile) => setStore((s) => ({ ...s, profiles: [...s.profiles, p], activeId: p.id })),
+    addProfile: (p: Profile, makeActive = true) => setStore((s) => ({ ...s, profiles: [...s.profiles, p], activeId: makeActive || !s.activeId ? p.id : s.activeId })),
     replaceProfile: (p: Profile) =>
       setStore((s) => {
         const has = s.profiles.some((x) => x.id === p.id);

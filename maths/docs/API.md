@@ -26,7 +26,7 @@ A valid Clerk session token. Every query is scoped to that parent. Writes also n
 | `DELETE /api/account` | Delete the account: Stripe customer first, then data, then the Clerk user |
 | `GET, POST /api/account/email-prefs` | Weekly digest opt-in |
 | `GET /api/account/booklet` | Curriculum booklet PDF (subscribers) |
-| `POST /api/learners` | Add a learner (max 8) |
+| `POST /api/learners` | Add a learner (max 3) |
 | `PUT, DELETE /api/learners/:id` | Save progress (max 400 KB, versioned; 409 on conflict) or remove a learner |
 | `POST /api/billing/checkout` | Start Stripe Checkout |
 | `POST /api/billing/portal` | Open Stripe's customer portal |

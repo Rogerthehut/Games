@@ -16,7 +16,7 @@ What quarter must do, for whom, and the standards it is held to. Written from th
 2. **Practice:** generated questions with answer checking suited to the answer type, hints, worked solutions and worked pictures; spaced repetition; resumable lessons.
 3. **Assessment:** check-ups, mock and test-timed papers, pathway tests with certificates, weekly refresher, times-tables challenge.
 4. **Printables:** A4 practice papers with matching answer sheet and mark scheme.
-5. **Accounts:** parent sign-in (email, Google, Apple), up to 8 learners, optional child PINs, consent to the current terms, data export and deletion.
+5. **Accounts:** parent sign-in (email code only), up to 3 children set up in a guided wizard, optional child PINs, consent to the current terms, data export and deletion.
 6. **Learning report:** wrong answers with causes, methods to help, "fix this" practice, before/after proof.
 7. **Payments:** one subscription per family (monthly or yearly), card-up-front trial, managed in Stripe's portal.
 8. **AI tutor and parents' assistant:** opt-in, maths only, never reveals the answer during practice, never in tests.
