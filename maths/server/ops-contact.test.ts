@@ -74,7 +74,7 @@ describe("replies", () => {
     const out = await call("POST", "/api/ops/contact/reply", { id: thread.id, message: "Sorry about that, I'll look now.", signatureId: sig.id });
     expect(out.status).toBe(200);
     const mail = mailer.sent[before];
-    expect(mail.to).toBe("kim@example.com"); expect(mail.subject).toBe("Re: Billing question");
+    expect(mail.to).toBe("kim@example.com"); expect(mail.subject).toMatch(/^Re: Billing question \[Q-\d{4,}\]$/);
     expect(mail.html).toContain("Roger Richman"); expect(mail.text).toContain("Roger Richman");
     expect(mail.headers).toEqual({ "In-Reply-To": "<kim-1@mail.example.com>", References: "<kim-1@mail.example.com>" });
     expect((await contactList(db)).find((c) => c.id === thread.id)!.waiting).toBe(false);
@@ -95,7 +95,7 @@ describe("replies", () => {
     expect((await call("POST", "/api/ops/contact/reply", { id, message: "x" })).status).toBe(400);
     const replies = () => contactList(db).then((l) => l.find((x) => x.id === id)!.replies.length);
     const n = await replies(); mailer.failNext = true;
-    expect((await call("POST", "/api/ops/contact/reply", { id, message: "this one fails to send" })).status).toBe(502);
+    expect((await call("POST", "/api/ops/contact/reply", { id, message: "this one fails to send" })).status).toBe(202); // goes to the Outbox
     expect(await replies()).toBe(n);
   });
   it("are limited per admin to 60 an hour", async () => {
@@ -120,7 +120,7 @@ describe("new emails written by the team", () => {
     const out = await call("POST", "/api/ops/contact/new", { to: "  Partner@Example.org ", subject: "Hello from  quarter", message: "Hi, a quick question about a school visit.", signatureId: sig.id });
     expect(out.status).toBe(200);
     const mail = mailer.sent[before];
-    expect(mail.to).toBe("partner@example.org"); expect(mail.subject).toBe("Hello from quarter");
+    expect(mail.to).toBe("partner@example.org"); expect(mail.subject).toMatch(/^Hello from quarter \[Q-\d{4,}\]$/);
     expect(mail.html).toContain("Roger Richman"); expect(mail.text).toContain("Roger Richman"); expect(mail.headers).toBeUndefined();
     const convo = (await contactList(db)).find((c) => c.email === "partner@example.org")!;
     expect(convo.source).toBe("sent"); expect(convo.waiting).toBe(false); expect(convo.subject).toBe("Hello from quarter");
@@ -142,10 +142,10 @@ describe("new emails written by the team", () => {
   });
   it("keep line breaks out of the subject, record nothing if the email fails, and are limited to 30 an hour", async () => {
     await call("POST", "/api/ops/contact/new", { to: "line@example.org", subject: "Two\r\nBcc: x@example.org", message: "A fine message." });
-    expect(mailer.sent.at(-1)!.subject).toBe("Two Bcc: x@example.org");
+    expect(mailer.sent.at(-1)!.subject).toMatch(/^Two Bcc: x@example\.org \[Q-\d+\]$/);
     const count = (await contactList(db)).length; mailer.failNext = true;
-    expect((await call("POST", "/api/ops/contact/new", { to: "fail@example.org", subject: "Will fail", message: "A fine message." })).status).toBe(502);
-    expect((await contactList(db)).length).toBe(count);
+    expect((await call("POST", "/api/ops/contact/new", { to: "fail@example.org", subject: "Will fail", message: "A fine message." })).status).toBe(202);
+    expect((await contactList(db)).length).toBe(count); // not a conversation until it has been sent
     let blocked = 0;
     for (let i = 0; i < 40; i++) if ((await call("POST", "/api/ops/contact/new", { to: `bulk${i}@example.org`, subject: "Bulk test", message: "A fine message." })).status === 429) blocked++;
     expect(blocked).toBeGreaterThan(0);

@@ -1,6 +1,7 @@
 import { and, asc, eq, gt, sql } from "drizzle-orm";
 import type { Db } from "./index";
 import { randomBytes } from "node:crypto";
+import { nextTicket } from "../ticket";
 import { emailPrefs, feedback, learnerProgress, learners, parents, stripeEvents, subscriptions, type Parent, type Subscription } from "./schema";
 import { MAX_LEARNERS, cleanProfile } from "./profile-check";
 
@@ -151,7 +152,7 @@ export function makeRepo(db: Db) {
 
     /** Saves a piece of feedback from a parent. */
     async addFeedback(parentId: string, f: { category: string; rating: number | null; message: string; mayReply: boolean; context: string | null }): Promise<void> {
-      await db.insert(feedback).values({ parentId, ...f });
+      await db.insert(feedback).values({ parentId, ...f, ticket: await nextTicket(db, "feedback"), unread: true });
     },
 
     /** How many pieces of feedback this parent has sent in the last 24 hours (to keep it from being used for spam). */

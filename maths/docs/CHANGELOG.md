@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## The ops mailbox
+The ops page's Messages and Feedback tabs are now one **Mail** tab shaped like a mailbox, with folders and unread counts: **Inbox** (email to hello@, and replies to emails we started), **Messages** (the website form), **Feedback**, **Drafts**, **Sent** and **Outbox**. Each conversation keeps its thread and gets a reference number (Q-1001..., F-1001... for feedback) shown on it and in the subject of our emails, so a reply from a different address still finds its conversation. New: drafts (reply and new email), a Sent folder, an Outbox that holds an email the email service couldn't take and retries it (it is only recorded once it has gone, and can't be sent twice), unread/read and Mark unread. Migration `0010_mailbox.sql`. Tests in `server/mailbox.test.ts`; browser checks in `scripts/ops-messages-e2e.mjs` and `scripts/ops-e2e.mjs`.
+
+## www redirects to the main address
+If the site answers on `www.yourquarter.co.uk` too, those requests are redirected to `https://yourquarter.co.uk` (the address in `APP_URL`), keeping the page, so there's one address for search engines and for sign-in. It only ever redirects to `APP_URL`.
+
 ## New email from the ops portal
 **Messages, New email** writes to one person from hello@ without waiting for them to get in touch first, with a signature. It's saved as a conversation ("sent by you") so their reply threads under it. One address only, never our own domain, 30 an hour per person, audit-logged without the address. Tests in `server/ops-contact.test.ts` and `scripts/ops-messages-e2e.mjs`.
 

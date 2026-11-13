@@ -59,6 +59,8 @@ export const feedback = pgTable("feedback", {
   message: text("message").notNull(),
   mayReply: boolean("may_reply").notNull().default(false),
   context: text("context"),
+  ticket: integer("ticket"),
+  unread: boolean("unread").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -96,6 +98,8 @@ export const contactMessages = pgTable("contact_messages", {
   topic: text("topic").notNull(),
   message: text("message").notNull(),
   source: text("source").notNull().default("form"),
+  ticket: integer("ticket"),
+  unread: boolean("unread").notNull().default(true),
   subject: text("subject"),
   messageId: text("message_id"),
   auth: text("auth"),
@@ -111,6 +115,7 @@ export const contactReplies = pgTable("contact_replies", {
 
   direction: text("direction").notNull().default("out"),
   messageId: text("message_id"),
+  fromEmail: text("from_email"),
   auth: text("auth"),
 });
 
@@ -127,5 +132,41 @@ export const opsSignatures = pgTable("ops_signatures", {
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  actor: text("actor").notNull(),
+});
+
+export const ticketCounter = pgTable("ticket_counter", {
+  name: text("name").primaryKey(),
+  n: integer("n").notNull(),
+});
+
+export const opsDrafts = pgTable("ops_drafts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind").notNull(),
+  conversationId: uuid("conversation_id").references(() => contactMessages.id, { onDelete: "cascade" }),
+  toEmail: text("to_email"),
+  subject: text("subject"),
+  body: text("body").notNull().default(""),
+  signatureId: uuid("signature_id"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  actor: text("actor").notNull(),
+});
+
+export const opsOutbox = pgTable("ops_outbox", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  kind: text("kind").notNull(),
+  conversationId: uuid("conversation_id").references(() => contactMessages.id, { onDelete: "cascade" }),
+  toEmail: text("to_email").notNull(),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  html: text("html").notNull(),
+  textVersion: text("text_version").notNull(),
+  inReplyTo: text("in_reply_to"),
+  ticket: integer("ticket"),
+  status: text("status").notNull().default("queued"),
+  attempts: integer("attempts").notNull().default(0),
+  lastError: text("last_error"),
+  nextAttempt: timestamp("next_attempt", { withTimezone: true }).notNull().defaultNow(),
   actor: text("actor").notNull(),
 });

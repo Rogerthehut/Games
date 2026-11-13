@@ -9,8 +9,8 @@ const KEY = "quarter.ops.session";
 const read = () => { try { const v = JSON.parse(sessionStorage.getItem(KEY) ?? "null") as { s: string; exp: number } | null; return v && v.exp > Date.now() ? v : null; } catch { return null; } };
 const keep = (v: { s: string; exp: number } | null) => { try { v ? sessionStorage.setItem(KEY, JSON.stringify(v)) : sessionStorage.removeItem(KEY); } catch { /* ignore */ } };
 
-type Item = { id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
-type Tab = "inbox" | "numbers" | "account" | "audit" | "messages";
+type Item = { ticket?: number | null; id: string; at: string; category: string; rating: number | null; context: string | null; message: string; mayReply: boolean; replies: { at: string; actor: string; message: string }[] };
+type Tab = "mail" | "numbers" | "account" | "audit";
 
 export function OpsPage() {
   const [auth, setAuth] = useState<AuthClient | null>(null);
@@ -87,34 +87,19 @@ function Code({ call, onDone, signOut }: { call: Call; onDone: (s: { s: string; 
 }
 
 function Dashboard({ call, leave }: { call: Call; leave: () => void }) {
-  const [tab, setTab] = useState<Tab>("inbox");
-  const tabs: [Tab, string][] = [["inbox", "Feedback"], ["messages", "Messages"], ["numbers", "Numbers"], ["account", "Account lookup"], ["audit", "Audit log"]];
+  const [tab, setTab] = useState<Tab>("mail");
+  const tabs: [Tab, string][] = [["mail", "Mail"], ["numbers", "Numbers"], ["account", "Account lookup"], ["audit", "Audit log"]];
   return (
     <>
       <div class="seg" role="tablist" aria-label="Ops sections">
         {tabs.map(([id, label]) => <button key={id} role="tab" aria-selected={tab === id} class={tab === id ? "on" : ""} onClick={() => setTab(id)} data-testid={`ops-tab-${id}`}>{label}</button>)}
         <button class="btn small ghost" onClick={leave}>Lock</button>
       </div>
-      {tab === "inbox" && <Inbox call={call} />}
-      {tab === "messages" && <Messages call={call} />}
+      {tab === "mail" && <Mail call={call} />}
       {tab === "numbers" && <Numbers call={call} />}
       {tab === "account" && <Lookup call={call} />}
       {tab === "audit" && <Audit call={call} />}
     </>
-  );
-}
-
-function Inbox({ call }: { call: Call }) {
-  const [items, setItems] = useState<Item[] | null>(null);
-  const [only, setOnly] = useState(true);
-  const load = async () => { const r = await call<{ items: Item[] }>("GET", `/api/ops/feedback?days=90${only ? "&unreplied=1" : ""}`); setItems(r.ok ? r.data.items : []); };
-  useEffect(() => { load(); }, [only]);
-  return (
-    <section class="card" data-testid="ops-inbox">
-      <h2>Feedback</h2>
-      <label><input type="checkbox" checked={only} onChange={(e) => setOnly((e.target as HTMLInputElement).checked)} /> Only ones waiting for a reply</label>
-      {!items ? <p>Loading…</p> : !items.length ? <p class="muted">Nothing here.</p> : items.map((i) => <FeedbackCard key={i.id} item={i} call={call} onSent={load} />)}
-    </section>
   );
 }
 
@@ -130,7 +115,7 @@ function FeedbackCard({ item, call, onSent }: { item: Item; call: Call; onSent: 
   };
   return (
     <article class="card" style="margin:12px 0">
-      <p class="small muted">{item.at.slice(0, 16).replace("T", " ")} · {item.category}{item.rating ? ` · ${item.rating}/5` : ""}{item.context ? ` · ${item.context}` : ""} · {item.mayReply ? "may reply" : "no reply wanted"}</p>
+      <p class="small muted">{item.ticket ? `F-${item.ticket} · ` : ""}{item.at.slice(0, 16).replace("T", " ")} · {item.category}{item.rating ? ` · ${item.rating}/5` : ""}{item.context ? ` · ${item.context}` : ""} · {item.mayReply ? "may reply" : "no reply wanted"}</p>
       <p style="white-space:pre-wrap">{item.message}</p>
       {item.replies.map((r) => <blockquote key={r.at} style="margin:8px 0;padding-left:12px;border-left:3px solid #ccc"><span class="small muted">Replied {r.at.slice(0, 10)}</span><br />{r.message}</blockquote>)}
       {item.mayReply && <>
@@ -142,10 +127,15 @@ function FeedbackCard({ item, call, onSent }: { item: Item; call: Call; onSent: 
   );
 }
 
-type Entry = { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null };
-type ContactItem = { id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null; message: string; replies: Entry[]; waiting: boolean };
+type Entry = { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null; fromEmail?: string | null };
+type ContactItem = { id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null; ticket?: number | null; unread?: boolean; message: string; replies: Entry[]; waiting: boolean };
 type SigLite = { id: string; name: string; isDefault: boolean };
 type SigFull = SigLite & { html: string };
+type Folder = "inbox" | "messages" | "feedback" | "drafts" | "sent" | "outbox";
+const FOLDERS: [Folder, string][] = [["inbox", "Inbox"], ["messages", "Messages"], ["feedback", "Feedback"], ["drafts", "Drafts"], ["sent", "Sent"], ["outbox", "Outbox"]];
+type MailItem = { kind: "contact" | "feedback" | "draft" | "outbox"; id: string; ref: string | null; who: string; subject: string; preview: string; at: string; unread: boolean; direction: "in" | "out" | null; draftKind?: string; conversationId?: string | null; status?: string; error?: string | null; attempts?: number };
+type Counts = Record<Folder, { total: number; unread: number }>;
+type Draft = { id: string; kind: string; conversationId: string | null; to: string; subject: string; message: string; signatureId: string | null };
 
 /** A preview of cleaned signature HTML that can't run anything: a sandboxed frame with no scripts, a policy that blocks everything but https images, and no links that open in it. */
 function SignaturePreview({ html }: { html: string }) {
@@ -153,52 +143,131 @@ function SignaturePreview({ html }: { html: string }) {
   return <iframe class="ops-sig-preview" sandbox="" referrerpolicy="no-referrer" srcdoc={doc} title="Signature preview" style="width:100%;height:170px;border:1px solid #ccc;border-radius:8px;background:#fff" />;
 }
 
-/** Messages from parents: the Message us form and email to hello@. A reply is emailed from the sending address to the sender, under the signature chosen. */
-function Messages({ call }: { call: Call }) {
-  const [items, setItems] = useState<ContactItem[] | null>(null);
-  const [only, setOnly] = useState(true);
+
+const when = (iso: string) => { const d = new Date(iso), now = new Date(); return d.toDateString() === now.toDateString() ? d.toTimeString().slice(0, 5) : iso.slice(0, 10); };
+
+/** The team's mailbox: folders on the left, a list, and one conversation at a time. Everything is the same data as before, just filed. */
+function Mail({ call }: { call: Call }) {
+  const [folder, setFolder] = useState<Folder>("inbox");
+  const [items, setItems] = useState<MailItem[] | null>(null);
+  const [counts, setCounts] = useState<Counts | null>(null);
   const [inbound, setInbound] = useState(false);
   const [sigs, setSigs] = useState<SigFull[]>([]);
+  const [open, setOpen] = useState<{ kind: "contact" | "feedback"; id: string; draftId?: string; draftText?: string } | null>(null);
+  const [composing, setComposing] = useState<Draft | "new" | null>(null);
   const [managing, setManaging] = useState(false);
-  const [composing, setComposing] = useState(false);
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [note, setNote] = useState("");
+  const load = async (f: Folder = folder) => {
+    const r = await call<{ items: MailItem[]; counts: Counts; inbound: boolean }>("GET", `/api/ops/mail?folder=${f}${unreadOnly ? "&unread=1" : ""}`);
+    if (r.ok) { setItems(r.data.items); setCounts(r.data.counts); setInbound(r.data.inbound); } else setItems([]);
+  };
   const loadSigs = async () => { const r = await call<{ items: SigFull[] }>("GET", "/api/ops/signatures"); if (r.ok) setSigs(r.data.items); };
-  const load = async () => { const r = await call<{ items: ContactItem[]; inbound: boolean }>("GET", `/api/ops/contact${only ? "?waiting=1" : ""}`); setItems(r.ok ? r.data.items : []); if (r.ok) setInbound(r.data.inbound); };
-  useEffect(() => { load(); }, [only]);
+  useEffect(() => { load(); }, [folder, unreadOnly]);
   useEffect(() => { loadSigs(); }, []);
+  const go = (f: Folder) => { setFolder(f); setOpen(null); setComposing(null); setManaging(false); setNote(""); setItems(null); void load(f); };
+  const pick = async (i: MailItem) => {
+    if (i.kind === "outbox") return;
+    if (i.kind === "draft") {
+      const r = await call<{ draft: Draft }>("GET", `/api/ops/drafts?id=${i.id}`);
+      if (!r.ok) return;
+      const d = r.data.draft;
+      if (d.kind === "reply" && d.conversationId) setOpen({ kind: "contact", id: d.conversationId, draftId: d.id, draftText: d.message }); else setComposing(d);
+      return;
+    }
+    setOpen({ kind: i.kind, id: i.id });
+  };
+  const outbox = async (what: "retry" | "discard", id: string) => {
+    const r = await call<{ message?: string }>("POST", `/api/ops/outbox/${what}`, { id });
+    setNote(r.ok ? (r.data.message ?? (what === "retry" ? "Sent." : "Discarded.")) : r.data.message ?? "Couldn't do that.");
+    load();
+  };
+  const showList = !open && !composing && !managing;
   return (
     <section class="card" data-testid="ops-messages">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-        <h2 style="margin:0">Messages</h2>
+        <h2 style="margin:0">Mail</h2>
         <span style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn small" onClick={() => setComposing(!composing)} aria-expanded={composing} data-testid="ops-compose-toggle">New email</button>
-          <button class="btn small ghost" onClick={() => setManaging(!managing)} aria-expanded={managing} data-testid="ops-signatures-toggle">Signatures</button>
+          <button class="btn small" onClick={() => { setOpen(null); setManaging(false); setComposing(composing ? null : "new"); }} aria-expanded={!!composing} data-testid="ops-compose-toggle">New email</button>
+          <button class="btn small ghost" onClick={() => { setComposing(null); setManaging(!managing); }} aria-expanded={managing} data-testid="ops-signatures-toggle">Signatures</button>
         </span>
       </div>
-      <p class="small muted">From the Message us page{inbound ? " and email to hello@yourquarter.co.uk" : ""}. Replies are sent from hello@yourquarter.co.uk. Deleted automatically 180 days after the last message.{!inbound && " Email to hello@ isn't being received yet: see docs/OPS.md."}</p>
-      {composing && <ComposeEmail call={call} sigs={sigs} onSent={() => { setComposing(false); setOnly(false); load(); }} />}
+      <p class="small muted">Sent from hello@yourquarter.co.uk. Deleted automatically 180 days after the last message.{!inbound && " Email to hello@ isn't being received yet: see docs/OPS.md."}</p>
+      <nav class="ops-mail-nav" aria-label="Mail folders">
+        {FOLDERS.map(([f, label]) => (
+          <button key={f} type="button" class={`ops-mail-folder${folder === f ? " on" : ""}`} aria-current={folder === f} onClick={() => go(f)} data-testid={`ops-folder-${f}`}>
+            {label}{counts && (counts[f].unread || (f === "drafts" || f === "outbox") && counts[f].total) ? <span class="ops-mail-count" data-testid={`ops-count-${f}`}>{counts[f].unread || counts[f].total}</span> : null}
+          </button>
+        ))}
+      </nav>
+      {note && <p role="status" class="small">{note}</p>}
       {managing && <SignatureManager call={call} sigs={sigs} onChanged={loadSigs} />}
-      <label><input type="checkbox" checked={only} onChange={(e) => setOnly((e.target as HTMLInputElement).checked)} /> Only ones waiting for a reply</label>
-      {!items ? <p>Loading…</p> : !items.length ? <p class="muted">Nothing here.</p> : items.map((i) => <MessageCard key={i.id} item={i} call={call} sigs={sigs} onChanged={load} />)}
+      {composing && <ComposeEmail call={call} sigs={sigs} draft={composing === "new" ? undefined : composing} onDone={() => { setComposing(null); load(); }} />}
+      {open && <ThreadView key={open.id} call={call} sigs={sigs} open={open} onBack={() => { setOpen(null); load(); }} onChanged={() => load()} />}
+      {showList && (
+        <div data-testid="ops-mail-list">
+          {(folder === "inbox" || folder === "messages" || folder === "feedback") && <label class="small"><input type="checkbox" checked={unreadOnly} onChange={(e) => setUnreadOnly((e.target as HTMLInputElement).checked)} /> Only unread</label>}
+          {!items ? <p>Loading…</p> : !items.length ? <p class="muted">{folder === "outbox" ? "Nothing waiting to be sent." : folder === "drafts" ? "No drafts." : "Nothing here."}</p> : items.map((i, n) => (
+            <div key={`${i.kind}${i.id}${n}`} class={`ops-mail-row${i.unread ? " unread" : ""}`} data-testid="ops-mail-row">
+              <button type="button" class="ops-mail-open" onClick={() => pick(i)} aria-label={`${i.unread ? "Unread: " : ""}${i.who}: ${i.subject}`}>
+                <span class="ops-mail-top"><strong class="ops-mail-who">{i.who}</strong><span class="small muted">{i.ref ? `${i.ref} · ` : ""}{when(i.at)}</span></span>
+                <span class="ops-mail-subject">{i.subject}</span>
+                <span class="small muted ops-mail-preview">{i.preview}</span>
+              </button>
+              {i.kind === "outbox" && <div class="small" style="margin:4px 0 8px">
+                <span class="muted">{i.status === "failed" ? `Couldn't send (${i.error ?? "error"}), tried ${i.attempts} time${i.attempts === 1 ? "" : "s"}.` : "Waiting to send."}</span>{" "}
+                <button class="btn small" onClick={() => outbox("retry", i.id)} data-testid="ops-outbox-retry">Retry now</button>{" "}
+                <button class="btn small ghost" onClick={() => { if (confirm("Discard this email without sending it?")) outbox("discard", i.id); }} data-testid="ops-outbox-discard">Discard</button>
+              </div>}
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
 
-/** Write a new email to one person, from hello@. A reply from them joins the same conversation. For one-to-one messages, not bulk mail. */
-function ComposeEmail({ call, sigs, onSent }: { call: Call; sigs: SigFull[]; onSent: () => void }) {
-  const [to, setTo] = useState(""), [subject, setSubject] = useState(""), [text, setText] = useState(""), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
-  const [sigId, setSigId] = useState<string | null | undefined>(undefined);
+/** One conversation (or piece of feedback), loaded fresh; opening it marks it read. */
+function ThreadView({ call, sigs, open, onBack, onChanged }: { call: Call; sigs: SigFull[]; open: { kind: "contact" | "feedback"; id: string; draftId?: string; draftText?: string }; onBack: () => void; onChanged: () => void }) {
+  const [thread, setThread] = useState<ContactItem | Item | null | false>(null);
+  const load = async () => { const r = await call<{ thread: ContactItem | Item }>("GET", `/api/ops/mail/thread?kind=${open.kind}&id=${open.id}`); setThread(r.ok ? r.data.thread : false); };
+  useEffect(() => { load().then(onChanged); }, []); // opening it marks it read, so the folder counts are refreshed
+  const after = () => { load(); onChanged(); };
+  const unread = async () => { await call("POST", "/api/ops/mail/unread", { kind: open.kind, id: open.id }); onBack(); };
+  return (
+    <div data-testid="ops-thread">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+        <button class="btn small" onClick={onBack} data-testid="ops-mail-back"><span aria-hidden="true">←</span> Back</button>
+        <button class="btn small ghost" onClick={unread}>Mark unread</button>
+      </div>
+      {thread === null ? <p>Loading…</p> : thread === false ? <p class="muted">That conversation isn't there any more.</p>
+        : open.kind === "feedback" ? <FeedbackCard item={thread as Item} call={call} onSent={after} />
+        : <MessageCard item={thread as ContactItem} call={call} sigs={sigs} draftId={open.draftId} draftText={open.draftText} onChanged={after} />}
+    </div>
+  );
+}
+
+/** Write a new email to one person, from hello@. Can be saved as a draft. A reply from them joins the same conversation. For one-to-one messages, not bulk mail. */
+function ComposeEmail({ call, sigs, draft, onDone }: { call: Call; sigs: SigFull[]; draft?: Draft; onDone: () => void }) {
+  const [to, setTo] = useState(draft?.to ?? ""), [subject, setSubject] = useState(draft?.subject ?? ""), [text, setText] = useState(draft?.message ?? ""), [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
+  const [draftId, setDraftId] = useState<string | undefined>(draft?.id);
+  const [sigId, setSigId] = useState<string | null | undefined>(draft ? draft.signatureId : undefined);
   const chosen = sigId === undefined ? sigs.find((x) => x.isDefault)?.id ?? "" : sigId ?? "";
   const picked = sigs.find((x) => x.id === chosen);
   const send = async () => {
     setBusy(true); setMsg("");
-    const r = await call("POST", "/api/ops/contact/new", { to, subject, message: text, signatureId: chosen || null });
+    const r = await call<{ message?: string }>("POST", "/api/ops/contact/new", { to, subject, message: text, signatureId: chosen || null, draftId });
     setBusy(false);
-    if (r.ok) onSent(); else setMsg(r.data.message ?? "Couldn't send.");
+    if (r.ok) onDone(); else setMsg(r.data.message ?? "Couldn't send.");
+  };
+  const save = async () => {
+    const r = await call<{ id?: string }>("POST", "/api/ops/drafts", { id: draftId, kind: "new", to, subject, message: text, signatureId: chosen || null });
+    if (r.ok) { setDraftId(r.data.id); setMsg("Draft saved."); } else setMsg(r.data.message ?? "Couldn't save the draft.");
   };
   return (
     <div class="card" style="margin:10px 0" data-testid="ops-compose">
       <h3 style="margin-top:0">New email</h3>
-      <p class="small muted">Sent from hello@yourquarter.co.uk to one person. If they reply, it appears here as a conversation. Please use it for one-to-one messages, not mailing lists.</p>
+      <p class="small muted">Sent from hello@yourquarter.co.uk to one person. If they reply, it appears in your Inbox as a conversation. Please use it for one-to-one messages, not mailing lists.</p>
       <label class="small">To<input type="email" style="width:100%" maxLength={254} value={to} onInput={(e) => setTo((e.target as HTMLInputElement).value)} data-testid="ops-compose-to" autocomplete="off" /></label>
       <label class="small">Subject<input type="text" style="width:100%" maxLength={150} value={subject} onInput={(e) => setSubject((e.target as HTMLInputElement).value)} data-testid="ops-compose-subject" /></label>
       <label class="small">Message<textarea rows={6} style="width:100%" maxLength={6000} value={text} onInput={(e) => setText((e.target as HTMLTextAreaElement).value)} data-testid="ops-compose-body" /></label>
@@ -210,38 +279,45 @@ function ComposeEmail({ call, sigs, onSent }: { call: Call; sigs: SigFull[]; onS
           </select>
         </label>
         <button class="btn small primary" disabled={busy || !to.trim() || subject.trim().length < 2 || text.trim().length < 2} onClick={send} data-testid="ops-compose-send">Send email</button>
-        {msg && <span role="alert"> {msg}</span>}
+        <button class="btn small" disabled={busy || (!to.trim() && !subject.trim() && !text.trim())} onClick={save} data-testid="ops-compose-save">Save draft</button>
+        <button class="btn small ghost" onClick={onDone}>Close</button>
+        {msg && <span role="status"> {msg}</span>}
       </div>
       {picked && <details><summary class="small muted">Signature preview</summary><SignaturePreview html={picked.html} /></details>}
     </div>
   );
 }
 
-function MessageCard({ item, call, sigs, onChanged }: { item: ContactItem; call: Call; sigs: SigFull[]; onChanged: () => void }) {
-  const [text, setText] = useState("");
+function MessageCard({ item, call, sigs, onChanged, draftId, draftText }: { item: ContactItem; call: Call; sigs: SigFull[]; onChanged: () => void; draftId?: string; draftText?: string }) {
+  const [text, setText] = useState(draftText ?? "");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [draft, setDraft] = useState<string | undefined>(draftId);
   const [sigId, setSigId] = useState<string | null | undefined>(undefined); // undefined: not chosen yet, so the default is used
   const chosen = sigId === undefined ? sigs.find((x) => x.isDefault)?.id ?? "" : sigId ?? "";
   const picked = sigs.find((x) => x.id === chosen);
   const send = async () => {
     setBusy(true); setMsg("");
-    const r = await call("POST", "/api/ops/contact/reply", { id: item.id, message: text, signatureId: chosen || null });
+    const r = await call<{ message?: string; queued?: boolean }>("POST", "/api/ops/contact/reply", { id: item.id, message: text, signatureId: chosen || null, draftId: draft });
     setBusy(false);
-    if (r.ok) { setText(""); onChanged(); } else setMsg(r.data.message ?? "Couldn't send.");
+    if (r.ok) { setText(""); setDraft(undefined); if (r.data.queued) setMsg(r.data.message ?? "Queued in your Outbox."); onChanged(); } else setMsg(r.data.message ?? "Couldn't send.");
+  };
+  const saveDraft = async () => {
+    const r = await call<{ id?: string }>("POST", "/api/ops/drafts", { id: draft, kind: "reply", conversationId: item.id, message: text, signatureId: chosen || null });
+    if (r.ok) { setDraft(r.data.id); setMsg("Draft saved."); } else setMsg(r.data.message ?? "Couldn't save the draft.");
   };
   const remove = async () => { if (confirm("Delete this conversation for good?")) { await call("POST", "/api/ops/contact/delete", { id: item.id }); onChanged(); } };
   const unverified = item.source === "email" && item.auth && !/dmarc=pass/.test(item.auth);
-  const bubble = (who: string, at: string, body: string, mine: boolean, key?: string) => (
-    <blockquote key={key} style={`margin:8px 0;padding-left:12px;border-left:3px solid ${mine ? "#2f3a73" : "#ccc"}`}><span class="small muted">{who} · {at.slice(0, 16).replace("T", " ")}</span><br /><span style="white-space:pre-wrap">{body}</span></blockquote>
+  const bubble = (who: string, at: string, body: string, mine: boolean, key?: string, extra?: string) => (
+    <blockquote key={key} style={`margin:8px 0;padding-left:12px;border-left:3px solid ${mine ? "#2f3a73" : "#ccc"}`}><span class="small muted">{who} · {at.slice(0, 16).replace("T", " ")}{extra ? ` · ${extra}` : ""}</span><br /><span style="white-space:pre-wrap">{body}</span></blockquote>
   );
   return (
     <article class="card" style="margin:12px 0" data-testid="ops-message">
-      <p class="small muted">{item.at.slice(0, 16).replace("T", " ")} · {item.source === "email" ? "email" : item.source === "sent" ? "sent by you" : "form"}{item.source === "form" ? ` · ${item.topic}` : ""} · {item.name ? `${item.name} · ` : ""}{item.email}{item.waiting ? " · waiting for a reply" : ""}</p>
+      <p class="small muted">{item.ticket ? `Q-${item.ticket} · ` : ""}{item.at.slice(0, 16).replace("T", " ")} · {item.source === "email" ? "email" : item.source === "sent" ? "sent by you" : `form · ${item.topic}`} · {item.name ? `${item.name} · ` : ""}{item.email}{item.waiting ? " · waiting for a reply" : ""}</p>
       {item.subject && <p><strong>{item.subject}</strong></p>}
       {unverified && <p role="note" class="small" style="color:#b42318">The sender couldn't be verified ({item.auth}). It may not really be from this address, so don't act on it without checking.</p>}
       {item.source === "sent" ? bubble("You", item.at, item.message, true) : <p style="white-space:pre-wrap">{item.message}</p>}
-      {item.replies.map((r, n) => bubble(r.direction === "in" ? item.email : "You", r.at, r.message, r.direction === "out", String(n)))}
+      {item.replies.map((r, n) => bubble(r.direction === "in" ? (r.fromEmail ?? item.email) : "You", r.at, r.message, r.direction === "out", String(n), r.direction === "in" && r.fromEmail && r.fromEmail !== item.email ? "from a different address, matched by the reference" : undefined))}
       <textarea rows={3} style="width:100%" value={text} maxLength={6000} onInput={(e) => setText((e.target as HTMLTextAreaElement).value)} aria-label="Your reply" placeholder="Write a reply. It's emailed to them from hello@yourquarter.co.uk." />
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0">
         <label class="small">Signature{" "}
@@ -251,8 +327,9 @@ function MessageCard({ item, call, sigs, onChanged }: { item: ContactItem; call:
           </select>
         </label>
         <button class="btn small primary" disabled={busy || text.trim().length < 2} onClick={send} data-testid="ops-message-reply">Send reply</button>
+        <button class="btn small" disabled={busy || !text.trim()} onClick={saveDraft} data-testid="ops-draft-save">Save draft</button>
         <button class="btn small ghost" onClick={remove}>Delete</button>
-        {msg && <span role="alert"> {msg}</span>}
+        {msg && <span role="status"> {msg}</span>}
       </div>
       {picked && <details><summary class="small muted">Signature preview</summary><SignaturePreview html={picked.html} /></details>}
     </article>

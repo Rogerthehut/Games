@@ -2,6 +2,7 @@ import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import type { Db } from "./db";
 import { schema } from "./db";
 import type { Counters } from "./counters";
+import { nextTicket, ticketInSubject } from "./ticket";
 
 /**
  * Messages from parents: the public "Message us" form, and email sent to hello@ (which arrives through Resend, see inbound.ts). Anyone can send
@@ -39,7 +40,7 @@ export async function contactAllowed(counters: Counters, ip: string, email: stri
 }
 
 export async function saveContact(db: Db, c: CleanContact): Promise<string> {
-  const [row] = await db.insert(schema.contactMessages).values({ ...c, source: "form" }).returning({ id: schema.contactMessages.id });
+  const [row] = await db.insert(schema.contactMessages).values({ ...c, source: "form", ticket: await nextTicket(db, "contact"), unread: true }).returning({ id: schema.contactMessages.id });
   return row.id;
 }
 
@@ -49,14 +50,15 @@ export async function purgeContact(db: Db, now = new Date()): Promise<void> {
   await db.delete(schema.inboundSeen).where(lt(schema.inboundSeen.at, new Date(now.getTime() - 30 * 86_400_000)));
 }
 
-export interface ContactEntry { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null }
+export interface ContactEntry { at: string; actor: string; direction: "in" | "out"; message: string; auth: string | null; /** who wrote it, when it came by email */ fromEmail: string | null }
 export interface ContactRow {
   id: string; at: string; name: string | null; email: string; topic: string; source: string; subject: string | null; auth: string | null;
+  ticket: number | null; unread: boolean;
   message: string; replies: ContactEntry[];
   /** True when nobody on the team has answered yet, or the sender has written again since the last answer. */
   waiting: boolean;
 }
-const entry = (r: typeof schema.contactReplies.$inferSelect): ContactEntry => ({ at: r.at.toISOString(), actor: r.actor, direction: r.direction === "in" ? "in" : "out", message: r.message, auth: r.auth });
+const entry = (r: typeof schema.contactReplies.$inferSelect): ContactEntry => ({ at: r.at.toISOString(), actor: r.actor, direction: r.direction === "in" ? "in" : "out", message: r.message, auth: r.auth, fromEmail: r.fromEmail });
 
 export async function contactList(db: Db, o: { waiting?: boolean; limit?: number } = {}): Promise<ContactRow[]> {
   const rows = await db.select().from(schema.contactMessages).orderBy(desc(schema.contactMessages.updatedAt)).limit(Math.min(o.limit ?? 100, 300));
@@ -64,28 +66,28 @@ export async function contactList(db: Db, o: { waiting?: boolean; limit?: number
   const replies = ids.length ? await db.select().from(schema.contactReplies).where(inArray(schema.contactReplies.contactId, ids)).orderBy(schema.contactReplies.at) : [];
   const out = rows.map((r): ContactRow => {
     const thread = replies.filter((x) => x.contactId === r.id).map(entry);
-    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
+    return { id: r.id, at: r.createdAt.toISOString(), name: r.name, email: r.email, topic: r.topic, source: r.source, subject: r.subject, auth: r.auth, ticket: r.ticket, unread: r.unread, message: r.message, replies: thread, waiting: thread.length ? thread[thread.length - 1].direction === "in" : r.source !== "sent" };
   });
   return o.waiting ? out.filter((r) => r.waiting) : out;
 }
 
 /** What a reply needs to know about a conversation: who to write to, what to call it, and the sender's last message (to quote and thread under). */
-export interface ContactForReply { id: string; email: string; subject: string | null; lastMessage: string; lastMessageId: string | null }
+export interface ContactForReply { id: string; ticket: number | null; email: string; subject: string | null; lastMessage: string; lastMessageId: string | null }
 export async function contactForReply(db: Db, id: string): Promise<ContactForReply | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const [r] = await db.select().from(schema.contactMessages).where(eq(schema.contactMessages.id, id));
   if (!r) return null;
   const inbound = await db.select().from(schema.contactReplies).where(and(eq(schema.contactReplies.contactId, id), eq(schema.contactReplies.direction, "in"))).orderBy(desc(schema.contactReplies.at)).limit(1);
   const last = inbound[0];
-  return { id: r.id, email: r.email, subject: r.subject, lastMessage: last ? last.message : r.message, lastMessageId: last ? last.messageId : r.messageId };
+  return { id: r.id, ticket: r.ticket, email: r.email, subject: r.subject, lastMessage: last ? last.message : r.message, lastMessageId: last ? last.messageId : r.messageId };
 }
 
 /**
  * An email the team writes first, from the ops page, to someone who hasn't been in touch. It is kept as a conversation like any other (source "sent"),
  * so if they reply, their reply joins it. Counts as answered until they write back.
  */
-export async function startConversation(db: Db, m: { to: string; subject: string; text: string }): Promise<string> {
-  const [row] = await db.insert(schema.contactMessages).values({ name: null, email: m.to, topic: "other", message: m.text, source: "sent", subject: m.subject }).returning({ id: schema.contactMessages.id });
+export async function startConversation(db: Db, m: { to: string; subject: string; text: string; ticket?: number }): Promise<string> {
+  const [row] = await db.insert(schema.contactMessages).values({ name: null, email: m.to, topic: "other", message: m.text, source: "sent", subject: m.subject, ticket: m.ticket ?? (await nextTicket(db, "contact")), unread: false }).returning({ id: schema.contactMessages.id });
   return row.id;
 }
 
@@ -109,13 +111,17 @@ export async function recordInbound(db: Db, m: InboundEmail, now = new Date()): 
     const seen = await tx.insert(schema.inboundSeen).values({ emailId: m.emailId }).onConflictDoNothing().returning({ id: schema.inboundSeen.emailId });
     if (!seen.length) return false;
     const since = new Date(now.getTime() - KEEP_DAYS * 86_400_000);
-    const [thread] = await tx.select({ id: schema.contactMessages.id }).from(schema.contactMessages)
+    // a reply to one of ours carries its reference in the subject, which finds the conversation even if it was sent from another address; failing that, the same sender
+    const ref = ticketInSubject(m.subject);
+    let thread: { id: string } | undefined;
+    if (ref) [thread] = await tx.select({ id: schema.contactMessages.id }).from(schema.contactMessages).where(and(eq(schema.contactMessages.ticket, ref), sql`${schema.contactMessages.updatedAt} > ${since}`)).limit(1);
+    if (!thread) [thread] = await tx.select({ id: schema.contactMessages.id }).from(schema.contactMessages)
       .where(and(eq(schema.contactMessages.email, m.from), sql`${schema.contactMessages.updatedAt} > ${since}`)).orderBy(desc(schema.contactMessages.updatedAt)).limit(1);
     if (thread) {
-      await tx.insert(schema.contactReplies).values({ contactId: thread.id, actor: "sender", message: m.text, direction: "in", messageId: m.messageId, auth: m.auth });
-      await tx.update(schema.contactMessages).set({ updatedAt: now }).where(eq(schema.contactMessages.id, thread.id));
+      await tx.insert(schema.contactReplies).values({ contactId: thread.id, actor: "sender", message: m.text, direction: "in", messageId: m.messageId, auth: m.auth, fromEmail: m.from });
+      await tx.update(schema.contactMessages).set({ updatedAt: now, unread: true }).where(eq(schema.contactMessages.id, thread.id));
     } else {
-      await tx.insert(schema.contactMessages).values({ name: m.name, email: m.from, topic: "other", message: m.text, source: "email", subject: m.subject, messageId: m.messageId, auth: m.auth });
+      await tx.insert(schema.contactMessages).values({ name: m.name, email: m.from, topic: "other", message: m.text, source: "email", subject: m.subject, messageId: m.messageId, auth: m.auth, ticket: await nextTicket(tx, "contact"), unread: true });
     }
     return true;
   });

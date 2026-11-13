@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { startMonitoring, reportError } from "./monitoring";
-import { clientIp, looksLive, resolveStatic, securityHeaders } from "./http-safety";
+import { clientIp, looksLive, resolveStatic, securityHeaders, wwwRedirect } from "./http-safety";
 import { DbCounters, FallbackCounters, MemoryCounters, type Counters } from "./counters";
 import { mailerFromEnv } from "./mail";
 import { runDigestJob } from "./digest-job";
@@ -9,6 +9,7 @@ import { OpsAccess, parseAdmins } from "./ops-access";
 import { handleOpsApi, isOpsRoute } from "./ops-api";
 import { cleanContact, contactAllowed, purgeContact, saveContact } from "./contact";
 import { INBOUND_MAX_BODY, handleInbound } from "./inbound";
+import { retryDue } from "./mailbox";
 import type { Db } from "./db";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -87,6 +88,8 @@ const opsMailer: typeof mailer = AUTH_FAKE && !mailer.live ? { live: false, send
 // Email to hello@ arrives through Resend's receiving and a signed webhook (docs/OPS.md). Needs the API key and the webhook's signing secret.
 const inboundOn = !!process.env.RESEND_API_KEY && (process.env.RESEND_WEBHOOK_SECRET ?? "").startsWith("whsec_");
 const opsAccess = accounts && opsDb && opsAdmins.size && opsSecret.length >= 24 && (mailer.live || AUTH_FAKE) ? new OpsAccess({ auth: accounts.auth, mailer: opsMailer, admins: opsAdmins, secret: opsSecret }) : null;
+// emails that could not be sent (the Outbox) are tried again every few minutes
+if (opsDb && opsAccess) setInterval(() => { void retryDue(opsDb!, opsMailer).catch((e) => console.error("outbox retry failed:", (e as Error).name)); }, 5 * 60_000).unref();
 if (accounts && !opsAccess) console.warn("The ops page is off: set OPS_ADMINS, OPS_SESSION_SECRET (24+ characters) and RESEND_API_KEY to turn it on. See docs/OPS.md.");
 
 const limiter = new Limiter({
@@ -147,6 +150,9 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
   cors(req, res);
   const url = new URL(req.url ?? "/", "http://x");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
+  // the "www." address goes to the main one, so there is a single address for the site (search, sign-in, links)
+  const toMain = wwwRedirect(String(req.headers["x-forwarded-host"] ?? req.headers.host ?? ""), process.env.APP_URL, req.url ?? "/");
+  if (toMain) { res.writeHead(req.method === "GET" || req.method === "HEAD" ? 301 : 308, { Location: toMain, "Cache-Control": "public, max-age=3600" }); return res.end(); }
 
   if (url.pathname === "/api/health") return send(res, 200, { ok: true, tutor: FAKE || HAS_KEY });
 

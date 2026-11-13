@@ -7,6 +7,7 @@ import { OpsAccess, actorOf } from "./ops-access";
 import { EMAIL, addContactReply, contactForReply, contactList, deleteContact, startConversation } from "./contact";
 import type { Counters } from "./counters";
 import { cleanSignatureHtml } from "./signature-html";
+import { FOLDERS, deleteDraft, discardOutbox, folderCounts, getDraft, listFolder, markRead, markUnread, retryOne, saveDraft, sendOrQueue, type Folder } from "./mailbox";
 import { MAX_SIGNATURES, deleteSignature, getSignature, listSignatures, saveSignature, setDefaultSignature } from "./signatures";
 import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
 
@@ -19,6 +20,7 @@ export interface OpsRequest { method: string; path: string; query: URLSearchPara
 export interface OpsResponse { status: number; body: unknown }
 
 export const isOpsRoute = (path: string) => path.startsWith("/api/ops/");
+const QUEUED: OpsResponse = { status: 202, body: { queued: true, message: "It couldn't be sent just now, so it's in your Outbox. It will be tried again in a few minutes, and you can retry it there." } };
 const NOT_FOUND: OpsResponse = { status: 404, body: { error: "not-found" } };
 const ok = (body: unknown): OpsResponse => ({ status: 200, body });
 const TOO_MANY: OpsResponse = { status: 429, body: { error: "slow-down", message: "That's a lot in a short time. Please wait a little." } };
@@ -84,6 +86,54 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     return ok({ sent: true });
   }
 
+  // The mailbox: folders, one thread at a time, drafts and the outbox. Everything needs the full proof above.
+  if (req.path === "/api/ops/mail" && req.method === "GET") {
+    const folder = req.query.get("folder") as Folder;
+    if (!FOLDERS.includes(folder)) return bad("Choose a folder.");
+    return ok({ folder, items: await listFolder(d.db, folder, { unread: req.query.get("unread") === "1" }), counts: await folderCounts(d.db), inbound: !!d.inboundOn, signatures: (await listSignatures(d.db)).map(({ id, name, isDefault }) => ({ id, name, isDefault })) });
+  }
+  if (req.path === "/api/ops/mail/thread" && req.method === "GET") {
+    const kind = req.query.get("kind") === "feedback" ? "feedback" : "contact", id = req.query.get("id") ?? "";
+    if (kind === "feedback") {
+      const f = (await feedbackList(d.db, { limit: 500 })).find((x) => x.id === id);
+      if (!f) return NOT_FOUND;
+      await markRead(d.db, "feedback", id); await audit(d.db, actor, "mail-open", id);
+      const { clerkUserId: _omit, ...safe } = f;
+      return ok({ kind, thread: { ...safe, unread: false } });
+    }
+    const t = (await contactList(d.db)).find((x) => x.id === id);
+    if (!t) return NOT_FOUND;
+    await markRead(d.db, "contact", id); await audit(d.db, actor, "mail-open", id);
+    return ok({ kind, thread: { ...t, unread: false } });
+  }
+  if (req.path === "/api/ops/mail/unread" && req.method === "POST") {
+    const kind = body.kind === "feedback" ? "feedback" : "contact";
+    await markUnread(d.db, kind, typeof body.id === "string" ? body.id : "");
+    return ok({ done: true });
+  }
+  if (req.path === "/api/ops/drafts" && req.method === "GET") {
+    const draft = await getDraft(d.db, req.query.get("id"));
+    return draft ? ok({ draft }) : NOT_FOUND;
+  }
+  if (req.path === "/api/ops/drafts" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "draft", 300))) return TOO_MANY;
+    const out = await saveDraft(d.db, actor, { id: body.id, kind: body.kind, conversationId: body.conversationId, to: body.to, subject: body.subject, message: body.message, signatureId: body.signatureId });
+    return out.ok ? ok({ id: out.id }) : bad(out.error);
+  }
+  if (req.path === "/api/ops/drafts/delete" && req.method === "POST") return (await deleteDraft(d.db, body.id)) ? ok({ deleted: true }) : NOT_FOUND;
+  if (req.path === "/api/ops/outbox/retry" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "reply", 60))) return TOO_MANY;
+    const out = await retryOne(d.db, d.mailer, typeof body.id === "string" ? body.id : "");
+    if (!out) return NOT_FOUND;
+    await audit(d.db, actor, out.ok ? "outbox-sent" : "outbox-retry-failed", out.ok ? out.conversationId : out.id);
+    return out.ok ? ok({ sent: true }) : { status: 202, body: { queued: true, message: `Still couldn't send it (${out.error}). It stays in the Outbox.` } };
+  }
+  if (req.path === "/api/ops/outbox/discard" && req.method === "POST") {
+    if (!(await discardOutbox(d.db, body.id))) return NOT_FOUND;
+    await audit(d.db, actor, "outbox-discard", String(body.id));
+    return ok({ discarded: true });
+  }
+
   // Conversations with parents: the Message us form and email to hello@. A reply goes to the address on the conversation.
   if (req.path === "/api/ops/contact" && req.method === "GET") {
     await audit(d.db, actor, "contact-view", "-");
@@ -107,11 +157,10 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     const html = `<div style="font:16px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(message)}</div>${sig ? `<div style="margin-top:16px">${sig.html}</div>` : ""}<blockquote style="margin:16px 0;padding:8px 14px;border-left:3px solid #ddd;color:#555;font:14px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(c.lastMessage)}</blockquote><p style="font:13px system-ui,sans-serif;color:#666">${esc(note)}</p>`;
     const text = `${message}${sig ? `\n\n${sig.text}` : ""}\n\n---\nYou wrote:\n${quoted}\n\n${note}`;
     const threadHeaders = c.lastMessageId && /^<[^<>\s]{3,300}>$/.test(c.lastMessageId) ? { "In-Reply-To": c.lastMessageId, References: c.lastMessageId } : undefined;
-    const sent = await d.mailer.send({ to: c.email, subject, text, html, headers: threadHeaders });
-    if (!sent.ok) return { status: 502, body: { error: "mail-failed", message: "The reply couldn't be sent. Nothing was recorded; try again." } };
-    await addContactReply(d.db, c.id, actor, message);
-    await audit(d.db, actor, "contact-reply", c.id);
-    return ok({ sent: true });
+    const out = await sendOrQueue(d.db, d.mailer, { kind: "reply", conversationId: c.id, to: c.email, subject, body: message, html, text, inReplyTo: threadHeaders?.["In-Reply-To"] ?? null, ticket: c.ticket, actor });
+    if (body.draftId) await deleteDraft(d.db, body.draftId);
+    await audit(d.db, actor, out.ok ? "contact-reply" : "contact-reply-queued", c.id);
+    return out.ok ? ok({ sent: true }) : QUEUED;
   }
   // A new email from the team to one person (not a reply). One address only, never our own domain, rate limited, audit-logged without the address.
   if (req.path === "/api/ops/contact/new" && req.method === "POST") {
@@ -129,11 +178,10 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
       if (!sig) return bad("That signature no longer exists.");
     }
     const html = `<div style="font:16px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(message)}</div>${sig ? `<div style="margin-top:16px">${sig.html}</div>` : ""}`;
-    const sent = await d.mailer.send({ to, subject, text: `${message}${sig ? `\n\n${sig.text}` : ""}`, html });
-    if (!sent.ok) return { status: 502, body: { error: "mail-failed", message: "The email couldn't be sent. Nothing was recorded; try again." } };
-    const id = await startConversation(d.db, { to, subject, text: message });
-    await audit(d.db, actor, "contact-new", id);
-    return ok({ sent: true, id });
+    const out = await sendOrQueue(d.db, d.mailer, { kind: "new", conversationId: null, to, subject, body: message, html, text: `${message}${sig ? `\n\n${sig.text}` : ""}`, inReplyTo: null, ticket: null, actor });
+    if (body.draftId) await deleteDraft(d.db, body.draftId);
+    await audit(d.db, actor, out.ok ? "contact-new" : "contact-new-queued", out.ok ? out.conversationId : out.id);
+    return out.ok ? ok({ sent: true, id: out.conversationId }) : QUEUED;
   }
   if (req.path === "/api/ops/contact/delete" && req.method === "POST") {
     const id = typeof body.id === "string" ? body.id : "";

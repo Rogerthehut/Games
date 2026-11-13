@@ -31,11 +31,13 @@ try {
   ok("a wrong code is refused", /isn't the right code/.test(await boss.locator("body").innerText()));
   const code = /\[dev email to fake_boss@example.test\] Your quarter ops code: (\d{6})/.exec(log)?.[1];
   await boss.getByTestId("ops-code").fill(code ?? "");
-  await boss.getByTestId("ops-verify").click(); await boss.getByTestId("ops-inbox").waitFor();
-  await boss.getByText("Please add more fractions").waitFor().catch(() => {});
-  ok("the right code opens the inbox", /Please add more fractions/.test(await boss.locator("body").innerText()));
-  await boss.locator("textarea").fill("Thanks, more fractions are coming soon."); await boss.getByTestId("ops-reply").click(); await boss.waitForTimeout(800);
-  ok("the reply was sent and the item leaves the waiting list", !/Please add more fractions/.test(await boss.locator("body").innerText()));
+  await boss.getByTestId("ops-verify").click(); await boss.getByTestId("ops-folder-feedback").waitFor();
+  await boss.getByTestId("ops-folder-feedback").click(); await boss.getByText("Please add more fractions").waitFor().catch(() => {});
+  ok("the right code opens the mailbox, with the feedback in its folder", /Please add more fractions/.test(await boss.locator("body").innerText()));
+  await boss.getByTestId("ops-mail-row").first().locator(".ops-mail-open").click(); await boss.getByTestId("ops-thread").waitFor();
+  await boss.locator("textarea").fill("Thanks, more fractions are coming soon."); await boss.getByTestId("ops-reply").click(); await boss.waitForTimeout(900);
+  await boss.getByTestId("ops-mail-back").click(); await boss.getByTestId("ops-folder-sent").click(); await boss.waitForTimeout(500);
+  ok("the reply was sent and is in the Sent folder", /more fractions are coming soon/.test(await boss.locator("body").innerText()));
   ok("the email was 'sent' to the parent", /dev email to fake_maya@example.test\] Re: your feedback/.test(log));
   await boss.getByTestId("ops-tab-numbers").click(); await boss.getByTestId("ops-numbers").waitFor();
   await boss.getByTestId("ops-tab-audit").click(); await boss.waitForTimeout(600);

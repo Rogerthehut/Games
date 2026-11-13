@@ -73,7 +73,7 @@ Every route in `server/index.ts` was checked for who can call it and what it ret
 | `POST /api/stripe/webhook` | Stripe | Nothing is read before the signature is verified (`constructEvent`). 1 MB cap. |
 | `POST /api/internal/digest` | the scheduler | Needs `CRON_SECRET` (constant-time compare). Anyone else gets a plain 404. |
 | `/unsubscribe` | anyone with the emailed link | 24-byte random token; GET only shows a button, POST acts. Per-address limit added in this audit. |
-| `/api/ops/*`, `/ops` | team only | (Includes conversations, replies, new emails and signatures: replies 60/hour, new emails 30/hour (one address only, never our own domain) and signature changes 60/hour per person; signature HTML is cleaned on the server and previewed in a sandboxed frame.) |
+| `/api/ops/*`, `/ops` | team only | (Includes the mailbox (folders, threads, drafts, outbox), replies, new emails and signatures; an unsent email waits in the outbox and is retried, claimed so it can't be sent twice: replies 60/hour, new emails 30/hour (one address only, never our own domain) and signature changes 60/hour per person; signature HTML is cleaned on the server and previewed in a sandboxed frame.) |
 | `/api/ops/*`, `/ops` (sign-in) | team only | Clerk sign-in, the `OPS_ADMINS` allow-list and an emailed code; everyone else gets 404. Every view and action is audit-logged. Replies never include the parent's sign-in id. |
 | static files | anyone | Only from `dist/`; `..`, encoded and NUL paths are refused. No source maps or dotfiles are built. |
 
@@ -83,4 +83,5 @@ Findings and what was done:
 - **Fixed:** the server now warns at start-up if payments are on but `APP_URL` isn't set (return links would then use the request's Host header).
 - **Still to do (yours):** the Content-Security-Policy is sent as report-only until `CSP_ENFORCE=1`. Check the live site's console, then turn it on. Set `TRUST_PROXY=1` (and `TRUSTED_PROXY_HOPS=2` behind Cloudflare) so limits see real visitor addresses, and `APP_URL`. Set `CRON_SECRET`, `OPS_SESSION_SECRET` (24+ characters) and `TURNSTILE_SECRET_KEY`.
 - **Accepted:** the tutor is open to anyone (no account). Its cost is bounded by the per-address and global caps and Turnstile; a script can still use up the global daily cap, which only pauses the tutor for that day.
+- **www:** if the site answers on `www.` as well, requests there are redirected (301) to the main address from `APP_URL`, never from what the request says.
 - **Nothing safety-critical is exposed:** no route returns another family's data, a secret, a stack trace or a server path; errors are generic 500s with the error name logged, never request data.

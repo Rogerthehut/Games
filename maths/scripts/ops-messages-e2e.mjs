@@ -31,9 +31,13 @@ try {
   const boss = await ctx.newPage(); boss.setDefaultTimeout(9000); await boss.goto("http://localhost:5173/ops");
   await boss.getByTestId("ops-send").click(); await boss.getByTestId("ops-code").waitFor();
   const code = /\[dev email to fake_boss@example.test\] Your quarter ops code: (\d{6})/.exec(log)?.[1];
-  await boss.getByTestId("ops-code").fill(code ?? ""); await boss.getByTestId("ops-verify").click(); await boss.getByTestId("ops-inbox").waitFor();
-  await boss.getByTestId("ops-tab-messages").click(); await boss.getByTestId("ops-messages").waitFor(); await boss.waitForTimeout(500);
-  ok("the form message appears under Messages", /How do I add a second child/.test(await boss.locator("body").innerText()));
+  await boss.getByTestId("ops-code").fill(code ?? ""); await boss.getByTestId("ops-verify").click(); await boss.getByTestId("ops-folder-inbox").waitFor();
+  const body = async () => boss.locator("body").innerText();
+  // folders: the form message is in Messages (unread), not in the Inbox
+  ok("an unread count shows on Messages", (await boss.getByTestId("ops-count-messages").innerText()) === "1");
+  ok("the Inbox is empty of it", !/How do I add a second child/.test(await body()));
+  await boss.getByTestId("ops-folder-messages").click(); await boss.waitForTimeout(500);
+  ok("the form message is in the Messages folder, marked unread", /How do I add a second child/.test(await body()) && (await boss.locator(".ops-mail-row.unread").count()) === 1);
   // signatures
   await boss.getByTestId("ops-signatures-toggle").click();
   await boss.getByTestId("ops-signature-new").click();
@@ -46,28 +50,45 @@ try {
   ok("the preview holds the cleaned signature, not the script", /Roger/.test(previewHtml ?? "") && !/script|onerror/.test((previewHtml ?? "").replace(/<meta[^>]*>/, "")));
   if (process.env.SHOT) await boss.screenshot({ path: "/tmp/claude-0/ops-sig-edit.png" });
   await boss.getByTestId("ops-signature-save").click(); await boss.waitForTimeout(700);
-  if (process.env.SHOT) await boss.screenshot({ path: "/tmp/claude-0/ops-sig-list.png" });
   ok("the signature is saved and listed", /Roger/.test(await boss.getByTestId("ops-signatures").innerText()) && /default/.test(await boss.getByTestId("ops-signatures").innerText()));
   ok("nothing the signature contained ran", (await boss.evaluate(() => window.__pwned)) === undefined);
-  // reply under it
-  const picker = boss.getByTestId("ops-message-signature").first();
-  ok("the default signature is chosen under the reply box", (await picker.inputValue()) !== "");
+  // open the conversation (which marks it read) and reply under the signature
+  await boss.getByTestId("ops-folder-messages").click(); await boss.waitForTimeout(400);
+  await boss.getByTestId("ops-mail-row").first().locator(".ops-mail-open").click(); await boss.getByTestId("ops-thread").waitFor();
+  ok("the conversation shows its reference number", /Q-\d{4,}/.test(await boss.getByTestId("ops-message").innerText()));
+  if (process.env.SHOT) await boss.screenshot({ path: "/tmp/claude-0/ops-mail-thread.png" });
+  ok("the default signature is chosen under the reply box", (await boss.getByTestId("ops-message-signature").first().inputValue()) !== "");
+  await boss.locator("textarea[aria-label='Your reply']").first().fill("A reply I'm not sure about yet.");
+  await boss.getByTestId("ops-draft-save").click(); await boss.waitForTimeout(500);
+  ok("a reply can be saved as a draft", /Draft saved/.test(await body()));
+  await boss.getByTestId("ops-mail-back").click(); await boss.waitForTimeout(400);
+  ok("opening it marked it read", (await boss.locator(".ops-mail-row.unread").count()) === 0 && (await boss.getByTestId("ops-count-messages").count()) === 0);
+  ok("the draft is counted in Drafts", (await boss.getByTestId("ops-count-drafts").innerText()) === "1");
+  await boss.getByTestId("ops-folder-drafts").click(); await boss.waitForTimeout(400);
+  await boss.getByTestId("ops-mail-row").first().locator(".ops-mail-open").click(); await boss.getByTestId("ops-thread").waitFor();
+  ok("opening the draft puts its words back in the reply box", (await boss.locator("textarea[aria-label='Your reply']").first().inputValue()) === "A reply I'm not sure about yet.");
   await boss.locator("textarea[aria-label='Your reply']").first().fill("You can add one under Parents' area, then Learners.");
   await boss.getByTestId("ops-message-reply").first().click(); await boss.waitForTimeout(900);
-  ok("the reply was emailed to the sender", /dev email to kim@example.com\] Re: your message to quarter/.test(log));
-  ok("the conversation leaves the waiting list", !/How do I add a second child/.test(await boss.locator("body").innerText()));
+  ok("the reply was emailed to the sender, with the reference in the subject", /dev email to kim@example.com\] Re: your message to quarter \[Q-\d{4,}\]/.test(log));
+  await boss.getByTestId("ops-mail-back").click(); await boss.waitForTimeout(500);
+  ok("sending removed the draft", (await boss.getByTestId("ops-count-drafts").count()) === 0);
+  await boss.getByTestId("ops-folder-sent").click(); await boss.waitForTimeout(500);
+  ok("the reply is in Sent", /To kim@example.com/.test(await body()));
   // a big signature (well past the usual 8 KB request limit) still saves
-  if (!(await boss.getByTestId("ops-signature-new").isVisible().catch(() => false))) await boss.getByTestId("ops-signatures-toggle").click();
+  await boss.getByTestId("ops-signatures-toggle").click();
   await boss.getByTestId("ops-signature-new").click(); await boss.getByTestId("ops-signature-name").fill("Big");
   await boss.getByTestId("ops-signature-html").fill("<p>" + "Roger Richman, quarter. ".repeat(1300) + "</p>");
   await boss.getByTestId("ops-signature-save").click(); await boss.waitForTimeout(900);
   ok("a 30,000-character signature saves", /Big/.test(await boss.getByTestId("ops-signatures").innerText()));
-  // a brand new email to someone who hasn't been in touch
+  // a brand new email to someone who hasn't been in touch, saved as a draft first
   await boss.getByTestId("ops-compose-toggle").click();
   await boss.getByTestId("ops-compose-to").fill("partner@example.org"); await boss.getByTestId("ops-compose-subject").fill("A quick hello");
-  await boss.getByTestId("ops-compose-body").fill("Hi, a short note from quarter."); await boss.getByTestId("ops-compose-send").click(); await boss.waitForTimeout(900);
-  ok("a new email is sent from the portal", /dev email to partner@example.org\] A quick hello/.test(log));
-  ok("it appears as a conversation sent by us", /partner@example.org/.test(await boss.getByTestId("ops-messages").innerText()) && /sent by you/.test(await boss.getByTestId("ops-messages").innerText()));
+  await boss.getByTestId("ops-compose-body").fill("Hi, a short note from quarter."); await boss.getByTestId("ops-compose-save").click(); await boss.waitForTimeout(500);
+  await boss.getByTestId("ops-compose-send").click(); await boss.waitForTimeout(900);
+  ok("a new email is sent from the portal", /dev email to partner@example.org\] A quick hello \[Q-\d{4,}\]/.test(log));
+  await boss.getByTestId("ops-folder-sent").click(); await boss.waitForTimeout(500);
+  ok("it is in Sent", /To partner@example.org/.test(await body()));
+  ok("and its draft is gone", (await boss.getByTestId("ops-count-drafts").count()) === 0);
   await boss.getByTestId("ops-tab-audit").click(); await boss.waitForTimeout(600);
   const audit = await boss.locator("body").innerText();
   ok("the audit log lists the signature and the reply, without their content", /signature-add/.test(audit) && /contact-reply/.test(audit) && !/second child/.test(audit));

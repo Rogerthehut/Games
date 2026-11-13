@@ -88,7 +88,19 @@ Every code sent, sign-in, failed code, inbox view, reply and account lookup is w
 
 Under **Account lookup**, find the parent by email and a **Delete this account** section appears. Type exactly `delete <their email>` and press the button. It does what the parent's own Delete button does: cancels the subscription first (and stops if that fails, so nobody is billed for something deleted), deletes the account, their learners' progress and their feedback, removes their sign-in, and emails them to say so. The audit log records `account-delete` with the internal id, written before the deletion, and never the email address.
 
-## Messages from the website and email to hello@
+## The mailbox (ops page, Mail tab)
+
+The **Mail** tab is a normal-looking mailbox over everything people send us. Folders (with unread counts):
+- **Inbox:** email sent to hello@yourquarter.co.uk, including replies to emails we started.
+- **Messages:** the Message us form on the website.
+- **Feedback:** feedback from signed-in parents (Parents' area). Replies need the "may reply" tick, and go to their account email.
+- **Drafts:** unsent writing. **Save draft** is on every reply box and on New email; sending removes the draft.
+- **Sent:** every email we have sent, replies and new ones, including replies to feedback.
+- **Outbox:** emails that couldn't be handed to the email service (for example it was down). They're retried every few minutes (5 minutes, then 15, an hour, then 4 hours, five tries in all), and you can **Retry now** or **Discard**. An email is only recorded in its conversation once it has gone.
+
+A conversation is one thread whichever folder lists it. It has a **reference number** (Q-1001, Q-1002...; feedback is F-1001...) shown on it and added to the subject of our emails ("Re: your message [Q-1042]"). When someone replies, the reference in the subject finds the conversation even if they write from a different address (the entry says it came from a different address); otherwise a reply is matched by the sender's address. Opening a conversation marks it read; a new reply marks it unread again (**Mark unread** is on each one).
+
+### Messages from the website and email to hello@
 
 Two things land in the **Messages** tab, as conversations: the footer's **Message us** form (`/?info=contact`: name optional, email, topic, message) and **email sent to `hello@yourquarter.co.uk`**, which Resend receives and passes to quarter. A parent who replies to one of your emails joins the conversation they already have. Nothing is ever sent back automatically.
 

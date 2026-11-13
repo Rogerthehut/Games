@@ -86,3 +86,18 @@ describe("looksLive", () => {
     expect(looksLive({})).toBe(false);
   });
 });
+
+import { wwwRedirect } from "./http-safety";
+describe("wwwRedirect", () => {
+  it("sends www to the main address, keeping the path, and nothing else", () => {
+    expect(wwwRedirect("www.yourquarter.co.uk", "https://yourquarter.co.uk", "/?info=privacy")).toBe("https://yourquarter.co.uk/?info=privacy");
+    expect(wwwRedirect("WWW.yourquarter.co.uk:443", "https://yourquarter.co.uk/", "/blog/index.html")).toBe("https://yourquarter.co.uk/blog/index.html");
+    expect(wwwRedirect("yourquarter.co.uk", "https://yourquarter.co.uk", "/")).toBeNull();
+    expect(wwwRedirect("www.evil.example", "https://yourquarter.co.uk", "/")).toBeNull();
+    expect(wwwRedirect("www.yourquarter.co.uk.evil.example", "https://yourquarter.co.uk", "/")).toBeNull();
+    expect(wwwRedirect("www.yourquarter.co.uk", undefined, "/")).toBeNull();
+    expect(wwwRedirect("www.localhost", "http://localhost:8787", "/")).toBeNull();
+    expect(wwwRedirect(undefined, "https://yourquarter.co.uk", "/")).toBeNull();
+    expect(wwwRedirect("www.yourquarter.co.uk", "https://yourquarter.co.uk", "//evil.example/x")).toBe("https://yourquarter.co.uk//evil.example/x");
+  });
+});

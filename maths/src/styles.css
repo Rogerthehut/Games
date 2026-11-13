@@ -3571,3 +3571,17 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
   .table-figure table { font-size: .9rem; }
   .table-figure th, .table-figure td { padding: 6px 8px; }
 }
+
+/* The ops mailbox */
+.ops-mail-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.ops-mail-folder { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border: 2px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 700; cursor: pointer; }
+.ops-mail-folder.on { border-color: var(--ink, #121522); background: var(--accent-soft); }
+.ops-mail-count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #121522; color: #fff; font-size: .75rem; }
+.ops-mail-row { border-bottom: 1px solid var(--line); }
+.ops-mail-open { display: grid; gap: 2px; width: 100%; padding: 10px 4px; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.ops-mail-open:hover { background: color-mix(in srgb, var(--accent-soft) 55%, transparent); }
+.ops-mail-top { display: flex; justify-content: space-between; gap: 10px; }
+.ops-mail-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ops-mail-row.unread .ops-mail-who, .ops-mail-row.unread .ops-mail-subject { font-weight: 800; }
+.ops-mail-row.unread .ops-mail-open { box-shadow: inset 4px 0 0 #2f3a73; padding-left: 10px; }
+.ops-mail-preview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

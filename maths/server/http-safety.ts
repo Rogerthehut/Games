@@ -71,3 +71,17 @@ export function securityHeaders(req: IncomingMessage, res: ServerResponse, o: { 
 export function looksLive(env: Record<string, string | undefined>): boolean {
   return env.NODE_ENV === "production" || !!env.REPLIT_DEPLOYMENT || !!env.CLERK_SECRET_KEY || !!env.STRIPE_SECRET_KEY;
 }
+
+/**
+ * Where a request for the "www." version of our own address should go: the same page on the main address (so there is one address for the site,
+ * for search engines and for sign-in). Built only from APP_URL, never from what the request says, so it can't be turned into an open redirect.
+ * Returns null for any other host, or when APP_URL isn't set.
+ */
+export function wwwRedirect(hostHeader: string | undefined, appUrl: string | undefined, path: string): string | null {
+  if (!appUrl || !hostHeader) return null;
+  let app: URL;
+  try { app = new URL(appUrl); } catch { return null; }
+  const host = hostHeader.split(",")[0].trim().toLowerCase().replace(/:\d+$/, "");
+  if (app.protocol !== "https:" || host !== `www.${app.hostname}`) return null;
+  return `${app.origin}${path.startsWith("/") ? path : `/${path}`}`;
+}
