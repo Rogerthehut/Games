@@ -88,15 +88,35 @@ Every code sent, sign-in, failed code, inbox view, reply and account lookup is w
 
 Under **Account lookup**, find the parent by email and a **Delete this account** section appears. Type exactly `delete <their email>` and press the button. It does what the parent's own Delete button does: cancels the subscription first (and stops if that fails, so nobody is billed for something deleted), deletes the account, their learners' progress and their feedback, removes their sign-in, and emails them to say so. The audit log records `account-delete` with the internal id, written before the deletion, and never the email address.
 
-## Next steps
+## Messages from the website and email to hello@
 
-Showing parents' replies inside the portal. That needs an address that receives email into the server (for example Resend's inbound mail on a separate subdomain, with portal replies pointing their Reply-To at it) rather than into the Zoho mailbox. It's a set-up decision more than code, so it waits until you choose how replies should arrive.
-
-## Messages from the website
-
-The footer's **Message us** link opens `/?info=contact`, a short form (name optional, email, topic, message). It replaces the email address, which isn't set up as an inbox.
+Two things land in the **Messages** tab, as conversations: the footer's **Message us** form (`/?info=contact`: name optional, email, topic, message) and **email sent to `hello@yourquarter.co.uk`**, which Resend receives and passes to quarter. A parent who replies to one of your emails joins the conversation they already have. Nothing is ever sent back automatically.
 
 - **Reading and replying:** in the ops page, the **Messages** tab. A reply is emailed through Resend from `MAIL_FROM` (`hello@yourquarter.co.uk`) to the address the person typed, with their message quoted. Replies and views are audit-logged. **Delete** removes a message and its replies.
 - **Retention:** messages are deleted after 180 days (a small purge runs now and then when new messages arrive). The sender's email address is stored on the message only so the team can reply, and nothing is sent to it until someone replies. It's described in the privacy notice under "What we keep".
 - **Abuse protection:** the Turnstile human check (when `TURNSTILE_SECRET_KEY` is set), a hidden field bots fill in, 5 messages an hour and 15 a day per address, 3 a day per email address, 2,000 characters, 8 KB body.
 - **Needs:** the database (`DATABASE_URL`), and for replies `RESEND_API_KEY` and a verified sending domain. Replies say "send another message at yourquarter.co.uk/?info=contact", so they don't depend on an inbox existing. If `MAIL_REPLY_TO` is left unset, Resend replies go to `hello@yourquarter.co.uk`, so either set up that mailbox or set `MAIL_REPLY_TO` to one you read.
+
+### Receiving email at hello@ (one-off set-up, all free)
+
+1. **Resend, Domains, yourquarter.co.uk:** switch on **Enable receiving** and copy the MX record it shows.
+2. **Your DNS (Replit, Domains):** delete the three Zoho `MX` records on `@` (mx.zoho.eu, mx2.zoho.eu, mx3.zoho.eu) and add Resend's MX record with the priority it shows. Only one provider can receive for the domain, and Zoho has no hello@ mailbox, so nothing is lost. Back in Resend, click **I've added the record** and wait for it to say Verified. (Your roger-richman.com Zoho mailbox is a different domain and isn't affected.)
+3. **Resend, Webhooks, Add webhook:** URL `https://yourquarter.co.uk/api/inbound/resend`, event **email.received**. Copy the **signing secret** (it starts `whsec_`).
+4. **Replit Secrets:** add `RESEND_WEBHOOK_SECRET` with that signing secret. `RESEND_API_KEY` must already be set, and it needs permission to read received email (a "full access" key; a sending-only key can send but not fetch what was received). **Don't** set `MAIL_REPLY_TO`: replies to your emails then go to hello@ and land here.
+5. **Republish.** The Messages tab then says it's receiving. Send a test email to hello@ from another address and check it appears; reply to it.
+
+If nothing arrives: Resend's **Emails, Receiving** tab shows what it received; the webhook's page shows each delivery and the response (a 400 means the signing secret is wrong; a 502 means quarter couldn't fetch the email, so check the API key's permission; a 404 means `RESEND_WEBHOOK_SECRET` isn't set or the app wasn't republished).
+
+### How it's protected
+
+- **Only Resend can post to the webhook.** The request must carry a valid Svix signature of the exact body, made with the signing secret, and a timestamp within five minutes. Nothing in the body is read before that passes. Anything else gets a plain 400. The same email delivered twice is saved once.
+- **What's saved is plain text only.** The webhook says only that an email arrived; quarter fetches the content from Resend with its own key, using an id that has to look like an id. HTML is turned into text, quoted history is cut off, length is capped, attachments are ignored. Nothing is ever shown as HTML.
+- **Automatic mail is dropped** (bounces, out-of-office replies, mailing lists, "noreply" senders), as is mail from yourquarter.co.uk itself, and one sender is limited to 20 a day (500 a day in total). Nothing is sent automatically, so there are no mail loops.
+- **Spoofing shows.** Each email carries Resend's SPF, DKIM and DMARC results for the sender. If DMARC didn't pass, the conversation shows a red warning.
+- **The team side needs the full proof** (sign-in, allow-list, emailed code, session), is rate limited per person, and every view, reply, signature change and delete is audit-logged without the content.
+
+### Signatures
+
+**Messages, Signatures** (a small button at the top) is where you add, edit, choose a default and delete signatures, like a mail program's signature settings. Paste the HTML (the file `docs/email/signature.html` is a starting point); the preview shows exactly what will be sent. Under each reply there's a **Signature** menu (the default is pre-selected; choose None to send without one). Up to 10 signatures, shared by everyone on the allow-list.
+
+HTML is cleaned on the server before it's saved: scripts, forms, frames, event handlers, `javascript:` and `data:` links, styles that load things, and images that aren't full https addresses are removed. The preview is a sandboxed frame that can't run anything.

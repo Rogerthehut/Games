@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanContact, contactAllowed, contactById, contactList, deleteContact, purgeContact, saveContact, addContactReply } from "./contact";
+import { cleanContact, contactAllowed, contactForReply, contactList, deleteContact, purgeContact, saveContact, addContactReply } from "./contact";
 import { MemoryCounters } from "./counters";
 import { connectMemory, migrate } from "./db";
 import { handleOpsApi } from "./ops-api";
@@ -47,10 +47,10 @@ describe("stored messages", () => {
     const id = await saveContact(db, cl.value);
     expect((await contactList(db)).length).toBe(1);
     await addContactReply(db, id, "admin:x", "Sure, here's how.");
-    expect((await contactList(db, { unreplied: true })).length).toBe(0);
+    expect((await contactList(db, { waiting: true })).length).toBe(0);
     expect((await contactList(db))[0].replies[0].message).toBe("Sure, here's how.");
-    expect((await contactById(db, id))?.email).toBe("parent@example.com");
-    await db.update(schema.contactMessages).set({ createdAt: new Date(Date.now() - 200 * 86_400_000) });
+    expect((await contactForReply(db, id))?.email).toBe("parent@example.com");
+    await db.update(schema.contactMessages).set({ updatedAt: new Date(Date.now() - 200 * 86_400_000) });
     await purgeContact(db);
     expect(await contactList(db)).toEqual([]); // replies go with it
     const id2 = await saveContact(db, cl.value);

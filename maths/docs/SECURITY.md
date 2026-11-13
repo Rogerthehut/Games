@@ -66,13 +66,15 @@ Every route in `server/index.ts` was checked for who can call it and what it ret
 | `POST /api/humans/verify` | anyone | Per-address limit (40/hour). Off when Turnstile isn't configured. |
 | `GET /api/outcode` | anyone | Per-address limit (60/hour). Input is checked against an outward-code pattern before anything is looked up; only that code is ever sent on. |
 | `POST /api/contact` | anyone | The "Message us" form. Human check when Turnstile is on, hidden bot field, 5/hour and 15/day per address, 3/day per email address, 2,000 characters. Stores the message; never emails the typed address until a team member replies from the ops page. Deleted after 180 days. |
+| `POST /api/inbound/resend` | Resend only | Email to hello@. Off (404) until `RESEND_WEBHOOK_SECRET` is set. Needs a valid Svix signature of the raw body and a timestamp within 5 minutes before anything is read (400 otherwise); 64 KB cap; 600/hour per address; each email handled once; content fetched from Resend by a validated id with our own key; text only, capped, quoted history cut; automatic mail and our own domain dropped; 20 a day per sender and 500 a day overall; sender's SPF/DKIM/DMARC stored and shown. Never replies automatically. |
 | `POST /api/tutor` | anyone, with the human pass when Turnstile is on | No account, by design (the tutor stores nothing). Capped per device, per address and globally per day. The model prompt is built on the server; the browser can only supply the child's words and the question. |
 | `/api/account*`, `/api/learners*`, `/api/assistant`, `/api/feedback`, `/api/billing/*` | signed-in parent only | Per-address, per-parent read and write limits. Every database query is scoped to the parent id from the verified token, never an id from the request. Learners and learner ids are checked against the parent (`owned()` in `server/db/repo.ts`). |
 | `GET /api/account/booklet` | signed in, consented, subscribed | Served from `server/assets` by a fixed name, never a path from the request. 8 a day. |
 | `POST /api/stripe/webhook` | Stripe | Nothing is read before the signature is verified (`constructEvent`). 1 MB cap. |
 | `POST /api/internal/digest` | the scheduler | Needs `CRON_SECRET` (constant-time compare). Anyone else gets a plain 404. |
 | `/unsubscribe` | anyone with the emailed link | 24-byte random token; GET only shows a button, POST acts. Per-address limit added in this audit. |
-| `/api/ops/*`, `/ops` | team only | Clerk sign-in, the `OPS_ADMINS` allow-list and an emailed code; everyone else gets 404. Every view and action is audit-logged. Replies never include the parent's sign-in id. |
+| `/api/ops/*`, `/ops` | team only | (Includes conversations, replies and signatures: reply 60/hour and signature changes 60/hour per person; signature HTML is cleaned on the server and previewed in a sandboxed frame.) |
+| `/api/ops/*`, `/ops` (sign-in) | team only | Clerk sign-in, the `OPS_ADMINS` allow-list and an emailed code; everyone else gets 404. Every view and action is audit-logged. Replies never include the parent's sign-in id. |
 | static files | anyone | Only from `dist/`; `..`, encoded and NUL paths are refused. No source maps or dotfiles are built. |
 
 Findings and what was done:

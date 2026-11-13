@@ -4,20 +4,28 @@ import type { Repo } from "./db/repo";
 import type { Gateway } from "./billing";
 import type { Mailer } from "./mail";
 import { OpsAccess, actorOf } from "./ops-access";
-import { addContactReply, contactById, contactList, deleteContact } from "./contact";
+import { addContactReply, contactForReply, contactList, deleteContact } from "./contact";
+import type { Counters } from "./counters";
+import { cleanSignatureHtml } from "./signature-html";
+import { MAX_SIGNATURES, deleteSignature, getSignature, listSignatures, saveSignature, setDefaultSignature } from "./signatures";
 import { accountByClerkId, addReply, audit, auditLog, feedbackById, feedbackList, stats } from "./ops";
 
 /**
  * The team's ops page API (/api/ops/...). Every route needs the parent sign-in AND the allow-list AND the emailed code (see ops-access.ts).
  * Anyone else gets the same plain "not found", so the page doesn't announce itself. Every view and every reply is written to the audit log.
  */
-export interface OpsDeps { db: Db; auth: AuthProvider; mailer: Mailer; access: OpsAccess; appUrl?: string; repo?: Repo; billing?: Gateway }
+export interface OpsDeps { /** limits on what one admin can do per hour */ counters?: Counters; /** whether email to hello@ is being received (the Resend webhook is set up) */ inboundOn?: boolean; db: Db; auth: AuthProvider; mailer: Mailer; access: OpsAccess; appUrl?: string; repo?: Repo; billing?: Gateway }
 export interface OpsRequest { method: string; path: string; query: URLSearchParams; token: string | null; session?: string; body?: unknown }
 export interface OpsResponse { status: number; body: unknown }
 
 export const isOpsRoute = (path: string) => path.startsWith("/api/ops/");
 const NOT_FOUND: OpsResponse = { status: 404, body: { error: "not-found" } };
 const ok = (body: unknown): OpsResponse => ({ status: 200, body });
+const TOO_MANY: OpsResponse = { status: 429, body: { error: "slow-down", message: "That's a lot in a short time. Please wait a little." } };
+/** Counts one action by this admin and says whether they're still within the hourly limit (no limit when there's nowhere to count). */
+async function withinLimit(d: OpsDeps, userId: string, what: string, perHour: number): Promise<boolean> {
+  return !d.counters || (await d.counters.hit(`ops:${what}:${userId}`, 3_600_000)) <= perHour;
+}
 const bad = (message: string): OpsResponse => ({ status: 400, body: { error: "bad-request", message } });
 
 export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResponse> {
@@ -76,20 +84,30 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     return ok({ sent: true });
   }
 
-  // messages from the public "Message us" page: the sender's address is on the message itself, so a reply goes straight to it
+  // Conversations with parents: the Message us form and email to hello@. A reply goes to the address on the conversation.
   if (req.path === "/api/ops/contact" && req.method === "GET") {
     await audit(d.db, actor, "contact-view", "-");
-    return ok({ items: await contactList(d.db, { unreplied: req.query.get("unreplied") === "1" }) });
+    return ok({ items: await contactList(d.db, { waiting: req.query.get("waiting") === "1" }), inbound: !!d.inboundOn, signatures: (await listSignatures(d.db)).map(({ id, name, isDefault }) => ({ id, name, isDefault })) });
   }
   if (req.path === "/api/ops/contact/reply" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "reply", 60))) return TOO_MANY;
     const id = typeof body.id === "string" ? body.id : "";
-    const message = typeof body.message === "string" ? body.message.trim() : "";
-    if (message.length < 5 || message.length > 4000) return bad("Write a reply between 5 and 4000 characters.");
-    const c = await contactById(d.db, id);
+    const message = typeof body.message === "string" ? body.message.replace(/\r\n/g, "\n").trim() : "";
+    if (message.length < 2 || message.length > 6000) return bad("Write a reply between 2 and 6000 characters.");
+    const c = await contactForReply(d.db, id);
     if (!c) return NOT_FOUND;
-    const quoted = c.message.split("\n").map((l) => `> ${l}`).join("\n");
-    const html = `<p style="font:16px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(message)}</p><blockquote style="margin:16px 0;padding:8px 14px;border-left:3px solid #ddd;color:#555;font:14px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(c.message)}</blockquote><p style="font:13px system-ui,sans-serif;color:#666">You're getting this because you sent us a message on the quarter website. To say more, send another at yourquarter.co.uk/?info=contact.</p>`;
-    const sent = await d.mailer.send({ to: c.email, subject: "Re: your message to quarter", text: `${message}\n\n---\nYour message:\n${quoted}\n\nYou're getting this because you sent us a message on the quarter website. To say more, send another at yourquarter.co.uk/?info=contact.`, html });
+    let sig: { html: string; text: string } | null = null;
+    if (body.signatureId !== undefined && body.signatureId !== null && body.signatureId !== "") {
+      sig = await getSignature(d.db, body.signatureId);
+      if (!sig) return bad("That signature no longer exists.");
+    }
+    const subject = `Re: ${(c.subject ?? "your message to quarter").replace(/^(re:\s*)+/i, "").replace(/[\r\n]+/g, " ").slice(0, 200)}`;
+    const quoted = c.lastMessage.split("\n").map((l) => `> ${l}`).join("\n");
+    const note = "You're getting this because you got in touch with quarter. Just reply to this email if you'd like to say more.";
+    const html = `<div style="font:16px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(message)}</div>${sig ? `<div style="margin-top:16px">${sig.html}</div>` : ""}<blockquote style="margin:16px 0;padding:8px 14px;border-left:3px solid #ddd;color:#555;font:14px/1.5 system-ui,sans-serif;white-space:pre-wrap">${esc(c.lastMessage)}</blockquote><p style="font:13px system-ui,sans-serif;color:#666">${esc(note)}</p>`;
+    const text = `${message}${sig ? `\n\n${sig.text}` : ""}\n\n---\nYou wrote:\n${quoted}\n\n${note}`;
+    const threadHeaders = c.lastMessageId && /^<[^<>\s]{3,300}>$/.test(c.lastMessageId) ? { "In-Reply-To": c.lastMessageId, References: c.lastMessageId } : undefined;
+    const sent = await d.mailer.send({ to: c.email, subject, text, html, headers: threadHeaders });
     if (!sent.ok) return { status: 502, body: { error: "mail-failed", message: "The reply couldn't be sent. Nothing was recorded; try again." } };
     await addContactReply(d.db, c.id, actor, message);
     await audit(d.db, actor, "contact-reply", c.id);
@@ -99,6 +117,33 @@ export async function handleOpsApi(req: OpsRequest, d: OpsDeps): Promise<OpsResp
     const id = typeof body.id === "string" ? body.id : "";
     if (!(await deleteContact(d.db, id))) return NOT_FOUND;
     await audit(d.db, actor, "contact-delete", id);
+    return ok({ deleted: true });
+  }
+
+  // Signatures for replies. HTML is cleaned on the server (signature-html.ts); the preview endpoint shows exactly what would be saved and sent.
+  if (req.path === "/api/ops/signatures" && req.method === "GET") return ok({ items: await listSignatures(d.db), max: MAX_SIGNATURES });
+  if (req.path === "/api/ops/signatures/preview" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "sigpreview", 300))) return TOO_MANY;
+    const clean = cleanSignatureHtml(typeof body.html === "string" ? body.html : "");
+    return clean.ok ? ok({ html: clean.html, text: clean.text }) : bad(clean.error);
+  }
+  if (req.path === "/api/ops/signatures" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "sigwrite", 60))) return TOO_MANY;
+    const out = await saveSignature(d.db, actor, body);
+    if (!out.ok) return bad(out.error);
+    await audit(d.db, actor, body.id ? "signature-edit" : "signature-add", out.id);
+    return ok({ id: out.id });
+  }
+  if (req.path === "/api/ops/signatures/default" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "sigwrite", 60))) return TOO_MANY;
+    if (!(await setDefaultSignature(d.db, body.id ?? null))) return NOT_FOUND;
+    await audit(d.db, actor, "signature-default", typeof body.id === "string" ? body.id : "none");
+    return ok({ done: true });
+  }
+  if (req.path === "/api/ops/signatures/delete" && req.method === "POST") {
+    if (!(await withinLimit(d, who.userId, "sigwrite", 60))) return TOO_MANY;
+    if (!(await deleteSignature(d.db, body.id))) return NOT_FOUND;
+    await audit(d.db, actor, "signature-delete", String(body.id));
     return ok({ deleted: true });
   }
 

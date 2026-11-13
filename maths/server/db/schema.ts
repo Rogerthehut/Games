@@ -95,6 +95,11 @@ export const contactMessages = pgTable("contact_messages", {
   email: text("email").notNull(),
   topic: text("topic").notNull(),
   message: text("message").notNull(),
+  source: text("source").notNull().default("form"),
+  subject: text("subject"),
+  messageId: text("message_id"),
+  auth: text("auth"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const contactReplies = pgTable("contact_replies", {
@@ -103,4 +108,24 @@ export const contactReplies = pgTable("contact_replies", {
   at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
   actor: text("actor").notNull(),
   message: text("message").notNull(),
+
+  direction: text("direction").notNull().default("out"),
+  messageId: text("message_id"),
+  auth: text("auth"),
+});
+
+export const inboundSeen = pgTable("inbound_seen", {
+  emailId: text("email_id").primaryKey(),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const opsSignatures = pgTable("ops_signatures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  html: text("html").notNull(),
+  textVersion: text("text_version").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  actor: text("actor").notNull(),
 });

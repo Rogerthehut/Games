@@ -1,5 +1,7 @@
 # hello@yourquarter.co.uk: receiving, sending as it, and the signature
 
+**Update:** email to `hello@yourquarter.co.uk` can now be received by Resend and read and answered in the ops page's Messages tab, with a signature menu, for free and with no mailbox. That is the recommended set-up: see "Messages from the website and email to hello@" in `docs/OPS.md`. The sections below (Zoho forwarding, send-as, the signature file) remain for anyone who prefers to use a normal mailbox.
+
 The aim: anything sent to `hello@yourquarter.co.uk` reaches `hello@roger-richman.com`, and replies written from `hello@roger-richman.com` go out looking like they came from `hello@yourquarter.co.uk`, with quarter's signature underneath. Today `hello@yourquarter.co.uk` is a Zoho Mail mailbox, and Resend (verified for `yourquarter.co.uk`) sends the app's own emails.
 
 ## 1. Receiving: forward hello@yourquarter.co.uk to hello@roger-richman.com

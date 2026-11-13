@@ -8,6 +8,7 @@ import { unsubscribePage } from "./unsubscribe-page";
 import { OpsAccess, parseAdmins } from "./ops-access";
 import { handleOpsApi, isOpsRoute } from "./ops-api";
 import { cleanContact, contactAllowed, purgeContact, saveContact } from "./contact";
+import { INBOUND_MAX_BODY, handleInbound } from "./inbound";
 import type { Db } from "./db";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -83,6 +84,8 @@ const opsAdmins = parseAdmins(process.env.OPS_ADMINS);
 const opsSecret = process.env.OPS_SESSION_SECRET ?? "";
 // in development with the fake sign-in nothing is really sent, so the subject (which holds the code) is printed to the server log
 const opsMailer: typeof mailer = AUTH_FAKE && !mailer.live ? { live: false, send: (e) => { console.log(`[dev email to ${e.to}] ${e.subject}`); return mailer.send(e); } } : mailer;
+// Email to hello@ arrives through Resend's receiving and a signed webhook (docs/OPS.md). Needs the API key and the webhook's signing secret.
+const inboundOn = !!process.env.RESEND_API_KEY && (process.env.RESEND_WEBHOOK_SECRET ?? "").startsWith("whsec_");
 const opsAccess = accounts && opsDb && opsAdmins.size && opsSecret.length >= 24 && (mailer.live || AUTH_FAKE) ? new OpsAccess({ auth: accounts.auth, mailer: opsMailer, admins: opsAdmins, secret: opsSecret }) : null;
 if (accounts && !opsAccess) console.warn("The ops page is off: set OPS_ADMINS, OPS_SESSION_SECRET (24+ characters) and RESEND_API_KEY to turn it on. See docs/OPS.md.");
 
@@ -185,6 +188,19 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
     return send(res, 200, { sent: true });
   }
 
+  // Email sent to hello@, passed on by Resend. Only a correctly signed request is believed; see server/inbound.ts. Off until the webhook secret is set.
+  if (url.pathname === "/api/inbound/resend" && req.method === "POST") {
+    if (!inboundOn || !opsDb) return send(res, 404, { error: "not-found" });
+    const ip = clientIp(req.headers["x-forwarded-for"], req.socket.remoteAddress, TRUST_PROXY, PROXY_HOPS);
+    if ((await counters.hit(`ib:${ip}`, 3_600_000)) > 600) return send(res, 429, { error: "slow-down" });
+    const chunks: Buffer[] = []; let size = 0;
+    try { for await (const c of req as AsyncIterable<Buffer>) { size += c.length; if (size > INBOUND_MAX_BODY) throw new Error("too large"); chunks.push(c); } } catch { return send(res, 413, { error: "too-large" }); }
+    try {
+      const out = await handleInbound(Buffer.concat(chunks).toString("utf8"), { id: String(req.headers["svix-id"] ?? ""), timestamp: String(req.headers["svix-timestamp"] ?? ""), signature: String(req.headers["svix-signature"] ?? "") }, { db: opsDb, counters, apiKey: process.env.RESEND_API_KEY!, secret: process.env.RESEND_WEBHOOK_SECRET!, log: (e) => console.log(JSON.stringify({ t: new Date().toISOString(), ...e })) });
+      return send(res, out.status, out.body);
+    } catch (e) { console.error("inbound email failed:", (e as Error).name); reportError(e, "inbound"); return send(res, 500, { error: "server-error" }); }
+  }
+
   // The weekly email. A scheduler calls this with the shared secret; nobody else can.
   if (url.pathname === "/api/internal/digest" && req.method === "POST") {
     const secret = process.env.CRON_SECRET;
@@ -215,9 +231,13 @@ const handle = async (req: IncomingMessage, res: ServerResponse) => {
     if (!accounts || !opsDb || !opsAccess) return send(res, 404, { error: "not-found" });
     try {
       let body: unknown;
-      if (req.method === "POST") { try { body = await readBody(req, 8192); } catch { return send(res, 400, { error: "bad-request" }); } }
+      if (req.method === "POST") {
+        // small by default; a reply can be long, and a signature's HTML up to 40,000 characters (which can grow when escaped in JSON)
+        const limit = url.pathname.startsWith("/api/ops/signatures") ? 200_000 : 32_768;
+        try { body = await readBody(req, limit); } catch { return send(res, 400, { error: "bad-request" }); }
+      }
       const token = /^Bearer (.+)$/i.exec(String(req.headers.authorization ?? ""))?.[1] ?? null;
-      const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess, repo: accounts.repo, billing: accounts.billing });
+      const out = await handleOpsApi({ method: req.method ?? "GET", path: url.pathname, query: url.searchParams, token, session: String(req.headers["x-ops-session"] ?? "") || undefined, body }, { db: opsDb, auth: accounts.auth, mailer: opsMailer, access: opsAccess, repo: accounts.repo, billing: accounts.billing, counters, inboundOn });
       return send(res, out.status, out.body);
     } catch (e) { console.error("ops route failed:", (e as Error).name); reportError(e, "ops"); return send(res, 500, { error: "server-error" }); }
   }

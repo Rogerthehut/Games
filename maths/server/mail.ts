@@ -9,6 +9,8 @@ export interface OutgoingEmail {
   html: string;
   /** A link that unsubscribes in one step. Added as the standard List-Unsubscribe headers. */
   unsubscribeUrl?: string;
+  /** Extra headers, such as In-Reply-To so a reply sits under the message it answers in the recipient's mail program. */
+  headers?: Record<string, string>;
 }
 export interface Mailer {
   /** True if it really sends. */
@@ -26,7 +28,7 @@ export class ResendMailer implements Mailer {
         headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           from: this.from, to: [e.to], subject: e.subject, text: e.text, html: e.html, ...(this.replyTo ? { reply_to: this.replyTo } : {}),
-          ...(e.unsubscribeUrl ? { headers: { "List-Unsubscribe": `<${e.unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } } : {}),
+          ...(e.unsubscribeUrl || e.headers ? { headers: { ...(e.headers ?? {}), ...(e.unsubscribeUrl ? { "List-Unsubscribe": `<${e.unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } : {}) } } : {}),
         }),
         signal: AbortSignal.timeout(15_000),
       });
