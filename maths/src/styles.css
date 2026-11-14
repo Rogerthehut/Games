@@ -3832,3 +3832,16 @@ button.little-wait { cursor: pointer; animation: little-bob 1.6s ease-in-out inf
   html.native-dock .content { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
   html.native-dock .more-below { bottom: 10px; }
 }
+
+/* Snap, easier for small hands: tap the pile to turn a card, tap either card (or the big button) to call snap */
+.snap-table { align-items: stretch; gap: 10px; }
+.snap-deck { display: grid; justify-items: center; align-content: center; gap: 6px; flex: .8; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.snap-deck:disabled { opacity: .4; cursor: default; }
+.snap-deck-back { display: grid; place-items: center; width: 100%; aspect-ratio: 3 / 4; max-height: 42dvh; border: 4px solid #fff; border-radius: 22px; background: repeating-linear-gradient(45deg, #8294e9, #8294e9 10px, #98a8f0 10px, #98a8f0 20px); box-shadow: 4px 5px 0 -1px #6e80d6, 8px 10px 0 -2px #5d6fc4, 0 12px 24px -12px #18192b99; }
+.snap-deck-back i { display: grid; place-items: center; width: 52%; aspect-ratio: 1; border-radius: 50%; background: #fff; color: #5d6fc4; font: 800 2rem/1 var(--workbook-heading, var(--font-display)); font-style: normal; }
+.snap-deck:active .snap-deck-back { transform: scale(.95) rotate(-2deg); }
+button.snap-card { font: inherit; color: inherit; cursor: pointer; padding: 10px; } button.snap-card:disabled { cursor: default; }
+.snap-call { display: block; width: min(92vw, 520px); min-height: 104px; margin-top: 4px; border-radius: 34px; font-size: 2.4rem; } .snap-call:disabled { opacity: .45; animation: none; }
+
+.snap-play { cursor: pointer; -webkit-tap-highlight-color: transparent; align-self: stretch; width: 100%; max-width: none; }
+.snap-play .snap-deck { cursor: pointer; }

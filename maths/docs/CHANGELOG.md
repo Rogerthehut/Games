@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Snap is easier for small hands
+Tap the face-down pile to turn the next card, and tap anywhere else on the screen (either card, the big SNAP button, or the empty space) to call SNAP. The pile shows how many cards are left. On a keyboard, Space or Enter calls snap and the right arrow turns a card. The browser test calls snap both ways.
+
 ## Me page tidy-up on phones
 The "Who's learning" list and the Parents' area row are gone from Me on phones, small tablets and in the app: switching learner, adding a child, Me and settings and the Parents' area are all in the menu under the avatar at the top right. The browser tests that used those rows now use that menu.
 

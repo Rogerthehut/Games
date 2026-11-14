@@ -310,18 +310,22 @@ export function SnapGame({ max, stage = max <= 5 ? "nursery" : "reception", onDo
   };
   const again = () => { setDeck(mk()); setTurned(0); setFound(0); setMissed(0); setPending(false); };
   const allDone = turned >= deck.length && !pending;
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => { if (e.key === " " || e.key === "Enter") { if ((e.target as HTMLElement)?.tagName === "BUTTON") return; e.preventDefault(); snap(); } else if (e.key === "ArrowRight" || e.key === "n") turn(); };
+    window.addEventListener("keydown", key); return () => window.removeEventListener("keydown", key);
+  });
   return (
-    <div class="little-play" data-testid="little-snap">
-      <p class="little-prompt" aria-live="polite">{allDone ? `You found ${found} ${found === 1 ? "snap" : "snaps"}!` : turned === 0 ? "Turn a card" : pending ? "It's a match!" : "Do they match?"}</p>
+    <div class="little-play snap-play" data-testid="little-snap" onClick={(e) => { if ((e.target as HTMLElement).closest(".snap-deck, .little-next")) return; if (turned >= 1) snap(); }}>
+      <p class="little-prompt" aria-live="polite">{allDone ? `You found ${found} ${found === 1 ? "snap" : "snaps"}!` : turned === 0 ? "Tap the pile to turn a card" : pending ? "It's a match! Tap anywhere!" : "Do they match? Tap anywhere to snap"}</p>
       <div class="snap-table">
-        <div class={`snap-card snap-before${before ? "" : " empty"}`} data-testid="snap-before" aria-label={before ? `The card before: ${cardWords(before)}` : "No card yet"}>{before && <SnapFace card={before} />}</div>
-        <div class={`snap-card snap-now${now ? "" : " empty"}${pending ? " match" : ""}${cheer ? " cheer" : ""}`} data-testid="snap-now" aria-label={now ? `This card: ${cardWords(now)}` : "No card yet"}>{now && <SnapFace card={now} />}</div>
+        <button type="button" class={`snap-deck${turned >= deck.length ? " empty" : ""}`} onClick={turn} disabled={turned >= deck.length} data-testid="snap-turn" aria-label={turned >= deck.length ? "No cards left" : turned === 0 ? "Tap the pile to turn the first card" : "Tap the pile to turn the next card"}>
+          <span class="snap-deck-back" aria-hidden="true"><i>?</i></span><small>{deck.length - turned} left</small>
+        </button>
+        <button type="button" class={`snap-card snap-before${before ? "" : " empty"}`} disabled={!before} data-testid="snap-before" aria-label={before ? `The card before: ${cardWords(before)}. Tap to call snap.` : "No card yet"}>{before && <SnapFace card={before} />}</button>
+        <button type="button" class={`snap-card snap-now${now ? "" : " empty"}${pending ? " match" : ""}${cheer ? " cheer" : ""}`} disabled={!now} data-testid="snap-now" aria-label={now ? `This card: ${cardWords(now)}. Tap to call snap.` : "No card yet"}>{now && <SnapFace card={now} />}</button>
       </div>
       {!allDone && (
-        <div class="snap-buttons">
-          <button type="button" class="snap-turn" onClick={turn} data-testid="snap-turn" aria-label="Turn the next card">{turned === 0 ? "Turn" : "Next card"}</button>
-          {turned >= 2 && <button type="button" class={`snap-call${wobble ? " wobble" : ""}${pending ? " ready" : ""}`} onClick={snap} data-testid="snap-call">SNAP!</button>}
-        </div>
+        <button type="button" class={`snap-call${wobble ? " wobble" : ""}${pending ? " ready" : ""}`} disabled={turned < 2} data-testid="snap-call">SNAP!</button>
       )}
       <p class="muted small" aria-live="polite">{turned} of {deck.length} cards</p>
       {allDone && <><Burst />{AGAIN(again)}</>}

@@ -55,8 +55,8 @@ for (const [label, w, h, touch] of [["phone", 390, 800, true], ["tablet", 834, 1
   await p.getByTestId("little-open-snap").click(); await p.waitForTimeout(500);
   let calls = 0;
   for (let g = 0; g < 14; g++) {
-    await p.getByTestId("snap-turn").click({ timeout: 3000 }).catch(() => {}); await p.waitForTimeout(120);
-    if (await p.locator(".snap-now.match").count()) { await p.getByTestId("snap-call").click(); calls++; await p.waitForTimeout(120); }
+    await p.getByTestId("snap-turn").click({ timeout: 3000, force: true }).catch(() => {}); await p.waitForTimeout(120);
+    if (await p.locator(".snap-now.match").count()) { if (calls % 2 === 0) await p.getByTestId("snap-call").click(); else await p.locator(".snap-play").click({ position: { x: 30, y: 400 } }); calls++; await p.waitForTimeout(120); }
   }
   await p.waitForTimeout(1200);
   ok(`${label}: snap: all fourteen cards turned and ${calls} snaps called finishes the round`, calls === 4 && (await p.getByTestId("little-again").isVisible()), `calls ${calls}`);

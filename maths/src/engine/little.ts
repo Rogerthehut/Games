@@ -56,7 +56,7 @@ export const LITTLE_ACTIVITIES: LittleInfo[] = [
     teach: "Place value is the idea that the position of a digit tells its worth. Building a number from ten-rods and one-cubes shows why 34 is three tens and four ones, and when ten cubes are collected they swap for a rod, which is the trade that underlies carrying in addition. In the reading rounds children go the other way: from a picture of rods and cubes to the number.",
     help: "Use real objects: bundles of ten sticks and single sticks, or ten-pence and one-pence coins. Always say it as 'three tens and four ones' as well as thirty-four.",
     ask: "How many tens? How many ones? What number is that?" },
-  { id: "snap", title: "Snap", blurb: "Spot the match: three lemons, three lemons!", skill: "matching numbers",
+  { id: "snap", title: "Snap", blurb: "Tap the pile, then SNAP a match!", skill: "matching numbers",
     builds: "Noticing when two cards show the same number, whether as objects, a numeral or (later) a sum, which is the heart of number sense.",
     teach: "Snap asks children to hold one card in mind and compare the next with it. At first the match is the same picture and the same count; later a numeral can match a set of objects (the 3 and three lemons), and then a sum matches its answer. Seeing that different pictures can mean the same number is how a number stops being tied to one thing. A missed snap just shows the pair, with no penalty.",
     help: "Play it for real too, with two decks of playing cards or number cards. Say the numbers out loud as each card turns, and count the objects together when it's tricky.",
