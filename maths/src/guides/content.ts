@@ -31,7 +31,7 @@ export const PARENT_GUIDE: GuideSection[] = [
       "Hundred square: find the numbers up to 100, or count in tens. It builds knowing the numbers and their pattern.",
       "Tens and units (Reception and up): build a number from tens and ones, then read one that is built. It builds place value: ten ones make one ten.",
       "Sit alongside for the first few goes, say the numbers with them, then let them lead. A few minutes, then count something real.",
-      "The progress report shows how often each activity was finished. Under Little ones on the page there are short notes on what each activity teaches and how to help.",
+      "The progress report shows how often each activity was finished. The Parents' area has short notes on what each activity teaches and how to help.",
     ],
   },
   {

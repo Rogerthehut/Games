@@ -50,16 +50,15 @@ export function LittleCards() {
             );
           })}
         </div>
-        <GrownUpNotes />
     </section>
   );
 }
 
-/** Short notes for a grown-up: what each activity builds, how to help and a question to ask. Plain text, no gate needed. */
+/** Short notes for a grown-up: what each activity builds, how to help and a question to ask. They live in the Parents' area, not on the children's page. */
 export function GrownUpNotes() {
   return (
     <details class="little-notes" data-testid="little-notes">
-      <summary>For grown-ups: what each activity teaches and how to help</summary>
+      <summary>What each activity teaches and how to help</summary>
       {LITTLE_ACTIVITIES.map((a) => (
         <section key={a.id} class="little-note">
           <h3>{a.title}</h3>

@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Notes for grown-ups moved to the Parents' area
+The "what each activity teaches and how to help" notes are no longer on the Little ones page the children use. They're in the Parents' area (behind the sum and PIN), in a "Little ones: notes for grown-ups" card, shown for Nursery, Reception, Year 1 and Year 2 learners and for anyone who has played Little ones. The parent guide points there.
+
 ## Skills: the "Show journey map" button
 The button's label is left-aligned beside its icon, and the word "Map" no longer appears a second time: the long and short labels were both showing on the Skills filter box (the short one is only meant for the tiny header version).
 

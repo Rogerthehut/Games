@@ -23,8 +23,7 @@ for (const [label, w, h] of [["phone", 390, 800], ["desktop", 1280, 800]] as con
   ok(`${label}: Play opens the activity`, await p.getByTestId("trace-pad").isVisible());
   await p.getByTestId("little-back").click(); await p.waitForTimeout(400);
   await p.locator("[data-testid=nav-today]:visible").first().click(); await p.waitForTimeout(400); await p.getByTestId("open-little").click(); await p.waitForTimeout(500);
-  ok(`${label}: notes for grown-ups are there`, await p.getByTestId("little-notes").isVisible());
-  await p.getByTestId("little-notes").locator("summary").click(); ok(`${label}: and open to show what each builds`, /One-to-one counting/.test(await p.getByTestId("little-notes").innerText()));
+  ok(`${label}: the notes for grown-ups are not on the children's page`, (await p.getByTestId("little-notes").count()) === 0);
   // path banner
   await p.locator("[data-testid=nav-skills]:visible").first().click(); await p.waitForTimeout(500);
   const pathBtn = p.getByRole("button", { name: /^(Show as a path|Path|Journey|Show journey)/i }).first(); if (await pathBtn.count()) { await pathBtn.click().catch(() => {}); await p.waitForTimeout(500); ok(`${label}: the path has the Little ones banner`, await p.getByTestId("skills-little-banner").isVisible()); }

@@ -25,6 +25,7 @@ import { LearningSummaryCard } from "./learning-report";
 import { tablesOf } from "../engine/tables";
 import { lockParents } from "./gate";
 import { KidPinSettings } from "./kid-pin";
+import { GrownUpNotes } from "./little";
 import { PinSettings } from "./pin-settings";
 import { SkillFilterControls, filterSkills, type SkillFilters } from "./skill-filters";
 
@@ -245,6 +246,14 @@ export function Parent() {
               </select>
             </label>
           </section>
+
+          {(profile.early || profile.year <= 2 || Object.keys(profile.little ?? {}).length > 0) && (
+            <section class="card" aria-labelledby="little-notes-h" data-testid="parent-little">
+              <h2 id="little-notes-h">Little ones: notes for grown-ups</h2>
+              <p class="small muted">What each touch-and-play activity builds, and how you can help. The progress report shows how often each was finished.</p>
+              <GrownUpNotes />
+            </section>
+          )}
 
           <section class="card" aria-labelledby="board-h">
             <h2 id="board-h">Times tables family board</h2>
