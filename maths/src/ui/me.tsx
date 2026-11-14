@@ -11,7 +11,7 @@ import { TipButton } from "./tip";
 import { MyPin } from "./kid-pin";
 import { Icon } from "./icons";
 import { Avatar, avatarOptions } from "./avatar";
-import { cachedVoices, loadVoices, rankVoices } from "./voices";
+import { cachedVoices, listVoices, loadVoices, voiceKey, voiceLabel } from "./voices";
 import { readPracticeQuestion, stopPracticeNarration, type NarrationStatus, type NarrationVoice } from "./practice-audio";
 import { applyTheme, getTheme, resolveSkin, skinForYear, type ThemeChoice } from "./skin";
 
@@ -44,8 +44,8 @@ export function Me() {
   const roleLabel = AVATAR_ROLES.find(({ id }) => id === role)?.label ?? "Explorer";
   const [preview, setPreview] = useState<NarrationStatus>("idle");
   const voice = profile.narrationVoice ?? "female";
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>(() => rankVoices(cachedVoices(), voice));
-  useEffect(() => { let live = true; void loadVoices().then((all) => { if (live) setVoices(rankVoices(all, voice)); }); return () => { live = false; }; }, [voice]);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>(() => listVoices(cachedVoices(), voice));
+  useEffect(() => { let live = true; void loadVoices().then((all) => { if (live) setVoices(listVoices(all, voice)); }); return () => { live = false; }; }, [voice]);
   const canPreview = Boolean(window.speechSynthesis) && typeof SpeechSynthesisUtterance !== "undefined";
   useEffect(() => {
     setPreview("idle");
@@ -148,7 +148,7 @@ export function Me() {
             <span class="field-label">Voice</span>
             <select value={profile.narrationVoiceName ?? ""} data-testid="voice-pick" onChange={(e) => { stopPracticeNarration(); setPreview("idle"); const name = (e.target as HTMLSelectElement).value || undefined; update((p) => ({ ...p, narrationVoiceName: name })); }}>
               <option value="">Best available (recommended)</option>
-              {voices.map((x) => <option key={x.name} value={x.name}>{x.name}</option>)}
+              {voices.map((x) => <option key={voiceKey(x)} value={voiceKey(x)}>{voiceLabel(x)}</option>)}
             </select>
           </label>
         )}

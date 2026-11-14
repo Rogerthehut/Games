@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { rankVoices, scoreVoice, sentences, type VoiceInfo } from "./voices";
+import { listVoices, rankVoices, scoreVoice, sentences, voiceKey, voiceLabel, type VoiceInfo } from "./voices";
 
-const v = (name: string, lang: string, localService = true): VoiceInfo => ({ name, lang, localService });
+const v = (name: string, lang: string, localService = true, voiceURI?: string): VoiceInfo => ({ name, lang, localService, voiceURI });
 const installed = [
   v("Albert", "en-US"), v("Fred", "en-US"), v("Samantha", "en-US"), v("Daniel (Enhanced)", "en-GB"), v("Daniel", "en-GB"), v("Serena (Premium)", "en-GB"), v("Kate", "en-GB"),
   v("Google UK English Female", "en-GB", false), v("Microsoft Libby Online (Natural) - English (United Kingdom)", "en-GB", false), v("Karen (Compact)", "en-AU"), v("Amelie", "fr-FR"), v("eSpeak English", "en"),
@@ -28,5 +28,21 @@ describe("speaking in sentences", () => {
     expect(sentences("Ready to give it a go? What is eight plus five?")).toEqual(["Ready to give it a go?", "What is eight plus five?"]);
     expect(sentences("Count the apples.  Then tap 3!  Well done")).toEqual(["Count the apples.", "Then tap 3!", "Well done"]);
     expect(sentences("")).toEqual([]);
+  });
+});
+
+describe("telling similar voices apart", () => {
+  const iphone = [
+    v("Samantha", "en-US", true, "com.apple.voice.compact.en-US.Samantha"), v("Samantha", "en-US", true, "com.apple.voice.enhanced.en-US.Samantha"),
+    v("Daniel", "en-GB", true, "com.apple.voice.compact.en-GB.Daniel"), v("Daniel", "en-GB", true, "com.apple.voice.premium.en-GB.Daniel"), v("Moira", "en-IE", true, "com.apple.voice.compact.en-IE.Moira"),
+  ];
+  it("labels say the region and quality, so two voices with the same name no longer look identical", () => {
+    const labels = iphone.map(voiceLabel); expect(new Set(labels).size).toBe(iphone.length);
+    expect(voiceLabel(iphone[3])).toBe("Daniel · UK · Premium"); expect(voiceLabel(iphone[0])).toBe("Samantha · US · Standard");
+    expect(new Set(iphone.map(voiceKey)).size).toBe(iphone.length);
+  });
+  it("the better quality of the same voice ranks first, and exact duplicates are listed once", () => {
+    const ranked = rankVoices(iphone, "male").map((x) => x.voiceURI); expect(ranked.indexOf("com.apple.voice.premium.en-GB.Daniel")).toBeLessThan(ranked.indexOf("com.apple.voice.compact.en-GB.Daniel"));
+    expect(listVoices([...iphone, iphone[3]], "male").length).toBe(iphone.length);
   });
 });

@@ -4,7 +4,7 @@
  * Nothing leaves the device: it only chooses among the voices already installed.
  */
 export type VoicePreference = "female" | "male";
-export interface VoiceInfo { name: string; lang: string; localService?: boolean }
+export interface VoiceInfo { name: string; lang: string; localService?: boolean; voiceURI?: string }
 
 // Browser voices have names and locales, but no standard gender field.
 const FEMALE = /\b(female|kate|serena|martha|sonia|libby|susan|hazel|samantha|aria|jenny|zira|ava|allison|karen|stephanie|moira|fiona|tessa|amy|emma|olivia|mia|sara|jane)\b/i;
@@ -21,13 +21,30 @@ export function scoreVoice(v: VoiceInfo, preference: VoicePreference): number {
   if (!/^en\b/i.test(lang) || NOVELTY.test(v.name)) return -100;
   let s = 0;
   s += /^en-GB$/i.test(lang) ? 6 : /^en-(IE|AU|ZA|NZ)$/i.test(lang) ? 2 : /^en-US$/i.test(lang) ? 1 : 0;
-  if (QUALITY.test(v.name)) s += 7;
+  const id = `${v.name} ${v.voiceURI ?? ""}`;                    // iPhones keep the quality (compact, enhanced, premium) in the voice's id, not its name
+  if (QUALITY.test(id)) s += 7;
   if (GOOD.test(v.name)) s += 4;
-  if (/\bcompact\b/i.test(v.name)) s -= 5;
+  if (/\bcompact\b/i.test(id)) s -= 5;
   if (v.localService) s += 1;
   const other = preference === "female" ? MALE : FEMALE, want = preference === "female" ? FEMALE : MALE;
   if (want.test(v.name)) s += 5; else if (other.test(v.name)) s -= 6;
   return s;
+}
+
+/** What identifies one installed voice. Several voices share a name (Samantha in two qualities, Daniel in two), so the name alone can't be used to pick one. */
+export const voiceKey = (v: VoiceInfo): string => v.voiceURI || `${v.name}|${v.lang}`;
+const REGION: Record<string, string> = { "en-GB": "UK", "en-US": "US", "en-AU": "Australia", "en-IE": "Ireland", "en-ZA": "South Africa", "en-IN": "India", "en-NZ": "New Zealand", "en-SG": "Singapore", "en-CA": "Canada" };
+/** A name that tells similar voices apart: "Daniel · UK · Enhanced". */
+export function voiceLabel(v: VoiceInfo): string {
+  const lang = v.lang.replace("_", "-"), id = `${v.name} ${v.voiceURI ?? ""}`;
+  const tier = /\bpremium\b/i.test(id) ? "Premium" : /\benhanced\b/i.test(id) ? "Enhanced" : /\b(neural|natural|online)\b/i.test(id) ? "Natural" : /\bcompact\b/i.test(id) ? "Standard" : "";
+  return [v.name.replace(/\s*\((?:Enhanced|Premium|Compact)\)/i, ""), REGION[lang] ?? lang, tier].filter(Boolean).join(" · ");
+}
+/** The voices to offer in a list: ranked, with exact duplicates (same name, language and quality) shown once. */
+export function listVoices<T extends VoiceInfo>(voices: readonly T[], preference: VoicePreference): T[] {
+  const seen = new Set<string>(), out: T[] = [];
+  for (const x of rankVoices(voices, preference)) { const k = voiceLabel(x); if (!seen.has(k)) { seen.add(k); out.push(x); } }
+  return out;
 }
 
 /** English voices, best first for the preference. */
@@ -51,7 +68,7 @@ export const cachedVoices = (): SpeechSynthesisVoice[] => { try { if (!cache.len
 /** The voice to use: the one the grown-up chose by name if it's still installed, otherwise the best for the preference. */
 export function chooseVoice(preference: VoicePreference, chosenName?: string): SpeechSynthesisVoice | undefined {
   const all = cachedVoices();
-  const named = chosenName ? all.find((v) => v.name === chosenName) : undefined;
+  const named = chosenName ? all.find((v) => voiceKey(v) === chosenName) ?? all.find((v) => v.name === chosenName) : undefined;
   return named ?? rankVoices(all, preference)[0];
 }
 
