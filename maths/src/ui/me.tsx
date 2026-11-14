@@ -1,5 +1,4 @@
 import { useEffect, useState } from "preact/hooks";
-import { MAX_CHILDREN } from "../account/limits";
 import { MyProgress } from "./progress-shelf";
 import { AVATAR_ROLES, GLASSES, avatarForYear, type AvatarRole } from "../engine/avatar";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
@@ -9,9 +8,7 @@ import { useApp } from "./context";
 import { schoolLabel } from "./labels";
 import { SyncChip } from "./account-section";
 import { TipButton } from "./tip";
-import { ParentGate, parentUnlocked } from "./gate";
-import { KidPinGate, MyPin, needsKidPin } from "./kid-pin";
-import { useWide } from "./tables-note";
+import { MyPin } from "./kid-pin";
 import { Icon } from "./icons";
 import { Avatar, avatarOptions } from "./avatar";
 import { readPracticeQuestion, stopPracticeNarration, type NarrationStatus, type NarrationVoice } from "./practice-audio";
@@ -39,7 +36,7 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
 }
 
 export function Me() {
-  const { profile, profiles, switchTo, go, update } = useApp();
+  const { profile, go, update } = useApp();
   const currentAvatar = avatarForYear(profile.avatar, profile.year);
   const [browseRole, setBrowseRole] = useState<AvatarRole | null>(null);
   const role = browseRole ?? currentAvatar.role;
@@ -52,9 +49,6 @@ export function Me() {
     setBrowseRole(null);
     return stopPracticeNarration;
   }, [profile.id]);
-  const wide = useWide(); // with the left-hand panel showing, the Parents' area lives there
-  const [gate, setGate] = useState<false | "parent" | "add">(false);
-  const [kidGate, setKidGate] = useState<Profile | null>(null); // the child whose PIN is being asked for before switching
   const [theme, setTheme] = useState<ThemeChoice>(getTheme());
   const last = profile.baselines[profile.baselines.length - 1];
   const secure = SKILLS.filter((s) => statusOf(profile.skills[s.id]) === "secure").length;
@@ -101,24 +95,6 @@ export function Me() {
         </section>
       )}
 
-      {!wide && (
-      <section aria-labelledby="who-h">
-        <h2 id="who-h">Who's learning</h2>
-        <ul class="rows">
-          {profiles.map((p) => (
-            <li key={p.id}>
-              <button class={`row ${p.id === profile.id ? "current" : ""}`} onClick={() => { if (p.id === profile.id) return; if (needsKidPin(p.id)) setKidGate(p); else switchTo(p.id); }} aria-current={p.id === profile.id ? "true" : undefined}>
-                <Avatar choice={p.avatar} year={p.year} size={32} /><span>{p.name} <small class="muted">{schoolLabel(p)}</small></span>
-                {p.id === profile.id ? <Icon name="check" size={18} /> : <Icon name="chevron" size={18} />}
-              </button>
-            </li>
-          ))}
-          {profiles.length < MAX_CHILDREN
-            ? <li><button class="row add" onClick={() => (parentUnlocked() ? go({ name: "onboard" }) : setGate("add"))} data-testid="add-learner"><Icon name="plus" /><span>Add another child</span></button></li>
-            : <li><p class="small muted" data-testid="learner-cap">An account can have up to {MAX_CHILDREN} children.</p></li>}
-        </ul>
-      </section>
-      )}
       <MyPin />
 
       <section aria-labelledby="avatar-h">
@@ -177,14 +153,6 @@ export function Me() {
         </p>
       </section>
 
-      {!wide && (
-        <ul class="rows">
-          <li><button class="row" onClick={() => (parentUnlocked() ? go({ name: "parent" }) : setGate("parent"))} data-testid="open-parents"><Icon name="lock" /><span>Parents' area</span><Icon name="chevron" size={18} /></button></li>
-        </ul>
-      )}
-
-      {kidGate && <KidPinGate learner={kidGate} onCancel={() => setKidGate(null)} onPass={() => { const id = kidGate.id; setKidGate(null); switchTo(id); }} />}
-      {gate && <ParentGate onCancel={() => setGate(false)} onPass={() => { const to = gate === "add" ? { name: "onboard" as const } : { name: "parent" as const }; setGate(false); go(to); }} />}
     </div>
   );
 }

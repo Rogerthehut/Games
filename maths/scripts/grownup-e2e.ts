@@ -28,7 +28,7 @@ await page.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch
 // on a wide screen the Parents' area is the padlock at the bottom of the left-hand panel; on a phone it is a row on Me
 const openParents = async () => {
   const rail = page.locator("[data-testid=rail-parents]:visible");
-  if (await rail.count()) await rail.click(); else await page.getByTestId("open-parents").click();
+  if (await rail.count()) await rail.click(); else { await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("top-open-parents").click(); }
   await page.waitForTimeout(300);
 };
 const toMe = async () => { const t = page.locator("[data-testid=top-me]:visible").first(); if (await t.count()) { await t.click(); await page.getByTestId("rail-open-me").click(); } else { await page.locator(".rail-me").click(); await page.getByTestId("rail-open-me").click(); } await page.waitForTimeout(400); };
@@ -46,7 +46,7 @@ await toMe();
 await openParents();
 ok("the Parents' area asks for a sum first", await gateUp());
 if (!phone) ok("on a wide screen the sum and PIN open in the left-hand panel", (await page.locator(".rail .gate-embedded").count()) === 1 && (await page.locator(".gate-backdrop").count()) === 0);
-if (phone) ok("on a phone the Parents' row sits on Me, below the tour", (await page.getByTestId("open-parents").count()) === 1);
+if (phone) ok("on a phone the Parents' area is in the avatar menu, not on Me", (await page.getByTestId("open-parents").count()) === 0);
 await solveSum(); await pin();
 ok("with the sum and PIN, the Parents' area opens", /Parents' area/.test(await page.locator("body").innerText()) && !(await gateUp()));
 await page.keyboard.press("Shift"); // as if a keyboard was just used, which is when browsers draw focus rings
@@ -69,7 +69,7 @@ if (await gateUp()) await page.getByRole("button", { name: /cancel|close|not now
 
 // 3. adding or changing a learner needs a grown-up
 await page.waitForTimeout(300);
-await page.getByTestId("add-learner").click(); await page.waitForTimeout(300);
+if (phone) { await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("rail-add-learner").click(); } else await page.getByTestId("rail-add-learner").click().catch(async () => { await page.locator("[data-testid=rail-me]").click(); await page.getByTestId("rail-add-learner").click(); }); await page.waitForTimeout(300);
 ok("adding someone or changing the school year asks for a grown-up", await gateUp());
 await page.keyboard.press("Escape"); await page.waitForTimeout(300);
 

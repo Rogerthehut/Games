@@ -33,7 +33,7 @@ async function session(features) {
 }
 const tap = async (p, digits) => { for (const d of digits) await p.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); };
 const toMe = async (p) => { const t = p.locator("[data-testid=top-me]:visible").first(); if (await t.count()) { await t.click(); await p.getByTestId("rail-open-me").click(); } else { await p.locator(".rail-me").click(); await p.getByTestId("rail-open-me").click(); } await p.waitForTimeout(400); };
-const openParents = async (p) => { const rail = p.locator("[data-testid=rail-parents]:visible"); if (await rail.count()) await rail.click(); else await p.getByTestId("open-parents").click(); await p.waitForTimeout(400); };
+const openParents = async (p) => { const rail = p.locator("[data-testid=rail-parents]:visible"); if (await rail.count()) await rail.click(); else { await p.locator("[data-testid=top-me]:visible").first().click(); await p.getByTestId("top-open-parents").click(); } await p.waitForTimeout(400); };
 const sum = async (p) => { const m = /(\d+)\s*×\s*(\d+)/.exec(await p.locator(".gate-sum").innerText()); await tap(p, String(+m[1] * +m[2])); await p.getByTestId("gate-go").click(); await p.waitForTimeout(400); };
 const pin = async (p) => { const rounds = /Make a PIN/.test(await p.getByTestId("pin-prompt").innerText()) ? 2 : 1; for (let k = 0; k < rounds; k++) { await tap(p, "482915"); await p.getByTestId("pin-go").click(); await p.waitForTimeout(450); } };
 const inParents = async (p) => (await p.locator("body").innerText()).includes("Parents' area") && !(await p.getByTestId("gate-input").count());

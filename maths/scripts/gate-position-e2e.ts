@@ -19,10 +19,8 @@ for (const [label, vp] of [["iPhone SE", { width: 375, height: 667 }], ["iPhone 
   await p.goto(base); await p.waitForTimeout(1200);
   await p.getByRole("button", { name: /^Continue/ }).click({ timeout: 1500 }).catch(() => {});
   await p.getByRole("button", { name: "Got it" }).click({ timeout: 800 }).catch(() => {});
-  await p.getByRole("button", { name: /open Me/ }).first().click(); await p.waitForTimeout(600);
-  const row = p.getByTestId("open-parents"); await row.scrollIntoViewIfNeeded();
-  await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(300);
-  await row.click(); await p.waitForTimeout(500);
+  await p.locator("[data-testid=top-me]:visible").first().click(); await p.waitForTimeout(300);
+  await p.getByTestId("top-open-parents").click(); await p.waitForTimeout(500);
   const box = await p.locator(".gate").boundingBox(), vh = await p.evaluate(() => innerHeight);
   ok(`${label}: the sum appears`, !!box);
   ok(`${label}: it sits inside the visible screen, not further up the page`, !!box && box.y >= 0 && box.y < vh - 40, JSON.stringify(box));

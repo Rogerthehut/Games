@@ -74,7 +74,7 @@ await p2.screenshot({ path: `${dir}/acct-4-second-device.png` });
 // 5. grown-ups' area: account section, download, sign out
 const openParents = async (page) => {
   await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("rail-open-me").click(); await page.waitForTimeout(500);
-  { const rail = page.locator("[data-testid=rail-parents]:visible"); if (await rail.count()) await rail.click(); else await page.getByTestId("open-parents").click(); }
+  { const rail = page.locator("[data-testid=rail-parents]:visible"); if (await rail.count()) await rail.click(); else { await page.locator("[data-testid=top-me]:visible").first().click(); await page.getByTestId("top-open-parents").click(); } }
   await page.waitForTimeout(500);
   const q = await text(page); const m = q.match(/(\d+)\s*\+\s*(\d+)/) ?? q.match(/(\d+)\s*[×x]\s*(\d+)/);
   if (m) { const isMul = /[×x]/.test(q.slice(q.indexOf(m[0]), q.indexOf(m[0]) + m[0].length)); for (const d of String(isMul ? +m[1] * +m[2] : +m[1] + +m[2])) await page.locator(".keypad .pad-key", { hasText: new RegExp(`^${d}$`) }).first().click(); await page.getByTestId("gate-go").click(); await page.waitForTimeout(600); }
