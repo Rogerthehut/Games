@@ -2269,11 +2269,13 @@ html:has(.quarter-search[open]),
   .qbar-more { min-height: 40px; margin-bottom: 6px; }
 }
 
-.skills-view-control .lbl-short { display: none; }
+.skills-view-control .lbl-short, .skills-filter-view .lbl-short { display: none; }
 @media (max-width: 600px) {
   .skills-view-control .lbl-long { display: none; }
   .skills-view-control .lbl-short { display: inline; }
 }
+/* the label sits at the left of the button, next to its icon, rather than centred */
+.skills-view-control .btn, .skills-filter-view .btn { justify-content: flex-start; text-align: left; }
 
 /* The live-preview line only takes room when there is something to preview (expression answers). */
 .preview:empty { min-height: 0; }

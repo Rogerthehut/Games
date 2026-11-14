@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Skills: the "Show journey map" button
+The button's label is left-aligned beside its icon, and the word "Map" no longer appears a second time: the long and short labels were both showing on the Skills filter box (the short one is only meant for the tiny header version).
+
 ## Friendlier, more natural voices
 Every spoken part of the app (practice questions, the tutor, guides, the tour, times tables, and now Little ones) now picks the best voice the device actually has, instead of the first English one. It ranks the installed voices: British English first, Enhanced, Premium, Natural, Neural and Online voices ahead of plain ones, known-good voices (such as Serena, Daniel, Kate, Libby, Sonia and Google UK English) favoured, "compact" voices marked down, and novelty or robotic ones never used. It waits for the browser to list its voices (some only do after a moment), reads a sentence at a time so it keeps a natural rise and fall (and long passages don't cut out on Android), and Little ones are spoken slightly slower and warmer. Me, Sound now also has a Voice list so a grown-up can pick a particular installed voice (the default is "Best available"), and the choice is per learner. Nothing leaves the device. Voices still depend on what a phone or browser has installed; for the best sound on iPhone, install an Enhanced or Premium voice in Settings, Accessibility, Spoken Content, Voices. Recorded voices for the Little ones phrases remain the next step.
 
