@@ -28,3 +28,18 @@ describe("little ones activities", () => {
     for (const p of COLOUR_PICTURES) { expect(p.cells.length).toBe(p.size * p.size); for (const c of coloursNeeded(p)) expect(p.palette[c]).toBeTruthy(); }
   });
 });
+
+import { buildProgressReport } from "./progress-report";
+import { newProfile } from "./progress";
+import { LITTLE_ACTIVITIES } from "./little";
+describe("Little ones in the parent report and notes", () => {
+  it("every activity has notes for a grown-up", () => {
+    for (const a of LITTLE_ACTIVITIES) for (const k of ["builds", "teach", "help", "ask", "skill"] as const) expect(a[k].length).toBeGreaterThan(k === "skill" ? 4 : 20);
+  });
+  it("the report lists the activities for early learners, with how often each was finished, and not for others", () => {
+    const kid = newProfile("Bo", 1); kid.early = "nursery"; kid.little = { count: 2 };
+    const r = buildProgressReport(kid);
+    expect(r.yearLabel).toBe("Nursery"); expect(r.little.length).toBe(5); expect(r.little.find((x) => x.id === "count")!.plays).toBe(2); expect(r.little.find((x) => x.id === "trace")!.plays).toBe(0);
+    const older = buildProgressReport(newProfile("Max", 6)); expect(older.little).toEqual([]); expect(older.yearLabel).toBe("Year 6");
+  });
+});

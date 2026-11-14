@@ -119,7 +119,7 @@ export function ProgressReport() {
           <div class="pr-title">
             <p class="pr-kicker">Progress report</p>
             <h1>{r.name}</h1>
-            <p class="pr-sub">Year {r.year} · Prepared {fmt(r.generated)} · Practising since {fmt(r.since)}{r.period.custom ? ` · Showing ${span}` : ""}</p>
+            <p class="pr-sub">{r.yearLabel} · Prepared {fmt(r.generated)} · Practising since {fmt(r.since)}{r.period.custom ? ` · Showing ${span}` : ""}</p>
           </div>
         </header>
 
@@ -155,6 +155,20 @@ export function ProgressReport() {
           </ul>
           <p class="pr-key">{STATUS_ORDER.map((k) => <span key={k}><i class={`pr-seg st-${k}`} />{STATUS_WORDS[k]}</span>)}</p>
         </section>
+
+        {r.little.length > 0 && (
+          <section class="pr-sec pr-keep" data-testid="report-little">
+            <h2>Little ones</h2>
+            <p>Touch-and-play activities for early years. There are no scores: the count shows how often each activity was finished, which is a good sign of interest and practice.</p>
+            <ul class="pr-strands">
+              {r.little.map((a) => (
+                <li key={a.id}><span class="pr-strand-name">{a.title}</span>
+                  <span class="pr-strand-n">{a.plays === 0 ? "not tried yet" : `finished ${a.plays} ${a.plays === 1 ? "time" : "times"}`}</span>
+                  <small class="muted">Builds: {a.builds}</small></li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {r.tables && (
           <section class="pr-sec pr-keep" data-testid="report-tables">

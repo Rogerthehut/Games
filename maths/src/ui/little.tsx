@@ -50,6 +50,54 @@ export function LittleCards() {
             );
           })}
         </div>
+        <GrownUpNotes />
+    </section>
+  );
+}
+
+/** Short notes for a grown-up: what each activity builds, how to help and a question to ask. Plain text, no gate needed. */
+export function GrownUpNotes() {
+  return (
+    <details class="little-notes" data-testid="little-notes">
+      <summary>For grown-ups: what each activity teaches and how to help</summary>
+      {LITTLE_ACTIVITIES.map((a) => (
+        <section key={a.id} class="little-note">
+          <h3>{a.title}</h3>
+          <p><strong>What it builds.</strong> {a.builds}</p>
+          <p>{a.teach}</p>
+          <p><strong>How to help.</strong> {a.help}</p>
+          <p><strong>Ask afterwards.</strong> {a.ask}</p>
+        </section>
+      ))}
+      <p class="small muted">These activities have no scores and no wrong answers on screen. Short and often is best: a few minutes, then go and count something real.</p>
+    </details>
+  );
+}
+
+/** Little ones on the Skills page: five rows in the list view and a banner above the path. */
+export function LittleSkills({ banner }: { banner?: boolean }) {
+  const { go, profile } = useApp();
+  if (banner) return (
+    <button type="button" class="little-banner little-banner-slim" onClick={() => go({ name: "little" })} data-testid="skills-little-banner">
+      <span class="little-banner-art" aria-hidden="true">🎈</span><span><strong>Little ones</strong><small>Counting, tracing, shapes and colours. Start here.</small></span><Icon name="arrow" size={22} />
+    </button>
+  );
+  return (
+    <section class="skills-stage little-skills" aria-labelledby="list-little">
+      <h2 class="skills-stage-heading" id="list-little" tabIndex={-1}>Little ones</h2>
+      <p class="muted">Touch-and-play activities for ages 2 to 6. No reading needed.</p>
+      <ul class="skill-list">
+        {LITTLE_ACTIVITIES.map((a) => {
+          const plays = profile.little?.[a.id] ?? 0;
+          return (
+            <li class={`skill ${plays ? "growing" : "new"}`} key={a.id} id={`skill-little-${a.id}`}>
+              <div class="skill-main"><div class="skill-title"><strong>{a.title}</strong><span class="badge">Little ones</span></div><p class="muted">{a.blurb}</p></div>
+              <div class="skill-side"><span class="little-stars" aria-label={`${Math.min(3, plays)} of 3 stars`}>{[0, 1, 2].map((i) => <i key={i} class={i < plays ? "on" : ""}>★</i>)}</span>
+                <button class="btn small" onClick={() => go({ name: "little", activity: a.id })} data-testid={`skills-little-${a.id}`}>Play</button></div>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { useApp, type Route } from "./context";
 import { recall, remember } from "./memory";
 import { Journey } from "./journey";
+import { LittleSkills } from "./little";
 import { hasLesson } from "../engine/lesson";
 import { resolveSkin } from "./skin";
 import { STATUS_LABEL } from "./labels";
@@ -108,13 +109,14 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
       <h1>Skills</h1>
     </div>
   );
-  if (view === "journey") return <div ref={root} style="display:contents"><Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}</>} /></div>;
+  if (view === "journey") return <div ref={root} style="display:contents"><Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}{Object.keys(filters).length === 0 && <LittleSkills banner />}</>} /></div>;
   return (
     <div class="map" ref={root}>
       {heading}
       <p class="lede">Tap Practise on anything you want to work on.</p>
       <div ref={filterStart} />
       <SkillFilterControls filters={filters} onChange={setListFilters} count={visibleSkills.length}>{viewSwitch}</SkillFilterControls>
+      {Object.keys(filters).length === 0 && <LittleSkills />}
       {STAGE_ORDER.filter((stage) => visibleSkills.some((skill) => skill.stage === stage)).map((listStage) => (
         <section key={listStage} class="skills-stage">
           <h2 class="skills-stage-heading" id={`list-world-${listStage}`} tabIndex={-1}>{STAGE_LABEL[listStage]}</h2>

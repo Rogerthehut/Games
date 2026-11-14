@@ -3779,3 +3779,11 @@ button.little-wait { cursor: pointer; animation: little-bob 1.6s ease-in-out inf
 @keyframes more-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 6px; } }
 @media (prefers-reduced-motion: reduce) { .more-cue, .qbar-more { animation: none; } }
 @media (max-height: 640px) { .more-cue, .qbar-more, .qpage .qbar-more { width: 44px; height: 44px; min-height: 44px; } .more-cue svg, .qbar-more svg { width: 22px; height: 22px; } }
+
+/* Little ones on the Skills page, and the notes for grown-ups */
+.little-banner-slim { margin: 0 0 14px; padding: 12px 16px; border-radius: 18px; }
+.little-skills { margin-bottom: 18px; }
+.little-skills .little-stars i { font-size: 1.15rem; }
+.little-notes { margin-top: 22px; padding: 14px 18px; border: 2px solid var(--line); border-radius: 18px; background: var(--surface); }
+.little-notes summary { cursor: pointer; font-weight: 750; min-height: 44px; display: flex; align-items: center; }
+.little-note { padding-top: 10px; border-top: 1px solid var(--line); margin-top: 10px; } .little-note h3 { margin: 0 0 6px; } .little-note p { margin: 0 0 8px; }

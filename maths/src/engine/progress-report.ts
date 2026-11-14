@@ -1,3 +1,4 @@
+import { LITTLE_ACTIVITIES } from "./little";
 import { PAPERS } from "./mock";
 import { ALL_SKILLS, SKILL_BY_ID, STAGE_LABEL, STRANDS } from "../curriculum";
 import { BAND_TEXT, yearLabel } from "./diagnostic";
@@ -43,6 +44,10 @@ export interface ProgressReportData {
   tutorOn: boolean;
   /** Times tables, when the learner has used them: null if not. */
   tables: TablesSummary | null;
+  /** How the school year reads: Nursery and Reception are stored as Year 1. */
+  yearLabel: string;
+  /** Little ones activities, set out with what each builds and how many times it was finished. Empty when none have been played. */
+  little: { id: string; title: string; plays: number; builds: string; skill: string }[];
 }
 
 const pct = (a: number, b: number) => (b > 0 ? Math.round((100 * a) / b) : null);
@@ -116,6 +121,8 @@ export function buildProgressReport(p: Profile, now = Date.now(), range?: Range 
     plan: p.plan ? { target: p.plan.target === "11plus" ? "11+ preparation" : "General", sessionsPerWeek: p.plan.sessionsPerWeek, examDate: p.goal?.examDate ?? p.plan.examDate ?? null, weekNumber: week?.n ?? null, weekSkills: (week?.skills ?? []).map(name) } : null,
     tutorOn: !!p.tutor?.enabled,
     tables: p.tables && Object.keys(p.tables.facts).length > 0 ? summariseTables(p) : null,
+    yearLabel: p.early === "nursery" ? "Nursery" : p.early === "reception" ? "Reception" : `Year ${p.year}`,
+    little: p.early || Object.keys(p.little ?? {}).length ? LITTLE_ACTIVITIES.map((a) => ({ id: a.id, title: a.title, plays: p.little?.[a.id] ?? 0, builds: a.builds, skill: a.skill })) : [],
   };
 }
 

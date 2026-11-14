@@ -10,12 +10,25 @@ export interface GuideSection { id: string; title: string; /** a small picture f
 export const PARENT_GUIDE: GuideSection[] = [
   {
     id: "start", icon: "star", title: "Getting started",
-    text: ["quarter is maths and STEM practice for Years 3 to 13. Each learner has their own profile, so brothers and sisters can share a device."],
+    text: ["quarter is maths and STEM practice for Years 3 to 13, with touch-and-play Little ones activities for ages 2 to 6. Each learner has their own profile, so brothers and sisters can share a device."],
     steps: [
       "Add your child with a nickname (please don't use a full name) and their school year.",
       "Optional: sign in to save their progress to your account, so it follows them to any device.",
       "Optional: take the check-up. It's about 24 questions and finds a good starting point. You can skip it and just start practising.",
       "Look at Today. The Practice card is the best place to begin: about ten minutes.",
+    ],
+  },
+  {
+    id: "little", icon: "star", title: "Little ones (Nursery to Year 2)",
+    text: ["For children from about 2 to 6 there is a Little ones area of touch-and-play activities. No reading is needed, there are no scores, and a slip just bounces back so they can try again. Add a child as Nursery or Reception when you set them up (you can change it in the Parents' area), or pick Year 1 or Year 2. Little ones is also on the Skills page, first in the list and as a banner above the path."],
+    tips: [
+      "Count with me: tap each thing to count it. It builds one-to-one counting and knowing the last number is the total.",
+      "Trace the number: draw each digit 0 to 9 along the dotted path. It builds recognising and starting digits in the right place.",
+      "Add and take away: ducks hop into a pond and biscuits get eaten, with the sum shown. It builds the idea of adding and taking away.",
+      "Shape sorter: drag each shape to its hole. It builds naming and matching circles, squares, triangles and stars.",
+      "Colour by number: match numbers to colours to reveal a picture. It builds number recognition.",
+      "Sit alongside for the first few goes, say the numbers with them, then let them lead. A few minutes, then count something real.",
+      "The progress report shows how often each activity was finished. Under Little ones on the page there are short notes on what each activity teaches and how to help.",
     ],
   },
   {

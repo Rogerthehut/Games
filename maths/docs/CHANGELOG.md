@@ -2,6 +2,13 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Little ones everywhere, with notes and reporting
+- **Skills page:** Little ones is first in the list view (five rows with stars and a Play button) and a banner above the path view. Both hide while a filter is on.
+- **Search:** "Little ones" and each of the five activities can be found by words like nursery, toddler, counting, tracing, shapes or colours.
+- **Parent report:** a Little ones section (shown for Nursery and Reception learners, and for anyone who has played) lists each activity with how often it was finished and what it builds. The report now also says Nursery or Reception instead of Year 1.
+- **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
+- Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
+
 ## Scroll-down arrow
 "Scroll for more" is now a round, pink-ringed down arrow instead of words, so smaller children can follow it. It keeps the same see-through look as the old pill, bobs gently, and fades away once you scroll. On ordinary pages it sits just above the tab bar rather than over the content, and on question pages it sits under the Hint and Check buttons on taller screens (above them on short ones). The side menu's minimise button is now a 44px touch target.
 

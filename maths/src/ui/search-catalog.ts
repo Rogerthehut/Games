@@ -36,6 +36,12 @@ function entry(title: string, detail: string, keywords: string, route: Route, ba
 const pages = [
   entry("Today", "Page", "home activities dashboard start practice daily streak", { name: "home" }),
   entry("Skills", "Page", "journey map list path topics chapter index curriculum", { name: "map" }),
+  entry("Little ones", "Page", "toddler baby nursery reception pre-school preschool early years under five counting tracing shapes colours play", { name: "little" }),
+  entry("Count with me", "Little ones activity", "little ones counting count numbers toddler nursery reception one to ten", { name: "little", activity: "count" }),
+  entry("Trace the number", "Little ones activity", "little ones tracing writing numbers digits draw finger nursery", { name: "little", activity: "trace" }),
+  entry("Add and take away", "Little ones activity", "little ones adding taking away subtract ducks biscuits sums early years", { name: "little", activity: "add" }),
+  entry("Shape sorter", "Little ones activity", "little ones shapes circle square triangle star sorting matching", { name: "little", activity: "shapes" }),
+  entry("Colour by number", "Little ones activity", "little ones colouring colour by numbers picture paint numerals", { name: "little", activity: "colour" }),
   entry("Your plan", "Page", "study next steps schedule weekly plan", { name: "plan" }),
   entry("Me", "Page", "profile progress streak points settings", { name: "me" }),
   entry("Choose your avatar", "Me", "characters hairstyle glasses customisation scholar artist", { name: "me", section: "avatar" }),

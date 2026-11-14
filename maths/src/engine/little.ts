@@ -5,12 +5,45 @@ import { int, pick } from "./rng";
  * There is no scoring and no wrong answer on screen: a slip just makes things wobble and try again.
  */
 export type LittleActivity = "count" | "trace" | "add" | "shapes" | "colour";
-export const LITTLE_ACTIVITIES: { id: LittleActivity; title: string; blurb: string }[] = [
-  { id: "count", title: "Count with me", blurb: "Tap each one to count it." },
-  { id: "trace", title: "Trace the number", blurb: "Draw the number with your finger." },
-  { id: "add", title: "Add and take away", blurb: "Ducks come, biscuits go." },
-  { id: "shapes", title: "Shape sorter", blurb: "Pop each shape in its hole." },
-  { id: "colour", title: "Colour by number", blurb: "Match the number to the colour." },
+export interface LittleInfo {
+  id: LittleActivity; title: string; blurb: string;
+  /** What it builds, in plain words for a grown-up. */
+  builds: string;
+  /** Short teaching note: what the activity is really teaching, and what to look for. */
+  teach: string;
+  /** How a grown-up can help without taking over. */
+  help: string;
+  /** A question to ask afterwards. */
+  ask: string;
+  /** The words for the learner's progress, "finished 3 times". */
+  skill: string;
+}
+export const LITTLE_ACTIVITIES: LittleInfo[] = [
+  { id: "count", title: "Count with me", blurb: "Tap each one to count it.", skill: "counting objects",
+    builds: "One-to-one counting: saying one number for each thing touched, and knowing the last number said tells you how many.",
+    teach: "Counting is three ideas, not one: the number words in order, one word for each object, and that the last word is the total. Each tap makes one object count and says its number, so the three stay together. Watch whether your child touches each thing exactly once and whether they can tell you the total without counting again.",
+    help: "Count the first one or two with them, then let them lead. Count real things too: stairs, spoons, grapes. Try not to correct a missed one; let the round finish and have another go.",
+    ask: "How many are there altogether? How do you know?" },
+  { id: "trace", title: "Trace the number", blurb: "Draw the number with your finger.", skill: "writing numbers",
+    builds: "Recognising the shapes of the digits 0 to 9 and the movement that draws them, ready for writing.",
+    teach: "Children learn the starting point and direction of each digit through the movement itself. The dotted path shows where to start and which way to go, and the stars only follow when the finger goes the right way. Look for a relaxed grip and for starting at the top.",
+    help: "Say the number as they draw it. Try drawing it big in the air, in sand, or with a finger on your child's back. A few numbers a day is plenty.",
+    ask: "Can you find a number like this one in the house?" },
+  { id: "add", title: "Add and take away", blurb: "Ducks come, biscuits go.", skill: "adding and taking away",
+    builds: "The idea behind adding (putting more together) and taking away (some are gone), and seeing it as a sum.",
+    teach: "Adding and taking away are first understood as things that happen: more arrive, some leave. Moving the objects one at a time, with the count said aloud, builds the sense of the change before any symbols. The sum underneath ties the picture to the numbers, but it's the doing that matters.",
+    help: "Act it out with toys: two cars, one more drives in. Ask what happened before showing the sum. Using fingers is fine and is part of learning.",
+    ask: "How many were there at the start? How many now? What changed?" },
+  { id: "shapes", title: "Shape sorter", blurb: "Pop each shape in its hole.", skill: "shapes",
+    builds: "Naming and matching shapes: circle, square, triangle and star.",
+    teach: "Matching a shape to its outline trains careful looking at sides and corners, and builds the words children will use in geometry. A shape that bounces back is a gentle signal to look again, not a mistake. Look for turning the shape to compare, and for naming it.",
+    help: "Hunt for shapes around the house: a plate, a window, a roof. Describe them: round, four straight sides, three corners.",
+    ask: "How many corners does this one have?" },
+  { id: "colour", title: "Colour by number", blurb: "Match the number to the colour.", skill: "number recognition",
+    builds: "Reading the numbers 1 to 4, matching each to its colour, and seeing a picture appear as the work is done.",
+    teach: "Each cell shows a number and each colour has one, so children practise recognising numerals and holding a rule in mind: this number goes with that colour. Finishing the picture gives a clear, rewarding end.",
+    help: "Ask them to find all of one number before moving on. Talk about the picture as it appears.",
+    ask: "Which number had the most squares?" },
 ];
 
 /** How far a little one is: the highest number used, by stage. */
