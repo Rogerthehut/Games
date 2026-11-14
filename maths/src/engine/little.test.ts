@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { advance, shapeCount, shapesFor, countRound, DIGIT_PATHS, shapeRound, sumRound, waypoints } from "./little";
 import { mulberry32 } from "./rng";
-import { artFor, artNumbers, COLOUR_ART } from "./little-art";
+import { artFor, artNumbers, COLOUR_ART, readableOn } from "./little-art";
 
 describe("little ones activities", () => {
   it("counting and sums stay within the range for the stage", () => {
@@ -96,5 +96,13 @@ describe("Snap", () => {
         deck.forEach((c) => { expect(c.n).toBeGreaterThanOrEqual(1); expect(c.n).toBeLessThanOrEqual(max); if (c.kind === "sum") expect(c.a + c.b).toBe(c.n); if (stage === "nursery") expect(c.kind).toBe("objects"); if (stage !== "older") expect(c.kind).not.toBe("sum"); });
       }
     }
+  });
+});
+
+describe("numbers stay readable on their colour", () => {
+  it("dark colours get a white number and light colours a dark one, and every colour in every picture has enough contrast", () => {
+    expect(readableOn("#2b2b3a")).toBe("#ffffff"); expect(readableOn("#121522")).toBe("#ffffff"); expect(readableOn("#f5dc63")).toBe("#121522"); expect(readableOn("#ffffff")).toBe("#121522"); expect(readableOn("#2f3a73")).toBe("#ffffff");
+    const lum = (hex: string) => { const v = hex.replace("#", ""), c = [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4))); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+    for (const a of COLOUR_ART) for (const col of Object.values(a.palette)) { const t = readableOn(col), l1 = Math.max(lum(col), lum(t)), l2 = Math.min(lum(col), lum(t)); expect((l1 + 0.05) / (l2 + 0.05)).toBeGreaterThanOrEqual(3); }   // the numbers are large and bold, where 3:1 is the standard
   });
 });

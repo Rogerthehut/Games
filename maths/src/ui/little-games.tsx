@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { advance, buildMax, isSnap, snapDeck, snapMax, SNAP_THINGS, type SnapCard, digitsOf, hundredMax, readOptions, splitTens, DIGIT_PATHS, shapeCount, shapesFor, type LittleStage, sumRound, waypoints, type Pt, type ShapeKind } from "../engine/little";
-import { artFor, artNumbers } from "../engine/little-art";
+import { artFor, artNumbers, readableOn } from "../engine/little-art";
 import { rand } from "../engine/little-random";
 import { Icon } from "./icons";
 import { blip, Burst, buzz, CritterArt, say, ShapeArt, SHAPE_NAME, type Critter } from "./little-bits";
@@ -183,7 +183,7 @@ export function ColourGame({ max, stage = max <= 5 ? "nursery" : "reception", on
     <div class="little-play" data-testid="little-colour">
       <p class="little-prompt">{done ? `${art.name[0].toUpperCase()}${art.name.slice(1)}!` : "Pick a colour, then tap its number"}</p>
       <div class="little-palette" role="group" aria-label="Colours">
-        {need.map((n) => <button key={n} type="button" class={`little-swatch${chosen === n ? " on" : ""}${hint === n ? " hint" : ""}`} style={{ background: art.palette[n] }} onClick={() => { setChosen(n); blip(n); say(WORDS[n] ?? String(n)); }} aria-pressed={chosen === n} aria-label={`colour ${n}`} data-testid={`swatch-${n}`}>{n}</button>)}
+        {need.map((n) => <button key={n} type="button" class={`little-swatch${chosen === n ? " on" : ""}${hint === n ? " hint" : ""}`} style={{ background: art.palette[n], color: readableOn(art.palette[n]) }} onClick={() => { setChosen(n); blip(n); say(WORDS[n] ?? String(n)); }} aria-pressed={chosen === n} aria-label={`colour ${n}`} data-testid={`swatch-${n}`}>{n}</button>)}
       </div>
       <svg ref={svg} class="colour-art" viewBox="0 0 100 100" role="group" aria-label={`Colour by number: ${art.name}`}>
         {art.regions.map((r, i) => (

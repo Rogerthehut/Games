@@ -193,6 +193,12 @@ const HAND_DRAWN: ColourArt[] = [
 ];
 /** The hand-drawn pictures, then the ones traced from line art. */
 export const COLOUR_ART: ColourArt[] = [...HAND_DRAWN, ...COLOUR_ART_TRACED];
+/** Black or white, whichever reads better on this colour (WCAG relative luminance), so a number on a dark colour is white. */
+export function readableOn(hex: string): "#121522" | "#ffffff" {
+  const v = hex.replace("#", ""), c = [0, 2, 4].map((i) => parseInt(v.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)));
+  const lum = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2], onDark = (1.05) / (lum + 0.05), onLight = (lum + 0.05) / 0.05;
+  return onLight > onDark ? "#121522" : "#ffffff";
+}
 /** Pictures by how many colours they use, so the youngest get the simple ones. */
 export const artFor = (stage: "nursery" | "reception" | "older"): ColourArt[] => COLOUR_ART.filter((a) => Object.keys(a.palette).length <= (stage === "nursery" ? 4 : stage === "reception" ? 6 : 7));
 export const artNumbers = (a: ColourArt) => [...new Set(a.regions.map((r) => r.n))].sort((x, y) => x - y);
