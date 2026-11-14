@@ -3787,3 +3787,10 @@ button.little-wait { cursor: pointer; animation: little-bob 1.6s ease-in-out inf
 .little-notes { margin-top: 22px; padding: 14px 18px; border: 2px solid var(--line); border-radius: 18px; background: var(--surface); }
 .little-notes summary { cursor: pointer; font-weight: 750; min-height: 44px; display: flex; align-items: center; }
 .little-note { padding-top: 10px; border-top: 1px solid var(--line); margin-top: 10px; } .little-note h3 { margin: 0 0 6px; } .little-note p { margin: 0 0 8px; }
+
+/* colour by number: real pictures made of numbered shapes */
+.little-art { width: min(92vw, 52dvh, 480px); aspect-ratio: 1; background: #fff; border-radius: 26px; border: 3px solid #fff; box-shadow: 0 12px 30px -16px #18192b88; touch-action: manipulation; }
+.art-region { cursor: pointer; transition: fill .3s; -webkit-tap-highlight-color: transparent; transform-box: fill-box; transform-origin: center; }
+.art-region.filled { cursor: default; animation: little-pop .4s var(--ease-spring, ease); } .art-region.shake { animation: little-wobble .4s ease; }
+.art-num { font: 800 5px/1 var(--font-body, system-ui); fill: #4a4760; text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke: #fff; stroke-width: 1.3px; }
+.little-swatch.hint { animation: little-pop .5s var(--ease-spring, ease) 2; outline: 4px solid #f782a9; outline-offset: 3px; }

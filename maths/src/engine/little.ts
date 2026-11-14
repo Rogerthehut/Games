@@ -132,36 +132,16 @@ export function advance(points: Pt[], next: number, finger: Pt, reach = 15): num
 }
 
 // ---- shape sorter
-export type ShapeKind = "circle" | "square" | "triangle" | "star";
-export const SHAPES: ShapeKind[] = ["circle", "square", "triangle", "star"];
-export function shapeRound(r: () => number, count: number): ShapeKind[] {
-  const pool = [...SHAPES]; for (let i = pool.length - 1; i > 0; i--) { const j = int(r, 0, i); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+export type ShapeKind = "circle" | "square" | "triangle" | "star" | "rectangle" | "oval" | "diamond" | "heart" | "pentagon" | "hexagon" | "octagon" | "semicircle" | "crescent" | "cross" | "trapezium";
+export const BASIC_SHAPES: ShapeKind[] = ["circle", "square", "triangle", "star"];
+export const MORE_SHAPES: ShapeKind[] = ["rectangle", "oval", "diamond", "heart"];
+export const COMPLEX_SHAPES: ShapeKind[] = ["pentagon", "hexagon", "octagon", "semicircle", "crescent", "cross", "trapezium"];
+export const SHAPES: ShapeKind[] = [...BASIC_SHAPES, ...MORE_SHAPES, ...COMPLEX_SHAPES];
+export type LittleStage = "nursery" | "reception" | "older";
+/** Shapes by stage: Nursery the four first shapes; Reception adds four more; Year 1 and up add the harder ones (a pentagon, a crescent, a cross...). */
+export const shapesFor = (stage: LittleStage): ShapeKind[] => (stage === "nursery" ? BASIC_SHAPES : stage === "reception" ? [...BASIC_SHAPES, ...MORE_SHAPES] : SHAPES);
+export const shapeCount = (stage: LittleStage) => (stage === "nursery" ? 2 : stage === "reception" ? 4 : 6);
+export function shapeRound(r: () => number, count: number, from: ShapeKind[] = BASIC_SHAPES): ShapeKind[] {
+  const pool = [...from]; for (let i = pool.length - 1; i > 0; i--) { const j = int(r, 0, i); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   return pool.slice(0, count);
 }
-
-// ---- colour by number: a small picture where every cell has a number, and each number has a colour
-export interface ColourPicture { name: string; size: number; cells: number[]; palette: Record<number, string> }
-export const COLOUR_PICTURES: ColourPicture[] = [
-  { name: "a house", size: 6, palette: { 1: "#ef6f6c", 2: "#f5dc63", 3: "#6ab7e8", 4: "#4cc6a7" }, cells: [
-    0, 0, 1, 1, 0, 0,
-    0, 1, 1, 1, 1, 0,
-    1, 1, 1, 1, 1, 1,
-    2, 2, 2, 2, 2, 2,
-    2, 3, 2, 2, 3, 2,
-    2, 2, 4, 4, 2, 2] },
-  { name: "a fish", size: 6, palette: { 1: "#f782a9", 2: "#f5dc63", 3: "#8294e9" }, cells: [
-    0, 0, 0, 0, 0, 0,
-    1, 0, 2, 2, 2, 0,
-    1, 1, 2, 3, 2, 2,
-    1, 1, 2, 2, 2, 2,
-    1, 0, 2, 2, 2, 0,
-    0, 0, 0, 0, 0, 0] },
-  { name: "a flower", size: 6, palette: { 1: "#f782a9", 2: "#f5dc63", 3: "#4cc6a7" }, cells: [
-    0, 1, 0, 0, 1, 0,
-    1, 1, 1, 1, 1, 1,
-    0, 1, 2, 2, 1, 0,
-    1, 1, 2, 2, 1, 1,
-    0, 0, 3, 3, 0, 0,
-    0, 3, 3, 3, 3, 0] },
-];
-export const coloursNeeded = (p: ColourPicture) => [...new Set(p.cells.filter((c) => c > 0))].sort((a, b) => a - b);

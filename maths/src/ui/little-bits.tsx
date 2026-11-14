@@ -49,7 +49,7 @@ export function CritterArt({ kind }: { kind: Critter }) {
   );
 }
 
-export const SHAPE_NAME: Record<ShapeKind, string> = { circle: "circle", square: "square", triangle: "triangle", star: "star" };
+export const SHAPE_NAME: Record<ShapeKind, string> = { circle: "circle", square: "square", triangle: "triangle", star: "star", rectangle: "rectangle", oval: "oval", diamond: "diamond", heart: "heart", pentagon: "pentagon", hexagon: "hexagon", octagon: "octagon", semicircle: "semicircle", crescent: "crescent moon", cross: "cross", trapezium: "trapezium" };
 export function ShapeArt({ kind, colour, outline }: { kind: ShapeKind; colour: string; outline?: boolean }) {
   const p = outline ? { fill: "#00000010", stroke: "#8a87a0", "stroke-width": 3, "stroke-dasharray": "5 5" } : { fill: colour, stroke: "#121522", "stroke-width": 2.5 };
   return (
@@ -58,6 +58,17 @@ export function ShapeArt({ kind, colour, outline }: { kind: ShapeKind; colour: s
       {kind === "square" && <rect x="8" y="8" width="44" height="44" rx="4" {...p} />}
       {kind === "triangle" && <path d="M30 6L55 52H5z" {...p} />}
       {kind === "star" && <path d="M30 4l8 17 18 2-14 13 4 18-16-10-16 10 4-18L4 23l18-2z" {...p} />}
+      {kind === "rectangle" && <rect x="4" y="14" width="52" height="32" rx="3" {...p} />}
+      {kind === "oval" && <ellipse cx="30" cy="30" rx="26" ry="16" {...p} />}
+      {kind === "diamond" && <path d="M30 4L54 30L30 56L6 30z" {...p} />}
+      {kind === "heart" && <path d="M30 54C8 38 2 24 12 14C20 7 28 10 30 18C32 10 40 7 48 14C58 24 52 38 30 54z" {...p} />}
+      {kind === "pentagon" && <path d="M30 5L55 23L46 53H14L5 23z" {...p} />}
+      {kind === "hexagon" && <path d="M16 8H44L57 30L44 52H16L3 30z" {...p} />}
+      {kind === "octagon" && <path d="M20 4H40L56 20V40L40 56H20L4 40V20z" {...p} />}
+      {kind === "semicircle" && <path d="M5 42A25 25 0 0 1 55 42z" {...p} />}
+      {kind === "crescent" && <path d="M40 6A26 26 0 1 0 40 54A20 20 0 1 1 40 6z" {...p} />}
+      {kind === "cross" && <path d="M22 4H38V22H56V38H38V56H22V38H4V22H22z" {...p} />}
+      {kind === "trapezium" && <path d="M16 12H44L56 48H4z" {...p} />}
     </svg>
   );
 }

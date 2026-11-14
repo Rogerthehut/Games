@@ -1,11 +1,12 @@
-import { useMemo, useRef, useState } from "preact/hooks";
-import { advance, COLOUR_PICTURES, coloursNeeded, countRound, DIGIT_PATHS, shapeRound, sumRound, waypoints, type ColourPicture, type Pt, type ShapeKind } from "../engine/little";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { advance, countRound, DIGIT_PATHS, shapeCount, shapeRound, shapesFor, type LittleStage, sumRound, waypoints, type Pt, type ShapeKind } from "../engine/little";
 import { mulberry32 } from "../engine/rng";
+import { artFor, artNumbers } from "../engine/little-art";
 import { Icon } from "./icons";
 import { blip, Burst, buzz, CritterArt, say, ShapeArt, SHAPE_NAME, type Critter } from "./little-bits";
 
 /** The five activities. Every touch answers back (a pop, a wobble, a sound, a voice); nothing is marked wrong. Each calls onDone() when a round is finished. */
-interface GameProps { max: number; onDone: () => void }
+interface GameProps { max: number; stage?: LittleStage; onDone: () => void }
 const seed = () => mulberry32((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0);
 const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const SPOTS = [[18, 22], [50, 14], [82, 24], [30, 52], [66, 50], [14, 78], [48, 80], [84, 76], [38, 34], [72, 30]] as const;
@@ -102,10 +103,13 @@ export function AddGame({ max, onDone }: GameProps) {
   );
 }
 
-const SHAPE_COLOURS: Record<ShapeKind, string> = { circle: "#f782a9", square: "#8294e9", triangle: "#f5dc63", star: "#4cc6a7" };
-export function ShapesGame({ max, onDone }: GameProps) {
-  const count = max <= 5 ? 2 : 4;
-  const [round, setRound] = useState(() => { const r = seed(), s = shapeRound(r, count); return { shapes: s, holes: [...s].sort(() => r() - 0.5) }; });
+const SHAPE_COLOURS: Record<ShapeKind, string> = {
+  circle: "#f782a9", square: "#8294e9", triangle: "#f5dc63", star: "#4cc6a7", rectangle: "#f08a3c", oval: "#b58be8", diamond: "#6ab7e8", heart: "#ef6f6c",
+  pentagon: "#7fd36a", hexagon: "#f9a8d0", octagon: "#e8c15a", semicircle: "#5fc3c8", crescent: "#f5dc63", cross: "#f782a9", trapezium: "#8294e9",
+};
+export function ShapesGame({ max, stage = max <= 5 ? "nursery" : "reception", onDone }: GameProps) {
+  const count = shapeCount(stage), pool = shapesFor(stage);
+  const [round, setRound] = useState(() => { const r = seed(), s = shapeRound(r, count, pool); return { shapes: s, holes: [...s].sort(() => r() - 0.5) }; });
   const [placed, setPlaced] = useState<ShapeKind[]>([]);
   const [drag, setDrag] = useState<{ kind: ShapeKind; x: number; y: number; ox: number; oy: number } | null>(null);
   const [bounce, setBounce] = useState<ShapeKind | null>(null);
@@ -121,7 +125,7 @@ export function ShapesGame({ max, onDone }: GameProps) {
     } else { setBounce(drag.kind); blip(0, "oops"); setTimeout(() => setBounce(null), 500); }
     setDrag(null);
   };
-  const again = () => { const r = seed(), s = shapeRound(r, count); setRound({ shapes: s, holes: [...s].sort(() => r() - 0.5) }); setPlaced([]); };
+  const again = () => { const r = seed(), s = shapeRound(r, count, pool); setRound({ shapes: s, holes: [...s].sort(() => r() - 0.5) }); setPlaced([]); };
   return (
     <div class="little-play" data-testid="little-shapes">
       <p class="little-prompt">{done ? "All in!" : "Drag each shape to its hole"}</p>
@@ -141,31 +145,44 @@ export function ShapesGame({ max, onDone }: GameProps) {
   );
 }
 
-export function ColourGame({ onDone }: GameProps) {
-  const [picNo, setPicNo] = useState(() => Math.floor(Math.random() * COLOUR_PICTURES.length));
-  const pic: ColourPicture = COLOUR_PICTURES[picNo % COLOUR_PICTURES.length], need = coloursNeeded(pic);
+export function ColourGame({ max, stage = max <= 5 ? "nursery" : "reception", onDone }: GameProps) {
+  const pool = artFor(stage);
+  const [no, setNo] = useState(() => Math.floor(Math.random() * pool.length));
+  const art = pool[no % pool.length], need = artNumbers(art);
   const [chosen, setChosen] = useState(need[0]);
   const [filled, setFilled] = useState<Record<number, true>>({});
   const [shake, setShake] = useState<number | null>(null);
-  const total = pic.cells.filter((c) => c > 0).length, done = Object.keys(filled).length === total;
+  const [hint, setHint] = useState<number | null>(null);
+  const [spots, setSpots] = useState<[number, number, number][]>([]);
+  const svg = useRef<SVGSVGElement>(null);
+  const total = art.regions.length, count = Object.keys(filled).length, done = count === total;
+  // number labels sit in the middle of each shape (or where the picture says), found once the picture is on the screen
+  useEffect(() => {
+    const els = svg.current?.querySelectorAll<SVGPathElement>("path[data-r]"); if (!els) return;
+    setSpots(Array.from(els).map((el, i) => { const at = art.regions[i].at, b = el.getBBox(), size = Math.max(3.4, Math.min(8, Math.min(b.width, b.height) * 0.6)); return (at ? [at[0], at[1], size] : [b.x + b.width / 2, b.y + b.height / 2, size]) as [number, number, number]; }));
+  }, [art.id]);
   const tap = (i: number) => {
-    const n = pic.cells[i]; if (!n || filled[i]) return;
-    if (n === chosen) {
+    const r = art.regions[i]; if (filled[i]) return;
+    if (r.n === chosen) {
       const f = { ...filled, [i]: true as const }; setFilled(f); blip(Object.keys(f).length % 8); buzz();
-      if (Object.keys(f).length === total) { setTimeout(() => { blip(0, "win"); say(`You made ${pic.name}!`); }, 500); onDone(); }
-    } else { setShake(i); blip(0, "oops"); setTimeout(() => setShake(null), 450); }
+      if (Object.keys(f).length === total) { setTimeout(() => { blip(0, "win"); say(`You made ${art.name}!`); }, 500); onDone(); }
+    } else { setShake(i); setHint(r.n); blip(0, "oops"); setTimeout(() => { setShake(null); setHint(null); }, 900); }
   };
-  const again = () => { const n = picNo + 1; setPicNo(n); setFilled({}); setChosen(coloursNeeded(COLOUR_PICTURES[n % COLOUR_PICTURES.length])[0]); };
+  const again = () => { const n = no + 1; setNo(n); setFilled({}); setChosen(artNumbers(pool[n % pool.length])[0]); };
   return (
     <div class="little-play" data-testid="little-colour">
-      <p class="little-prompt">{done ? `${pic.name[0].toUpperCase()}${pic.name.slice(1)}!` : "Pick a colour, then tap its number"}</p>
+      <p class="little-prompt">{done ? `${art.name[0].toUpperCase()}${art.name.slice(1)}!` : "Pick a colour, then tap its number"}</p>
       <div class="little-palette" role="group" aria-label="Colours">
-        {need.map((n) => <button key={n} type="button" class={`little-swatch${chosen === n ? " on" : ""}`} style={{ background: pic.palette[n] }} onClick={() => { setChosen(n); blip(n); say(WORDS[n]); }} aria-pressed={chosen === n} aria-label={`colour ${n}`} data-testid={`swatch-${n}`}>{n}</button>)}
+        {need.map((n) => <button key={n} type="button" class={`little-swatch${chosen === n ? " on" : ""}${hint === n ? " hint" : ""}`} style={{ background: art.palette[n] }} onClick={() => { setChosen(n); blip(n); say(WORDS[n] ?? String(n)); }} aria-pressed={chosen === n} aria-label={`colour ${n}`} data-testid={`swatch-${n}`}>{n}</button>)}
       </div>
-      <div class="little-picture" style={{ gridTemplateColumns: `repeat(${pic.size}, 1fr)` }}>
-        {pic.cells.map((n, i) => n === 0 ? <span key={i} class="little-cell empty" /> :
-          <button key={i} type="button" class={`little-cell${filled[i] ? " filled" : ""}${shake === i ? " shake" : ""}`} style={filled[i] ? { background: pic.palette[n] } : undefined} onClick={() => tap(i)} aria-label={filled[i] ? "coloured in" : `number ${n}`} data-testid={`cell-${i}`}>{filled[i] ? "" : n}</button>)}
-      </div>
+      <svg ref={svg} class="little-art" viewBox="0 0 100 100" role="group" aria-label={`Colour by number: ${art.name}`}>
+        {art.regions.map((r, i) => (
+          <path key={`${art.id}${i}`} d={r.d} data-r={i} data-n={r.n} data-testid={`region-${i}`} class={`art-region${filled[i] ? " filled" : ""}${shake === i ? " shake" : ""}`}
+            fill={filled[i] ? art.palette[r.n] : "#fff"} stroke="#121522" stroke-width="0.9" stroke-linejoin="round" onPointerDown={(e) => { e.preventDefault(); tap(i); }} />
+        ))}
+        {art.decor.map((d, i) => <path key={`d${i}`} d={d.d} fill={d.fill ?? "none"} stroke={d.stroke ?? "none"} stroke-width={d.w ?? 1} stroke-linecap="round" stroke-linejoin="round" pointer-events="none" />)}
+        {spots.map(([x, y, size], i) => !filled[i] && art.regions[i] ? <text key={`n${i}`} x={x} y={y} class="art-num" style={{ fontSize: `${size}px` }} pointer-events="none">{art.regions[i].n}</text> : null)}
+      </svg>
       {done && <><Burst />{AGAIN(again)}</>}
     </div>
   );

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { advance, countRound, COLOUR_PICTURES, coloursNeeded, DIGIT_PATHS, shapeRound, sumRound, waypoints } from "./little";
+import { advance, shapeCount, shapesFor, countRound, DIGIT_PATHS, shapeRound, sumRound, waypoints } from "./little";
 import { mulberry32 } from "./rng";
+import { artFor, artNumbers, COLOUR_ART } from "./little-art";
 
 describe("little ones activities", () => {
   it("counting and sums stay within the range for the stage", () => {
@@ -31,7 +32,15 @@ describe("little ones activities", () => {
   });
   it("shape rounds have no repeats, and each picture uses only coloured numbers from its palette", () => {
     const r = mulberry32(3); for (let n = 2; n <= 4; n++) { const s = shapeRound(r, n); expect(new Set(s).size).toBe(n); }
-    for (const p of COLOUR_PICTURES) { expect(p.cells.length).toBe(p.size * p.size); for (const c of coloursNeeded(p)) expect(p.palette[c]).toBeTruthy(); }
+    for (const stage of ["nursery", "reception", "older"] as const) { const pool = shapesFor(stage); expect(pool.length).toBeGreaterThanOrEqual(shapeCount(stage)); const s = shapeRound(r, shapeCount(stage), pool); expect(new Set(s).size).toBe(shapeCount(stage)); s.forEach((k) => expect(pool).toContain(k)); }
+    expect(shapesFor("older").length).toBe(15);
+    for (const stage of ["nursery", "reception", "older"] as const) expect(artFor(stage).length).toBeGreaterThanOrEqual(2);
+    for (const a of COLOUR_ART) {
+      expect(artNumbers(a).length).toBeGreaterThanOrEqual(2);
+      for (const r of a.regions) { expect(a.palette[r.n]).toBeTruthy(); expect(r.d).not.toMatch(/NaN|undefined/); expect(r.d.length).toBeGreaterThan(8); }
+      for (const d of a.decor) expect(d.d).not.toMatch(/NaN|undefined/);
+      for (const n of Object.keys(a.palette)) expect(artNumbers(a)).toContain(+n);     // no colour in the palette that the picture never uses
+    }
   });
 });
 

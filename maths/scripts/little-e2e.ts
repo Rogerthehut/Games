@@ -35,7 +35,7 @@ for (const [label, w, h, touch] of [["phone", 390, 800, true], ["tablet", 834, 1
   await p.getByTestId("little-back").click(); await p.waitForTimeout(400);
   // shapes
   await p.getByTestId("little-open-shapes").click(); await p.waitForTimeout(500);
-  for (let g = 0; g < 4; g++) {
+  for (let g = 0; g < 8; g++) {
     const shape = p.locator("[data-testid^=shape-]").first(); if (!(await shape.count())) break;
     const kind = (await shape.getAttribute("data-testid"))!.replace("shape-", "");
     const sb = (await shape.boundingBox())!, hb = (await p.getByTestId(`hole-${kind}`).boundingBox())!;
@@ -45,8 +45,8 @@ for (const [label, w, h, touch] of [["phone", 390, 800, true], ["tablet", 834, 1
   await p.getByTestId("little-back").click(); await p.waitForTimeout(400);
   // colour by number
   await p.getByTestId("little-open-colour").click(); await p.waitForTimeout(500);
-  const cells = await p.evaluate(() => [...document.querySelectorAll("[data-testid^=cell-]")].map((c) => ({ id: c.getAttribute("data-testid")!, n: Number((c as HTMLElement).innerText) })));
-  for (const n of [...new Set(cells.map((c) => c.n))]) { await p.getByTestId(`swatch-${n}`).click(); for (const c of cells.filter((x) => x.n === n)) await p.getByTestId(c.id).click(); }
+  const cells = await p.evaluate(() => [...document.querySelectorAll("[data-testid^=region-]")].map((c) => ({ id: c.getAttribute("data-testid")!, n: Number(c.getAttribute("data-n")) })));
+  for (const n of [...new Set(cells.map((c) => c.n))]) { await p.getByTestId(`swatch-${n}`).click(); for (const c of cells.filter((x) => x.n === n)) await p.getByTestId(c.id).dispatchEvent("pointerdown"); }
   await p.waitForTimeout(400);
   ok(`${label}: colouring every number finishes the picture`, await p.getByTestId("little-again").isVisible());
   if (label === "phone") await p.screenshot({ path: `${tmpdir()}/little-colour.png` });

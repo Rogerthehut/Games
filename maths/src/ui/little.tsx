@@ -23,7 +23,7 @@ export function LittleHub({ activity }: { activity?: LittleActivity }) {
           <h1 id="little-h">{meta.title}</h1>
           <button type="button" class="little-round" onClick={toggle} aria-pressed={soundOn} aria-label={soundOn ? "Sound on. Tap to turn off." : "Sound off. Tap to turn on."}><Icon name={soundOn ? "speaker" : "mute"} size={28} /></button>
         </header>
-        <G max={max} onDone={done} />
+        <G max={max} stage={profile.early ?? "older"} onDone={done} />
       </main>
     );
   }

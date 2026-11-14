@@ -9,6 +9,10 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Real colour by number, and more shapes
+- **Colour by number is now proper pictures:** a butterfly and a fish for the youngest, then a rocket, a unicorn, a fairy, a horse and a footballer. Each is line art split into numbered shapes; pick a colour and tap a shape to fill it. Tapping a shape with the wrong colour wobbles it and flashes the colour that goes there. Nursery gets the two simplest pictures (four colours), Reception up to six colours, and Year 1 and up all of them. More pictures can be added as data in `src/engine/little-art.ts`.
+- **Shape sorter has harder shapes:** Nursery has circle, square, triangle and star; Reception adds rectangle, oval, diamond and heart; Year 1 and 2 add pentagon, hexagon, octagon, semicircle, crescent moon, cross and trapezium, with up to six at once.
+
 ## Rounder numbers, and new portraits for the youngest
 - **Trace the number:** the digits are now drawn as real curves (the 0, 3, 5, 6, 8 and 9 flow instead of having corners), and the finger follows the curve.
 - **40 new portraits** (Explorer, Scholar, Artist and Skater, ten each) for Nursery, Reception, Year 1 and Year 2, offered first in the picker alongside the usual set. Older learners don't see them.
