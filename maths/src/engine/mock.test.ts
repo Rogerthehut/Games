@@ -75,7 +75,9 @@ describe("reasoning and combined papers", () => {
   });
 
   it("papers fit their time: about a minute or less a question", () => {
-    for (const f of Object.values(PAPERS)) expect(f.seconds / f.total).toBeLessThanOrEqual(75);
+    for (const f of Object.values(PAPERS).filter((x) => (x.stage ?? "KS2") === "KS2")) expect(f.seconds / f.total).toBeLessThanOrEqual(75);
+    for (const f of Object.values(PAPERS).filter((x) => x.stage === "KS4")) expect(f.seconds / f.total).toBeLessThanOrEqual(190);    // GCSE questions are worth several marks: about three minutes each
+    for (const f of Object.values(PAPERS).filter((x) => x.stage === "KS5")) expect(f.seconds / f.total).toBeLessThanOrEqual(400);   // A-level: about six minutes each
   });
 });
 
@@ -131,5 +133,39 @@ describe("papers timed like real tests", () => {
     const ripon = buildMock(mulberry32(3), "ripon");
     expect(ripon.slice(0, 40).every((i) => i.section === "Non-verbal reasoning")).toBe(true);
     expect(ripon.slice(40).every((i) => i.section === "Maths")).toBe(true);
+  });
+});
+
+import { papersForStage, stageOfPaper } from "./mock";
+import { hasPapers, papersName, papersStage } from "./age";
+describe("GCSE and A-level papers", () => {
+  it("each stage has a quick paper and a timed one", () => {
+    expect(papersForStage("KS4")).toEqual(["gcse-quick", "gcse-paper"]); expect(papersForStage("KS5")).toEqual(["alevel-quick", "alevel-paper"]);
+    expect(papersForStage("KS2")).toEqual(expect.arrayContaining(["maths", "reasoning", "quest-maths"]));
+    expect(PAPERS["gcse-paper"]).toMatchObject({ total: 30, seconds: 90 * 60, group: "test" }); expect(PAPERS["alevel-paper"]).toMatchObject({ total: 20, seconds: 120 * 60, group: "test" });
+    expect(PAPERS["alevel-quick"].parts.map(([s]) => s)).toEqual(["Pure maths", "Statistics", "Mechanics"]);
+  });
+  it("papers use only that stage's written-answer skills, with at most two questions per skill, and a different mix each time", () => {
+    for (const kind of ["gcse-quick", "gcse-paper", "alevel-quick", "alevel-paper"] as PaperKind[]) {
+      const stage = stageOfPaper(kind), mixes = new Set<string>();
+      for (let s = 1; s <= 40; s++) {
+        const items = buildMock(mulberry32(s * 977), kind), counts: Record<string, number> = {};
+        expect(items.length).toBe(PAPERS[kind].total);
+        for (const it of items) { const sk = SKILL_BY_ID[it.skillId]; expect(sk.stage).toBe(stage); expect(sk.interactive).toBeFalsy(); expect(sk.generate(mulberry32(7), it.level).answer.kind).not.toBe("choice"); counts[it.skillId] = (counts[it.skillId] ?? 0) + 1; }
+        for (const c of Object.values(counts)) expect(c).toBeLessThanOrEqual(2);
+        mixes.add(items.map((i) => i.skillId).join(","));
+      }
+      expect(mixes.size).toBeGreaterThan(30);
+    }
+  });
+  it("A-level papers follow their parts: pure, statistics, mechanics", () => {
+    const items = buildMock(mulberry32(5), "alevel-paper"), by = (sec: string) => items.filter((i) => i.section === sec).length;
+    expect([by("Pure maths"), by("Statistics"), by("Mechanics")]).toEqual([14, 3, 3]);
+    for (const it of items) expect(sectionOf(it.skillId)).toBe(it.section);
+  });
+  it("who is offered which papers", () => {
+    expect([5, 6].map((y) => papersStage({ year: y }))).toEqual(["KS2", "KS2"]); expect([10, 11].map((y) => papersStage({ year: y }))).toEqual(["KS4", "KS4"]); expect([12, 13].map((y) => papersStage({ year: y }))).toEqual(["KS5", "KS5"]);
+    for (const y of [3, 4, 7, 8, 9]) expect(hasPapers({ year: y })).toBe(false);
+    expect(hasPapers({ year: 1, early: "reception" })).toBe(false); expect(papersName({ year: 11 })).toBe("GCSE practice papers");
   });
 });

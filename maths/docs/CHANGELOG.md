@@ -12,6 +12,14 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## The Voice list follows Female or Male
 The Voice list now shows only voices that suit the chosen Female or Male setting (judged from the voice's name, since browsers don't say), instead of all of them. A voice whose name doesn't say stays in both lists, so nothing is hidden by a wrong guess.
 
+## Practice and mock papers for 11+, GCSE and A-level
+- **11+ papers for Years 5 and 6:** Today now has an "11+ practice papers" row for Years 5 and 6 (the maths, reasoning and school-style timed papers), instead of reaching them only through a plan week. The 11+ papers are no longer offered to other years.
+- **GCSE papers for Years 10 and 11:** *GCSE practice* (15 questions, 35 minutes) and a *GCSE-style paper* (30 questions, 90 minutes, as long as a real paper), made from the GCSE topics in proportion to how many each area has, written answers only, no repeats of a topic more than twice, and a different mix each time.
+- **A-level papers for Years 12 and 13:** *A-level practice* (13 questions, 40 minutes) and an *A-level-style paper* (20 questions, 2 hours), split into pure maths, statistics and mechanics like the real ones, with a result by part.
+- The papers are quarter's own questions, not past papers; the page says so, and that real papers have multi-mark questions and vary by tier and exam board. They can be printed with an answer sheet and mark scheme like the 11+ ones (the print page shows only the learner's own stage). Years 3, 4 and 7 to 9 have no papers yet (KS3 papers are the obvious next step).
+- **Fix:** typing a paper number on the print page used the previous value when the box lost focus; it now uses what was typed.
+- Tests: `scripts/papers-e2e.ts` (each year group sees the right papers and can start one; GCSE printing) and unit tests for the paper builder.
+
 ## Age rules: what each age is offered
 `src/engine/age.ts` decides what suits each age. **Nursery** has Little ones only: no practice, Skills page (shows only Little ones), check-up, plan, tests, times tables or STEM lab, no Plan tab, and Me shows games finished instead of topic counts and no "Next up". **Reception, Year 1 and Year 2** keep practice and skills alongside Little ones but have no check-up, plan, mock or practice papers, stage tests or certificates (those start at Year 3 content), and no Plan tab. **Year 3 and up** have everything, as before. Search doesn't point to anything a learner isn't offered, and an old link or saved screen for something not offered goes to Today. In the iPhone app the tab bar drops Plan for the youngest (needs a new app build). Tested at `scripts/age-e2e.ts` for Nursery, Reception, Year 2 and Year 6 on phone and desktop.
 

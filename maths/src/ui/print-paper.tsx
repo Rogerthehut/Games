@@ -1,6 +1,7 @@
 import { printPage } from "../native/bridge";
 import { useEffect, useMemo, useState } from "preact/hooks";
-import { PAPERS, type PaperKind } from "../engine/mock";
+import { PAPERS, stageOfPaper, type PaperKind } from "../engine/mock";
+import { papersStage } from "../engine/age";
 import { PRINTABLE, buildPrintPaper, clampNumber, fieldsOf, randomPaperNumber, unitOf } from "../engine/print-paper";
 import { useApp } from "./context";
 import { FigureView } from "./figure";
@@ -14,8 +15,10 @@ type What = "paper" | "answers";
  * with the steps. The paper number identifies the paper, so the same number always makes the same one.
  */
 export function PrintPaper({ kind: first, number: firstNumber }: { kind: PaperKind; number?: number }) {
-  const { go, leave } = useApp();
-  const [kind, setKind] = useState<PaperKind>(PRINTABLE.includes(first) ? first : "maths");
+  const { go, leave, profile } = useApp();
+  // the papers for the learner's own stage (11+ style, GCSE or A-level)
+  const mine = PRINTABLE.filter((k) => stageOfPaper(k) === (papersStage(profile) ?? "KS2"));
+  const [kind, setKind] = useState<PaperKind>(mine.includes(first) ? first : mine[0] ?? "maths");
   const [number, setNumber] = useState(() => clampNumber(firstNumber ?? randomPaperNumber()));
   const [typed, setTyped] = useState(String(number));
   const [printing, setPrinting] = useState<What | null>(null);
@@ -48,7 +51,7 @@ export function PrintPaper({ kind: first, number: firstNumber }: { kind: PaperKi
         <p class="small muted">Choose a paper, then print it, or save it as a PDF from the print window. Print the answers and mark scheme separately, so they can be kept for the marker. The same paper number always makes the same paper.</p>
         <fieldset class="options paper-choice">
           <legend class="field-label">Which paper</legend>
-          {PRINTABLE.map((k) => (
+          {mine.map((k) => (
             <label key={k} class={`option ${kind === k ? "on" : ""}`}>
               <input type="radio" name="pp-kind" checked={kind === k} onChange={() => setKind(k)} data-testid={`pp-kind-${k}`} />
               <span><strong>{PAPERS[k].title}</strong><br /><span class="small muted">{PAPERS[k].blurb}</span></span>
@@ -56,7 +59,7 @@ export function PrintPaper({ kind: first, number: firstNumber }: { kind: PaperKi
           ))}
         </fieldset>
         <div class="pp-number">
-          <label>Paper number <input type="number" min="1" max="9999" inputMode="numeric" value={typed} onInput={(e) => setTyped((e.target as HTMLInputElement).value)} onChange={() => pick(Number(typed))} data-testid="pp-number" /></label>
+          <label>Paper number <input type="number" min="1" max="9999" inputMode="numeric" value={typed} onInput={(e) => setTyped((e.target as HTMLInputElement).value)} onChange={(e) => pick(Number((e.target as HTMLInputElement).value))} data-testid="pp-number" /></label>
           <button type="button" class="btn" onClick={() => pick(randomPaperNumber())} data-testid="pp-new">A different paper</button>
         </div>
         <div class="pp-actions">

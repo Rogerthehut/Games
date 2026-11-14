@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { SKILL_BY_ID } from "../curriculum";
 import type { AnsweredQuestion } from "../engine/activity";
 import { check } from "../engine/check";
-import { PAPERS, buildMock, type MockItem, type PaperKind } from "../engine/mock";
+import { PAPERS, buildMock, papersForStage, type MockItem, type PaperKind } from "../engine/mock";
+import { papersStage } from "../engine/age";
 import { awardPathwayCertificate, buildPathwayTest, canTakePathwayTest, pathwayPassMark, pathwayTestName } from "../engine/pathway";
 import { addPoints, recordAnswer, recordMistake, type MockRecord } from "../engine/progress";
 import { fixPlan, recordWrongOnce, wrongLogOf } from "../engine/wrong-log";
@@ -26,7 +27,9 @@ const clock = (s: number) => `${Math.floor(Math.abs(s) / 60)}:${String(Math.abs(
 export function Mock({ pathway }: { pathway?: Stage }) {
   const { profile, update, go, leave } = useApp();
   const [saved] = useState(() => pathway ? profile.pathwayDrafts?.[pathway] : undefined);
-  const [kind, setKind] = useState<PaperKind>(profile.plan?.reasoning ? "both" : "maths");
+  const paperStage = pathway ? "KS2" : papersStage(profile) ?? "KS2";     // 11+ style for Years 5 and 6, GCSE style for 10 and 11, A-level style for 12 and 13
+  const kinds = papersForStage(paperStage);
+  const [kind, setKind] = useState<PaperKind>(paperStage === "KS2" ? (profile.plan?.reasoning ? "both" : "maths") : kinds[0]);
   const format = PAPERS[kind];
   const { questions, sections } = useMemo(() => {
     if (saved) return { questions: saved.questions, sections: undefined as string[] | undefined };
@@ -165,7 +168,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
           {(["quick", "test"] as const).map((group) => (
             <fieldset key={group} class="options paper-choice">
               <legend class="field-label">{group === "quick" ? "Quick practice" : "Timed like a real test"}</legend>
-              {(Object.keys(PAPERS) as PaperKind[]).filter((k) => PAPERS[k].group === group).map((k) => (
+              {kinds.filter((k) => PAPERS[k].group === group).map((k) => (
                 <label key={k} class={`option ${kind === k ? "on" : ""}`}>
                   <input type="radio" name="paper" checked={kind === k} onChange={() => setKind(k)} data-testid={`paper-${k}`} />
                   <span><strong>{PAPERS[k].title}</strong><br /><span class="small muted">{PAPERS[k].blurb}</span></span>
@@ -180,7 +183,9 @@ export function Mock({ pathway }: { pathway?: Stage }) {
             {format.parts.some(([part]) => part !== "Maths") && <li>Reasoning questions are multiple choice. Tap an answer (or press 1 to 5), then Next.</li>}
             <li>Then you'll see every miss, with the steps.</li>
           </ul>
-          <p class="small muted">Written in a general 11+ style. Real tests vary in length, order and which parts they include, so check your school's own guidance.</p>
+          <p class="small muted">{paperStage === "KS2" ? "Written in a general 11+ style. Real tests vary in length, order and which parts they include, so check your school's own guidance."
+            : paperStage === "KS4" ? "Written in the general style of GCSE maths papers, with quarter's own questions (they are not past papers). Real papers have multi-mark questions, calculator and non-calculator papers, and the tier and exam board change them, so check yours."
+            : "Written in the general style of A-level maths papers, with quarter's own questions (they are not past papers). Real papers have multi-mark questions, and the exam board and course change them, so check yours."}</p>
           <button class="btn primary big" onClick={start} data-testid="mock-start">Start <Icon name="arrow" size={20} /></button>
           {isPrintable(kind) && <button class="btn" onClick={() => go({ name: "print-paper", kind }, { name: "mock" })} data-testid="mock-print">Print this paper instead</button>}
           <button class="linkish" onClick={() => leave({ name: "plan" })}>Not now</button>
@@ -206,7 +211,7 @@ export function Mock({ pathway }: { pathway?: Stage }) {
               : `You need at least ${pathwayPassMark(total)} correct answers to earn your certificate. Look through the questions below, then try again when you’re ready.`}</p>
           ) : <>
             <p class="lede">{rec && rec.seconds >= rec.limitSeconds ? "Time’s up. Unanswered questions were left blank." : `Finished in ${clock(rec?.seconds ?? elapsed)} of ${clock(rec?.limitSeconds ?? format.seconds)}.`}{prev && <> Last paper: {prev.score} / {prev.total}.</>}</p>
-            <p class="small muted">An indicator for practice, not a prediction. Real 11+ pass marks vary by area and year, and this is not a standardised score.</p>
+            <p class="small muted">An indicator for practice, not a prediction. {paperStage === "KS2" ? "Real 11+ pass marks vary by area and year" : "Real grade boundaries change every year and with each board"}, and this is not a standardised score.</p>
           </>}
         </div>
         {rec && (

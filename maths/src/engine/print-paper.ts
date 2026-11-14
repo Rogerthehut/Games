@@ -8,7 +8,7 @@ import { mulberry32 } from "./rng";
  * sheet and its mark scheme always match, today or next month. Only papers with written answers can be printed (the reasoning
  * papers are multiple choice with drawn pictures and stay on screen).
  */
-export const PRINTABLE: PaperKind[] = (Object.keys(PAPERS) as PaperKind[]).filter((k) => PAPERS[k].parts.every(([part]) => part === "Maths"));
+export const PRINTABLE: PaperKind[] = (Object.keys(PAPERS) as PaperKind[]).filter((k) => PAPERS[k].parts.every(([part]) => part === "Maths" || part === "Pure maths" || part === "Statistics" || part === "Mechanics"));
 export const isPrintable = (k: string): k is PaperKind => (PRINTABLE as string[]).includes(k);
 
 export const MAX_PAPER_NUMBER = 9999;

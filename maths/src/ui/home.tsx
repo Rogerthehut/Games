@@ -128,9 +128,15 @@ export function Home() {
         </ul>
       )}
 
-      {week?.kind === "mock" && (
+      {hasPapers(profile) && week?.kind !== "mock" && (
         <ul class="rows">
-        <li><button class="row" onClick={() => go({ name: "mock" })} data-testid="start-mock"><Icon name="target" /><span>Take a practice paper<small>20 questions · 25 minutes</small></span><Icon name="chevron" size={18} /></button></li>
+          <li><button class="row" onClick={() => go({ name: "mock" })} data-testid="open-papers"><Icon name="target" /><span>{papersName(profile)}<small>{papersStage(profile) === "KS2" ? "Maths and reasoning, timed like the real thing" : "Quick practice or a full timed paper"}</small></span><Icon name="chevron" size={18} /></button></li>
+        </ul>
+      )}
+
+      {week?.kind === "mock" && hasPapers(profile) && (
+        <ul class="rows">
+        <li><button class="row" onClick={() => go({ name: "mock" })} data-testid="start-mock"><Icon name="target" /><span>Take a practice paper<small>{papersStage(profile) === "KS2" ? "20 questions · 25 minutes" : "Quick practice or a full timed paper"}</small></span><Icon name="chevron" size={18} /></button></li>
         </ul>
       )}
     </div>
@@ -140,7 +146,7 @@ export function Home() {
 
 import { ActivityArt, type ActivityKind } from "./activity-art";
 import { LittleCards } from "./little";
-import { hasAssessments } from "../engine/age";
+import { hasAssessments, hasPapers, papersName, papersStage } from "../engine/age";
 
 function ActivityCard({ kind, label, title, detail, compactDetail, action, testId, onClick }: {
   kind: ActivityKind; label: string; title: string; detail: string; compactDetail?: string; action: string; testId?: string; onClick: () => void;
