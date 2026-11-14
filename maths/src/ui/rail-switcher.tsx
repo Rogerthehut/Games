@@ -69,7 +69,8 @@ export function RailSwitcher({ tab, top, slim }: { tab: string; top?: boolean; s
         ))}
       {top ? (
         <button class="top-me" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} aria-label={`${profile.name}, switch learner, settings and Parents' area`} data-testid="top-me">
-          <Avatar choice={profile.avatar} year={profile.year} size={38} />
+          <span class="mobile-profile-label"><ProfileHi /><span class="mobile-profile-name">{profile.name}</span></span>
+          <Avatar choice={profile.avatar} year={profile.year} size={36} />
         </button>
       ) : (
       <button class="rail-me" aria-expanded={open} aria-haspopup="menu" aria-current={tab === "me" ? "page" : undefined} onClick={() => setOpen(!open)} aria-label={`${profile.name}, switch learner`} data-testid="rail-me">
