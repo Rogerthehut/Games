@@ -2,7 +2,7 @@
  * Colour by number pictures: real line art in 100 x 100 boxes, split into regions that each carry a number. Tap a region with its colour chosen to fill it.
  * `decor` is extra detail drawn over the top (eyes, outlines, sparkle) that isn't coloured in. Every number used by a picture has a colour in its palette.
  */
-export interface ArtRegion { d: string; n: number; /** where the number sits, when the middle of the shape isn't the best place */ at?: [number, number] }
+export interface ArtRegion { d: string; n: number; /** no outline of its own (the picture's traced line art draws it) */ plain?: boolean; /** where the number sits, when the middle of the shape isn't the best place */ at?: [number, number] }
 export interface ArtDecor { d: string; fill?: string; stroke?: string; w?: number }
 export interface ColourArt { id: string; name: string; regions: ArtRegion[]; decor: ArtDecor[]; palette: Record<number, string> }
 
@@ -16,7 +16,8 @@ const star = (cx: number, cy: number, r: number) => poly(...Array.from({ length:
 const mirror = (d: string) => d.replace(/([MLCQAa]?)\s*(-?\d*\.?\d+)[ ,](-?\d*\.?\d+)/g, (_m, c, x, y) => `${c}${f(100 - +x)} ${y} `);
 
 const SKY = "#bfe6f7";
-export const COLOUR_ART: ColourArt[] = [
+import { COLOUR_ART_TRACED } from "./little-art-traced";
+const HAND_DRAWN: ColourArt[] = [
   { id: "butterfly", name: "a butterfly", palette: { 1: "#f782a9", 2: "#f5dc63", 3: "#8294e9", 4: SKY },
     regions: [
       { d: rect(0, 0, 100, 100), n: 4, at: [10, 10] },
@@ -138,15 +139,6 @@ export const COLOUR_ART: ColourArt[] = [
       { d: poly([27, 52], [33, 52], [30, 58]), n: 1 }, { d: poly([51, 44], [57, 44], [54, 50]), n: 2 }, { d: poly([71, 56], [77, 56], [74, 62]), n: 3 },
     ],
     decor: [{ d: "M30 58Q24 76 40 96M54 50Q60 74 40 96M74 62Q68 80 40 96", stroke: "#121522", w: 0.9 }, { d: "M22 28Q24 22 30 20", stroke: "#ffffffaa", w: 1.6 }, { d: "M46 20Q48 14 54 12", stroke: "#ffffffaa", w: 1.6 }, { d: "M66 32Q68 26 74 24", stroke: "#ffffffaa", w: 1.6 }] },
-  { id: "dinosaur", name: "a dinosaur", palette: { 1: "#6cc46a", 2: "#f08a3c", 3: "#c6ecb0", 4: "#f5dc63", 5: "#7fd36a", 6: SKY },
-    regions: [
-      { d: rect(0, 0, 100, 68), n: 6, at: [40, 10] }, { d: rect(0, 68, 100, 32), n: 5, at: [10, 90] }, { d: circ(16, 16, 8), n: 4 },
-      { d: "M24 52C10 52 6 62 2 70C14 68 24 64 30 58z", n: 1 }, { d: rect(30, 62, 9, 18), n: 1 }, { d: rect(54, 62, 9, 18), n: 1 },
-      { d: poly([34, 38], [38, 26], [43, 37]), n: 2 }, { d: poly([44, 36], [49, 24], [54, 35]), n: 2 }, { d: poly([55, 37], [60, 27], [65, 40]), n: 2 },
-      { d: ell(46, 54, 26, 18), n: 1, at: [40, 50] }, { d: ell(46, 60, 18, 9), n: 3 },
-      { d: "M64 46C68 32 72 26 78 22L90 30C86 34 82 40 78 52z", n: 1 }, { d: ell(84, 27, 12, 9), n: 1, at: [86, 30] },
-    ],
-    decor: [{ d: circ(88, 23, 1.8), fill: "#121522" }, { d: "M86 32Q90 35 94 32", stroke: "#121522", w: 1 }, { d: "M30 80H39M54 80H63", stroke: "#121522", w: 1.3 }] },
   { id: "castle", name: "a castle", palette: { 1: "#c7c5d8", 2: "#e5524a", 3: "#a86a3c", 4: "#f5dc63", 5: "#7fd36a", 6: SKY },
     regions: [
       { d: rect(0, 0, 100, 100), n: 6, at: [8, 8] }, { d: rect(0, 82, 100, 18), n: 5, at: [10, 92] },
@@ -176,15 +168,6 @@ export const COLOUR_ART: ColourArt[] = [
       { d: ell(50, 70, 13, 9), n: 4 }, { d: poly([45, 61], [55, 61], [50, 67]), n: 2 },
     ],
     decor: [{ d: ell(37, 52, 1.8, 5), fill: "#121522" }, { d: ell(63, 52, 1.8, 5), fill: "#121522" }, { d: "M50 67V72M44 76Q50 80 56 76", stroke: "#121522", w: 1.1 }, { d: "M20 66L36 68M20 74L36 72M80 66L64 68M80 74L64 72", stroke: "#121522", w: 0.9 }, { d: "M44 32L46 40M50 30V38M56 32L54 40", stroke: "#c97a22", w: 1.5 }] },
-  { id: "owl", name: "an owl", palette: { 1: "#b5651d", 2: "#fde7c8", 3: "#f5dc63", 4: "#f08a3c", 5: "#6b3e1e", 6: "#bfe6f7" },
-    regions: [
-      { d: rect(0, 0, 100, 100), n: 6, at: [8, 8] }, { d: rect(0, 82, 100, 10), n: 5, at: [10, 87] },
-      { d: poly([26, 30], [24, 10], [40, 24]), n: 1 }, { d: poly([74, 30], [76, 10], [60, 24]), n: 1 },
-      { d: ell(50, 56, 30, 34), n: 1, at: [26, 70] }, { d: ell(50, 66, 18, 20), n: 2 },
-      { d: circ(38, 38, 11), n: 2 }, { d: circ(62, 38, 11), n: 2 }, { d: circ(38, 38, 6), n: 3 }, { d: circ(62, 38, 6), n: 3 },
-      { d: poly([45, 46], [55, 46], [50, 56]), n: 4 }, { d: "M30 80H44V86H30z", n: 4 }, { d: "M56 80H70V86H56z", n: 4 },
-    ],
-    decor: [{ d: circ(38, 38, 2.6), fill: "#121522" }, { d: circ(62, 38, 2.6), fill: "#121522" }, { d: "M40 62Q50 66 60 62M42 70Q50 74 58 70M44 78Q50 80 56 78", stroke: "#b5651d", w: 1 }] },
   { id: "boat", name: "a sailing boat", palette: { 1: "#e5524a", 2: "#f5dc63", 3: "#ffd6e5", 4: "#4aa3e8", 5: "#f08a3c", 6: SKY },
     regions: [
       { d: rect(0, 0, 100, 86), n: 6, at: [10, 10] }, { d: circ(84, 18, 9), n: 5 },
@@ -193,7 +176,23 @@ export const COLOUR_ART: ColourArt[] = [
       { d: "M0 80C14 74 24 86 38 80C52 74 62 86 76 80C88 74 94 80 100 80V100H0z", n: 4, at: [20, 92] },
     ],
     decor: [{ d: "M50 8V62", stroke: "#121522", w: 1.2 }, { d: poly([50, 2], [60, 5], [50, 8]), fill: "#e5524a", stroke: "#121522", w: 0.8 }, { d: circ(34, 70, 2.4), fill: "#fff", stroke: "#121522", w: 0.8 }, { d: circ(50, 70, 2.4), fill: "#fff", stroke: "#121522", w: 0.8 }, { d: circ(66, 70, 2.4), fill: "#fff", stroke: "#121522", w: 0.8 }] },
+  { id: "owl", name: "an owl", palette: { 1: "#8b5a3c", 2: "#5c3b28", 3: "#fde7c8", 4: "#f08a3c", 5: "#6b3e1e", 6: SKY },
+    regions: [
+      { d: rect(0, 0, 100, 100), n: 6, at: [10, 10] }, { d: circ(50, 9, 5), n: 3 },
+      { d: "M2 86C22 82 78 82 98 86V94C78 92 22 92 2 94z", n: 5, at: [14, 90] },
+      { d: "M50 21C42 21 32 15 23 7C19 20 15 33 15 46C13 66 24 86 50 88C76 86 87 66 85 46C85 33 81 20 77 7C68 15 58 21 50 21z", n: 1, at: [50, 30] },
+      { d: "M19 48C9 64 16 80 31 85C28 71 26 60 29 47z", n: 2 }, { d: mirror("M19 48C9 64 16 80 31 85C28 71 26 60 29 47z"), n: 2 },
+      { d: "M50 53C38 55 32 67 34 78C36 87 64 87 66 78C68 67 62 55 50 53z", n: 3, at: [50, 72] },
+      { d: circ(36, 38, 14), n: 3 }, { d: circ(64, 38, 14), n: 3 },
+      { d: circ(36, 38, 8.5), n: 4 }, { d: circ(64, 38, 8.5), n: 4 },
+      { d: "M45 45C47 42 53 42 55 45C54 50 52 54 50 56C48 54 46 50 45 45z", n: 4 },
+      { d: "M33 85C33 80 47 80 47 85V88C43 90 37 90 33 88z", n: 4 }, { d: "M53 85C53 80 67 80 67 85V88C63 90 57 90 53 88z", n: 4 },
+    ],
+    decor: [{ d: circ(36, 38, 4.6), fill: "#121522" }, { d: circ(64, 38, 4.6), fill: "#121522" }, { d: circ(37.6, 36.2, 1.5), fill: "#fff" }, { d: circ(65.6, 36.2, 1.5), fill: "#fff" },
+      { d: "M44 66Q50 70 56 66M42 72Q50 77 58 72M44 78Q50 82 56 78", stroke: "#b5651d", w: 0.9 }, { d: "M22 20Q28 22 32 26M78 20Q72 22 68 26", stroke: "#5c3b28", w: 1.3 }, { d: "M37 88V92M43 88V92M57 88V92M63 88V92", stroke: "#121522", w: 0.8 }] },
 ];
+/** The hand-drawn pictures, then the ones traced from line art. */
+export const COLOUR_ART: ColourArt[] = [...HAND_DRAWN, ...COLOUR_ART_TRACED];
 /** Pictures by how many colours they use, so the youngest get the simple ones. */
 export const artFor = (stage: "nursery" | "reception" | "older"): ColourArt[] => COLOUR_ART.filter((a) => Object.keys(a.palette).length <= (stage === "nursery" ? 4 : stage === "reception" ? 6 : 7));
 export const artNumbers = (a: ColourArt) => [...new Set(a.regions.map((r) => r.n))].sort((x, y) => x - y);

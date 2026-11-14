@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Smoother pictures, and a tool to trace line art
+The long-necked dinosaur is now traced straight from a line drawing, so its neck, body, legs and tail are one flowing connected shape with every spot, fold and eyelash kept, standing on a hill with a sun and clouds. The owl is redrawn with ears that grow out of its head and a rounder body. `tools/art/trace.py` turns any black line drawing (or a flat colour picture) into numbered shapes with smooth connected outlines, and `tools/art/build.py` makes the data file from a short description of each picture. To add a picture, send a clean line-art PNG.
+
 ## More colour-by-number pictures
 Eleven new pictures, 18 in all: a flower, ladybird, house, ice cream and balloons (four colours, for Nursery), then a dinosaur, castle, robot, cat, owl and sailing boat. Nursery now has seven pictures to draw from, Reception 17 and Year 1 and up all 18. They come up in a fair rotation (every picture once before any repeats). More can be added as data in `src/engine/little-art.ts`.
 

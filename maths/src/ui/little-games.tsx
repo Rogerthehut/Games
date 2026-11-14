@@ -188,9 +188,9 @@ export function ColourGame({ max, stage = max <= 5 ? "nursery" : "reception", on
       <svg ref={svg} class="colour-art" viewBox="0 0 100 100" role="group" aria-label={`Colour by number: ${art.name}`}>
         {art.regions.map((r, i) => (
           <path key={`${art.id}${i}`} d={r.d} data-r={i} data-n={r.n} data-testid={`region-${i}`} class={`art-region${filled[i] ? " filled" : ""}${shake === i ? " shake" : ""}`}
-            fill={filled[i] ? art.palette[r.n] : "#fff"} stroke="#121522" stroke-width="0.9" stroke-linejoin="round" onPointerDown={(e) => { e.preventDefault(); tap(i); }} />
+            fill={filled[i] ? art.palette[r.n] : "#fff"} fill-rule="evenodd" stroke={r.plain ? "none" : "#121522"} stroke-width="0.9" stroke-linejoin="round" onPointerDown={(e) => { e.preventDefault(); tap(i); }} />
         ))}
-        {art.decor.map((d, i) => <path key={`d${i}`} d={d.d} fill={d.fill ?? "none"} stroke={d.stroke ?? "none"} stroke-width={d.w ?? 1} stroke-linecap="round" stroke-linejoin="round" pointer-events="none" />)}
+        {art.decor.map((d, i) => <path key={`d${i}`} d={d.d} fill={d.fill ?? "none"} fill-rule="evenodd" stroke={d.stroke ?? "none"} stroke-width={d.w ?? 1} stroke-linecap="round" stroke-linejoin="round" pointer-events="none" />)}
         {spots.map(([x, y, size], i) => !filled[i] && art.regions[i] ? <text key={`n${i}`} x={x} y={y} class="art-num" style={{ fontSize: `${size}px` }} pointer-events="none">{art.regions[i].n}</text> : null)}
       </svg>
       {done && <><Burst />{AGAIN(again)}</>}
