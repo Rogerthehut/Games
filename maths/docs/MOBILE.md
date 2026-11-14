@@ -76,3 +76,7 @@ Try a different site address (a test deployment) with `EXPO_PUBLIC_APP_URL=https
 - Whether Apple's sign-in or Clerk's sign-in screens load fully inside the web view (the allowed hosts are in `links.ts`; if a screen is blank, the console will show a blocked host to add).
 - That the print preview looks right (the app prints a snapshot of the page, loaded from the live site's styles, so it needs a connection).
 - The iPad share sheet position (iPad shares as a popover; check it doesn't land off screen).
+
+## The tab bar (`mobile/modules/quarter-tabbar`)
+
+A local Expo module (Swift, found by Expo's autolinking because it is in `modules/`) that wraps a `UITabBar`. The page tells the app which tab is selected (`dock` message) and the app tells the page when a tab is tapped (`navigate`). On iOS 26, built with the iOS 26 SDK (`eas.json` asks for the latest build image), the system draws it as Liquid Glass; older iPhones get the ordinary tab bar. `src/Dock.tsx` uses it when present and otherwise falls back to the glass pill (`expo-glass-effect`), and `App.tsx` falls back to the page's own tab bar if the dock fails. Not compiled in CI; the first build on EAS is its first compile.

@@ -4,6 +4,11 @@ import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
 import { DOCK_TABS, type DockTab } from "./messages";
+import { loadQuarterTabBar } from "../modules/quarter-tabbar";
+
+/** The system tab bar (a real UITabBar, so iOS 26 draws it as Liquid Glass). Only present in a build made after it was added; otherwise the glass pill below is used. */
+const NativeBar = Platform.OS === "ios" ? loadQuarterTabBar() : null;
+const SYMBOLS: Record<DockTab, string> = { today: "house", skills: "map", plan: "flag", search: "magnifyingglass" };
 
 /**
  * The tab dock: Today, Skills, Plan, Me. A floating pill of Liquid Glass on iOS 26 (a frosted blur on older iPhones), with quarter's pink
@@ -19,6 +24,15 @@ const ICONS: Record<DockTab, (c: string) => React.ReactNode> = {
 
 export function Dock({ tab, onSelect }: { tab: DockTab | "none"; onSelect: (t: DockTab) => void }) {
   const inset = useSafeAreaInsets();
+  if (NativeBar) {
+    return (
+      <View style={{ height: 49 + inset.bottom }} accessibilityRole="tablist">
+        <NativeBar style={{ flex: 1 }} tint={PINK} selected={tab === "none" ? null : tab}
+          items={DOCK_TABS.map((t) => ({ id: t.id, title: t.label, symbol: SYMBOLS[t.id] }))}
+          onSelect={(e) => { const id = e.nativeEvent.id; if (DOCK_TABS.some((t) => t.id === id)) onSelect(id as DockTab); }} />
+      </View>
+    );
+  }
   const glass = Platform.OS === "ios" && isLiquidGlassAvailable();
   const items = DOCK_TABS.map((t) => {
     const on = t.id === tab, colour = on ? PINK : INK;
