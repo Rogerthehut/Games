@@ -9,6 +9,10 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Rounder numbers, and new portraits for the youngest
+- **Trace the number:** the digits are now drawn as real curves (the 0, 3, 5, 6, 8 and 9 flow instead of having corners), and the finger follows the curve.
+- **40 new portraits** (Explorer, Scholar, Artist and Skater, ten each) for Nursery, Reception, Year 1 and Year 2, offered first in the picker alongside the usual set. Older learners don't see them.
+
 ## Scroll-down arrow
 "Scroll for more" is now a round, pink-ringed down arrow instead of words, so smaller children can follow it. It keeps the same see-through look as the old pill, bobs gently, and fades away once you scroll. On ordinary pages it sits just above the tab bar rather than over the content, and on question pages it sits under the Hint and Check buttons on taller screens (above them on short ones). The side menu's minimise button is now a 44px touch target.
 

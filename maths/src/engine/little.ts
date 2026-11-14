@@ -75,8 +75,48 @@ export const DIGIT_STROKES: Record<number, Pt[][]> = {
   9: [[[78, 52], [58, 68], [32, 62], [22, 36], [42, 12], [68, 20], [80, 48], [74, 92], [56, 126], [28, 128]]],
 };
 
+/** A smooth curve through a stroke's points (Catmull-Rom), broken only at the sharp corners, as points about 2 units apart. */
+export function smoothStroke(stroke: Pt[], sharp: number[] = []): Pt[] {
+  const cuts = [0, ...sharp, stroke.length - 1], out: Pt[] = [];
+  for (let c = 0; c < cuts.length - 1; c++) {
+    const seg = stroke.slice(cuts[c], cuts[c + 1] + 1);
+    for (let i = 0; i < seg.length - 1; i++) {
+      const p0 = seg[i - 1] ?? seg[i], p1 = seg[i], p2 = seg[i + 1], p3 = seg[i + 2] ?? seg[i + 1], n = Math.max(2, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 2));
+      for (let k = 0; k < n; k++) {
+        const t = k / n, t2 = t * t, t3 = t2 * t;
+        const f = (a: number, b: number, c2: number, d: number) => 0.5 * (2 * b + (-a + c2) * t + (2 * a - 5 * b + 4 * c2 - d) * t2 + (-a + 3 * b - 3 * c2 + d) * t3);
+        out.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+      }
+    }
+  }
+  out.push(stroke[stroke.length - 1]);
+  return out;
+}
+/** Points along an ellipse from angle a0 to a1 (degrees, 0 = right, 90 = bottom, so a larger angle goes clockwise on screen). */
+export function arcPts(cx: number, cy: number, rx: number, ry: number, a0: number, a1: number): Pt[] {
+  const n = Math.max(6, Math.round((Math.abs(a1 - a0) / 360) * 60)), out: Pt[] = [];
+  for (let k = 0; k <= n; k++) { const a = ((a0 + ((a1 - a0) * k) / n) * Math.PI) / 180; out.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]); }
+  return out;
+}
+const line = (...p: Pt[]): Pt[] => smoothStroke(p, p.map((_, i) => i).slice(1, -1));   // straight pieces with sharp corners
+const two = arcPts(50, 44, 30, 30, 195, 395), five = arcPts(50, 94, 32, 36, -130, 150);
+const six: Pt[] = [...arcPts(72, 98, 52, 86, -90, -180), ...arcPts(50, 98, 30, 32, 180, -180)];
+/** Each digit as the path a finger follows: round digits are real curves (arcs), straight ones keep their corners. */
+export const DIGIT_PATHS: Record<number, Pt[]> = {
+  0: arcPts(50, 70, 32, 58, 270, -90),
+  1: line([34, 38], [52, 14], [52, 130]),
+  2: [...two, ...line(two[two.length - 1], [20, 128], [84, 128]).slice(1)],
+  3: [...arcPts(46, 40, 28, 28, 200, 450), ...arcPts(46, 100, 32, 32, 270, 510).slice(1)],
+  4: line([66, 130], [66, 10], [16, 92], [88, 92]),
+  5: [...line([76, 12], [30, 12], five[0]), ...five],
+  6: six,
+  7: line([18, 14], [84, 14], [44, 130]),
+  8: [...arcPts(50, 38, 26, 28, 90, 450), ...arcPts(50, 98, 30, 32, 270, -90).slice(1)],
+  9: [...six].reverse().map(([x, y]) => [100 - x, 140 - y] as Pt),
+};
+
 /** Points spaced about `step` apart along a stroke, so a finger's progress can be followed one point at a time. */
-export function waypoints(stroke: Pt[], step = 9): Pt[] {
+export function waypoints(stroke: Pt[], step = 4): Pt[] {
   const out: Pt[] = [stroke[0]];
   for (let i = 1; i < stroke.length; i++) {
     const [x0, y0] = stroke[i - 1], [x1, y1] = stroke[i], len = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round(len / step));

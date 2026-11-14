@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advance, countRound, COLOUR_PICTURES, coloursNeeded, DIGIT_STROKES, shapeRound, sumRound, waypoints } from "./little";
+import { advance, countRound, COLOUR_PICTURES, coloursNeeded, DIGIT_PATHS, shapeRound, sumRound, waypoints } from "./little";
 import { mulberry32 } from "./rng";
 
 describe("little ones activities", () => {
@@ -14,7 +14,7 @@ describe("little ones activities", () => {
   });
   it("every digit 0 to 9 has a stroke that a finger can follow from start to end", () => {
     for (let d = 0; d <= 9; d++) {
-      const strokes = DIGIT_STROKES[d]; expect(strokes.length).toBeGreaterThan(0);
+      const strokes = [DIGIT_PATHS[d]]; expect(strokes[0].length).toBeGreaterThan(20);
       for (const s of strokes) {
         const pts = waypoints(s); expect(pts.length).toBeGreaterThan(8);
         for (const [x, y] of pts) { expect(x).toBeGreaterThanOrEqual(0); expect(x).toBeLessThanOrEqual(100); expect(y).toBeGreaterThanOrEqual(0); expect(y).toBeLessThanOrEqual(140); }
@@ -22,6 +22,12 @@ describe("little ones activities", () => {
         expect(advance(pts, 0, [pts[pts.length - 1][0], pts[pts.length - 1][1]])).toBeLessThan(pts.length);        // jumping to the end does not
       }
     }
+  });
+  it("the round digits flow: no sharp turns along 0, 6, 8, 9 and the bowls of the 3 and 5", () => {
+    const worst = (pts: [number, number][]) => { let w = 0; for (let i = 2; i < pts.length; i++) { const a = Math.atan2(pts[i - 1][1] - pts[i - 2][1], pts[i - 1][0] - pts[i - 2][0]), b = Math.atan2(pts[i][1] - pts[i - 1][1], pts[i][0] - pts[i - 1][0]); let d = Math.abs(b - a); if (d > Math.PI) d = 2 * Math.PI - d; w = Math.max(w, d); } return (w * 180) / Math.PI; };
+    for (const d of [0, 6, 8, 9]) expect(worst(DIGIT_PATHS[d])).toBeLessThan(40);
+    expect(worst(DIGIT_PATHS[5].slice(Math.floor(DIGIT_PATHS[5].length * 0.55)))).toBeLessThan(40);   // the bowl of the 5 (its top corner is meant to be sharp)
+    expect(worst(DIGIT_PATHS[3].slice(0, 43))).toBeLessThan(40); expect(worst(DIGIT_PATHS[3].slice(44))).toBeLessThan(40);   // each bowl of the 3 is smooth (they meet at a point, as a 3 does)
   });
   it("shape rounds have no repeats, and each picture uses only coloured numbers from its palette", () => {
     const r = mulberry32(3); for (let n = 2; n <= 4; n++) { const s = shapeRound(r, n); expect(new Set(s).size).toBe(n); }

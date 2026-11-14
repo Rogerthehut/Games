@@ -1,4 +1,4 @@
-import { avatarForYear, clayAvatar, type AvatarBand, type AvatarChoice, type AvatarRole } from "../engine/avatar";
+import { avatarBands, avatarForYear, clayAvatar, type AvatarBand, type AvatarChoice, type AvatarRole } from "../engine/avatar";
 import { AVATAR_EYES, AVATAR_EYES_BAND } from "./avatar-eyes";
 import type { Profile } from "../engine/progress";
 import explorer from "../assets/avatars/explorer-clay.webp";
@@ -12,8 +12,11 @@ const junior = import.meta.glob<string>("../assets/avatars/variants/*.webp", { e
 const teen = import.meta.glob<string>("../assets/avatars/variants-teen/*.webp", { eager: true, import: "default" });
 const older = import.meta.glob<string>("../assets/avatars/variants-older/*.webp", { eager: true, import: "default" });
 
+// Portraits for Nursery to Year 2 (variants-little/, named like the others) are offered alongside the youngest set.
+const little = import.meta.glob<string>("../assets/avatars/variants-little/*.webp", { eager: true, import: "default" });
+
 const SETS: Record<AvatarBand, { folder: string; files: Record<string, string> }> = {
-  junior: { folder: "variants", files: junior }, older: { folder: "variants-older", files: older }, teen: { folder: "variants-teen", files: teen },
+  junior: { folder: "variants", files: junior }, older: { folder: "variants-older", files: older }, teen: { folder: "variants-teen", files: teen }, little: { folder: "variants-little", files: little },
 };
 const hasArt = (band: AvatarBand, role: AvatarRole) => Object.keys(SETS[band].files).some((path) => path.includes(`/${role}-`));
 
@@ -25,6 +28,11 @@ export function avatarVariants(role: AvatarRole, band: AvatarBand = "junior"): n
     .map((path) => Number(path.slice(path.lastIndexOf("-") + 1, -5)))
     .sort((a, b) => a - b);
   return set === "junior" && band === "junior" ? [0, ...numbers] : numbers;
+}
+
+/** Every portrait a learner of this year may pick for a character: the Little ones set first for Nursery to Year 2, then the usual set. */
+export function avatarOptions(role: AvatarRole, year: number): { band: AvatarBand; variant: number }[] {
+  return avatarBands(year).flatMap((band) => avatarVariants(role, band).map((variant) => ({ band, variant })));
 }
 
 export function Avatar({ choice, year, size = 40, pose, showProp = false }: {
@@ -46,11 +54,11 @@ export function Avatar({ choice, year, size = 40, pose, showProp = false }: {
   const { role, variant, glasses, band = "junior" } = year === undefined ? clayAvatar(choice) : avatarForYear(choice, year);
   const own = band !== "junior" && SETS[band].files[`../assets/avatars/${SETS[band].folder}/${role}-${variant}.webp`];
   const portrait = own || junior[`../assets/avatars/variants/${role}-${variant}.webp`];
-  const eyes = own ? AVATAR_EYES_BAND[band as "older" | "teen"][role]?.[variant] : AVATAR_EYES[role]?.[variant];
+  const eyes = own ? AVATAR_EYES_BAND[band as "older" | "teen"]?.[role]?.[variant] : AVATAR_EYES[role]?.[variant];
   // Until a band has its own art, older learners get the youngest portraits styled to look more grown up: head and shoulders
   // only (no toys), calmer colours and a different frame.
-  const restyled = band !== "junior" && !own;
-  const className = ["learner-avatar", own && "avatar-cut", showProp && !restyled && "avatar-with-prop", restyled && `avatar-${band}`, pose && `pip pip-${pose}`].filter(Boolean).join(" ");
+  const restyled = band !== "junior" && band !== "little" && !own;
+  const className = ["learner-avatar", own && band !== "little" && "avatar-cut", showProp && !restyled && "avatar-with-prop", restyled && `avatar-${band}`, pose && `pip pip-${pose}`].filter(Boolean).join(" ");
   return (
     <span class={className} style={{ width: size, height: size }} aria-hidden="true">
       <span class="avatar-art">

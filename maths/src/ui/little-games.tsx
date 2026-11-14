@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "preact/hooks";
-import { advance, COLOUR_PICTURES, coloursNeeded, countRound, DIGIT_STROKES, shapeRound, sumRound, waypoints, type ColourPicture, type Pt, type ShapeKind } from "../engine/little";
+import { advance, COLOUR_PICTURES, coloursNeeded, countRound, DIGIT_PATHS, shapeRound, sumRound, waypoints, type ColourPicture, type Pt, type ShapeKind } from "../engine/little";
 import { mulberry32 } from "../engine/rng";
 import { Icon } from "./icons";
 import { blip, Burst, buzz, CritterArt, say, ShapeArt, SHAPE_NAME, type Critter } from "./little-bits";
@@ -40,7 +40,7 @@ export function CountGame({ max, onDone }: GameProps) {
 
 export function TraceGame({ max, onDone }: GameProps) {
   const [digit, setDigit] = useState(() => (max <= 5 ? 1 : 1));
-  const stroke = DIGIT_STROKES[digit][0], pts = useMemo(() => waypoints(stroke), [digit]);
+  const pts = useMemo(() => waypoints(DIGIT_PATHS[digit]), [digit]);
   const [next, setNext] = useState(0);
   const svg = useRef<SVGSVGElement>(null), down = useRef(false);
   const done = next >= pts.length;
@@ -48,7 +48,7 @@ export function TraceGame({ max, onDone }: GameProps) {
   const move = (e: PointerEvent) => {
     if (!down.current || done) return;
     const n = advance(pts, next, at(e));
-    if (n !== next) { setNext(n); blip(Math.floor(n / 3), "tap"); if (n >= pts.length) { blip(0, "win"); say(WORDS[digit]); buzz(30); onDone(); } }
+    if (n !== next) { setNext(n); blip(Math.floor(n / 6), "tap"); if (n >= pts.length) { blip(0, "win"); say(WORDS[digit]); buzz(30); onDone(); } }
   };
   const nextDigit = () => { const d = digit >= max && max < 9 ? 1 : (digit + 1) % 10; setDigit(d === 0 && max <= 5 ? 1 : d); setNext(0); };
   const pathD = (list: Pt[]) => list.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
@@ -62,7 +62,7 @@ export function TraceGame({ max, onDone }: GameProps) {
         onPointerUp={() => { down.current = false; }} onPointerCancel={() => { down.current = false; }}>
         <path d={pathD(pts)} class="trace-guide" />
         <path d={pathD(reached)} class="trace-ink" />
-        {pts.map(([x, y], i) => i % 3 === 0 && i >= next ? <circle key={i} cx={x} cy={y} r="1.7" class="trace-dot" /> : null)}
+        {pts.map(([x, y], i) => i % 5 === 0 && i >= next ? <circle key={i} cx={x} cy={y} r="1.7" class="trace-dot" /> : null)}
         {!done && <circle cx={tip[0]} cy={tip[1]} r="5" class="trace-tip" />}
       </svg>
       {done && <><Burst />{AGAIN(nextDigit)}</>}

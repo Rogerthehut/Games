@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { MAX_CHILDREN } from "../account/limits";
 import { MyProgress } from "./progress-shelf";
-import { AVATAR_ROLES, GLASSES, avatarBand, avatarForYear, type AvatarRole } from "../engine/avatar";
+import { AVATAR_ROLES, GLASSES, avatarForYear, type AvatarRole } from "../engine/avatar";
 import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { currentStreak, statusOf, type Profile } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
@@ -13,7 +13,7 @@ import { ParentGate, parentUnlocked } from "./gate";
 import { KidPinGate, MyPin, needsKidPin } from "./kid-pin";
 import { useWide } from "./tables-note";
 import { Icon } from "./icons";
-import { Avatar, avatarVariants } from "./avatar";
+import { Avatar, avatarOptions } from "./avatar";
 import { readPracticeQuestion, stopPracticeNarration, type NarrationStatus, type NarrationVoice } from "./practice-audio";
 import { applyTheme, getTheme, resolveSkin, skinForYear, type ThemeChoice } from "./skin";
 
@@ -40,7 +40,7 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
 
 export function Me() {
   const { profile, profiles, switchTo, go, update } = useApp();
-  const band = avatarBand(profile.year), currentAvatar = avatarForYear(profile.avatar, profile.year);
+  const currentAvatar = avatarForYear(profile.avatar, profile.year);
   const [browseRole, setBrowseRole] = useState<AvatarRole | null>(null);
   const role = browseRole ?? currentAvatar.role;
   const roleLabel = AVATAR_ROLES.find(({ id }) => id === role)?.label ?? "Explorer";
@@ -130,11 +130,11 @@ export function Me() {
           ))}
         </div>
         <div class="avatar-choices" role="group" aria-label={`${roleLabel} portraits`}>
-          {avatarVariants(role, band).map((variant) => (
-            <button key={variant} type="button" class="btn" aria-label={variant ? `${roleLabel}, look ${variant}` : `${roleLabel}, original`}
-              aria-pressed={!!profile.avatar && currentAvatar.role === role && currentAvatar.variant === variant}
+          {avatarOptions(role, profile.year).map(({ band, variant }) => (
+            <button key={`${band}${variant}`} type="button" class="btn" aria-label={variant ? `${roleLabel}, look ${variant}` : `${roleLabel}, original`}
+              aria-pressed={!!profile.avatar && currentAvatar.role === role && currentAvatar.variant === variant && (currentAvatar.band ?? "junior") === band}
               onClick={() => update((p) => ({ ...p, avatar: { role, variant, glasses: currentAvatar.glasses, band } }))}>
-              <Avatar choice={{ role, variant, band, glasses: currentAvatar.role === role && currentAvatar.variant === variant ? currentAvatar.glasses : undefined }} year={profile.year} size={80} showProp />
+              <Avatar choice={{ role, variant, band, glasses: currentAvatar.role === role && currentAvatar.variant === variant && (currentAvatar.band ?? "junior") === band ? currentAvatar.glasses : undefined }} year={profile.year} size={80} showProp />
             </button>
           ))}
         </div>

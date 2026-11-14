@@ -1,7 +1,7 @@
-import type { AvatarBand, AvatarRole } from "../engine/avatar";
+import type { AvatarRole } from "../engine/avatar";
 
 /** Eye centres (left x, left y, right x, right y, as percentages) for the preteen (older) and teen portraits, found by detecting the eyes in each one. Index 0 is unused: portraits are numbered from 1. */
-export const AVATAR_EYES_BAND: Record<Exclude<AvatarBand, "junior">, Record<AvatarRole, readonly (readonly number[])[]>> = {
+export const AVATAR_EYES_BAND: Record<"older" | "teen", Record<AvatarRole, readonly (readonly number[])[]>> = {
   older: {
     explorer: [
       [], // there is no portrait 0
