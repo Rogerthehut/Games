@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Side menu fixes
+- When the side menu is narrow the learner's avatar now stays visible and tappable (it had been hidden), and the learner list and the Parents' sum and PIN open in the middle of the screen at full size instead of squeezed into the narrow strip.
+- The arrows next to the learner and the padlock are gone.
+- A minimise button (a dash, like Windows) sits at the top of the menu and a small square expands it again.
+- The menu no longer has a sideways scroll bar.
+
 ## Phone header and tab bar tidy-up
 On phones and small tablets (and in the iPhone/iPad app) the top right now holds just the learner's avatar, without the "hi" name or the search button. Tapping it opens the same quick menu as the desktop side panel: switch learner (asking for their PIN if one is set), Me and settings, the Parents' area (sum and PIN, or Face ID in the app), and add a child. The Me tab is gone from the bottom bar and Search takes its place; the app's glass dock changed the same way, and shows with nothing selected on Me and the Parents' area. Browser-test scripts that opened Me through the tab were updated to use the avatar menu.
 

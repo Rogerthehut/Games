@@ -7,12 +7,13 @@ import { Icon } from "./icons";
 import { KidPinGate, needsKidPin } from "./kid-pin";
 import type { Profile } from "../engine/progress";
 import { ProfileHi } from "./profile-hi";
+import { Portal } from "./portal";
 
 /**
  * The learner card at the bottom of the left-hand panel. It shows who is using this screen, and opens a list to switch to another
  * learner on the account (asking for their PIN if a grown-up has given them one), to open Me and its settings, or to add someone.
  */
-export function RailSwitcher({ tab, top }: { tab: string; top?: boolean }) {
+export function RailSwitcher({ tab, top, slim }: { tab: string; top?: boolean; slim?: boolean }) {
   const { profile, profiles, switchTo, go } = useApp();
   const [open, setOpen] = useState(false);
   const [kidGate, setKidGate] = useState<Profile | null>(null);
@@ -36,7 +37,21 @@ export function RailSwitcher({ tab, top }: { tab: string; top?: boolean }) {
 
   return (
     <div class={`rail-switch${top ? " top" : ""}`} ref={box}>
-      {open && (
+      {open && (slim
+        ? <Portal><div class="gate-backdrop" onPointerDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>        <ul class="rail-switch-list centred" role="menu" aria-label="Who's learning" data-testid="rail-switch-list">
+          {profiles.map((p) => (
+            <li key={p.id} role="none">
+              <button role="menuitemradio" aria-checked={p.id === profile.id} class={`rail-switch-row${p.id === profile.id ? " current" : ""}`} onClick={() => choose(p)} data-testid={`rail-switch-${p.id}`}>
+                <Avatar choice={p.avatar} year={p.year} size={30} /><span class="rail-switch-label">{p.name}<small>Year {p.year}</small></span>
+                {p.id === profile.id && <Icon name="check" size={16} />}
+              </button>
+            </li>
+          ))}
+          <li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); go({ name: "me" }); }} data-testid="rail-open-me"><Icon name="user" size={20} /><span class="rail-switch-label">Me and settings</span></button></li>
+          {top && <li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); if (parentUnlocked()) go({ name: "parent" }); else setParentGate(true); }} data-testid="top-open-parents"><Icon name="lock" size={20} /><span class="rail-switch-label">Parents' area</span></button></li>}
+          {profiles.length < MAX_CHILDREN && (<li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); if (parentUnlocked()) go({ name: "onboard" }); else setAddGate(true); }} data-testid="rail-add-learner"><Icon name="plus" size={20} /><span class="rail-switch-label">Add another child, or change year</span></button></li>)}
+        </ul></div></Portal>
+        : (
         <ul class="rail-switch-list" role="menu" aria-label="Who's learning" data-testid="rail-switch-list">
           {profiles.map((p) => (
             <li key={p.id} role="none">
@@ -50,7 +65,7 @@ export function RailSwitcher({ tab, top }: { tab: string; top?: boolean }) {
           {top && <li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); if (parentUnlocked()) go({ name: "parent" }); else setParentGate(true); }} data-testid="top-open-parents"><Icon name="lock" size={20} /><span class="rail-switch-label">Parents' area</span></button></li>}
           {profiles.length < MAX_CHILDREN && (<li role="none"><button role="menuitem" class="rail-switch-row plain" onClick={() => { setOpen(false); if (parentUnlocked()) go({ name: "onboard" }); else setAddGate(true); }} data-testid="rail-add-learner"><Icon name="plus" size={20} /><span class="rail-switch-label">Add another child, or change year</span></button></li>)}
         </ul>
-      )}
+        ))}
       {top ? (
         <button class="top-me" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)} aria-label={`${profile.name}, switch learner, settings and Parents' area`} data-testid="top-me">
           <Avatar choice={profile.avatar} year={profile.year} size={38} />
@@ -59,7 +74,6 @@ export function RailSwitcher({ tab, top }: { tab: string; top?: boolean }) {
       <button class="rail-me" aria-expanded={open} aria-haspopup="menu" aria-current={tab === "me" ? "page" : undefined} onClick={() => setOpen(!open)} aria-label={`${profile.name}, switch learner`} data-testid="rail-me">
         <Avatar choice={profile.avatar} year={profile.year} size={36} />
         <span><ProfileHi /><strong>{profile.name}</strong><small>Year {profile.year}</small></span>
-        <Icon name="chevron" size={16} class={`rail-me-caret${open ? " up" : ""}`} />
       </button>
       )}
       {kidGate && <KidPinGate learner={kidGate} onCancel={() => setKidGate(null)} onPass={() => { const id = kidGate.id; setKidGate(null); switchTo(id); }} />}

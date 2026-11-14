@@ -107,14 +107,19 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
   return (
     <div class={`app${rail.slim ? " rail-slim" : ""}`} style={{ "--rail-w": `${rail.width}px` } as never}>
       <aside class="rail">
+        <button type="button" class="rail-min" onClick={() => rail.set(rail.slim ? RAIL_DEFAULT : RAIL_MIN)} aria-label={rail.slim ? "Expand the side menu" : "Minimise the side menu"} title={rail.slim ? "Expand the side menu" : "Minimise the side menu"} data-testid="rail-min">
+          {rail.slim
+            ? <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg>
+            : <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>}
+        </button>
         {brand()}
         {nav("rail-nav")}
         {searchButton(false)}
         {wide && (tab === "today"
           ? <><TablesNote variant="rail" /><StemNote variant="rail" /></>
           : <div class="note-minis" aria-label="Quick links"><TablesNote variant="mini" /><StemNote variant="mini" /></div>)}
-        <RailSwitcher tab={tab} />
-        <RailParents tab={tab} />
+        <RailSwitcher tab={tab} slim={rail.slim} />
+        <RailParents tab={tab} slim={rail.slim} />
         <div class="rail-grip" role="separator" aria-orientation="vertical" tabIndex={0} aria-label="Side menu width. Drag, or use the arrow keys. Press Enter to switch between icons and full menu."
           aria-valuemin={RAIL_MIN} aria-valuemax={RAIL_MAX} aria-valuenow={rail.width} data-testid="rail-grip"
           onPointerDown={(e) => { dragging.current = true; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); e.preventDefault(); }}
