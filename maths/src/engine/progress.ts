@@ -150,6 +150,10 @@ export interface Profile {
   tutorLog?: TutorLogEntry[];
   /** Times tables: how well each fact is known, which tables are being worked on, and timed checks. */
   tables?: TablesState;
+  /** Set for the youngest learners: they are stored as Year 1 (the server's lowest year) but are in Nursery or Reception, so Little ones is their home. */
+  early?: "nursery" | "reception";
+  /** How many times each Little ones activity has been finished. */
+  little?: Record<string, number>;
   /** The welcome tour has been shown (or skipped). */
   toured?: boolean;
   /** Milestones the learner has already been shown as new. */

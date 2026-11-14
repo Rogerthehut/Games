@@ -14,6 +14,7 @@ import { LearningReport } from "./learning-report";
 import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
+import { LittleHub } from "./little";
 import { Tables } from "./tables";
 import { Stem } from "./stem";
 import { BookletLoader } from "./booklet";
@@ -246,6 +247,9 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
 
   if (route.name === "stem")
     return <Ctx.Provider value={ctx}><Stem /></Ctx.Provider>;
+
+  if (route.name === "little")
+    return <Ctx.Provider value={ctx}><LittleHub activity={route.activity} /></Ctx.Provider>;
 
   if (route.name === "equal-groups")
     return <Ctx.Provider value={ctx}><EqualGroups /></Ctx.Provider>;

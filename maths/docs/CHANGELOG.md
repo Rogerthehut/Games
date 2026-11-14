@@ -2,6 +2,12 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Little ones (ages 2 to 6)
+- **A new area of touch-and-play activities with no reading and no scoring:** *Count with me* (tap each thing, hear the number), *Trace the number* (draw 0 to 9 with a finger, stars follow it), *Add and take away* (ducks hop into a pond, biscuits get eaten, with the sum shown), *Shape sorter* (drag shapes to their holes) and *Colour by number*. Every touch pops, wobbles, blips or speaks; a slip just bounces back. Sound and voice have a big speaker button.
+- **The year picker has a "Little ones" section** (Nursery, 2 to 4, and Reception, 4 to 5) and now also offers Year 1 and Year 2. Nursery and Reception are stored as Year 1 with a flag (the server and database keep Years 1 to 13), and show as "Nursery" or "Reception" everywhere. The Parents' area can change this too.
+- **Where they land:** Nursery learners see only Little ones on Today. Reception, Year 1 and Year 2 get a Little ones banner above the usual cards. The written practice still starts at Year 3, so Reception to Year 2 have few written topics yet; that's the next gap to fill.
+- Tested with `scripts/little-e2e.ts` (all five played through by touch at phone, tablet and desktop sizes) and unit tests that check the sums, the digit paths and the colour pictures. Needs a teacher's look at the wording and age-fit.
+
 ## Side menu fixes
 - When the side menu is narrow the learner's avatar now stays visible and tappable (it had been hidden), and the learner list and the Parents' sum and PIN open in the middle of the screen at full size instead of squeezed into the narrow strip.
 - The arrows next to the learner and the padlock are gone.

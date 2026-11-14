@@ -6,11 +6,13 @@ import { useApp, type Route } from "./context";
 import { Avatar, avatarVariants } from "./avatar";
 import { Icon } from "./icons";
 import { applySkin, skinForYear } from "./skin";
+import { schoolLabel } from "./labels";
 
 import { CubeMark, Wordmark } from "./wordmark";
 import { BrowserStorageNotice, LegalFooter } from "./legal";
 
 const YEARS: { y: number; age: string; stage: string }[] = [
+  { y: 1, age: "5–6", stage: "KS1" }, { y: 2, age: "6–7", stage: "KS1" },
   { y: 3, age: "7–8", stage: "KS2" }, { y: 4, age: "8–9", stage: "KS2" }, { y: 5, age: "9–10", stage: "KS2" }, { y: 6, age: "10–11", stage: "KS2" },
   { y: 7, age: "11–12", stage: "KS3" }, { y: 8, age: "12–13", stage: "KS3" }, { y: 9, age: "13–14", stage: "KS3" },
   { y: 10, age: "14–15", stage: "GCSE" }, { y: 11, age: "15–16", stage: "GCSE" }, { y: 12, age: "16–17", stage: "A-level" }, { y: 13, age: "17–18", stage: "A-level" },
@@ -53,6 +55,8 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
   const room = MAX_CHILDREN - profiles.length - kids.length; // places left on this account
   const [name, setName] = useState("");
   const [year, setYear] = useState<number | null>(null);
+  /** Nursery and Reception are stored as Year 1 (the lowest year the server keeps) with this flag. */
+  const [early, setEarly] = useState<"nursery" | "reception" | undefined>(undefined);
 
   // Picking a year previews the look that goes with it.
   useEffect(() => { if (year) applySkin(skinForYear(year)); }, [year]);
@@ -60,11 +64,12 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
   const continueToYear = () => { if (name.trim()) setStep("year"); };
 
   /** Save everyone added here. The first child added is the one who is open when the setup ends. */
-  const save = (list: Profile[]) => { list.forEach((p, i) => addProfile(p, i === 0)); go(destination); };
-  const child = () => { const p = newProfile(name.trim(), year as number); if (avatar) p.avatar = avatar; return p; };
+  const save = (list: Profile[]) => { list.forEach((p, i) => addProfile(p, i === 0)); go(list[0]?.early ? { name: "little" } : destination); };
+  const make = () => { const p = newProfile(name.trim(), year as number); if (early) p.early = early; return p; };
+  const child = () => { const p = make(); if (avatar) p.avatar = avatar; return p; };
   const finish = () => {
     if (!name.trim() || !year) return;
-    if (!account) { addProfile(newProfile(name.trim(), year)); go(destination); return; }
+    if (!account) { addProfile(make()); go(early ? { name: "little" } : destination); return; }
     setStep("avatar");
   };
   const afterAvatar = () => {
@@ -72,7 +77,7 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
     if (next.length < MAX_CHILDREN - profiles.length) { setKids(next); setStep("more"); return; }
     save(next);
   };
-  const another = () => { setName(""); setYear(null); setAvatar(undefined); setStep("name"); };
+  const another = () => { setName(""); setYear(null); setEarly(undefined); setAvatar(undefined); setStep("name"); };
 
   return (
     <main class="onboard">
@@ -102,7 +107,7 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
           <>
             <h1>{kids.length === 1 ? `${kids[0].name} is ready` : "Everyone so far"}</h1>
             <ul class="list" style="list-style:none;padding:0;margin:12px 0" aria-label="Children on this account">
-              {kids.map((k) => <li key={k.id}><div class="row"><Avatar choice={k.avatar} year={k.year} size={36} /><span>{k.name} <small class="muted">Year {k.year}</small></span></div></li>)}
+              {kids.map((k) => <li key={k.id}><div class="row"><Avatar choice={k.avatar} year={k.year} size={36} /><span>{k.name} <small class="muted">{schoolLabel(k)}</small></span></div></li>)}
             </ul>
             <p class="onboard-sub">{room > 0 ? `Do you have another child to add? An account can have up to ${MAX_CHILDREN}. You can also add more later from the Me page.` : "That's the most one account can have."}</p>
             {room > 0 && <button class="btn big" type="button" onClick={another} data-testid="add-another">Add another child <Icon name="plus" size={20} /></button>}
@@ -115,8 +120,17 @@ export function Onboarding({ first, destination = { name: "home" }, account = fa
             <p class="onboard-sub">The year you're in at school right now.</p>
             <div class="years" role="radiogroup" aria-label="School year">
               {YEARS.map((o) => (
-                <button key={o.y} role="radio" aria-checked={year === o.y} class={`year ${year === o.y ? "on" : ""}`} onClick={() => setYear(o.y)} data-stage={o.stage} data-testid={`year-${o.y}`}>
+                <button key={o.y} role="radio" aria-checked={year === o.y && !early} class={`year ${year === o.y && !early ? "on" : ""}`} onClick={() => { setYear(o.y); setEarly(undefined); }} data-stage={o.stage} data-testid={`year-${o.y}`}>
                   <strong>Year {o.y}</strong><small>{o.age} · {o.stage}</small>
+                </button>
+              ))}
+            </div>
+            <h2 class="little-pick-h">Little ones</h2>
+            <p class="onboard-sub">Touch-and-play activities with no reading: counting, tracing, shapes and colours.</p>
+            <div class="years little-years" role="radiogroup" aria-label="Little ones">
+              {([{ e: "nursery", t: "Nursery", a: "2–4" }, { e: "reception", t: "Reception", a: "4–5" }] as const).map((o) => (
+                <button key={o.e} role="radio" aria-checked={early === o.e} class={`year ${early === o.e ? "on" : ""}`} onClick={() => { setYear(1); setEarly(o.e); }} data-stage="KS1" data-testid={`year-${o.e}`}>
+                  <strong>{o.t}</strong><small>{o.a}</small>
                 </button>
               ))}
             </div>

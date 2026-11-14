@@ -14,7 +14,7 @@ import { AccountSection, SubscriptionSection, WeeklyEmailSection } from "./accou
 import { BookletSection } from "./booklet";
 import { Icon } from "./icons";
 import { LegalFooter } from "./legal";
-import { STATUS_LABEL_PARENT } from "./labels";
+import { STATUS_LABEL_PARENT, schoolLabel } from "./labels";
 import { Maths } from "./maths";
 import { downloadProgressCsv } from "./progress-report";
 import { ParentAssistant } from "./assistant";
@@ -55,18 +55,20 @@ export function Parent() {
   const needsWork = touched.filter((s) => (profile.skills[s.id] as SkillState).wrong > (profile.skills[s.id] as SkillState).right * 0.5 && (profile.skills[s.id] as SkillState).seen >= 3);
   const last = profile.baselines[profile.baselines.length - 1];
 
-  const changeYear = (year: number) =>
+  /** The picker's value: "nursery", "reception", or the school year. Nursery and Reception are stored as Year 1 with a flag. */
+  const changeYear = (value: string) =>
     update((p: Profile) => {
+      const early = value === "nursery" || value === "reception" ? value : undefined, year = early ? 1 : +value;
       const skills = { ...p.skills };
       for (const s of SKILLS) if (s.year < year && !skills[s.id]) skills[s.id] = { box: 3, due: Date.now() + 3 * DAY, seen: 0, right: 0, wrong: 0, last: 0, assumed: true };
-      return { ...p, year, skills };
+      return { ...p, year, early, skills };
     });
 
   return (
     <div class="parent">
       <header class="parent-head">
         <button class="icon-btn" onClick={() => go({ name: "me" })} aria-label="Back to Me"><Icon name="back" size={22} /></button>
-        <div><h1>Parents' area</h1><p class="muted">{profile.name} · Year {profile.year}</p></div>
+        <div><h1>Parents' area</h1><p class="muted">{profile.name} · {schoolLabel(profile)}</p></div>
         <button class="btn small lock-parents" onClick={() => { lockParents(); go({ name: "me" }); }} data-testid="lock-parents"><Icon name="lock" size={16} /> Lock and leave</button>
       </header>
 
@@ -237,8 +239,9 @@ export function Parent() {
             <h2>School year</h2>
             <label class="inline">
               <span class="sr">School year</span>
-              <select value={profile.year} onChange={(e) => changeYear(+(e.target as HTMLSelectElement).value)}>
-                {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => <option value={y}>Year {y}</option>)}
+              <select value={profile.early ?? profile.year} onChange={(e) => changeYear((e.target as HTMLSelectElement).value)}>
+                <option value="nursery">Nursery (ages 2 to 4)</option><option value="reception">Reception (4 to 5)</option>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((y) => <option value={y}>Year {y}</option>)}
               </select>
             </label>
           </section>

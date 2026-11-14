@@ -44,8 +44,15 @@ export function Home() {
   const firstPractice = !last && profile.sessions.length === 0;
   const practicePlan = firstPractice ? plan.slice(0, 3) : plan;
 
+  if (profile.early === "nursery") return <div class="today"><LittleCards /></div>;
+  const showLittle = profile.early === "reception" || profile.year <= 2;
   return (
     <div class="today">
+      {showLittle && (
+        <button type="button" class="little-banner" onClick={() => go({ name: "little" })} data-testid="open-little">
+          <span class="little-banner-art" aria-hidden="true">🎈</span><span><strong>Little ones</strong><small>Counting, tracing, shapes and colours to touch and play</small></span><Icon name="arrow" size={22} />
+        </button>
+      )}
       {!wide && <div class="today-notes"><TablesNote variant="inline" /><StemNote variant="inline" /></div>}
       <section class="activity-section" aria-labelledby="activity-title">
         <div class="activity-heading">
@@ -131,6 +138,7 @@ export function Home() {
 
 
 import { ActivityArt, type ActivityKind } from "./activity-art";
+import { LittleCards } from "./little";
 
 function ActivityCard({ kind, label, title, detail, compactDetail, action, testId, onClick }: {
   kind: ActivityKind; label: string; title: string; detail: string; compactDetail?: string; action: string; testId?: string; onClick: () => void;

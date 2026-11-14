@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { useRemembered } from "./memory";
 import { buildLearningReport, diagnoseAttempt, lastDays, PERIODS, type Example, type Period, type TopicFinding } from "../engine/learning-report";
 import { fixPlan, wrongLogOf } from "../engine/wrong-log";
-import { STATUS_LABEL_PARENT } from "./labels";
+import { STATUS_LABEL_PARENT, schoolLabel } from "./labels";
 import { STAGE_LABEL } from "../curriculum";
 import { SKILL_BY_ID } from "../curriculum";
 import { familyFor } from "../engine/help-methods";
@@ -63,7 +63,7 @@ export function LearningReport() {
     <div class="parent learning-report" data-testid="learning-report">
       <header class="parent-head">
         <button class="icon-btn" onClick={() => leave({ name: "parent" })} aria-label="Back to the Parents' area"><Icon name="back" size={22} /></button>
-        <div><h1>Learning report</h1><p class="muted">{profile.name} · Year {profile.year}</p></div>
+        <div><h1>Learning report</h1><p class="muted">{profile.name} · {schoolLabel(profile)}</p></div>
         <button class="btn small lr-print" onClick={() => setPrinting(true)} data-testid="lr-print"><Icon name="book" size={16} /> Print</button>
       </header>
 

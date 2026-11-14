@@ -6,6 +6,7 @@ import { SKILLS, STAGE_LABEL } from "../curriculum";
 import { currentStreak, statusOf, type Profile } from "../engine/progress";
 import { yearLabel } from "../engine/diagnostic";
 import { useApp } from "./context";
+import { schoolLabel } from "./labels";
 import { SyncChip } from "./account-section";
 import { TipButton } from "./tip";
 import { ParentGate, parentUnlocked } from "./gate";
@@ -65,7 +66,7 @@ export function Me() {
         <Avatar choice={profile.avatar} year={profile.year} size={72} />
         <div>
           <h1>{profile.name}</h1>
-          <p class="muted">Year {profile.year}{last ? ` · working at ${yearLabel(last.theta)}` : ""}</p>
+          <p class="muted">{schoolLabel(profile)}{last ? ` · working at ${yearLabel(last.theta)}` : ""}</p>
           <SyncChip />
         </div>
         <div class="me-head-actions" role="group" aria-label="Help">
@@ -107,7 +108,7 @@ export function Me() {
           {profiles.map((p) => (
             <li key={p.id}>
               <button class={`row ${p.id === profile.id ? "current" : ""}`} onClick={() => { if (p.id === profile.id) return; if (needsKidPin(p.id)) setKidGate(p); else switchTo(p.id); }} aria-current={p.id === profile.id ? "true" : undefined}>
-                <Avatar choice={p.avatar} year={p.year} size={32} /><span>{p.name} <small class="muted">Year {p.year}</small></span>
+                <Avatar choice={p.avatar} year={p.year} size={32} /><span>{p.name} <small class="muted">{schoolLabel(p)}</small></span>
                 {p.id === profile.id ? <Icon name="check" size={18} /> : <Icon name="chevron" size={18} />}
               </button>
             </li>
