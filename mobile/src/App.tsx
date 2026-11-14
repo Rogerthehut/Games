@@ -5,6 +5,7 @@ import * as Sharing from "expo-sharing";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
 import { Component, useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ActivityIndicator, BackHandler, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from "react-native-webview";
 import { APP_HOST, APP_URL, APP_VERSION, BACKGROUND, USER_AGENT_SUFFIX } from "./config";
@@ -69,6 +70,11 @@ export default function App() {
     return () => sub.remove();
   }, [canGoBack]);
 
+  /** If the dock can't draw, give the page its own tab bar back, so the app is never left with none. */
+  const dockFailed = useCallback(() => {
+    setDock({ visible: false, tab: "today" });
+    web.current?.injectJavaScript("window.dispatchEvent(new Event('quarter-native-dock-off')); true;");
+  }, []);
   const tell = useCallback((message: unknown) => web.current?.postMessage(JSON.stringify(message)), []);
 
   const handle = useCallback(async (m: FromWeb) => {
@@ -103,6 +109,7 @@ export default function App() {
   const retry = () => { setFailed(false); setLoading(true); web.current?.reload(); };
 
   return (
+    <SafeAreaProvider>
     <View style={styles.root}>
       <StatusBar style="auto" />
       <Web
@@ -138,7 +145,7 @@ export default function App() {
         originWhitelist={["https://*"]}
         backgroundColor={BACKGROUND}
       />
-      {dock.visible && !failed && (() => { const Dock = loadDock(); return Dock ? <DockGuard onFail={() => setDock({ visible: false, tab: "today" })}><Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} /></DockGuard> : null; })()}
+      {dock.visible && !failed && (() => { const Dock = loadDock(); return Dock ? <DockGuard onFail={dockFailed}><Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} /></DockGuard> : null; })()}
       {loading && !failed && <View style={styles.cover} pointerEvents="none"><ActivityIndicator size="large" color="#2f3a73" /></View>}
       {failed && (
         <View style={styles.cover}>
@@ -148,6 +155,7 @@ export default function App() {
         </View>
       )}
     </View>
+    </SafeAreaProvider>
   );
 }
 

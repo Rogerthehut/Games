@@ -35,7 +35,8 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
   const { go } = useApp();
   const searchDialog = useRef<HTMLDialogElement>(null);
   const rail = useRailWidth();
-  const dock = hasNativeDock();
+  const [dock, setDockOn] = useState(hasNativeDock);
+  useEffect(() => { const off = () => setDockOn(false); window.addEventListener("quarter-dock-fallback", off); return () => window.removeEventListener("quarter-dock-fallback", off); }, []);
   // In the app, a glass dock drawn by the phone replaces the bottom tab bar (on a wide iPad the side menu is used instead)
   useEffect(() => {
     if (!dock) return;

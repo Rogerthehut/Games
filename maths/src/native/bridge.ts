@@ -126,7 +126,10 @@ export function setReminders(r: { enabled: boolean; hour: number; minute: number
 export function askForReview(): void { if (nativeHas("review")) toNative({ type: "review" }); }
 
 /** True when this build of the app draws its own glass tab dock, so the page should not draw its tab bar. */
-export const hasNativeDock = (): boolean => nativeHas("dock");
+let dockOff = false;
+export const hasNativeDock = (): boolean => nativeHas("dock") && !dockOff;
+/** The app says its dock couldn't draw: the page goes back to its own tab bar. */
+export function dockFailed(): void { dockOff = true; if (typeof window !== "undefined") window.dispatchEvent(new Event("quarter-dock-fallback")); }
 /** Tells the app which tab is current, and whether its dock should show (it is hidden during questions and wherever the page has no tab bar). */
 export function setDock(visible: boolean, tab: string): void { if (hasNativeDock()) toNative({ type: "dock", visible, tab }); }
 
@@ -140,6 +143,7 @@ export function onNativeMessage(raw: unknown): void {
   else if (m?.type === "navigate" && typeof m.tab === "string") dispatchEvent(new CustomEvent("quarter-native-nav", { detail: m.tab }));
 }
 if (typeof window !== "undefined") {
+  window.addEventListener("quarter-native-dock-off", () => dockFailed());
   // iOS delivers messages on `window`; Android on `document`
   window.addEventListener("message", (e) => onNativeMessage((e as MessageEvent).data));
   document.addEventListener("message", (e) => onNativeMessage((e as MessageEvent).data));
