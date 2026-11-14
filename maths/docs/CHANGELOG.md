@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## App dock: clearer, and under the page
+The native dock now sits below the page instead of floating over it, on a plain cream bar, so nothing scrolls underneath and the icons are easy to read. The page no longer reserves space for a tab bar in the app, and the scroll arrow sits at the bottom of the page. The iOS build now asks EAS for its latest build image (`eas.json`) so the Liquid Glass effect, which needs the iOS 26 SDK, is available on iOS 26 phones; older iPhones get a frosted blur.
+
 ## Numbers to 100, Snap, and a proper randomiser
 - **Hundred square:** find the numbers up to 100 (up to 10 for Nursery, 20 for Reception), or count in tens.
 - **Tens and units (Reception and up):** build a number from ten-rods and one-cubes (ten cubes swap for a rod), then read one that's built and choose its number. Nursery doesn't get this one.

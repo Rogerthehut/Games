@@ -3826,3 +3826,9 @@ button.little-wait { cursor: pointer; animation: little-bob 1.6s ease-in-out inf
 .snap-turn { min-width: 130px; height: 76px; padding: 0 22px; border: 3px solid #fff; border-radius: 26px; background: #8294e9; color: #fff; font: 800 1.5rem/1 var(--workbook-heading, var(--font-display)); cursor: pointer; box-shadow: 0 10px 22px -10px #18192b99; }
 .snap-call { min-width: 150px; height: 88px; padding: 0 26px; border: 4px solid #fff; border-radius: 30px; background: #f782a9; color: #fff; font: 900 2rem/1 var(--workbook-heading, var(--font-display)); letter-spacing: .04em; cursor: pointer; box-shadow: 0 12px 24px -10px #d9477f; }
 .snap-call.ready { animation: little-bob 1s ease-in-out infinite; } .snap-call.wobble { animation: little-wobble .4s ease; } .snap-turn:active, .snap-call:active { transform: scale(.92); }
+
+/* in the app, the native dock sits below the page instead of over it: no space to reserve for a tab bar, and the scroll arrow sits at the bottom of the page */
+@media (max-width: 899px) {
+  html.native-dock .content { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+  html.native-dock .more-below { bottom: 10px; }
+}

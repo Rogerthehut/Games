@@ -31,18 +31,18 @@ export function Dock({ tab, onSelect }: { tab: DockTab | "none"; onSelect: (t: D
       </Pressable>
     );
   });
-  const position = { bottom: Math.max(inset.bottom, 12) };
+  // The dock sits below the page, not over it, so nothing scrolls underneath and every icon is easy to read
   return (
-    <View style={[styles.wrap, position]} pointerEvents="box-none" accessibilityRole="tablist">
+    <View style={[styles.wrap, { paddingBottom: Math.max(inset.bottom, 10) }]} accessibilityRole="tablist">
       {glass
-        ? <GlassView glassEffectStyle="regular" isInteractive style={styles.pill}>{items}</GlassView>
-        : <BlurView intensity={70} tint="systemChromeMaterialLight" style={[styles.pill, styles.blurred]}>{items}</BlurView>}
+        ? <GlassView glassEffectStyle="regular" tintColor="#ffffff66" isInteractive style={styles.pill}>{items}</GlassView>
+        : <BlurView intensity={90} tint="systemChromeMaterialLight" style={[styles.pill, styles.blurred]}>{items}</BlurView>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  wrap: { alignItems: "center", paddingTop: 8, backgroundColor: "#faf5ea", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#18192b22" },
   pill: { flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 34, gap: 2, minWidth: 280, justifyContent: "space-around", overflow: "hidden" },
   blurred: { borderWidth: StyleSheet.hairlineWidth, borderColor: "#18192b22", shadowColor: "#18192b", shadowOpacity: 0.16, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
   item: { alignItems: "center", justifyContent: "center", minWidth: 64, paddingVertical: 2, gap: 1 },
