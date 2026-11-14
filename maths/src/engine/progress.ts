@@ -122,6 +122,8 @@ export interface Profile {
   fractionsLessonHelped?: boolean;
   fractionsLessonAnswer?: string;
   narrationVoice?: "female" | "male";
+  /** A particular voice the grown-up picked by name (it may not exist on another device, so the best voice is used then). */
+  narrationVoiceName?: string;
   avatar?: AvatarChoice;
   /** The grown-up has switched off the anonymous question statistics for this learner (docs/DATA_COLLECTION.md). On unless this is false. */
   shareStats?: boolean;

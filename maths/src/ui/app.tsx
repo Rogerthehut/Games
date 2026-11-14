@@ -14,6 +14,8 @@ import { LearningReport } from "./learning-report";
 import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
+import { setVoicePrefs } from "./voices";
+import { setChosenVoiceName } from "./practice-audio";
 import { LittleHub } from "./little";
 import { Tables } from "./tables";
 import { Stem } from "./stem";
@@ -168,6 +170,8 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   }, [route, showWelcome]);
 
   const profile = store.profiles.find((p) => p.id === store.activeId) ?? store.profiles[0];
+  // the spoken parts use this learner's voice choice (the best voice the device has unless a grown-up picked one)
+  useEffect(() => { setVoicePrefs(profile?.narrationVoice ?? "female", profile?.narrationVoiceName); setChosenVoiceName(profile?.narrationVoiceName); }, [profile?.id, profile?.narrationVoice, profile?.narrationVoiceName]);
   const skin = resolveSkin(profile);
   useEffect(() => applySkin(skin), [skin, route.name]);
 

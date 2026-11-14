@@ -1,5 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import type { ShapeKind } from "../engine/little";
+import { currentVoice, loadVoices, SPEECH_STYLE } from "./voices";
+
+if (typeof speechSynthesis !== "undefined") void loadVoices();   // some browsers only list their voices a moment after loading
 
 /** Sound for the Little ones activities: a soft blip that goes up with each number, and a gentle voice. Both can be switched off with the speaker button. */
 const KEY = "quarter.littleSound";
@@ -21,7 +24,7 @@ export function blip(step = 0, kind: "tap" | "win" | "oops" = "tap") {
 }
 export function say(text: string) {
   if (!littleSoundOn()) return;
-  try { stopSpeaking(); const u = new SpeechSynthesisUtterance(text); u.lang = "en-GB"; u.rate = 0.85; u.pitch = 1.25; speechSynthesis.speak(u); } catch { /* no speech */ }
+  try { stopSpeaking(); const u = new SpeechSynthesisUtterance(text), v = currentVoice(); if (v) u.voice = v; u.lang = v?.lang ?? "en-GB"; u.rate = SPEECH_STYLE.little.rate; u.pitch = SPEECH_STYLE.little.pitch; speechSynthesis.speak(u); } catch { /* no speech */ }
 }
 export const buzz = (ms = 12) => { try { navigator.vibrate?.(ms); } catch { /* no vibration */ } };
 

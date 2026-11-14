@@ -1,13 +1,8 @@
+import { chooseVoice, loadVoices, sentences, SPEECH_STYLE } from "./voices";
 import tapUrl from "../assets/kenney/click_002.mp3";
 import successUrl from "../assets/kenney/confirmation_001.mp3";
 
 export type NarrationVoice = "female" | "male";
-
-// Browser voices have names and locales, but no standard gender field.
-const VOICE_NAMES: Record<NarrationVoice, RegExp> = {
-  female: /\b(female|kate|serena|martha|sonia|libby|susan|hazel|samantha|aria|jenny|zira|ava|allison|karen)\b/i,
-  male: /\b(male|daniel|oliver|arthur|ryan|george|thomas|alex|guy|davis|david|fred|lee|tom)\b/i,
-};
 
 export type NarrationStatus = "idle" | "loading" | "playing" | "fallback" | "error";
 
@@ -21,52 +16,50 @@ export function stopPracticeNarration() {
   if (speech?.speaking || speech?.pending || speech?.paused) speech.cancel();
 }
 
-export function readPracticeQuestion(text: string, preference: NarrationVoice, report: (status: NarrationStatus) => void) {
+/** The voice a grown-up chose by name for the learner who is using the app, if any. Set whenever the active learner changes. */
+let chosenName: string | undefined;
+export const setChosenVoiceName = (name?: string) => { chosenName = name; };
+export const getChosenVoiceName = () => chosenName;
+
+/**
+ * Reads text aloud with the best voice the device has (see voices.ts), a sentence at a time so it keeps a natural rhythm and long passages don't
+ * cut out. `report` says when it starts and ends, and whether it had to fall back to a plain voice.
+ */
+export async function readPracticeQuestion(text: string, preference: NarrationVoice, report: (status: NarrationStatus) => void) {
   const speech = window.speechSynthesis;
   stopPracticeNarration();
-  const english = speech.getVoices().filter(({ lang }) => /^en\b/i.test(lang.replace("_", "-")));
-  const ranked = [...english].sort((a, b) => voiceRank(b) - voiceRank(a));
-  const match = ranked.find(({ name }) => VOICE_NAMES[preference].test(name));
-  const selected = match ?? ranked[0];
-  const say = (voice?: SpeechSynthesisVoice) => {
-    const utterance = new SpeechSynthesisUtterance(/[.!?]$/.test(text) ? text : `${text}.`);
+  report("loading");
+  await loadVoices();
+  const match = chooseVoice(preference, chosenName);
+  const parts = sentences(/[.!?]$/.test(text) ? text : `${text}.`);
+  if (!parts.length) { report("idle"); return; }
+  const token = {} as SpeechSynthesisUtterance; // marks this reading, so a newer one (or Stop) ends this one quietly
+  activeNarration = token;
+  const speakPart = (k: number, voice?: SpeechSynthesisVoice) => {
+    if (activeNarration !== token) return;
+    const utterance = new SpeechSynthesisUtterance(parts[k]);
     if (voice) utterance.voice = voice;
     utterance.lang = voice?.lang ?? "en-GB";
-    utterance.rate = 0.95;
-    utterance.pitch = 1.02;
-    activeNarration = utterance;
+    utterance.rate = SPEECH_STYLE.reading.rate;
+    utterance.pitch = SPEECH_STYLE.reading.pitch;
     const fail = () => {
-      if (activeNarration !== utterance) return;
-      stopPracticeNarration();
-      if (voice) say();
-      else report("error");
-    };
-    utterance.onstart = () => {
-      if (activeNarration !== utterance) return;
+      if (activeNarration !== token) return;
       clearTimeout(narrationTimer);
-      report(voice && voice === match ? "playing" : "fallback");
+      if (voice) { speakPart(k); return; }          // this voice failed: try the device's default one
+      stopPracticeNarration(); report("error");
     };
+    utterance.onstart = () => { if (activeNarration !== token) return; clearTimeout(narrationTimer); if (k === 0) report(voice && voice === match ? "playing" : "fallback"); };
     utterance.onend = () => {
-      if (activeNarration !== utterance) return;
+      if (activeNarration !== token) return;
       clearTimeout(narrationTimer);
-      activeNarration = undefined;
-      report(voice && voice === match ? "idle" : "fallback");
+      if (k + 1 < parts.length) { speakPart(k + 1, voice); return; }
+      activeNarration = undefined; report(voice && voice === match ? "idle" : "fallback");
     };
     utterance.onerror = fail;
-    narrationTimer = setTimeout(fail, 4500);
-    try {
-      if (speech.paused) speech.resume();
-      speech.speak(utterance);
-    } catch { fail(); }
+    narrationTimer = setTimeout(fail, 6000);
+    try { if (speech.paused) speech.resume(); speech.speak(utterance); } catch { fail(); }
   };
-  report("loading");
-  say(selected);
-}
-
-function voiceRank(voice: SpeechSynthesisVoice): number {
-  return (/^en[-_]GB$/i.test(voice.lang) ? 4 : 0)
-    + (/\b(premium|enhanced|natural|online)\b/i.test(voice.name) ? 2 : 0)
-    + (voice.localService ? 1 : 0);
+  speakPart(0, match);
 }
 
 /** Read plain text and simple arithmetic. Leave richer notation to the on-screen maths renderer. */
