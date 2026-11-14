@@ -200,5 +200,5 @@ export function readableOn(hex: string): "#121522" | "#ffffff" {
   return onLight > onDark ? "#121522" : "#ffffff";
 }
 /** Pictures by how many colours they use, so the youngest get the simple ones. */
-export const artFor = (stage: "nursery" | "reception" | "older"): ColourArt[] => COLOUR_ART.filter((a) => Object.keys(a.palette).length <= (stage === "nursery" ? 4 : stage === "reception" ? 6 : 7));
+export const artFor = (stage: "nursery" | "reception" | "older"): ColourArt[] => COLOUR_ART.filter((a) => Object.keys(a.palette).length <= (stage === "nursery" ? 5 : stage === "reception" ? 6 : 7));
 export const artNumbers = (a: ColourArt) => [...new Set(a.regions.map((r) => r.n))].sort((x, y) => x - y);

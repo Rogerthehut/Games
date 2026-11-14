@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Colour by number keeps going round the whole set
+The rotation of pictures is now remembered when the app is closed, so a learner sees every picture in their set before any comes back, rather than the order starting afresh on each visit (which made the same few appear again and again). Nursery now also gets the five-colour pictures (the cat and the robot).
+
 ## Readable numbers on colour swatches
 In colour by number the number on each colour button is now white when the colour is dark (the ladybird's black, the rocket's navy) and dark when it is light. A test checks every colour in every picture reaches at least 3 to 1 contrast, the standard for large bold text (the browns come to just over 4 to 1).
 

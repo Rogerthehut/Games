@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Randomiser } from "./little-random";
+import { afterEach, beforeEach } from "vitest";
 
 describe("the Little ones randomiser", () => {
   it("is repeatable with a seed, and different without one", () => {
@@ -30,5 +31,23 @@ describe("the Little ones randomiser", () => {
     const r = new Randomiser(21), counts = new Map<number, number>();
     for (let i = 0; i < 3000; i++) { const v = r.bag("f", [1, 2, 3, 4, 5, 6]); counts.set(v, (counts.get(v) ?? 0) + 1); }
     for (const c of counts.values()) expect(c).toBe(500);
+  });
+});
+
+describe("the rotation carries on after the app is closed", () => {
+  const store = new Map<string, string>(); const g = globalThis as Record<string, unknown>;
+  beforeEach(() => { store.clear(); g.localStorage = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v), removeItem: (k: string) => void store.delete(k) }; });
+  afterEach(() => { delete g.localStorage; });
+  it("a new visit continues the same bag: every picture is shown once before any comes back, even across restarts", () => {
+    const items = ["a", "b", "c", "d", "e", "f", "g"]; const seen: string[] = [];
+    for (let visit = 0; visit < 7; visit++) { const r = new Randomiser(visit + 1, true); seen.push(r.bag("art", items)); }   // seven visits, one picture each
+    expect(new Set(seen).size).toBe(7);
+    const more: string[] = []; for (let visit = 7; visit < 14; visit++) { const r = new Randomiser(visit + 1, true); more.push(r.bag("art", items)); }
+    expect(new Set(more).size).toBe(7); expect(more[0]).not.toBe(seen[6]);
+  });
+  it("copes with a smaller set of pictures than the saved bag", () => {
+    const r1 = new Randomiser(1, true); r1.bag("art", ["a", "b", "c", "d", "e"]);
+    const r2 = new Randomiser(2, true); const small = ["a", "b"]; const got = [r2.bag("art", small), r2.bag("art", small), r2.bag("art", small)];
+    got.forEach((x) => expect(small).toContain(x));
   });
 });

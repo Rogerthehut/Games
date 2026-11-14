@@ -5,7 +5,7 @@ import { mulberry32 } from "./rng";
  * running feels like a bug), so everything is drawn through here: a "bag" hands out each item once before any comes round again, and
  * "recent" draws avoid the last few answers. It remembers the last few across visits, and can be seeded so tests are repeatable.
  */
-const KEY = "quarter.littleRecent";
+const KEY = "quarter.littleRecent", BAG_KEY = "quarter.littleBags";
 export class Randomiser {
   private next: () => number;
   private bags = new Map<string, unknown[]>();
@@ -15,6 +15,9 @@ export class Randomiser {
     this.next = mulberry32(s >>> 0);
     if (remember) this.load();
   }
+  /** Bags survive closing the app, so the pictures keep going round in turn (every one is shown before any comes back), not starting afresh each visit. */
+  private loadBags(): Record<string, unknown[]> { try { return JSON.parse(localStorage.getItem(BAG_KEY) ?? "{}") as Record<string, unknown[]>; } catch { return {}; } }
+  private saveBags() { if (!this.remember) return; try { localStorage.setItem(BAG_KEY, JSON.stringify(Object.fromEntries(this.bags))); } catch { /* private mode */ } }
   static freshSeed(): number {
     try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0]; } catch { return (Date.now() ^ Math.floor(Math.random() * 2 ** 31)) >>> 0; }
   }
@@ -26,13 +29,16 @@ export class Randomiser {
   /** Each item once, in a new order, before any comes back; the first of a new round is never the last of the old one. */
   bag<T>(key: string, items: readonly T[]): T {
     let q = this.bags.get(key) as T[] | undefined;
+    if (!q && this.remember) { const saved = this.loadBags()[key]; if (Array.isArray(saved)) q = (saved as T[]).filter((x) => items.includes(x)); }   // carry on from last time
+    if (q) q = q.filter((x) => items.includes(x));                                                                                              // a smaller set of pictures (a younger learner) than the saved bag
     if (!q || q.length === 0) {
       const last = this.last(key) as T | undefined;
       q = this.shuffle(items);
       if (items.length > 1 && q.length && q[q.length - 1] === last) { [q[0], q[q.length - 1]] = [q[q.length - 1], q[0]]; }   // the next to come out is the end of the array
       this.bags.set(key, q);
     }
-    const v = q.pop() as T; this.note(key, v, 6); return v;
+    this.bags.set(key, q);
+    const v = q.pop() as T; this.note(key, v, 6); this.saveBags(); return v;
   }
   /** A whole number that isn't one of the last few drawn for this key (as many as the range allows). */
   intFresh(key: string, lo: number, hi: number, avoid = 4): number {
