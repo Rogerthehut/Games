@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Terms and privacy links on the sign-up screens
+The links to the terms, privacy notice and cookies on the sign-in and account screens were plain browser links (underlined, and blue on some devices). They now use the same style as the rest of the legal links: no underline at rest, and the animated underline when touched, hovered or focused.
+
 ## The app's tab bar is now the system tab bar
 `mobile/modules/quarter-tabbar` is a small native iOS module that puts a real UIKit tab bar (Today, Skills, Plan, Search, with SF Symbols and quarter pink on the selected tab) below the page. Because it is the system's own control, iOS 26 draws it as Liquid Glass, and older iPhones show the ordinary iOS tab bar. If a build doesn't contain the module, or it can't load, the app falls back to the glass pill, and then to the page's own tab bar. It needs a new EAS build and has not been compiled or run by us yet (no Mac here): if the build fails, send the error from the build log.
 

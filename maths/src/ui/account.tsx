@@ -37,7 +37,7 @@ const Shell = ({ children, wide }: { children: preact.ComponentChildren; wide?: 
 );
 const Legal = () => (
   <p class="small muted account-legal">
-    <a href="./?info=privacy">Privacy notice</a> · <a href="./?info=terms">Terms of use</a> · <a href="./?info=cookies">Cookies</a>
+    <a href="./?info=privacy" class="legal-link">Privacy notice</a> · <a href="./?info=terms" class="legal-link">Terms of use</a> · <a href="./?info=cookies" class="legal-link">Cookies</a>
   </p>
 );
 
@@ -270,7 +270,7 @@ function Paywall({ billing, email, onChoose, onSignOut, onExport }: { billing: B
       {chosen && (
         <p class="small muted account-hint">
           {trial ? `You won't be charged until the trial ends. Then ${money(chosen)} a ${per(chosen)}, renewing automatically until you cancel.` : `You'll be charged ${money(chosen)} now, then every ${per(chosen)} until you cancel.`}
-          {" "}Cancel any time in the Parents' area, under Subscription. Payment is handled by Stripe, so we never see your card details. See the <a href="./?info=terms">terms</a> and <a href="./?info=privacy">privacy notice</a>.
+          {" "}Cancel any time in the Parents' area, under Subscription. Payment is handled by Stripe, so we never see your card details. See the <a href="./?info=terms" class="legal-link">terms</a> and <a href="./?info=privacy" class="legal-link">privacy notice</a>.
         </p>
       )}
       {err && <p class="alert-note" role="alert">{err}</p>}
@@ -327,7 +327,7 @@ function SignedOut({ auth }: { auth: AuthClient | null }) {
               setAgreed(on);
               if (on) rememberAgreement(TERMS_VERSION); else forgetAgreement();
             }} />
-            <span>I’m a parent or guardian, setting this account up on behalf of my child (or children). I agree to the <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a> and have read the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a>.</span>
+            <span>I’m a parent or guardian, setting this account up on behalf of my child (or children). I agree to the <a href="./?info=terms" class="legal-link" target="_blank" rel="noopener">terms of use</a> and have read the <a href="./?info=privacy" class="legal-link" target="_blank" rel="noopener">privacy notice</a>.</span>
           </label>
           {!agreed && <p class="small muted">Please tick the box to create your account.</p>}
         </div>
@@ -359,7 +359,7 @@ function Consent({ onAgree, onSignOut }: { onAgree(): Promise<void>; onSignOut()
       </ul>
       <label class="account-check">
         <input type="checkbox" checked={ok} onChange={() => setOk(!ok)} data-testid="consent-check" />
-        <span>I'm a parent or guardian, setting this up on behalf of my child (or children), and I agree to the <a href="./?info=privacy" target="_blank" rel="noopener">privacy notice</a> and <a href="./?info=terms" target="_blank" rel="noopener">terms of use</a>.</span>
+        <span>I'm a parent or guardian, setting this up on behalf of my child (or children), and I agree to the <a href="./?info=privacy" class="legal-link" target="_blank" rel="noopener">privacy notice</a> and <a href="./?info=terms" class="legal-link" target="_blank" rel="noopener">terms of use</a>.</span>
       </label>
       {err && <p class="error" role="alert">{err}</p>}
       <button class="btn primary big" disabled={!ok || busy} onClick={go} data-testid="consent-go">Agree and continue <Icon name="arrow" size={20} /></button>

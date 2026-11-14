@@ -98,7 +98,7 @@ export function MyDataPage({ load, email, onBack }: { load(): Promise<unknown>; 
 
           <section class="pr-sec">
             <h2>Your choices</h2>
-            <p>You can change a learner's name, turn the AI tutor on or off, download this information, or delete the whole account in the Parents' area, under Settings. Deleting removes the account, every learner and the subscription, for good. For anything else, <a href="./?info=contact">message us</a>.</p>
+            <p>You can change a learner's name, turn the AI tutor on or off, download this information, or delete the whole account in the Parents' area, under Settings. Deleting removes the account, every learner and the subscription, for good. For anything else, <a class="legal-link" href="./?info=contact">message us</a>.</p>
           </section>
 
           <footer class="pr-foot">
