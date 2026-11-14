@@ -22,19 +22,21 @@ const ICONS: Record<DockTab, (c: string) => React.ReactNode> = {
   search: (c) => <><Circle cx="11" cy="11" r="6.5" stroke={c} /><Path d="m16 16 4.5 4.5" stroke={c} /></>,
 };
 
-export function Dock({ tab, onSelect }: { tab: DockTab | "none"; onSelect: (t: DockTab) => void }) {
+export function Dock({ tab, tabs, onSelect }: { tab: DockTab | "none"; tabs?: DockTab[]; onSelect: (t: DockTab) => void }) {
+  // the page says which tabs this learner is offered (the youngest have no Plan); Search is always there
+  const shown = DOCK_TABS.filter((t) => t.id === "search" || !tabs || tabs.includes(t.id));
   const inset = useSafeAreaInsets();
   if (NativeBar) {
     return (
       <View style={{ height: 49 + inset.bottom }} accessibilityRole="tablist">
         <NativeBar style={{ flex: 1 }} tint={PINK} selected={tab === "none" ? null : tab}
-          items={DOCK_TABS.map((t) => ({ id: t.id, title: t.label, symbol: SYMBOLS[t.id] }))}
+          items={shown.map((t) => ({ id: t.id, title: t.label, symbol: SYMBOLS[t.id] }))}
           onSelect={(e) => { const id = e.nativeEvent.id; if (DOCK_TABS.some((t) => t.id === id)) onSelect(id as DockTab); }} />
       </View>
     );
   }
   const glass = Platform.OS === "ios" && isLiquidGlassAvailable();
-  const items = DOCK_TABS.map((t) => {
+  const items = shown.map((t) => {
     const on = t.id === tab, colour = on ? PINK : INK;
     return (
       <Pressable key={t.id} onPress={() => onSelect(t.id)} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t.label} style={styles.item} hitSlop={4}>

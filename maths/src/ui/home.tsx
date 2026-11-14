@@ -44,6 +44,7 @@ export function Home() {
   const firstPractice = !last && profile.sessions.length === 0;
   const practicePlan = firstPractice ? plan.slice(0, 3) : plan;
 
+  const assessed = hasAssessments(profile);   // the check-up and plan are for Year 3 and up
   if (profile.early === "nursery") return <div class="today"><LittleCards /></div>;
   const showLittle = profile.early === "reception" || profile.year <= 2;
   return (
@@ -71,14 +72,14 @@ export function Home() {
             onClick={() => go({ name: "practice", plan: practicePlan })} />
           <ActivityCard kind="skills" label="02 / Skills" title="Pick a skill."
             detail="Explore topics and practise something you choose." action="Explore skills" onClick={() => go({ name: "map" })} />
-          <ActivityCard kind="checkup" label="03 / Check-up" title={pausedCheckup ? "Keep going." : "Find your level."}
+          {assessed && <ActivityCard kind="checkup" label="03 / Check-up" title={pausedCheckup ? "Keep going." : "Find your level."}
             detail={pausedCheckup ? `${midTest} of ${TEST_LENGTH} questions done.` : `${TEST_LENGTH} questions · about 20 min`}
             action={pausedCheckup ? "Continue check-up" : last ? "Take another check-up" : "Start check-up"} testId="start-checkup"
-            onClick={() => go({ name: "checkup" })} />
-          <ActivityCard kind="plan" label="04 / Plan" title="See your next steps."
+            onClick={() => go({ name: "checkup" })} />}
+          {assessed && <ActivityCard kind="plan" label="04 / Plan" title="See your next steps."
             detail={week ? `Week ${week.n} · ${week.kind === "learn" ? week.note : week.kind === "review" ? "Revision" : "Practice paper"}` : "See what to work on and make a plan."}
             action={last && !profile.plan ? "Build your plan" : "View plan"} testId="build-plan"
-            onClick={() => go({ name: "plan" })} />
+            onClick={() => go({ name: "plan" })} />}
         </div>
       </section>
 
@@ -139,6 +140,7 @@ export function Home() {
 
 import { ActivityArt, type ActivityKind } from "./activity-art";
 import { LittleCards } from "./little";
+import { hasAssessments } from "../engine/age";
 
 function ActivityCard({ kind, label, title, detail, compactDetail, action, testId, onClick }: {
   kind: ActivityKind; label: string; title: string; detail: string; compactDetail?: string; action: string; testId?: string; onClick: () => void;

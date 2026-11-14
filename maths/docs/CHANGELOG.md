@@ -12,6 +12,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 ## The Voice list follows Female or Male
 The Voice list now shows only voices that suit the chosen Female or Male setting (judged from the voice's name, since browsers don't say), instead of all of them. A voice whose name doesn't say stays in both lists, so nothing is hidden by a wrong guess.
 
+## Age rules: what each age is offered
+`src/engine/age.ts` decides what suits each age. **Nursery** has Little ones only: no practice, Skills page (shows only Little ones), check-up, plan, tests, times tables or STEM lab, no Plan tab, and Me shows games finished instead of topic counts and no "Next up". **Reception, Year 1 and Year 2** keep practice and skills alongside Little ones but have no check-up, plan, mock or practice papers, stage tests or certificates (those start at Year 3 content), and no Plan tab. **Year 3 and up** have everything, as before. Search doesn't point to anything a learner isn't offered, and an old link or saved screen for something not offered goes to Today. In the iPhone app the tab bar drops Plan for the youngest (needs a new app build). Tested at `scripts/age-e2e.ts` for Nursery, Reception, Year 2 and Year 6 on phone and desktop.
+
 ## Voice list: no more look-alike entries
 iPhones install the same voice in more than one quality (a compact and an enhanced or premium Samantha or Daniel), and both are called by the same name, so the Voice list showed doubles and picking one couldn't tell them apart. The list now labels each voice with its region and quality ("Daniel · UK · Premium", "Samantha · US · Standard"), picks by the voice's own id instead of its name, shows exact duplicates once, and ranks the better quality first.
 

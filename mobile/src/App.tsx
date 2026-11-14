@@ -32,7 +32,7 @@ const BEFORE_LOAD = `window.__quarterNative = ${NATIVE_INFO}; true;`;
  * The glass dock needs three native modules that older builds don't have. It is loaded only when first wanted, inside a try, and drawn inside an
  * error boundary, so if any of it fails the app simply has no dock (the page then draws its own tab bar) instead of closing.
  */
-type DockProps = { tab: DockTab | "none"; onSelect: (t: DockTab) => void };
+type DockProps = { tab: DockTab | "none"; tabs?: DockTab[]; onSelect: (t: DockTab) => void };
 let dockComponent: ComponentType<DockProps> | null | undefined;
 function loadDock(): ComponentType<DockProps> | null {
   if (dockComponent === undefined) {
@@ -53,7 +53,7 @@ export default function App() {
   const [failed, setFailed] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const [uri, setUri] = useState(APP_URL);
-  const [dock, setDock] = useState<{ visible: boolean; tab: DockTab | "none" }>({ visible: false, tab: "today" });
+  const [dock, setDock] = useState<{ visible: boolean; tab: DockTab | "none"; tabs?: DockTab[] }>({ visible: false, tab: "today" });
 
   // Links to the site (from Messages, Mail, Safari) open here, on the page they point to
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function App() {
       case "biometric": tell({ type: "biometric-result", id: m.id, result: await biometric(m.reason) }); break;
       case "reminders": tell({ type: "reminders-result", result: await setReminders(m) }); break;
       case "review": await askForReview(); break;
-      case "dock": if (isDockSelection(m.tab)) setDock({ visible: m.visible, tab: m.tab }); break;
+      case "dock": if (isDockSelection(m.tab)) setDock({ visible: m.visible, tab: m.tab, tabs: m.tabs }); break;
     }
   }, [tell]);
 
@@ -145,7 +145,7 @@ export default function App() {
         originWhitelist={["https://*"]}
         backgroundColor={BACKGROUND}
       />
-      {dock.visible && !failed && (() => { const Dock = loadDock(); return Dock ? <DockGuard onFail={dockFailed}><Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} /></DockGuard> : null; })()}
+      {dock.visible && !failed && (() => { const Dock = loadDock(); return Dock ? <DockGuard onFail={dockFailed}><Dock tab={dock.tab} tabs={dock.tabs} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} /></DockGuard> : null; })()}
       {loading && !failed && <View style={styles.cover} pointerEvents="none"><ActivityIndicator size="large" color="#2f3a73" /></View>}
       {failed && (
         <View style={styles.cover}>

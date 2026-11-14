@@ -11,7 +11,7 @@ export type FromWeb =
   /** Show Apple's rating prompt (Apple decides whether it appears; at most three times a year). */
   | { type: "review" }
   /** Show, hide or update the app's own tab dock. */
-  | { type: "dock"; visible: boolean; tab: string };
+  | { type: "dock"; visible: boolean; tab: string; /** the tabs to show, when not all of them */ tabs?: DockTab[] };
 
 export const DOCK_TABS = [{ id: "today", label: "Today" }, { id: "skills", label: "Skills" }, { id: "plan", label: "Plan" }, { id: "search", label: "Search" }] as const;
 export type DockTab = (typeof DOCK_TABS)[number]["id"];
@@ -55,7 +55,11 @@ export function parseMessage(raw: string): FromWeb | null {
       return { type: "reminders", enabled: m.enabled, hour, minute, days: (days as number[]).sort((a, b) => a - b) };
     }
     case "review": return { type: "review" };
-    case "dock": return typeof m.visible === "boolean" && isDockSelection(m.tab) ? { type: "dock", visible: m.visible, tab: m.tab } : null;
+    case "dock": {
+      if (typeof m.visible !== "boolean" || !isDockSelection(m.tab)) return null;
+      const tabs = Array.isArray(m.tabs) ? (m.tabs.filter(isDockTab) as DockTab[]) : undefined;
+      return { type: "dock", visible: m.visible, tab: m.tab, ...(tabs && tabs.length ? { tabs } : {}) };
+    }
     default: return null;
   }
 }

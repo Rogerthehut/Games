@@ -38,3 +38,7 @@ test("accepts the dock message only for the four real tabs", () => {
   assert.deepEqual(parseMessage(j({ type: "dock", visible: true, tab: "none" })), { type: "dock", visible: true, tab: "none" });
   assert.equal(parseMessage(j({ type: "dock", visible: "yes", tab: "me" })), null);
 });
+test("the dock message can name the tabs to show, and ignores unknown ones", () => {
+  assert.deepEqual(parseMessage(j({ type: "dock", visible: true, tab: "today", tabs: ["today", "skills", "admin"] })), { type: "dock", visible: true, tab: "today", tabs: ["today", "skills"] });
+  assert.deepEqual(parseMessage(j({ type: "dock", visible: true, tab: "today", tabs: [] })), { type: "dock", visible: true, tab: "today" });
+});

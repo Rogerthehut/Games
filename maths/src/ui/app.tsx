@@ -15,6 +15,7 @@ import { TimeLesson } from "./time-lesson";
 import { AnglesLesson } from "./angles-lesson";
 import { EqualGroups } from "./equal-groups";
 import { setVoicePrefs } from "./voices";
+import { routeAllowed } from "../engine/age";
 import { setChosenVoiceName } from "./practice-audio";
 import { LittleHub } from "./little";
 import { Tables } from "./tables";
@@ -170,6 +171,8 @@ export function App({ initialStore, bridge }: { initialStore?: Store; bridge?: A
   }, [route, showWelcome]);
 
   const profile = store.profiles.find((p) => p.id === store.activeId) ?? store.profiles[0];
+  // a saved screen or old link that points at something this age isn't offered (the check-up for a four-year-old) goes to Today instead
+  useEffect(() => { if (profile && !routeAllowed(profile, route.name)) showRoute({ name: "home" }); }, [route.name, profile?.id, profile?.year, profile?.early]);
   // the spoken parts use this learner's voice choice (the best voice the device has unless a grown-up picked one)
   useEffect(() => { setVoicePrefs(profile?.narrationVoice ?? "female", profile?.narrationVoiceName); setChosenVoiceName(profile?.narrationVoiceName); }, [profile?.id, profile?.narrationVoice, profile?.narrationVoiceName]);
   const skin = resolveSkin(profile);

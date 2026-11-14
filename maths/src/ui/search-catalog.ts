@@ -1,3 +1,4 @@
+import { hasSchoolWork, routeAllowed } from "../engine/age";
 import { ALL_SKILLS, SKILL_BY_ID, STAGE_LABEL } from "../curriculum";
 import { STAGE_ORDER } from "../engine/activity";
 import { canTakePathwayTest, pathwayTestName } from "../engine/pathway";
@@ -113,5 +114,8 @@ export function quarterSearch(profile: Profile) {
       available.push(entry(`${STAGE_LABEL[stage]} certificate`, "Certificate", `${stage} award achievement download`, { name: "certificate", stage }));
     }
   }
-  return makeSearchIndex([...pages, ...lessons, ...curriculum, ...studyGuides, ...available]);
+  // the youngest aren't offered the check-up, plan or tests, and Nursery isn't offered the Year 3 and up topics, so search doesn't point there
+  const offered = (e: Entry) => !("route" in e.destination) || routeAllowed(profile, e.destination.route.name);
+  const schoolWork = hasSchoolWork(profile);
+  return makeSearchIndex([...pages.filter(offered), ...(schoolWork ? [...lessons, ...curriculum, ...studyGuides] : []), ...available.filter(offered)]);
 }

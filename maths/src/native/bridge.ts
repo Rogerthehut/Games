@@ -23,7 +23,7 @@ export type ToNative =
   | { type: "reminders"; enabled: boolean; hour: number; minute: number; days: number[] }
   | { type: "review" }
   /** Shows, hides or updates the app's own tab dock (Today, Skills, Plan, Me), which stands in for the page's bottom tab bar. */
-  | { type: "dock"; visible: boolean; tab: string };
+  | { type: "dock"; visible: boolean; tab: string; /** which tabs to show, when a learner is not offered all of them */ tabs?: string[] };
 
 interface NativeWindow { __quarterNative?: NativeInfo; ReactNativeWebView?: { postMessage(message: string): void } }
 const win = (): (NativeWindow & Window) | null => (typeof window === "undefined" ? null : (window as unknown as NativeWindow & Window));
@@ -131,7 +131,7 @@ export const hasNativeDock = (): boolean => nativeHas("dock") && !dockOff;
 /** The app says its dock couldn't draw: the page goes back to its own tab bar. */
 export function dockFailed(): void { dockOff = true; if (typeof window !== "undefined") window.dispatchEvent(new Event("quarter-dock-fallback")); }
 /** Tells the app which tab is current, and whether its dock should show (it is hidden during questions and wherever the page has no tab bar). */
-export function setDock(visible: boolean, tab: string): void { if (hasNativeDock()) toNative({ type: "dock", visible, tab }); }
+export function setDock(visible: boolean, tab: string, tabs?: string[]): void { if (hasNativeDock()) toNative({ type: "dock", visible, tab, ...(tabs ? { tabs } : {}) }); }
 
 /** Messages from the app: when the print sheet closes, behave as a browser does after printing; and the answers to the questions above. */
 export function onNativeMessage(raw: unknown): void {

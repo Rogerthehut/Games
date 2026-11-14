@@ -1,3 +1,4 @@
+import { hasAssessments, hasSchoolWork } from "../engine/age";
 import { useEffect, useState } from "preact/hooks";
 import { MyProgress } from "./progress-shelf";
 import { AVATAR_ROLES, GLASSES, avatarForYear, type AvatarRole } from "../engine/avatar";
@@ -56,6 +57,7 @@ export function Me() {
   const last = profile.baselines[profile.baselines.length - 1];
   const secure = SKILLS.filter((s) => statusOf(profile.skills[s.id]) === "secure").length;
   const streak = currentStreak(profile);
+  const assessed = hasAssessments(profile), schoolWork = hasSchoolWork(profile);   // see engine/age.ts
 
   return (
     <div class="me">
@@ -75,15 +77,16 @@ export function Me() {
       <dl class="stat-row">
         <div><dt><Icon name="star" size={18} /> Day streak</dt><dd>{streak}</dd></div>
         <div><dt>Points</dt><dd>{profile.points}</dd></div>
-        <div><dt>Topics secure</dt><dd>{secure}<small>/{SKILLS.length}</small></dd></div>
+        {schoolWork && <div><dt>Topics secure</dt><dd>{secure}<small>/{SKILLS.length}</small></dd></div>}
+        {!schoolWork && <div><dt>Games finished</dt><dd>{Object.values(profile.little ?? {}).reduce((t, n) => t + n, 0)}</dd></div>}
       </dl>
 
-      <MyProgress />
+      {schoolWork && <MyProgress />}
 
-      <ul class="rows">
+      {assessed && <ul class="rows">
         <li><button class="row" onClick={() => go(last ? { name: "report" } : { name: "checkup" })}><Icon name="target" /><span>{last ? "Your check-up" : "Take the check-up"}</span><Icon name="chevron" size={18} /></button></li>
         <li><button class="row" onClick={() => go({ name: "plan" })}><Icon name="flag" /><span>Your plan</span><Icon name="chevron" size={18} /></button></li>
-      </ul>
+      </ul>}
 
       {!!profile.certificates?.length && (
         <section aria-labelledby="certificates-h">

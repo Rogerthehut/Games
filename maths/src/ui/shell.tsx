@@ -5,7 +5,7 @@ import type { ComponentChildren } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { useApp } from "./context";
 import { Icon } from "./icons";
-import { primaryNav, type Tab } from "./navigation";
+import { navFor, type Tab } from "./navigation";
 import { RailParents } from "./rail-parents";
 import { SearchDialog } from "./search";
 
@@ -32,7 +32,8 @@ function useRailWidth() {
 /** Bottom tab bar on phones and tablets, side rail on wide screens. */
 export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren }) {
   const wide = useWide();
-  const { go } = useApp();
+  const { go, profile } = useApp();
+  const tabs = navFor(profile);
   const searchDialog = useRef<HTMLDialogElement>(null);
   const rail = useRailWidth();
   const [dock, setDockOn] = useState(hasNativeDock);
@@ -40,13 +41,13 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
   // In the app, a glass dock drawn by the phone replaces the bottom tab bar (on a wide iPad the side menu is used instead)
   useEffect(() => {
     if (!dock) return;
-    const narrow = matchMedia("(max-width: 899px)"), send = (visible = true) => setDock(visible && narrow.matches, tab === "me" ? "none" : tab);
-    const nav = (e: Event) => { if ((e as CustomEvent<string>).detail === "search") { openSearch(); return; } const hit = primaryNav.find((i) => i.id === (e as CustomEvent<string>).detail); if (hit) go(hit.route); };
+    const narrow = matchMedia("(max-width: 899px)"), send = (visible = true) => setDock(visible && narrow.matches, tab === "me" ? "none" : tab, tabs.filter((t) => t.id !== "me").map((t) => t.id));
+    const nav = (e: Event) => { if ((e as CustomEvent<string>).detail === "search") { openSearch(); return; } const hit = tabs.find((i) => i.id === (e as CustomEvent<string>).detail); if (hit) go(hit.route); };
     send(); narrow.addEventListener("change", () => send());
     window.addEventListener("quarter-native-nav", nav);
     document.documentElement.classList.add("native-dock");
     return () => { window.removeEventListener("quarter-native-nav", nav); document.documentElement.classList.remove("native-dock"); setDock(false, tab); };
-  }, [dock, tab]);
+  }, [dock, tab, tabs.length]);
   const dragging = useRef(false);
   const openSearch = () => {
     const dialog = searchDialog.current;
@@ -96,7 +97,7 @@ export function Shell({ tab, children }: { tab: Tab; children: ComponentChildren
   );
   const nav = (cls: string) => (
     <nav class={cls} aria-label="Main">
-      {primaryNav.filter((item) => item.id !== "me").map((it) => (
+      {tabs.filter((item) => item.id !== "me").map((it) => (
         <button key={it.id} class={`nav-item ${tab === it.id ? "on" : ""}`} aria-current={tab === it.id ? "page" : undefined} data-testid={`nav-${it.id}`} onClick={() => go(it.route)}>
           <Icon name={it.icon} size={24} />
           <span>{it.label}</span>

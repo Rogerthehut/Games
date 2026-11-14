@@ -5,6 +5,7 @@ import { useApp, type Route } from "./context";
 import { recall, remember } from "./memory";
 import { Journey } from "./journey";
 import { LittleSkills } from "./little";
+import { hasSchoolWork } from "../engine/age";
 import { hasLesson } from "../engine/lesson";
 import { resolveSkin } from "./skin";
 import { STATUS_LABEL } from "./labels";
@@ -50,6 +51,7 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
     return () => { cancelAnimationFrame(frame); document.removeEventListener("scroll", on, { capture: true } as EventListenerOptions); };
   }, [spotKey]);
   const visibleSkills = filterSkills(filters);
+  const littleOnly = !hasSchoolWork(profile);   // Nursery: the topics start at Year 3, so only Little ones is shown
   const setListFilters = (next: SkillFilters) => {
     setFilters(next);
     if (next.q === filters.q) filterStart.current?.scrollIntoView({ block: "start" }); // not on every letter typed
@@ -107,6 +109,12 @@ export function SkillMap({ navigation }: { navigation: SkillsRoute }) {
     <div class="journey-head">
       <p class="workbook-tab"><Icon name="book" size={16} /> Chapter index</p>
       <h1>Skills</h1>
+    </div>
+  );
+  if (littleOnly) return (
+    <div class="map" ref={root}>
+      {heading}
+      <LittleSkills />
     </div>
   );
   if (view === "journey") return <div ref={root} style="display:contents"><Journey picked={picked} setPicked={pickOnMap} heading={<><div class="skills-view-control">{viewSwitch}</div>{heading}{Object.keys(filters).length === 0 && <LittleSkills banner />}</>} /></div>;
