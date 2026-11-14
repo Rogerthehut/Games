@@ -1256,7 +1256,8 @@ body {
   background-size: 0 2px;
   transition: background-size 220ms var(--ease-out);
 }
-a[href] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em; }
+/* every link: no blue, no resting underline; it just draws its underline when touched, hovered or focused. :where() keeps this from overriding any link that has its own colour or weight. */
+:where(a[href]) { color: inherit; font-weight: 650; text-decoration: none; }
 :is(a[href], .linkish:not(:disabled), .why summary):is(:focus-visible, :active) {
   background-size: 100% 2px;
 }
