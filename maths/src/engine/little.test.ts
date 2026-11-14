@@ -54,7 +54,47 @@ describe("Little ones in the parent report and notes", () => {
   it("the report lists the activities for early learners, with how often each was finished, and not for others", () => {
     const kid = newProfile("Bo", 1); kid.early = "nursery"; kid.little = { count: 2 };
     const r = buildProgressReport(kid);
-    expect(r.yearLabel).toBe("Nursery"); expect(r.little.length).toBe(5); expect(r.little.find((x) => x.id === "count")!.plays).toBe(2); expect(r.little.find((x) => x.id === "trace")!.plays).toBe(0);
+    expect(r.yearLabel).toBe("Nursery"); expect(r.little.length).toBe(7); expect(r.little.find((x) => x.id === "count")!.plays).toBe(2); expect(r.little.find((x) => x.id === "trace")!.plays).toBe(0);
     const older = buildProgressReport(newProfile("Max", 6)); expect(older.little).toEqual([]); expect(older.yearLabel).toBe("Year 6");
+  });
+});
+
+import { Randomiser } from "./little-random";
+import { buildTarget, digitsOf, findTargets, hundredMax, littleFor, readOptions, splitTens } from "./little";
+describe("numbers to 100", () => {
+  it("ranges follow the stage, and nursery doesn't get tens and ones", () => {
+    expect([hundredMax("nursery"), hundredMax("reception"), hundredMax("older")]).toEqual([10, 20, 100]);
+    expect(littleFor("nursery").map((a) => a.id)).not.toContain("tens"); expect(littleFor("reception").map((a) => a.id)).toContain("tens"); expect(littleFor(undefined).length).toBe(8);
+  });
+  it("targets are different and in range; build targets and read options are sound", () => {
+    const r = mulberry32(11);
+    for (let i = 0; i < 200; i++) {
+      const t = findTargets(r, 100, 5); expect(new Set(t).size).toBe(5); t.forEach((n) => { expect(n).toBeGreaterThanOrEqual(1); expect(n).toBeLessThanOrEqual(100); });
+      const n = buildTarget(r, i % 2 ? "reception" : "older"); expect(n).toBeGreaterThanOrEqual(11); expect(n).toBeLessThanOrEqual(i % 2 ? 30 : 99);
+      const o = readOptions(r, n); expect(o.length).toBe(3); expect(new Set(o).size).toBe(3); expect(o).toContain(n); o.forEach((x) => { expect(x).toBeGreaterThanOrEqual(10); expect(x).toBeLessThanOrEqual(99); });
+    }
+    expect(splitTens(47)).toEqual({ tens: 4, ones: 7 }); expect(digitsOf(47)).toEqual([4, 7]);
+  });
+});
+
+import { isSnap, snapDeck, snapMax, SNAP_THINGS, type SnapCard } from "./little";
+describe("Snap", () => {
+  it("what counts as a snap depends on the stage", () => {
+    const lemons3: SnapCard = { kind: "objects", thing: "lemon", n: 3 }, apples3: SnapCard = { kind: "objects", thing: "apple", n: 3 }, num3: SnapCard = { kind: "num", n: 3 }, sum: SnapCard = { kind: "sum", a: 2, b: 1, n: 3 };
+    expect(isSnap(lemons3, { ...lemons3 }, "nursery")).toBe(true); expect(isSnap(lemons3, apples3, "nursery")).toBe(false); expect(isSnap(lemons3, num3, "nursery")).toBe(false);
+    expect(isSnap(lemons3, apples3, "reception")).toBe(true); expect(isSnap(lemons3, num3, "reception")).toBe(true); expect(isSnap(num3, sum, "reception")).toBe(false);
+    expect(isSnap(num3, sum, "older")).toBe(true); expect(isSnap(lemons3, { kind: "num", n: 4 }, "older")).toBe(false); expect(isSnap(undefined, num3, "older")).toBe(false);
+  });
+  it("a deck has exactly the planned snaps, none next to each other, and every card is in range", () => {
+    for (const stage of ["nursery", "reception", "older"] as const) {
+      const r = new Randomiser(17 + stage.length);
+      for (let k = 0; k < 120; k++) {
+        const max = snapMax(stage), numbers = Array.from({ length: max }, (_, i) => i + 1), deck = snapDeck(r.rng, stage, 14, 4, numbers, SNAP_THINGS.slice(0, 5));
+        expect(deck.length).toBe(14);
+        const hits = deck.map((c, i) => isSnap(deck[i - 1], c, stage));
+        expect(hits.filter(Boolean).length).toBe(4); hits.forEach((h, i) => { if (h) expect(hits[i + 1] ?? false).toBe(false); });
+        deck.forEach((c) => { expect(c.n).toBeGreaterThanOrEqual(1); expect(c.n).toBeLessThanOrEqual(max); if (c.kind === "sum") expect(c.a + c.b).toBe(c.n); if (stage === "nursery") expect(c.kind).toBe("objects"); if (stage !== "older") expect(c.kind).not.toBe("sum"); });
+      }
+    }
   });
 });

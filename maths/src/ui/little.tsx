@@ -1,12 +1,12 @@
-import { LITTLE_ACTIVITIES, littleMax, type LittleActivity } from "../engine/little";
+import { LITTLE_ACTIVITIES, littleFor, littleMax, type LittleActivity } from "../engine/little";
 import { useApp } from "./context";
 import { Icon } from "./icons";
 import { Shell } from "./shell";
-import { AddGame, ColourGame, CountGame, ShapesGame, TraceGame } from "./little-games";
+import { AddGame, ColourGame, CountGame, HundredGame, ShapesGame, SnapGame, TensGame, TraceGame } from "./little-games";
 import { usePlaying } from "./little-bits";
 
 /** Little ones: touch-and-play activities for ages 2 to 6. No reading needed, no scores, and every touch answers back. */
-const ART: Record<LittleActivity, string> = { count: "🔢", trace: "✏️", add: "🦆", shapes: "🔷", colour: "🎨" };
+const ART: Record<LittleActivity, string> = { count: "🔢", trace: "✏️", add: "🦆", shapes: "🔷", colour: "🎨", hundred: "💯", tens: "🧱", snap: "🃏" };
 
 export function LittleHub({ activity }: { activity?: LittleActivity }) {
   const { leave, profile, update } = useApp();
@@ -15,7 +15,7 @@ export function LittleHub({ activity }: { activity?: LittleActivity }) {
   if (activity) {
     const meta = LITTLE_ACTIVITIES.find((a) => a.id === activity)!;
     const done = () => update((p) => ({ ...p, little: { ...(p.little ?? {}), [activity]: (p.little?.[activity] ?? 0) + 1 } }));
-    const G = { count: CountGame, trace: TraceGame, add: AddGame, shapes: ShapesGame, colour: ColourGame }[activity];
+    const G = { count: CountGame, trace: TraceGame, add: AddGame, shapes: ShapesGame, colour: ColourGame, hundred: HundredGame, tens: TensGame, snap: SnapGame }[activity];
     return (
       <main class="little-stage" id="main" aria-labelledby="little-h">
         <header class="little-top">
@@ -39,7 +39,7 @@ export function LittleCards() {
         <h1 id="little-hub-h">Little ones</h1>
         <p class="muted">Touch, tap and play, {profile.name}.</p>
         <div class="little-cards">
-          {LITTLE_ACTIVITIES.map((a) => {
+          {littleFor(profile.early).map((a) => {
             const plays = profile.little?.[a.id] ?? 0, stars = Math.min(3, plays);
             return (
               <button key={a.id} type="button" class={`little-card lc-${a.id}`} onClick={() => play(a.id)} data-testid={`little-open-${a.id}`}>
@@ -87,7 +87,7 @@ export function LittleSkills({ banner }: { banner?: boolean }) {
       <h2 class="skills-stage-heading" id="list-little" tabIndex={-1}>Little ones</h2>
       <p class="muted">Touch-and-play activities for ages 2 to 6. No reading needed.</p>
       <ul class="skill-list">
-        {LITTLE_ACTIVITIES.map((a) => {
+        {littleFor(profile.early).map((a) => {
           const plays = profile.little?.[a.id] ?? 0;
           return (
             <li class={`skill ${plays ? "growing" : "new"}`} key={a.id} id={`skill-little-${a.id}`}>

@@ -33,7 +33,7 @@ export function Burst() {
 
 export function usePlaying(): [boolean, () => void] { const [on, setOn] = useState(littleSoundOn); useEffect(() => stopSpeaking, []); return [on, () => { setLittleSound(!on); setOn(!on); }]; }
 
-export type Critter = "star" | "duck" | "apple" | "fish" | "ball" | "biscuit";
+export type Critter = "star" | "duck" | "apple" | "fish" | "ball" | "biscuit" | "lemon" | "strawberry" | "cherry" | "flower";
 /** A friendly drawn thing to count: 60 x 60. */
 export function CritterArt({ kind }: { kind: Critter }) {
   const eyes = <><circle cx="24" cy="26" r="3" fill="#121522" /><circle cx="38" cy="26" r="3" fill="#121522" /></>;
@@ -44,6 +44,10 @@ export function CritterArt({ kind }: { kind: Critter }) {
       {kind === "apple" && <><circle cx="30" cy="34" r="20" fill="#ef6f6c" /><path d="M30 14q2-8 9-8-1 8-9 8z" fill="#4cc6a7" /><path d="M30 14v6" stroke="#7a4a2a" stroke-width="3" stroke-linecap="round" /><circle cx="24" cy="30" r="3" fill="#121522" /><circle cx="37" cy="30" r="3" fill="#121522" /><path d="M26 39q4 4 8 0" stroke="#121522" stroke-width="2" fill="none" stroke-linecap="round" /></>}
       {kind === "fish" && <><ellipse cx="28" cy="30" rx="20" ry="14" fill="#8294e9" /><path d="M46 30l12-12v24z" fill="#8294e9" /><circle cx="18" cy="26" r="3" fill="#fff" /><circle cx="18" cy="26" r="1.5" fill="#121522" /><path d="M22 38q5 3 9 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" /></>}
       {kind === "ball" && <><circle cx="30" cy="30" r="22" fill="#f782a9" /><path d="M10 22q20 10 40 0M10 40q20-10 40 0" stroke="#fff" stroke-width="3" fill="none" /></>}
+      {kind === "lemon" && <><path d="M8 32Q10 14 30 12Q50 14 52 32Q50 50 30 52Q10 50 8 32z" fill="#f5dc63" stroke="#d9a400" stroke-width="2" /><path d="M6 32L11 30M54 32L49 34" stroke="#d9a400" stroke-width="3" stroke-linecap="round" /><path d="M30 12Q34 5 42 6Q38 12 30 12z" fill="#4cc6a7" />{eyes}<path d="M26 38q4 4 8 0" stroke="#121522" stroke-width="2" fill="none" stroke-linecap="round" /></>}
+      {kind === "strawberry" && <><path d="M30 54Q8 40 10 22Q14 12 30 14Q46 12 50 22Q52 40 30 54z" fill="#ef4f5f" stroke="#b32d3d" stroke-width="2" /><path d="M16 14Q30 6 44 14Q30 20 16 14z" fill="#4cc6a7" /><circle cx="22" cy="28" r="1.6" fill="#fff6c8" /><circle cx="38" cy="28" r="1.6" fill="#fff6c8" /><circle cx="30" cy="40" r="1.6" fill="#fff6c8" /><circle cx="24" cy="38" r="1.4" fill="#fff6c8" />{eyes}</>}
+      {kind === "cherry" && <><path d="M20 38Q24 12 40 8M40 38Q38 14 40 8" stroke="#4a8a3a" stroke-width="2.5" fill="none" stroke-linecap="round" /><circle cx="20" cy="42" r="11" fill="#d62f4a" stroke="#9c1f35" stroke-width="2" /><circle cx="42" cy="42" r="11" fill="#d62f4a" stroke="#9c1f35" stroke-width="2" /><circle cx="17" cy="38" r="2.4" fill="#fff" opacity=".7" /><circle cx="39" cy="38" r="2.4" fill="#fff" opacity=".7" /></>}
+      {kind === "flower" && <><g fill="#f782a9" stroke="#c94f7c" stroke-width="1.5"><circle cx="30" cy="14" r="9" /><circle cx="46" cy="26" r="9" /><circle cx="40" cy="44" r="9" /><circle cx="20" cy="44" r="9" /><circle cx="14" cy="26" r="9" /></g><circle cx="30" cy="31" r="9" fill="#f5dc63" stroke="#d9a400" stroke-width="1.5" /></>}
       {kind === "biscuit" && <><circle cx="30" cy="30" r="22" fill="#e3b26a" stroke="#c28a3d" stroke-width="2" /><circle cx="22" cy="24" r="3" fill="#7a4a2a" /><circle cx="36" cy="22" r="3" fill="#7a4a2a" /><circle cx="26" cy="38" r="3" fill="#7a4a2a" /><circle cx="38" cy="36" r="3" fill="#7a4a2a" /></>}
     </svg>
   );

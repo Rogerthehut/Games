@@ -18,7 +18,7 @@ for (const [label, w, h] of [["phone", 390, 800], ["desktop", 1280, 800]] as con
   ok(`${label}: Today has the Little ones banner for Reception`, await p.getByTestId("open-little").isVisible());
   await p.locator("[data-testid=nav-skills]:visible").first().click(); await p.waitForTimeout(600);
   const listBtn = p.getByRole("button", { name: /^(Show as a list|List)$/ }).first(); if (await listBtn.count()) { await listBtn.click().catch(() => {}); await p.waitForTimeout(400); }
-  ok(`${label}: Skills list has the five Little ones activities`, (await p.locator("[data-testid^=skills-little-]:not([data-testid=skills-little-banner])").count()) === 5);
+  ok(`${label}: Skills list has all eight Little ones activities`, (await p.locator("[data-testid^=skills-little-]:not([data-testid=skills-little-banner])").count()) === 8);
   await p.getByTestId("skills-little-trace").click(); await p.waitForTimeout(500);
   ok(`${label}: Play opens the activity`, await p.getByTestId("trace-pad").isVisible());
   await p.getByTestId("little-back").click(); await p.waitForTimeout(400);

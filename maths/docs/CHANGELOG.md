@@ -9,6 +9,14 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## Numbers to 100, Snap, and a proper randomiser
+- **Hundred square:** find the numbers up to 100 (up to 10 for Nursery, 20 for Reception), or count in tens.
+- **Tens and units (Reception and up):** build a number from ten-rods and one-cubes (ten cubes swap for a rod), then read one that's built and choose its number. Nursery doesn't get this one.
+- **Trace the number** now does two-digit numbers (tens then ones) for Year 1 and up.
+- **Snap:** turn cards one at a time and call SNAP on a match. Nursery: the same thing and the same count (three lemons, three lemons). Reception: the same number, as objects or a numeral, so three lemons match the 3 and three apples. Year 1 and up: sums too (2 + 1 matches 3). Each pile of 14 cards holds exactly four planned snaps, none in a row and none by accident. Nothing is lost by missing one.
+- **One randomiser for all of Little ones** (`src/engine/little-random.ts`): a "bag" hands out every item once before anything repeats (the colour pictures, the objects to count), recent answers are avoided (the same number, sum or target doesn't come twice running, and the last few are remembered across visits), the positions of things to count are shuffled each round, and it's fair (tested over thousands of draws). Tests cover repeatability with a seed, no immediate repeats, fairness and Snap decks.
+- **Fix:** the big headings and numerals in Little ones were falling back to a small default font because of a bad font variable; they now use the app's heading font.
+
 ## Real colour by number, and more shapes
 - **Colour by number is now proper pictures:** a butterfly and a fish for the youngest, then a rocket, a unicorn, a fairy, a horse and a footballer. Each is line art split into numbered shapes; pick a colour and tap a shape to fill it. Tapping a shape with the wrong colour wobbles it and flashes the colour that goes there. Nursery gets the two simplest pictures (four colours), Reception up to six colours, and Year 1 and up all of them. More pictures can be added as data in `src/engine/little-art.ts`.
 - **Shape sorter has harder shapes:** Nursery has circle, square, triangle and star; Reception adds rectangle, oval, diamond and heart; Year 1 and 2 add pentagon, hexagon, octagon, semicircle, crescent moon, cross and trapezium, with up to six at once.

@@ -10,7 +10,7 @@ export type Route =
   | { name: "equal-groups" }
   | { name: "tables" }
   | { name: "stem" }
-  | { name: "little"; activity?: "count" | "trace" | "add" | "shapes" | "colour" }
+  | { name: "little"; activity?: "count" | "trace" | "add" | "shapes" | "colour" | "hundred" | "tens" | "snap" }
   | { name: "booklet" }
   | { name: "tour" }
   | { name: "child-guide" }

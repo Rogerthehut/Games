@@ -1,4 +1,4 @@
-import { LITTLE_ACTIVITIES } from "./little";
+import { littleFor } from "./little";
 import { PAPERS } from "./mock";
 import { ALL_SKILLS, SKILL_BY_ID, STAGE_LABEL, STRANDS } from "../curriculum";
 import { BAND_TEXT, yearLabel } from "./diagnostic";
@@ -122,7 +122,7 @@ export function buildProgressReport(p: Profile, now = Date.now(), range?: Range 
     tutorOn: !!p.tutor?.enabled,
     tables: p.tables && Object.keys(p.tables.facts).length > 0 ? summariseTables(p) : null,
     yearLabel: p.early === "nursery" ? "Nursery" : p.early === "reception" ? "Reception" : `Year ${p.year}`,
-    little: p.early || Object.keys(p.little ?? {}).length ? LITTLE_ACTIVITIES.map((a) => ({ id: a.id, title: a.title, plays: p.little?.[a.id] ?? 0, builds: a.builds, skill: a.skill })) : [],
+    little: p.early || Object.keys(p.little ?? {}).length ? littleFor(p.early).map((a) => ({ id: a.id, title: a.title, plays: p.little?.[a.id] ?? 0, builds: a.builds, skill: a.skill })) : [],
   };
 }
 

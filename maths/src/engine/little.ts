@@ -4,7 +4,7 @@ import { int, pick } from "./rng";
  * The "Little ones" activities (ages 2 to 6): the numbers and pictures behind them, kept apart from the screens so they can be tested.
  * There is no scoring and no wrong answer on screen: a slip just makes things wobble and try again.
  */
-export type LittleActivity = "count" | "trace" | "add" | "shapes" | "colour";
+export type LittleActivity = "count" | "trace" | "add" | "shapes" | "colour" | "hundred" | "tens" | "snap";
 export interface LittleInfo {
   id: LittleActivity; title: string; blurb: string;
   /** What it builds, in plain words for a grown-up. */
@@ -17,6 +17,8 @@ export interface LittleInfo {
   ask: string;
   /** The words for the learner's progress, "finished 3 times". */
   skill: string;
+  /** Nursery doesn't get this one. */
+  notNursery?: boolean;
 }
 export const LITTLE_ACTIVITIES: LittleInfo[] = [
   { id: "count", title: "Count with me", blurb: "Tap each one to count it.", skill: "counting objects",
@@ -44,8 +46,25 @@ export const LITTLE_ACTIVITIES: LittleInfo[] = [
     teach: "Each cell shows a number and each colour has one, so children practise recognising numerals and holding a rule in mind: this number goes with that colour. Finishing the picture gives a clear, rewarding end.",
     help: "Ask them to find all of one number before moving on. Talk about the picture as it appears.",
     ask: "Which number had the most squares?" },
+  { id: "hundred", title: "Hundred square", blurb: "Find the numbers up to 100.", skill: "numbers to 100",
+    builds: "Knowing the numbers up to 100 by sight and sound, where they sit on the grid, and counting in tens.",
+    teach: "The hundred square shows the number system's pattern: each row is a ten, so the numbers in a column all end in the same digit and going down adds ten. Finding a number means using that pattern, not counting from one. Count in tens down the right-hand column (10, 20, 30...) and notice that each is one more ten.",
+    help: "Ask them where 50 will be before they look. Point out that a number just below another is ten more. Say the numbers aloud with them.",
+    ask: "What is ten more than this number? What is ten less?" },
+  { id: "tens", title: "Tens and units", blurb: "Build numbers with tens and ones.", skill: "tens and ones", notNursery: true,
+    builds: "Place value: a two-digit number is some tens and some ones, and ten ones make one ten.",
+    teach: "Place value is the idea that the position of a digit tells its worth. Building a number from ten-rods and one-cubes shows why 34 is three tens and four ones, and when ten cubes are collected they swap for a rod, which is the trade that underlies carrying in addition. In the reading rounds children go the other way: from a picture of rods and cubes to the number.",
+    help: "Use real objects: bundles of ten sticks and single sticks, or ten-pence and one-pence coins. Always say it as 'three tens and four ones' as well as thirty-four.",
+    ask: "How many tens? How many ones? What number is that?" },
+  { id: "snap", title: "Snap", blurb: "Spot the match: three lemons, three lemons!", skill: "matching numbers",
+    builds: "Noticing when two cards show the same number, whether as objects, a numeral or (later) a sum, which is the heart of number sense.",
+    teach: "Snap asks children to hold one card in mind and compare the next with it. At first the match is the same picture and the same count; later a numeral can match a set of objects (the 3 and three lemons), and then a sum matches its answer. Seeing that different pictures can mean the same number is how a number stops being tied to one thing. A missed snap just shows the pair, with no penalty.",
+    help: "Play it for real too, with two decks of playing cards or number cards. Say the numbers out loud as each card turns, and count the objects together when it's tricky.",
+    ask: "How do you know they are the same? Which one has more?" },
 ];
 
+/** The activities a learner is offered: Nursery doesn't get the tens-and-ones one. */
+export const littleFor = (early?: "nursery" | "reception"): LittleInfo[] => LITTLE_ACTIVITIES.filter((a) => !(a.notNursery && early === "nursery"));
 /** How far a little one is: the highest number used, by stage. */
 export const littleMax = (early?: "nursery" | "reception") => (early === "nursery" ? 5 : 10);
 
@@ -144,4 +163,70 @@ export const shapeCount = (stage: LittleStage) => (stage === "nursery" ? 2 : sta
 export function shapeRound(r: () => number, count: number, from: ShapeKind[] = BASIC_SHAPES): ShapeKind[] {
   const pool = [...from]; for (let i = pool.length - 1; i > 0; i--) { const j = int(r, 0, i); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   return pool.slice(0, count);
+}
+
+// ---- numbers to 100
+/** The top of the hundred square by stage: Nursery up to 10, Reception up to 20, Year 1 and up to 100. */
+export const hundredMax = (stage: LittleStage) => (stage === "nursery" ? 10 : stage === "reception" ? 20 : 100);
+export const splitTens = (n: number) => ({ tens: Math.floor(n / 10), ones: n % 10 });
+/** Numbers to find on the hundred square: different, inside the range and not 0. */
+export function findTargets(r: () => number, max: number, count: number): number[] {
+  const out: number[] = []; while (out.length < Math.min(count, max)) { const n = int(r, 1, max); if (!out.includes(n)) out.push(n); } return out;
+}
+/** A target for "make this number" and the top of the range by stage (never above 99 here, so the tens rods stay in view). */
+export const buildMax = (stage: LittleStage) => (stage === "reception" ? 30 : 99);
+export function buildTarget(r: () => number, stage: LittleStage): number { return int(r, 11, buildMax(stage)); }
+/** Three answers to "what number is this?": the right one, the digits swapped (43 for 34), and one that is a ten out. Always different, always 10 to 99. */
+export function readOptions(r: () => number, n: number): number[] {
+  const { tens, ones } = splitTens(n), swapped = ones * 10 + tens, pool = [swapped, n + 10, n - 10, n + 1, n - 1, n + 20].filter((x) => x >= 10 && x <= 99 && x !== n);
+  const opts = [n]; for (const x of [swapped, ...pool]) { if (opts.length < 3 && !opts.includes(x) && x >= 10 && x <= 99) opts.push(x); }
+  for (let i = opts.length - 1; i > 0; i--) { const j = int(r, 0, i); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+  return opts;
+}
+/** The digits of a two-digit number to trace, tens first. */
+export const digitsOf = (n: number): number[] => String(n).split("").map(Number);
+
+// ---- Snap
+export type SnapThing = "lemon" | "apple" | "strawberry" | "star" | "duck" | "fish" | "ball" | "cherry" | "flower";
+export const SNAP_THINGS: SnapThing[] = ["lemon", "apple", "strawberry", "star", "duck", "fish", "ball", "cherry", "flower"];
+export type SnapCard = { kind: "objects"; thing: SnapThing; n: number } | { kind: "num"; n: number } | { kind: "sum"; a: number; b: number; n: number };
+export const snapValue = (c: SnapCard) => c.n;
+/** Is this a snap? Nursery: the same thing and the same count. Reception: the same number, as objects or a numeral (3 lemons and 3 apples, or the 3 and three lemons). Year 1 and up: a sum counts too (2 + 1 and the 3). */
+export function isSnap(prev: SnapCard | undefined, next: SnapCard, stage: LittleStage): boolean {
+  if (!prev) return false;
+  if (stage === "nursery") return prev.kind === "objects" && next.kind === "objects" && prev.thing === next.thing && prev.n === next.n;
+  if (stage === "reception" && (prev.kind === "sum" || next.kind === "sum")) return false;
+  return prev.n === next.n;
+}
+const kindsFor = (stage: LittleStage): SnapCard["kind"][] => (stage === "nursery" ? ["objects"] : stage === "reception" ? ["objects", "num"] : ["objects", "num", "sum"]);
+export const snapMax = (stage: LittleStage) => (stage === "nursery" ? 5 : stage === "reception" ? 10 : 10);
+/** A card with the given number, drawn as objects, a numeral or a sum. */
+export function snapCard(r: () => number, stage: LittleStage, n: number, thing?: SnapThing, kind?: SnapCard["kind"]): SnapCard {
+  const ks = kindsFor(stage).filter((k) => k !== "sum" || n >= 2), k = kind && ks.includes(kind) ? kind : ks[Math.floor(r() * ks.length)];
+  if (k === "num") return { kind: "num", n };
+  if (k === "sum") { const a = 1 + Math.floor(r() * (n - 1)); return { kind: "sum", a, b: n - a, n }; }
+  return { kind: "objects", thing: thing ?? SNAP_THINGS[Math.floor(r() * SNAP_THINGS.length)], n };
+}
+/**
+ * A pile of cards with a few snaps in it, in random places and never two in a row, and no snap that wasn't planned. `things` and `numbers` are the
+ * lists to draw from (already shuffled by the randomiser, so rounds differ).
+ */
+export function snapDeck(r: () => number, stage: LittleStage, length: number, snaps: number, numbers: number[], things: SnapThing[]): SnapCard[] {
+  const at = new Set<number>(); let guard = 0;
+  while (at.size < snaps && guard++ < 200) { const i = 1 + Math.floor(r() * (length - 1)); if (!at.has(i) && !at.has(i - 1) && !at.has(i + 1)) at.add(i); }
+  const deck: SnapCard[] = [], pick = <T,>(xs: T[]) => xs[Math.floor(r() * xs.length)];
+  for (let i = 0; i < length; i++) {
+    const prev = deck[i - 1];
+    if (at.has(i) && prev) {
+      // a different-looking card with the same number where the stage allows, otherwise the identical picture
+      let c = snapCard(r, stage, prev.n, prev.kind === "objects" ? prev.thing : pick(things)), tries = 0;
+      while (stage === "nursery" && !isSnap(prev, c, stage) && tries++ < 20) c = snapCard(r, stage, prev.n, prev.kind === "objects" ? prev.thing : pick(things));
+      deck.push(c); continue;
+    }
+    let c: SnapCard, tries = 0;
+    do { c = snapCard(r, stage, pick(numbers), pick(things)); } while (prev && isSnap(prev, c, stage) && tries++ < 60);
+    if (prev && isSnap(prev, c, stage)) c = snapCard(r, stage, numbers.find((x) => x !== prev.n) ?? 1, pick(things));
+    deck.push(c);
+  }
+  return deck;
 }
