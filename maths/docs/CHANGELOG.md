@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## The Voice list follows Female or Male
+The Voice list now shows only voices that suit the chosen Female or Male setting (judged from the voice's name, since browsers don't say), instead of all of them. A voice whose name doesn't say stays in both lists, so nothing is hidden by a wrong guess.
+
 ## Voice list: no more look-alike entries
 iPhones install the same voice in more than one quality (a compact and an enhanced or premium Samantha or Daniel), and both are called by the same name, so the Voice list showed doubles and picking one couldn't tell them apart. The list now labels each voice with its region and quality ("Daniel · UK · Premium", "Samantha · US · Standard"), picks by the voice's own id instead of its name, shows exact duplicates once, and ranks the better quality first.
 

@@ -43,6 +43,20 @@ describe("telling similar voices apart", () => {
   });
   it("the better quality of the same voice ranks first, and exact duplicates are listed once", () => {
     const ranked = rankVoices(iphone, "male").map((x) => x.voiceURI); expect(ranked.indexOf("com.apple.voice.premium.en-GB.Daniel")).toBeLessThan(ranked.indexOf("com.apple.voice.compact.en-GB.Daniel"));
-    expect(listVoices([...iphone, iphone[3]], "male").length).toBe(iphone.length);
+    expect(listVoices([...iphone, iphone[3]], "male").length).toBe(2);    // the two Daniels, the repeated one shown once, no women
+    expect(listVoices(iphone, "female").length).toBe(3);                  // two Samanthas and Moira
+  });
+});
+
+describe("the Voice list matches the female or male choice", () => {
+  const all = [v("Samantha", "en-US"), v("Karen", "en-AU"), v("Moira", "en-IE"), v("Tessa", "en-ZA"), v("Daniel", "en-GB"), v("Rishi", "en-IN"), v("Arthur", "en-GB"), v("Google UK English Female", "en-GB", false), v("Google UK English Male", "en-GB", false), v("English United Kingdom", "en-GB")];
+  it("female shows no male voices and male shows no female voices", () => {
+    const f = listVoices(all, "female").map((x) => x.name), m = listVoices(all, "male").map((x) => x.name);
+    for (const n of ["Daniel", "Rishi", "Arthur", "Google UK English Male"]) expect(f).not.toContain(n);
+    for (const n of ["Samantha", "Karen", "Moira", "Tessa", "Google UK English Female"]) expect(m).not.toContain(n);
+    expect(f).toContain("Samantha"); expect(m).toContain("Daniel");
+  });
+  it("a voice whose name doesn't say stays in both, so nothing is hidden by a wrong guess", () => {
+    expect(listVoices(all, "female").map((x) => x.name)).toContain("English United Kingdom"); expect(listVoices(all, "male").map((x) => x.name)).toContain("English United Kingdom");
   });
 });

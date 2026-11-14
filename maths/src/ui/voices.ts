@@ -7,8 +7,8 @@ export type VoicePreference = "female" | "male";
 export interface VoiceInfo { name: string; lang: string; localService?: boolean; voiceURI?: string }
 
 // Browser voices have names and locales, but no standard gender field.
-const FEMALE = /\b(female|kate|serena|martha|sonia|libby|susan|hazel|samantha|aria|jenny|zira|ava|allison|karen|stephanie|moira|fiona|tessa|amy|emma|olivia|mia|sara|jane)\b/i;
-const MALE = /\b(male|daniel|oliver|arthur|ryan|george|thomas|alex|guy|davis|david|fred|lee|tom|james|brian|nathan|rishi)\b/i;
+const FEMALE = /\b(female|kate|serena|martha|sonia|libby|susan|hazel|samantha|aria|jenny|zira|ava|allison|karen|stephanie|moira|fiona|tessa|amy|emma|olivia|mia|sara|jane|nicky|veena|zoe|sandy|shelley|flo|joanna|salli|kendra|kimberly|ivy|joey_f|catherine|elizabeth|heather|isla|lily|molly|natasha|neerja|prabhat_f|yara)\b/i;
+const MALE = /\b(male|daniel|oliver|arthur|ryan|george|thomas|alex|guy|davis|david|fred|lee|tom|james|brian|nathan|rishi|aaron|gordon|evan|matthew|justin|russell|noah|jacob|liam|connor|harry|william|alfie|hamish|jamie)\b/i;
 /** Voices known to sound good, by name. */
 const GOOD = /\b(libby|sonia|ryan|aria|jenny|serena|daniel|kate|martha|arthur|stephanie|oliver|samantha|google uk english|google us english)\b/i;
 /** Quality markers in a voice's name. */
@@ -40,10 +40,16 @@ export function voiceLabel(v: VoiceInfo): string {
   const tier = /\bpremium\b/i.test(id) ? "Premium" : /\benhanced\b/i.test(id) ? "Enhanced" : /\b(neural|natural|online)\b/i.test(id) ? "Natural" : /\bcompact\b/i.test(id) ? "Standard" : "";
   return [v.name.replace(/\s*\((?:Enhanced|Premium|Compact)\)/i, ""), REGION[lang] ?? lang, tier].filter(Boolean).join(" · ");
 }
-/** The voices to offer in a list: ranked, with exact duplicates (same name, language and quality) shown once. */
+/** Which the voice sounds like, judged from its name (browsers don't say). Undefined when the name doesn't tell. */
+export function genderOf(v: VoiceInfo): VoicePreference | undefined {
+  if (FEMALE.test(v.name) && !MALE.test(v.name)) return "female";
+  if (MALE.test(v.name) && !FEMALE.test(v.name)) return "male";
+  return undefined;
+}
+/** The voices to offer in a list: only ones that suit the female or male choice (or whose name doesn't say), ranked, with exact duplicates (same name, language and quality) shown once. */
 export function listVoices<T extends VoiceInfo>(voices: readonly T[], preference: VoicePreference): T[] {
   const seen = new Set<string>(), out: T[] = [];
-  for (const x of rankVoices(voices, preference)) { const k = voiceLabel(x); if (!seen.has(k)) { seen.add(k); out.push(x); } }
+  for (const x of rankVoices(voices, preference)) { const g = genderOf(x); if (g && g !== preference) continue; const k = voiceLabel(x); if (!seen.has(k)) { seen.add(k); out.push(x); } }
   return out;
 }
 
