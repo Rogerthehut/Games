@@ -9,6 +9,9 @@ A running list of what has been added, newest first. Each commit that changes wh
 - **Notes for grown-ups:** each activity has a short teaching note (what it builds, what it is really teaching, how to help, what to ask afterwards), under Little ones on its page. The parent guide has a "Little ones (Nursery to Year 2)" section.
 - Browser test: `scripts/little-nav-e2e.ts`. The wording needs a teacher's review, like the other new content.
 
+## More colour-by-number pictures
+Eleven new pictures, 18 in all: a flower, ladybird, house, ice cream and balloons (four colours, for Nursery), then a dinosaur, castle, robot, cat, owl and sailing boat. Nursery now has seven pictures to draw from, Reception 17 and Year 1 and up all 18. They come up in a fair rotation (every picture once before any repeats). More can be added as data in `src/engine/little-art.ts`.
+
 ## Notes for grown-ups moved to the Parents' area
 The "what each activity teaches and how to help" notes are no longer on the Little ones page the children use. They're in the Parents' area (behind the sum and PIN), in a "Little ones: notes for grown-ups" card, shown for Nursery, Reception, Year 1 and Year 2 learners and for anyone who has played Little ones. The parent guide points there.
 
