@@ -77,7 +77,7 @@ export function QBar({ left, right, ask, float, help = false }: { left?: Compone
   return (
     <div class="qbar" ref={bar}>
       {float && <div class="qbar-float">{float}</div>}
-      {moreBelow && <button type="button" class={`qbar-more${moreAway ? " off" : ""}`} onClick={scrollDown} tabIndex={moreAway ? -1 : 0} aria-hidden={moreAway ? "true" : undefined}>Scroll for more <Icon name="chevron" size={18} /></button>}
+      {moreBelow && <button type="button" class={`qbar-more${moreAway ? " off" : ""}`} onClick={scrollDown} tabIndex={moreAway ? -1 : 0} aria-hidden={moreAway ? "true" : undefined} aria-label="Scroll down for more"><Icon name="chevron" size={26} /></button>}
       <div class="qbar-in">
         <div class="qbar-left">
           {left}
@@ -135,7 +135,7 @@ export function MoreBelow() {
   };
   return (
     <div class="more-below" ref={anchor}>
-      {more && <button type="button" class={`more-cue${away ? " off" : ""}`} onClick={down} data-testid="more-below" tabIndex={away ? -1 : 0} aria-hidden={away ? "true" : undefined}>Scroll for more <Icon name="chevron" size={18} /></button>}
+      {more && <button type="button" class={`more-cue${away ? " off" : ""}`} onClick={down} data-testid="more-below" tabIndex={away ? -1 : 0} aria-hidden={away ? "true" : undefined} aria-label="Scroll down for more"><Icon name="chevron" size={26} /></button>}
     </div>
   );
 }

@@ -2869,7 +2869,7 @@ label.inline:has(#tutor-reveal) { display: grid; gap: 6px; }
 }
 
 /* "Scroll for more": sticks to the bottom of what you can see while the page carries on below */
-.more-below { position: sticky; bottom: calc(68px + env(safe-area-inset-bottom, 0px)); height: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; }
+.more-below { position: sticky; bottom: calc(-14px + env(safe-area-inset-bottom, 0px)); height: 0; display: flex; justify-content: center; z-index: 6; pointer-events: none; }
 @media (min-width: 900px) { .more-below { bottom: 22px; } }
 .more-cue { position: absolute; bottom: 0; pointer-events: auto; display: flex; align-items: center; gap: 6px; min-height: 44px; padding-inline: 16px; opacity: .92; transition: opacity 320ms ease, transform 320ms var(--ease-out); border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); font: inherit; font-size: .92rem; font-weight: 750; box-shadow: 0 6px 18px #18192b26; cursor: pointer; animation: more-in 260ms var(--ease-out) backwards; }
 .more-cue.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
@@ -3695,10 +3695,10 @@ a.page-back:visited, a.page-back:hover { color: var(--ink); text-decoration: non
 /* side menu: a minimise button, no sideways scroll, the learner stays visible when narrow, and the learner and Parents' pop-ups open in the middle of the screen */
 @media (min-width: 900px) {
   .rail { overflow-x: hidden; }
-  .rail-min { align-self: flex-end; display: grid; place-items: center; width: 30px; height: 30px; margin: -14px -4px -8px 0; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--muted); cursor: pointer; flex: none; }
+  .rail-min { align-self: flex-end; display: grid; place-items: center; width: 44px; height: 44px; margin: -20px -10px -14px 0; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--muted); cursor: pointer; flex: none; }
   .rail-min:hover { background: color-mix(in srgb, var(--line) 55%, transparent); color: var(--ink); }
   .rail-min:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .rail-slim .rail-min { align-self: center; margin: -14px 0 0; }
+  .rail-slim .rail-min { align-self: center; margin: -20px 0 -6px; }
   .rail-me .learner-avatar, .rail-me > span:first-child { flex: none; }
   .rail-slim .rail-me { justify-content: center; padding: 10px 0; }
   .rail-slim .rail-me .learner-avatar { display: block; }
@@ -3769,3 +3769,13 @@ button.little-wait { cursor: pointer; animation: little-bob 1.6s ease-in-out inf
 .little-burst i { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: var(--c); animation: little-burst .9s ease-out forwards; }
 @keyframes little-burst { from { transform: rotate(var(--a)) translateY(0) scale(1); opacity: 1; } to { transform: rotate(var(--a)) translateY(calc(var(--d) * -2.2)) scale(.3); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .little-art, .little-banner-art, .little-thing, .little-next, button.little-wait, .trace-tip { animation: none; } .little-burst i { animation-duration: .01s; } }
+
+/* "Scroll down for more" is a round down arrow rather than words, so smaller children can follow it: it bobs gently, in quarter's cream and pink */
+.more-cue, .qbar-more, .qpage .qbar-more { width: 52px; height: 52px; min-height: 52px; padding: 0; justify-content: center; gap: 0; border: 2.5px solid #f782a9; border-radius: 50%; background: color-mix(in srgb, var(--surface) 96%, transparent); color: var(--ink); box-shadow: 0 8px 18px -6px #d9477f66; font-size: 0; }
+.more-cue svg, .qbar-more svg, .qpage .qbar-more svg { width: 26px; height: 26px; transform: rotate(90deg); animation: none; }
+.more-cue, .qbar-more { animation: more-in 260ms var(--ease-out) backwards, more-bob 1.7s ease-in-out 600ms infinite; }
+.more-cue:active, .qbar-more:active { transform: scale(.9); }
+.more-cue.off, .qbar-more.off { animation: none; }
+@keyframes more-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 6px; } }
+@media (prefers-reduced-motion: reduce) { .more-cue, .qbar-more { animation: none; } }
+@media (max-height: 640px) { .more-cue, .qbar-more, .qpage .qbar-more { width: 44px; height: 44px; min-height: 44px; } .more-cue svg, .qbar-more svg { width: 22px; height: 22px; } }

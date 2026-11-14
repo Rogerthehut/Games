@@ -2,6 +2,9 @@
 
 A running list of what has been added, newest first. Each commit that changes what a learner or parent sees also updates the matching docs, the user guides in `src/guides/content.ts`, and the roadmap. Run the matching checks (`npm test` and the `e2e:*` scripts listed in `docs/ROADMAP.md`) before pushing.
 
+## Scroll-down arrow
+"Scroll for more" is now a round, pink-ringed down arrow instead of words, so smaller children can follow it. It keeps the same see-through look as the old pill, bobs gently, and fades away once you scroll. On ordinary pages it sits just above the tab bar rather than over the content, and on question pages it sits under the Hint and Check buttons on taller screens (above them on short ones). The side menu's minimise button is now a 44px touch target.
+
 ## Little ones (ages 2 to 6)
 - **A new area of touch-and-play activities with no reading and no scoring:** *Count with me* (tap each thing, hear the number), *Trace the number* (draw 0 to 9 with a finger, stars follow it), *Add and take away* (ducks hop into a pond, biscuits get eaten, with the sum shown), *Shape sorter* (drag shapes to their holes) and *Colour by number*. Every touch pops, wobbles, blips or speaks; a slip just bounces back. Sound and voice have a big speaker button.
 - **The year picker has a "Little ones" section** (Nursery, 2 to 4, and Reception, 4 to 5) and now also offers Year 1 and Year 2. Nursery and Reception are stored as Year 1 with a flag (the server and database keep Years 1 to 13), and show as "Nursery" or "Reception" everywhere. The Parents' area can change this too.
