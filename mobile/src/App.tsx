@@ -4,13 +4,12 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { StatusBar } from "expo-status-bar";
 import * as WebBrowser from "expo-web-browser";
-import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
+import { Component, useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import { ActivityIndicator, BackHandler, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from "react-native-webview";
 import { APP_HOST, APP_URL, APP_VERSION, BACKGROUND, USER_AGENT_SUFFIX } from "./config";
 import { decideNavigation, deepLink, isAppUrl } from "./links";
 import { parseMessage, type FromWeb } from "./messages";
-import { Dock } from "./Dock";
 import { isDockSelection, isDockTab, type DockTab } from "./messages";
 import { askForReview, biometric, haptic, setReminders } from "./native";
 
@@ -22,9 +21,30 @@ import { askForReview, biometric, haptic, setReminders } from "./native";
 /** react-native-webview 14's own prop types don't resolve under React 19's JSX types (every prop becomes `never`), so the component is used through a plain props type. The handlers below are still typed. */
 const Web = WebView as unknown as ComponentType<Record<string, unknown> & { ref?: React.Ref<WebView> }>;
 /** What this build of the app can do. The site checks this list before asking, so an older app that was installed before a feature existed is never asked for it. */
-const FEATURES = ["haptics2", "biometric", "reminders", "review", "dock"];
+const BASE_FEATURES = ["haptics2", "biometric", "reminders", "review"];
+/** "dock" is only claimed if the dock's native modules actually loaded, so a broken dock can never leave the page without a tab bar. */
+const FEATURES = loadDock() ? [...BASE_FEATURES, "dock"] : BASE_FEATURES;
 const NATIVE_INFO = JSON.stringify({ platform: Platform.OS, version: APP_VERSION, tablet: Platform.OS === "ios" ? Platform.isPad : false, features: FEATURES });
 const BEFORE_LOAD = `window.__quarterNative = ${NATIVE_INFO}; true;`;
+
+/**
+ * The glass dock needs three native modules that older builds don't have. It is loaded only when first wanted, inside a try, and drawn inside an
+ * error boundary, so if any of it fails the app simply has no dock (the page then draws its own tab bar) instead of closing.
+ */
+type DockProps = { tab: DockTab | "none"; onSelect: (t: DockTab) => void };
+let dockComponent: ComponentType<DockProps> | null | undefined;
+function loadDock(): ComponentType<DockProps> | null {
+  if (dockComponent === undefined) {
+    try { dockComponent = (require("./Dock") as { Dock: ComponentType<DockProps> }).Dock; } catch { dockComponent = null; }
+  }
+  return dockComponent;
+}
+class DockGuard extends Component<{ children: ReactNode; onFail: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onFail(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 export default function App() {
   const web = useRef<WebView>(null);
@@ -118,7 +138,7 @@ export default function App() {
         originWhitelist={["https://*"]}
         backgroundColor={BACKGROUND}
       />
-      {dock.visible && !failed && <Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} />}
+      {dock.visible && !failed && (() => { const Dock = loadDock(); return Dock ? <DockGuard onFail={() => setDock({ visible: false, tab: "today" })}><Dock tab={dock.tab} onSelect={(t) => { void haptic("tap"); if (t !== "search") setDock({ visible: true, tab: t }); tell({ type: "navigate", tab: t }); }} /></DockGuard> : null; })()}
       {loading && !failed && <View style={styles.cover} pointerEvents="none"><ActivityIndicator size="large" color="#2f3a73" /></View>}
       {failed && (
         <View style={styles.cover}>
