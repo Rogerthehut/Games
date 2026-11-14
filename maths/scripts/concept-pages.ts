@@ -28,7 +28,7 @@ function shell(opts: { title: string; description: string; path: string; body: s
 <link rel="canonical" href="${url}">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0f766e">
-<link rel="icon" href="./icon.svg?v=quarter2" type="image/svg+xml">
+<link rel="icon" href="./icon-bleed.svg?v=quarter2" type="image/svg+xml">
 <link rel="icon" href="./favicon.ico" sizes="48x48">
 <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">

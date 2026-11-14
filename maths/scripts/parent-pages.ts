@@ -110,7 +110,7 @@ function documentHtml(page: (typeof pages)[number], styles: string) {
 <link rel="canonical" href="https://yourquarter.co.uk/${page.path}">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#0f766e">
-<link rel="icon" href="./icon.svg?v=quarter2" type="image/svg+xml">
+<link rel="icon" href="./icon-bleed.svg?v=quarter2" type="image/svg+xml">
 <link rel="icon" href="./favicon.ico" sizes="48x48">
 <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="./favicon-16.png" type="image/png" sizes="16x16">

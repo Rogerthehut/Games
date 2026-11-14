@@ -1,5 +1,5 @@
 /**
- * Draws the app icons from public/icon.svg: node scripts/make-icons.mjs  (needs Playwright with Chromium; set PLAYWRIGHT_MODULE if it lives elsewhere)
+ * Draws the app icons from public/icon-bleed.svg (the full-bleed square; icon.svg keeps the rounded corners and is the logo inside the app): node scripts/make-icons.mjs  (needs Playwright with Chromium; set PLAYWRIGHT_MODULE if it lives elsewhere)
  * Writes favicon.ico (16, 32 and 48), favicon-16.png, favicon-32.png, apple-touch-icon.png (180), icon-192.png, icon-512.png and icon-maskable-512.png into public/.
  */
 import { readFileSync, writeFileSync } from "node:fs";
@@ -7,7 +7,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const pub = resolve(dirname(fileURLToPath(import.meta.url)), "../public");
-const svg = readFileSync(resolve(pub, "icon.svg"), "utf8");
+const svg = readFileSync(resolve(pub, "icon-bleed.svg"), "utf8");
 const pw = await import(process.env.PLAYWRIGHT_MODULE ?? "playwright");
 const chromium = pw.chromium ?? pw.default.chromium;
 
